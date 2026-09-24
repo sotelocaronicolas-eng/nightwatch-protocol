@@ -6,6 +6,7 @@ import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -99,5 +100,40 @@ class LoginViewModelTest {
         advanceUntilIdle()
 
         assertEquals(1, fakeRepo.signInCallCount)
+    }
+
+    @Test
+    fun signInWithGoogle_success_navigatesToMainMenu() = runTest {
+        val (viewModel, _) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onGoogleIdTokenReceived("fake-id-token")
+            assertEquals(LoginEvent.NavigateToMainMenu, awaitItem())
+        }
+    }
+
+    @Test
+    fun signInWithGoogle_failure_showsUnknownErrorDialog() = runTest {
+        val fakeRepo = FakeAuthRepository()
+        fakeRepo.signInWithGoogleResult = Result.failure(AuthError.Unknown)
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory())
+
+        viewModel.events.test {
+            viewModel.onGoogleIdTokenReceived("fake-id-token")
+            assertEquals(LoginEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN), awaitItem())
+        }
+    }
+
+    @Test
+    fun signInWithGoogle_respectsUncheckedRememberSession() = runTest {
+        val fakeRepo = FakeAuthRepository()
+        val sessionPreferences = SessionPreferences.inMemory()
+        val viewModel = LoginViewModel(fakeRepo, sessionPreferences)
+        viewModel.onRememberSessionChanged(false)
+
+        viewModel.onGoogleIdTokenReceived("fake-id-token")
+        advanceUntilIdle()
+
+        assertEquals(false, sessionPreferences.rememberSessionFlow.first())
     }
 }

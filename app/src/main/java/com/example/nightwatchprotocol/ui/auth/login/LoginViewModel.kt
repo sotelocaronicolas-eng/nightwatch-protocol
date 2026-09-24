@@ -65,12 +65,13 @@ class LoginViewModel(
     }
 
     fun onGoogleIdTokenReceived(idToken: String) {
-        if (_uiState.value.isLoading) return
+        val state = _uiState.value
+        if (state.isLoading) return
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
                 authRepository.signInWithGoogle(idToken)
-                sessionPreferences.setRememberSession(true)
+                sessionPreferences.setRememberSession(state.rememberSession)
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(LoginEvent.NavigateToMainMenu)
             } catch (error: AuthError) {

@@ -1,8 +1,7 @@
 package com.example.nightwatchprotocol.data.auth
 
-import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.tasks.await
@@ -48,10 +47,8 @@ class FirebaseAuthRepository(
     private inline fun <T> runCatchingFirebase(block: () -> T): T {
         try {
             return block()
-        } catch (e: FirebaseNetworkException) {
-            throw AuthError.NetworkError
-        } catch (e: FirebaseAuthException) {
-            throw mapAuthErrorCode(e.errorCode)
+        } catch (e: FirebaseException) {
+            throw mapFirebaseThrowable(e)
         }
     }
 }

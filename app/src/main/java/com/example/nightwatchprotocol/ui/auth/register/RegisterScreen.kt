@@ -6,11 +6,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -48,6 +54,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.launch
 
 @Composable
@@ -99,6 +106,8 @@ fun RegisterScreen(
                     }
                 } catch (e: GetCredentialException) {
                     viewModel.onGoogleSignInFailed()
+                } catch (e: GoogleIdTokenParsingException) {
+                    viewModel.onGoogleSignInFailed()
                 }
             }
         },
@@ -134,7 +143,11 @@ private fun RegisterScreenContent(
     onGoogleSignInClicked: () -> Unit,
 ) {
     NightWatchScreenBackground {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.statusBars),
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -156,6 +169,8 @@ private fun RegisterScreenContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .imePadding()
                     .padding(horizontal = 24.dp, vertical = 16.dp),
             ) {
                 NightWatchTextField(
@@ -188,8 +203,8 @@ private fun RegisterScreenContent(
                     value = uiState.confirmPassword,
                     onValueChange = onConfirmPasswordChanged,
                     isPassword = true,
-                    isError = uiState.fieldError == RegisterFieldError.PasswordMismatch,
-                    supportingText = if (uiState.fieldError == RegisterFieldError.PasswordMismatch) {
+                    isError = uiState.showPasswordMismatch || uiState.fieldError == RegisterFieldError.PasswordMismatch,
+                    supportingText = if (uiState.showPasswordMismatch || uiState.fieldError == RegisterFieldError.PasswordMismatch) {
                         "Contraseña no coincide"
                     } else {
                         null
@@ -227,7 +242,7 @@ private fun PasswordRuleRow(text: String, satisfied: Boolean) {
     ) {
         Icon(
             imageVector = Icons.Filled.Check,
-            contentDescription = null,
+            contentDescription = "$text: ${if (satisfied) "cumplido" else "pendiente"}",
             tint = if (satisfied) Color(0xFF4CAF50) else NightWatchOnBackground.copy(alpha = 0.4f),
         )
         Text(text, color = NightWatchOnBackground)

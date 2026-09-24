@@ -28,6 +28,9 @@ data class RegisterUiState(
     val passwordRules: PasswordRules
         get() = PasswordRules.from(password)
 
+    val showPasswordMismatch: Boolean
+        get() = confirmPassword.isNotEmpty() && password != confirmPassword
+
     val isRegisterEnabled: Boolean
         get() = fullName.isNotBlank() &&
             email.isNotBlank() &&

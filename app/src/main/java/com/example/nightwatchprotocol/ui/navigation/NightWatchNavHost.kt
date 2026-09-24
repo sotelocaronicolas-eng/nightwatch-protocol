@@ -11,8 +11,11 @@ import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
 import com.example.nightwatchprotocol.ui.mainmenu.MainMenuScreen
 
 @Composable
-fun NightWatchNavHost(navController: NavHostController = rememberNavController()) {
-    NavHost(navController = navController, startDestination = Login) {
+fun NightWatchNavHost(
+    navController: NavHostController = rememberNavController(),
+    startDestination: Any = Login,
+) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable<Login> {
             LoginScreen(
                 onLoginSuccess = {

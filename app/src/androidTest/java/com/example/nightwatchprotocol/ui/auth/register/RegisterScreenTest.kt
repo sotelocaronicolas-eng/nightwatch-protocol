@@ -3,6 +3,7 @@ package com.example.nightwatchprotocol.ui.auth.register
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
@@ -41,7 +42,23 @@ class RegisterScreenTest {
         }
 
         composeTestRule.onNodeWithTag("Contraseña").performTextInput("short")
+        composeTestRule.onNodeWithContentDescription("Mínimo 8 caracteres: pendiente").assertExists()
 
-        composeTestRule.onNodeWithText("Mínimo 8 caracteres").assertExists()
+        composeTestRule.onNodeWithTag("Contraseña").performTextInput("er1!")
+        composeTestRule.onNodeWithContentDescription("Mínimo 8 caracteres: cumplido").assertExists()
+    }
+
+    @Test
+    fun passwordMismatch_showsLiveWithoutClickingRegister() {
+        composeTestRule.setContent {
+            NightWatchProtocolTheme {
+                RegisterScreenContentForTest()
+            }
+        }
+
+        composeTestRule.onNodeWithTag("Contraseña").performTextInput("Sup3r\$ecret!")
+        composeTestRule.onNodeWithTag("Verifica la contraseña").performTextInput("Different1!")
+
+        composeTestRule.onNodeWithText("Contraseña no coincide").assertExists()
     }
 }

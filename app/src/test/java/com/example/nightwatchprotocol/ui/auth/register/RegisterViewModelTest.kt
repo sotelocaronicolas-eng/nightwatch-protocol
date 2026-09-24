@@ -53,6 +53,19 @@ class RegisterViewModelTest {
     }
 
     @Test
+    fun register_whitespaceOnlyFields_neverCallsRepository() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+        viewModel.onFullNameChanged("   ")
+        viewModel.onEmailChanged("   ")
+        viewModel.onPasswordChanged("Sup3r\$ecret!")
+        viewModel.onConfirmPasswordChanged("Sup3r\$ecret!")
+
+        viewModel.onRegisterClicked()
+
+        assertEquals(0, fakeRepo.registerCallCount)
+    }
+
+    @Test
     fun register_passwordMismatch_showsPasswordMismatchWithoutCallingRepository() = runTest {
         val (viewModel, fakeRepo) = createViewModel()
         viewModel.fillValidForm()
@@ -124,5 +137,27 @@ class RegisterViewModelTest {
         val rules = PasswordRules.from("Sup3rSecret1")
 
         assert(!rules.allSatisfied)
+    }
+
+    @Test
+    fun registerWithGoogle_success_navigatesToMainMenu() = runTest {
+        val (viewModel, _) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onGoogleIdTokenReceived("fake-id-token")
+            assertEquals(RegisterEvent.NavigateToMainMenu, awaitItem())
+        }
+    }
+
+    @Test
+    fun registerWithGoogle_failure_showsUnknownErrorDialog() = runTest {
+        val fakeRepo = FakeAuthRepository()
+        fakeRepo.signInWithGoogleResult = Result.failure(AuthError.Unknown)
+        val viewModel = RegisterViewModel(fakeRepo, SessionPreferences.inMemory())
+
+        viewModel.events.test {
+            viewModel.onGoogleIdTokenReceived("fake-id-token")
+            assertEquals(RegisterEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN), awaitItem())
+        }
     }
 }

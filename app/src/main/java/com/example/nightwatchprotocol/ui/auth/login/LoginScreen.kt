@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +46,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchLinkAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.launch
 
 @Composable
@@ -96,6 +100,8 @@ fun LoginScreen(
                     }
                 } catch (e: GetCredentialException) {
                     viewModel.onGoogleSignInFailed()
+                } catch (e: GoogleIdTokenParsingException) {
+                    viewModel.onGoogleSignInFailed()
                 }
             }
         },
@@ -136,6 +142,8 @@ private fun LoginScreenContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .imePadding()
                 .padding(horizontal = 32.dp)
                 .wrapContentSize(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -171,7 +179,7 @@ private fun LoginScreenContent(
                 isPassword = true,
                 isError = uiState.fieldError == LoginFieldError.WrongPassword,
                 supportingText = if (uiState.fieldError == LoginFieldError.WrongPassword) {
-                    "Contraseña incorrecta"
+                    "Correo o contraseña incorrectos"
                 } else {
                     null
                 },
