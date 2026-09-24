@@ -12,6 +12,8 @@ class FakeAuthRepository : AuthRepository {
 
     override val currentUserEmail: String = "test@example.com"
 
+    override var currentUserUid: String? = "test-uid"
+
     override suspend fun signIn(email: String, password: String) {
         signInCallCount++
         signInResult.getOrThrow()

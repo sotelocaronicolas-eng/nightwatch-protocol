@@ -13,6 +13,9 @@ class FirebaseAuthRepository(
     override val currentUserEmail: String?
         get() = firebaseAuth.currentUser?.email
 
+    override val currentUserUid: String?
+        get() = firebaseAuth.currentUser?.uid
+
     override suspend fun signIn(email: String, password: String) {
         runCatchingFirebase {
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
