@@ -1,0 +1,162 @@
+[
+  {
+    "id": "cb1",
+    "category": "CONCEPTOS_BASICOS",
+    "difficulty": 1,
+    "text": "¿Qué representa la sigla CIA en el contexto de seguridad de la información?",
+    "options": ["Confidencialidad, Integridad y Disponibilidad", "Control, Inspección y Auditoría", "Cifrado, Identidad y Autenticación", "Confianza, Integridad y Anonimato"],
+    "correctIndex": 0
+  },
+  {
+    "id": "cb2",
+    "category": "CONCEPTOS_BASICOS",
+    "difficulty": 2,
+    "text": "¿Cuál es la diferencia principal entre una vulnerabilidad y una amenaza?",
+    "options": ["Una vulnerabilidad es una debilidad explotable; una amenaza es lo que podría explotarla", "Son sinónimos y se usan indistintamente", "Una amenaza es un tipo de malware; una vulnerabilidad es un firewall mal configurado", "Una vulnerabilidad solo existe en software; una amenaza solo existe en hardware"],
+    "correctIndex": 0
+  },
+  {
+    "id": "cb3",
+    "category": "CONCEPTOS_BASICOS",
+    "difficulty": 2,
+    "text": "¿Qué principio de seguridad establece que un usuario o proceso debe tener solo los permisos mínimos necesarios para realizar su tarea?",
+    "options": ["Defensa en profundidad", "Principio de mínimo privilegio", "Separación de funciones", "No repudio"],
+    "correctIndex": 1
+  },
+  {
+    "id": "cb4",
+    "category": "CONCEPTOS_BASICOS",
+    "difficulty": 3,
+    "text": "¿Qué es una vulnerabilidad de día cero (zero-day)?",
+    "options": ["Una falla de seguridad conocida públicamente desde hace más de un año", "Una vulnerabilidad que ya tiene un parche oficial disponible", "Una falla desconocida por el fabricante, sin parche disponible al momento de ser explotada", "Un error de configuración detectado por un antivirus"],
+    "correctIndex": 2
+  },
+  {
+    "id": "cb5",
+    "category": "CONCEPTOS_BASICOS",
+    "difficulty": 2,
+    "text": "¿Qué es la 'defensa en profundidad' (defense in depth)?",
+    "options": ["Usar una sola herramienta de seguridad muy robusta", "Aplicar múltiples capas de controles de seguridad independientes", "Cifrar únicamente la capa de red", "Confiar solo en la seguridad perimetral del firewall"],
+    "correctIndex": 1
+  },
+  {
+    "id": "pw1",
+    "category": "CONTRASENAS",
+    "difficulty": 1,
+    "text": "¿Por qué una frase de contraseña larga (passphrase) suele ser más segura que una contraseña corta con símbolos?",
+    "options": ["Porque tiene mayor entropía al ser más larga, aunque use palabras simples", "Porque las frases nunca se pueden adivinar por fuerza bruta", "Porque los símbolos especiales debilitan la seguridad", "Porque los sistemas no permiten contraseñas cortas"],
+    "correctIndex": 0
+  },
+  {
+    "id": "pw2",
+    "category": "CONTRASENAS",
+    "difficulty": 2,
+    "text": "¿Qué es el 'credential stuffing'?",
+    "options": ["Un ataque que prueba combinaciones de usuario/contraseña filtradas de otros sitios para acceder a una cuenta", "Un método para generar contraseñas aleatorias seguras", "Una técnica de cifrado de contraseñas en la base de datos", "Un tipo de firewall que bloquea inicios de sesión sospechosos"],
+    "correctIndex": 0
+  },
+  {
+    "id": "pw3",
+    "category": "CONTRASENAS",
+    "difficulty": 1,
+    "text": "En autenticación multifactor (MFA), ¿qué representan 'algo que sabes, algo que tienes y algo que eres'?",
+    "options": ["Los tres tipos de firewall", "Las tres capas del modelo OSI relacionadas con el login", "Las tres categorías clásicas de factores de autenticación", "Los tres pasos de un ataque de phishing"],
+    "correctIndex": 2
+  },
+  {
+    "id": "pw4",
+    "category": "CONTRASENAS",
+    "difficulty": 3,
+    "text": "¿Para qué sirve agregar 'sal' (salt) al hashear contraseñas antes de guardarlas?",
+    "options": ["Para acelerar el proceso de verificación de login", "Para evitar que contraseñas iguales generen el mismo hash y frustrar ataques con tablas precalculadas (rainbow tables)", "Para comprimir el tamaño del hash almacenado", "Para permitir recuperar la contraseña original fácilmente"],
+    "correctIndex": 1
+  },
+  {
+    "id": "pw5",
+    "category": "CONTRASENAS",
+    "difficulty": 2,
+    "text": "¿Cuál es el principal riesgo de reutilizar la misma contraseña en varios sitios?",
+    "options": ["Ninguno, si la contraseña es suficientemente larga", "Si un sitio sufre una filtración, un atacante puede probar esa misma contraseña en tus otras cuentas", "Los navegadores bloquean automáticamente la reutilización", "Solo afecta el rendimiento del sitio web"],
+    "correctIndex": 1
+  },
+  {
+    "id": "is1",
+    "category": "INGENIERIA_SOCIAL",
+    "difficulty": 1,
+    "text": "¿Qué diferencia al 'spear phishing' del phishing genérico?",
+    "options": ["El spear phishing está dirigido y personalizado a una persona u organización específica", "El spear phishing solo ocurre por teléfono", "El phishing genérico siempre incluye malware adjunto", "No hay ninguna diferencia real"],
+    "correctIndex": 0
+  },
+  {
+    "id": "is2",
+    "category": "INGENIERIA_SOCIAL",
+    "difficulty": 2,
+    "text": "¿Qué es el 'pretexting' en ingeniería social?",
+    "options": ["Enviar correos masivos sin personalizar", "Crear una historia o identidad falsa para ganar la confianza de la víctima y obtener información", "Un tipo de cifrado usado por atacantes", "Escanear puertos de una red antes de un ataque"],
+    "correctIndex": 1
+  },
+  {
+    "id": "is3",
+    "category": "INGENIERIA_SOCIAL",
+    "difficulty": 2,
+    "text": "¿Cómo se llama el ataque de ingeniería social realizado por teléfono o mensajes de voz?",
+    "options": ["Smishing", "Vishing", "Whaling", "Tailgating"],
+    "correctIndex": 1
+  },
+  {
+    "id": "is4",
+    "category": "INGENIERIA_SOCIAL",
+    "difficulty": 1,
+    "text": "¿Cuál de las siguientes NO es una señal típica de un correo de phishing?",
+    "options": ["Urgencia extrema para actuar de inmediato", "Dominio del remitente ligeramente distinto al oficial", "El correo fue firmado digitalmente por la empresa de forma verificable", "Enlaces que no coinciden con el dominio esperado al pasar el cursor"],
+    "correctIndex": 2
+  },
+  {
+    "id": "is5",
+    "category": "INGENIERIA_SOCIAL",
+    "difficulty": 3,
+    "text": "¿Qué es el 'baiting' en ingeniería social?",
+    "options": ["Ofrecer algo atractivo (como una USB o una descarga gratuita) para inducir a la víctima a comprometer su seguridad", "Espiar conversaciones en redes sociales", "Enviar spam publicitario sin intención maliciosa", "Bloquear el acceso a un sistema hasta que se pague un rescate"],
+    "correctIndex": 0
+  },
+  {
+    "id": "nm1",
+    "category": "REDES_MALWARE",
+    "difficulty": 1,
+    "text": "¿Cuál es la diferencia principal entre un virus y un gusano (worm)?",
+    "options": ["El gusano se propaga automáticamente por la red sin necesitar un archivo anfitrión; el virus sí lo necesita", "Son exactamente lo mismo", "El virus solo afecta a servidores, el gusano solo a computadoras personales", "El gusano no puede dañar archivos"],
+    "correctIndex": 0
+  },
+  {
+    "id": "nm2",
+    "category": "REDES_MALWARE",
+    "difficulty": 1,
+    "text": "A nivel básico, ¿qué función cumple un firewall?",
+    "options": ["Elimina virus ya instalados en el sistema", "Filtra y controla el tráfico de red permitido según reglas definidas", "Cifra todos los archivos del disco duro", "Genera contraseñas seguras automáticamente"],
+    "correctIndex": 1
+  },
+  {
+    "id": "nm3",
+    "category": "REDES_MALWARE",
+    "difficulty": 2,
+    "text": "¿Qué caracteriza a un ataque de ransomware?",
+    "options": ["Cifra los archivos de la víctima y exige un pago para restaurarlos", "Roba únicamente contraseñas guardadas en el navegador", "Es un tipo de firewall mal configurado", "Solo afecta a servidores de correo electrónico"],
+    "correctIndex": 0
+  },
+  {
+    "id": "nm4",
+    "category": "REDES_MALWARE",
+    "difficulty": 3,
+    "text": "¿En qué consiste un ataque de 'hombre en el medio' (man-in-the-middle)?",
+    "options": ["Un atacante intercepta y potencialmente altera la comunicación entre dos partes sin que lo noten", "Un atacante satura un servidor con tráfico hasta tumbarlo", "Un atacante instala un keylogger físico", "Un atacante adivina contraseñas por fuerza bruta"],
+    "correctIndex": 0
+  },
+  {
+    "id": "nm5",
+    "category": "REDES_MALWARE",
+    "difficulty": 2,
+    "text": "¿Qué protege principalmente el uso de HTTPS/TLS en la comunicación web?",
+    "options": ["La disponibilidad del servidor ante caídas", "La confidencialidad e integridad de los datos en tránsito, mediante cifrado", "La velocidad de carga de la página", "La creación de copias de seguridad automáticas"],
+    "correctIndex": 1
+  }
+]
