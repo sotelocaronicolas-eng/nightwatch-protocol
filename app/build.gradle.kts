@@ -63,6 +63,5 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.compose.ui.text.google.fonts)
     testImplementation(libs.kotlinx.coroutines.test)
 }
