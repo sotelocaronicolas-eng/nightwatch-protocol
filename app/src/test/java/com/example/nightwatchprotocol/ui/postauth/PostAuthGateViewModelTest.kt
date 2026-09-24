@@ -1,0 +1,62 @@
+package com.example.nightwatchprotocol.ui.postauth
+
+import app.cash.turbine.test
+import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
+import com.example.nightwatchprotocol.data.quiz.FakeQuizResultRepository
+import com.example.nightwatchprotocol.data.quiz.PlacementLevel
+import com.example.nightwatchprotocol.data.quiz.PlacementResult
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+
+class PostAuthGateViewModelTest {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
+    @Test
+    fun existingResult_navigatesToMainMenu() = runTest {
+        val quizResultRepository = FakeQuizResultRepository()
+        quizResultRepository.getResultResult = Result.success(PlacementResult(PlacementLevel.MEDIO, emptySet()))
+        val viewModel = PostAuthGateViewModel(FakeAuthRepository(), quizResultRepository)
+
+        viewModel.events.test {
+            assertEquals(PostAuthGateEvent.NavigateToMainMenu, awaitItem())
+        }
+    }
+
+    @Test
+    fun noResult_navigatesToPlacementQuiz() = runTest {
+        val quizResultRepository = FakeQuizResultRepository()
+        quizResultRepository.getResultResult = Result.success(null)
+        val viewModel = PostAuthGateViewModel(FakeAuthRepository(), quizResultRepository)
+
+        viewModel.events.test {
+            assertEquals(PostAuthGateEvent.NavigateToPlacementQuiz, awaitItem())
+        }
+    }
+
+    @Test
+    fun firestoreReadFails_failsOpenToPlacementQuiz() = runTest {
+        val quizResultRepository = FakeQuizResultRepository()
+        quizResultRepository.getResultResult = Result.failure(RuntimeException("network down"))
+        val viewModel = PostAuthGateViewModel(FakeAuthRepository(), quizResultRepository)
+
+        viewModel.events.test {
+            assertEquals(PostAuthGateEvent.NavigateToPlacementQuiz, awaitItem())
+        }
+    }
+
+    @Test
+    fun nullUid_navigatesToMainMenuWithoutCallingRepository() = runTest {
+        val quizResultRepository = FakeQuizResultRepository()
+        val fakeAuthRepository = FakeAuthRepository().apply { currentUserUid = null }
+        val viewModel = PostAuthGateViewModel(fakeAuthRepository, quizResultRepository)
+
+        viewModel.events.test {
+            assertEquals(PostAuthGateEvent.NavigateToMainMenu, awaitItem())
+        }
+        assertEquals(0, quizResultRepository.getResultCallCount)
+    }
+}

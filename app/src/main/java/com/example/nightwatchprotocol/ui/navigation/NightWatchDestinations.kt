@@ -13,3 +13,6 @@ object ForgotPassword
 
 @Serializable
 object MainMenu
+
+@Serializable
+object PostAuthGate
