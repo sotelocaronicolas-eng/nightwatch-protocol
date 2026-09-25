@@ -16,3 +16,6 @@ object MainMenu
 
 @Serializable
 object PostAuthGate
+
+@Serializable
+object PlacementQuiz
