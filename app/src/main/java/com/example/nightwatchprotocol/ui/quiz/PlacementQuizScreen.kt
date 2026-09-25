@@ -1,18 +1,17 @@
 package com.example.nightwatchprotocol.ui.quiz
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,14 +19,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.data.quiz.PlacementLevel
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
+import com.example.nightwatchprotocol.ui.theme.NightWatchFieldShape
+import com.example.nightwatchprotocol.ui.theme.NightWatchLinkAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 
 @Composable
 fun PlacementQuizScreen(
@@ -70,49 +76,49 @@ private fun PlacementQuizScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(24.dp),
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(uiState.progressLabel, color = NightWatchOnBackground)
+            Text(
+                text = uiState.progressLabel,
+                color = NightWatchOnBackground,
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
             if (question != null) {
                 Text(
                     text = question.text,
                     color = NightWatchOnBackground,
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp, bottom = 24.dp),
                 )
                 question.options.forEachIndexed { index, option ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
+                    val isSelected = uiState.selectedOptionIndex == index
+                    val borderColor = if (isSelected) NightWatchLinkAccent else NightWatchBorderAccent
+                    Text(
+                        text = "${'a' + index})  $option",
+                        color = Color.Black,
+                        style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .selectable(
-                                selected = uiState.selectedOptionIndex == index,
-                                onClick = { onOptionSelected(index) },
-                            )
+                            .padding(vertical = 6.dp)
+                            .clip(NightWatchFieldShape)
+                            .background(NightWatchSurfaceButtonMuted)
+                            .border(2.dp, borderColor, NightWatchFieldShape)
+                            .selectable(selected = isSelected, onClick = { onOptionSelected(index) })
                             .testTag("quiz_option_$index")
-                            .padding(vertical = 4.dp),
-                    ) {
-                        RadioButton(
-                            selected = uiState.selectedOptionIndex == index,
-                            onClick = { onOptionSelected(index) },
-                        )
-                        Text(option, color = NightWatchOnBackground)
-                    }
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                    )
                 }
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 24.dp),
-            ) {
-                NightWatchButton(
-                    text = "Siguiente",
-                    onClick = onNextClicked,
-                    enabled = uiState.selectedOptionIndex != null && !uiState.isSubmitting,
-                )
-                if (uiState.isSubmitting) {
-                    CircularProgressIndicator(modifier = Modifier.padding(start = 16.dp).size(24.dp))
-                }
-            }
+            NightWatchButton(
+                text = if (uiState.isSubmitting) "Guardando…" else "Siguiente",
+                onClick = onNextClicked,
+                enabled = uiState.selectedOptionIndex != null && !uiState.isSubmitting,
+                modifier = Modifier.padding(top = 32.dp),
+            )
         }
     }
 }
