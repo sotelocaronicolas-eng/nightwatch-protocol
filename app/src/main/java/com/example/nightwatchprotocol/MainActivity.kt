@@ -5,8 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.nightwatchprotocol.ui.navigation.Login
-import com.example.nightwatchprotocol.ui.navigation.MainMenu
 import com.example.nightwatchprotocol.ui.navigation.NightWatchNavHost
+import com.example.nightwatchprotocol.ui.navigation.PostAuthGate
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
 
 class MainActivity : ComponentActivity() {
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val application = application as NightWatchApplication
         val startDestination = if (application.container.authRepository.currentUserEmail != null) {
-            MainMenu
+            PostAuthGate
         } else {
             Login
         }
