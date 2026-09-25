@@ -19,3 +19,10 @@ object PostAuthGate
 
 @Serializable
 object PlacementQuiz
+
+@Serializable
+data class PlacementResultRoute(
+    val level: String,
+    val weakCategories: List<String>,
+    val saveFailed: Boolean = false,
+)
