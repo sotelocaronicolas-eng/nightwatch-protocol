@@ -42,7 +42,11 @@ class PlacementResultViewModel(
     private val _events = Channel<PlacementResultEvent>(Channel.BUFFERED)
     val events: Flow<PlacementResultEvent> = _events.receiveAsFlow()
 
+    private var hasContinued = false
+
     fun onContinueClicked() {
+        if (hasContinued) return
+        hasContinued = true
         viewModelScope.launch { _events.send(PlacementResultEvent.NavigateToMainMenu) }
     }
 

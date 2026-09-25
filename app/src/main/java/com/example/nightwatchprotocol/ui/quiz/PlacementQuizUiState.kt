@@ -9,6 +9,7 @@ data class PlacementQuizUiState(
     val currentIndex: Int = 0,
     val selectedOptionIndex: Int? = null,
     val isLoading: Boolean = true,
+    val isSubmitting: Boolean = false,
 ) {
     val currentQuestion: QuizQuestion?
         get() = questions.getOrNull(currentIndex)

@@ -5,7 +5,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -56,7 +61,17 @@ private fun PlacementQuizScreenContent(
     val question = uiState.currentQuestion
 
     NightWatchScreenBackground {
-        Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+        if (uiState.isLoading) {
+            CircularProgressIndicator(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center))
+            return@NightWatchScreenBackground
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+        ) {
             Text(uiState.progressLabel, color = NightWatchOnBackground)
             if (question != null) {
                 Text(
@@ -85,12 +100,19 @@ private fun PlacementQuizScreenContent(
                     }
                 }
             }
-            NightWatchButton(
-                text = "Siguiente",
-                onClick = onNextClicked,
-                enabled = uiState.selectedOptionIndex != null,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(top = 24.dp),
-            )
+            ) {
+                NightWatchButton(
+                    text = "Siguiente",
+                    onClick = onNextClicked,
+                    enabled = uiState.selectedOptionIndex != null && !uiState.isSubmitting,
+                )
+                if (uiState.isSubmitting) {
+                    CircularProgressIndicator(modifier = Modifier.padding(start = 16.dp).size(24.dp))
+                }
+            }
         }
     }
 }

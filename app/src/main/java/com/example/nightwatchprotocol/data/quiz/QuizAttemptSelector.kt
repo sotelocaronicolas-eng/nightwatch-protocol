@@ -20,5 +20,17 @@ fun selectQuizAttempt(bank: List<QuizQuestion>, random: Random = Random.Default)
         selected += byCategory.getValue(category).shuffled(random).take(count)
     }
     check(selected.size == QUESTIONS_PER_ATTEMPT)
-    return selected.shuffled(random)
+    return selected.shuffled(random).map { shuffleOptions(it, random) }
+}
+
+/**
+ * Returns a copy of [question] with its options shuffled and [QuizQuestion.correctIndex]
+ * remapped to point at the same answer text in its new position, so the position/length of
+ * the correct option can't be gamed by always picking (e.g.) the first or longest choice.
+ */
+private fun shuffleOptions(question: QuizQuestion, random: Random): QuizQuestion {
+    val correctAnswerText = question.options[question.correctIndex]
+    val shuffledOptions = question.options.shuffled(random)
+    val newCorrectIndex = shuffledOptions.indexOf(correctAnswerText)
+    return question.copy(options = shuffledOptions, correctIndex = newCorrectIndex)
 }

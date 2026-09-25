@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 class PostAuthGateViewModel(
     authRepository: AuthRepository,
@@ -33,7 +34,14 @@ class PostAuthGateViewModel(
             val event = if (uid == null) {
                 PostAuthGateEvent.NavigateToMainMenu
             } else {
-                val result = runCatching { quizResultRepository.getResult(uid) }.getOrNull()
+                // runCatching wraps the timeout (not the other way around) so a real exception
+                // from getResult is caught here, while a timeout is resolved by
+                // withTimeoutOrNull itself (returning null) before it ever reaches runCatching.
+                // A null result here means the read failed, or it timed out (e.g. no network),
+                // or there was genuinely no saved result -- all fail open to the quiz.
+                val result = runCatching {
+                    withTimeoutOrNull(READ_TIMEOUT_MILLIS) { quizResultRepository.getResult(uid) }
+                }.getOrNull()
                 if (result != null) PostAuthGateEvent.NavigateToMainMenu else PostAuthGateEvent.NavigateToPlacementQuiz
             }
             _uiState.update { it.copy(isLoading = false) }
@@ -42,6 +50,8 @@ class PostAuthGateViewModel(
     }
 
     companion object {
+        private const val READ_TIMEOUT_MILLIS = 5_000L
+
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as NightWatchApplication

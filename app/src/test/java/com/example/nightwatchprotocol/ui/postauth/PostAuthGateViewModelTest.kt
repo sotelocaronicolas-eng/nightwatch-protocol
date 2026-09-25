@@ -6,11 +6,14 @@ import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.quiz.FakeQuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.PlacementLevel
 import com.example.nightwatchprotocol.data.quiz.PlacementResult
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class PostAuthGateViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -44,6 +47,20 @@ class PostAuthGateViewModelTest {
         val viewModel = PostAuthGateViewModel(FakeAuthRepository(), quizResultRepository)
 
         viewModel.events.test {
+            assertEquals(PostAuthGateEvent.NavigateToPlacementQuiz, awaitItem())
+        }
+    }
+
+    @Test
+    fun firestoreReadNeverCompletes_failsOpenToPlacementQuiz_afterTimeout() = runTest {
+        val quizResultRepository = FakeQuizResultRepository()
+        quizResultRepository.getResultNeverCompletes = true
+        val viewModel = PostAuthGateViewModel(FakeAuthRepository(), quizResultRepository)
+
+        viewModel.events.test {
+            // The read never completes on its own (simulating an offline Firestore read);
+            // advance past the 5s viewmodel-side timeout so the fail-open path fires.
+            advanceTimeBy(5_001)
             assertEquals(PostAuthGateEvent.NavigateToPlacementQuiz, awaitItem())
         }
     }

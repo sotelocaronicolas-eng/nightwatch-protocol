@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nightwatchprotocol.ui.navigation.PlacementResultRoute
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -40,7 +41,8 @@ class PlacementResultScreenTest {
         composeTestRule.onNodeWithText("Tu nivel: MEDIO").assertExists()
 
         composeTestRule.onNodeWithText("Continuar").performClick()
+        composeTestRule.waitForIdle()
 
-        assert(continueClicked) { "onContinue was not called after tapping Continuar" }
+        assertTrue("onContinue was not called after tapping Continuar", continueClicked)
     }
 }
