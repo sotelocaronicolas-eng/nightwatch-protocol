@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
@@ -28,6 +29,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchFieldShape
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
+import com.example.nightwatchprotocol.ui.theme.NightWatchSectionTitleStyle
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 
@@ -68,7 +70,7 @@ private fun PlacementResultScreenContent(
             Text(
                 text = "¡Resultados listos!",
                 color = NightWatchOnBackground,
-                style = MaterialTheme.typography.titleLarge,
+                style = NightWatchSectionTitleStyle,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -76,6 +78,7 @@ private fun PlacementResultScreenContent(
                 text = "Tu nivel: ${uiState.level}",
                 color = NightWatchOnButton,
                 style = MaterialTheme.typography.labelLarge,
+                fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(top = 20.dp)
@@ -88,6 +91,7 @@ private fun PlacementResultScreenContent(
                 text = "Tu plan de estudio recomendado:",
                 color = NightWatchOnBackground,
                 style = MaterialTheme.typography.labelLarge,
+                fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
             )
@@ -96,6 +100,7 @@ private fun PlacementResultScreenContent(
                     text = topic,
                     color = Color.Black,
                     style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 14.sp,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 10.dp)
@@ -109,6 +114,7 @@ private fun PlacementResultScreenContent(
                 Text(
                     text = "No pudimos guardar tu resultado; es posible que veas este quiz de nuevo la próxima vez.",
                     color = NightWatchOnBackground,
+                    fontSize = 14.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
                 )

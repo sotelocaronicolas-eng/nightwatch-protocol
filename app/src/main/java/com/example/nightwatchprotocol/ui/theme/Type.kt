@@ -25,6 +25,17 @@ val NightWatchDisplayStyle = TextStyle(
     fontSize = 40.sp,
 )
 
+// Used for the Placement Quiz question text and the Result screen's title —
+// smaller than Typography.titleLarge (30sp) so those blocks of text fit
+// comfortably; kept separate from titleLarge so the Register screen's
+// header (which uses titleLarge directly) is unaffected.
+val NightWatchSectionTitleStyle = TextStyle(
+    fontFamily = NightWatchBodyFontFamily,
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 22.sp,
+    lineHeight = 28.sp,
+)
+
 val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = NightWatchBodyFontFamily,

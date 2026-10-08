@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.data.quiz.PlacementLevel
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
@@ -33,6 +34,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchFieldShape
 import com.example.nightwatchprotocol.ui.theme.NightWatchLinkAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchSectionTitleStyle
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 
 @Composable
@@ -83,6 +85,7 @@ private fun PlacementQuizScreenContent(
                 text = uiState.progressLabel,
                 color = NightWatchOnBackground,
                 style = MaterialTheme.typography.labelLarge,
+                fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -90,7 +93,7 @@ private fun PlacementQuizScreenContent(
                 Text(
                     text = question.text,
                     color = NightWatchOnBackground,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = NightWatchSectionTitleStyle,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth().padding(top = 24.dp, bottom = 24.dp),
                 )
@@ -101,6 +104,7 @@ private fun PlacementQuizScreenContent(
                         text = "${'a' + index})  $option",
                         color = Color.Black,
                         style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 14.sp,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 6.dp)
