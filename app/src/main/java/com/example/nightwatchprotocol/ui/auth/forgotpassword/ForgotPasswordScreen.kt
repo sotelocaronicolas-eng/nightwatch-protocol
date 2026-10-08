@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +14,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
@@ -54,12 +58,16 @@ fun ForgotPasswordScreen(
                     label = "Correo electrónico",
                     value = uiState.email,
                     onValueChange = viewModel::onEmailChanged,
-                    isError = uiState.invalidEmailError,
+                    isError = uiState.hasError,
                     supportingText = when {
                         uiState.invalidEmailError -> "Correo electrónico inválido"
+                        uiState.userNotFoundError -> "Este correo no está registrado"
                         uiState.networkError -> "Sin conexión a internet"
+                        uiState.unexpectedError -> "Se produjo un error inesperado. Intenta de nuevo."
                         else -> null
                     },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { viewModel.onSendClicked() }),
                 )
                 NightWatchButton(
                     text = "Confirmar",

@@ -1,8 +1,10 @@
 package com.example.nightwatchprotocol.data.auth
 
 sealed class AuthError(message: String) : Exception(message) {
-    data object WrongPassword : AuthError("Contraseña incorrecta")
-    data object UserNotFound : AuthError("Correo no encontrado")
+    data object WrongPassword : AuthError("La contraseña es incorrecta")
+    data object UserNotFound : AuthError("El correo no está registrado")
+    data object InvalidCredentials : AuthError("Correo o contraseña incorrectos")
+    data object GoogleAccountOnly : AuthError("Esta cuenta se creó con Google. Usa «Continuar con Google» para entrar.")
     data object InvalidEmail : AuthError("Correo electrónico inválido")
     data object EmailAlreadyInUse : AuthError("Ya tienes una cuenta con este correo")
     data object WeakPassword : AuthError("La contraseña no cumple con los requerimientos")

@@ -12,6 +12,8 @@ sealed interface LoginFieldError {
     data object BlankFields : LoginFieldError
     data object WrongPassword : LoginFieldError
     data object UserNotFound : LoginFieldError
+    data object InvalidCredentials : LoginFieldError
+    data object GoogleAccountOnly : LoginFieldError
     data object InvalidEmail : LoginFieldError
 }
 

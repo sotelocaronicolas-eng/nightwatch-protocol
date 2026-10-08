@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -38,7 +40,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -151,15 +158,15 @@ private fun RegisterScreenContent(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
+                    .height(150.dp)
                     .background(NightWatchHeaderPanel, RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp)),
             ) {
-                Column(modifier = Modifier.padding(24.dp)) {
+                Column(modifier = Modifier.padding(30.dp)) {
                     Text("Registro de Usuario", style = MaterialTheme.typography.titleLarge, color = Color.Black)
                     Text(
                         "Ingrese los datos requeridos a continuación",
                         color = Color.Black,
-                        modifier = Modifier.padding(top = 4.dp),
+                        modifier = Modifier.padding(top = 6.dp),
                     )
                 }
                 IconButton(onClick = onCloseClicked, modifier = Modifier.align(Alignment.TopEnd)) {
@@ -177,6 +184,11 @@ private fun RegisterScreenContent(
                     label = "Nombre Completo",
                     value = uiState.fullName,
                     onValueChange = onFullNameChanged,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next,
+                    ),
                 )
                 NightWatchTextField(
                     label = "Correo electrónico",
@@ -189,6 +201,7 @@ private fun RegisterScreenContent(
                         RegisterFieldError.InvalidEmail -> "Correo electrónico inválido"
                         else -> null
                     },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                     modifier = Modifier.padding(top = 12.dp),
                 )
                 NightWatchTextField(
@@ -196,6 +209,13 @@ private fun RegisterScreenContent(
                     value = uiState.password,
                     onValueChange = onPasswordChanged,
                     isPassword = true,
+                    isError = uiState.fieldError == RegisterFieldError.WeakPassword,
+                    supportingText = if (uiState.fieldError == RegisterFieldError.WeakPassword) {
+                        "La contraseña no cumple los requisitos de seguridad"
+                    } else {
+                        null
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
                     modifier = Modifier.padding(top = 12.dp),
                 )
                 NightWatchTextField(
@@ -209,6 +229,8 @@ private fun RegisterScreenContent(
                     } else {
                         null
                     },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { if (uiState.isRegisterEnabled) onRegisterClicked() }),
                     modifier = Modifier.padding(top = 12.dp),
                 )
                 Column(modifier = Modifier.padding(top = 16.dp)) {
@@ -225,7 +247,10 @@ private fun RegisterScreenContent(
                 Text(
                     "O",
                     color = NightWatchOnBackground,
-                    modifier = Modifier.padding(vertical = 8.dp),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
                 )
                 GoogleSignInButton(onClick = onGoogleSignInClicked, enabled = !uiState.isLoading)
             }
@@ -245,7 +270,7 @@ private fun PasswordRuleRow(text: String, satisfied: Boolean) {
             contentDescription = "$text: ${if (satisfied) "cumplido" else "pendiente"}",
             tint = if (satisfied) Color(0xFF4CAF50) else NightWatchOnBackground.copy(alpha = 0.4f),
         )
-        Text(text, color = NightWatchOnBackground)
+        Text(text, color = NightWatchOnBackground, fontSize = 14.sp)
     }
 }
 

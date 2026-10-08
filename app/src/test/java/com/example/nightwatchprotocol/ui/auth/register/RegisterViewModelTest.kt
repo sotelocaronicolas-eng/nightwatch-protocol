@@ -10,6 +10,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -102,6 +104,18 @@ class RegisterViewModelTest {
     }
 
     @Test
+    fun register_backendRejectsPasswordPolicy_showsWeakPasswordError() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+        fakeRepo.registerResult = Result.failure(AuthError.WeakPassword)
+        viewModel.fillValidForm()
+
+        viewModel.onRegisterClicked()
+        advanceUntilIdle()
+
+        assertEquals(RegisterFieldError.WeakPassword, viewModel.uiState.value.fieldError)
+    }
+
+    @Test
     fun register_networkError_showsNetworkErrorDialog() = runTest {
         val (viewModel, fakeRepo) = createViewModel()
         fakeRepo.registerResult = Result.failure(AuthError.NetworkError)
@@ -137,6 +151,28 @@ class RegisterViewModelTest {
         val rules = PasswordRules.from("Sup3rSecret1")
 
         assert(!rules.allSatisfied)
+    }
+
+    @Test
+    fun passwordRules_everyFirebaseSpecialCharacterCounts() {
+        for (special in PasswordRules.FIREBASE_SPECIAL_CHARACTERS) {
+            assertTrue("'$special' should count as special", PasswordRules.from("Passw0rd$special").hasSpecialChar)
+        }
+    }
+
+    @Test
+    fun passwordRules_charactersFirebaseDoesNotCountAsSpecial_areRejectedLocally() {
+        // !isLetterOrDigit() would accept all of these, but Firebase would not.
+        for (notSpecial in listOf(" ", "ñ", "é", "€", "¿", "¡")) {
+            assertFalse("'$notSpecial' must not count as special", PasswordRules.from("Passw0rd$notSpecial").hasSpecialChar)
+        }
+    }
+
+    @Test
+    fun passwordRules_nonAsciiUppercaseOrDigit_doesNotSatisfyTheUppercaseAndDigitRule() {
+        assertFalse(PasswordRules.from("Éxito-ñandú1").hasUpperCaseAndDigit)
+        assertFalse(PasswordRules.from("Passw٣rd!").hasUpperCaseAndDigit)
+        assertTrue(PasswordRules.from("Passw0rd!").hasUpperCaseAndDigit)
     }
 
     @Test

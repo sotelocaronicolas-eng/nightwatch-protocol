@@ -10,4 +10,4 @@ val NightWatchLinkAccent = Color(0xFFA2DBFF)
 val NightWatchHeaderPanel = Color(0xFFCAD5D7)
 val NightWatchOnBackground = Color.White
 val NightWatchOnButton = Color.Black
-val NightWatchError = Color(0xFFFFB4AB)
+val NightWatchError = Color(0xFFFF2E16)

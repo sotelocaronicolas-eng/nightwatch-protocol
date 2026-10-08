@@ -63,6 +63,45 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun signIn_userNotFound_showsUserNotFoundFieldError_notWrongPassword() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+        fakeRepo.signInResult = Result.failure(AuthError.UserNotFound)
+        viewModel.onUsernameChanged("nobody@example.com")
+        viewModel.onPasswordChanged("Sup3r\$ecret")
+
+        viewModel.onSignInClicked()
+        advanceUntilIdle()
+
+        assertEquals(LoginFieldError.UserNotFound, viewModel.uiState.value.fieldError)
+    }
+
+    @Test
+    fun signIn_invalidCredentials_showsCombinedErrorBecauseBackendDoesNotSayWhichHalfWasWrong() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+        fakeRepo.signInResult = Result.failure(AuthError.InvalidCredentials)
+        viewModel.onUsernameChanged("user@example.com")
+        viewModel.onPasswordChanged("Sup3r\$ecret")
+
+        viewModel.onSignInClicked()
+        advanceUntilIdle()
+
+        assertEquals(LoginFieldError.InvalidCredentials, viewModel.uiState.value.fieldError)
+    }
+
+    @Test
+    fun signIn_googleOnlyAccount_showsGoogleAccountOnlyFieldError() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+        fakeRepo.signInResult = Result.failure(AuthError.GoogleAccountOnly)
+        viewModel.onUsernameChanged("user@gmail.com")
+        viewModel.onPasswordChanged("Sup3r\$ecret")
+
+        viewModel.onSignInClicked()
+        advanceUntilIdle()
+
+        assertEquals(LoginFieldError.GoogleAccountOnly, viewModel.uiState.value.fieldError)
+    }
+
+    @Test
     fun signIn_invalidEmail_showsInvalidEmailFieldError() = runTest {
         val (viewModel, fakeRepo) = createViewModel()
         fakeRepo.signInResult = Result.failure(AuthError.InvalidEmail)

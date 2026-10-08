@@ -97,6 +97,8 @@ class LoginViewModel(
         val fieldError = when (error) {
             AuthError.WrongPassword -> LoginFieldError.WrongPassword
             AuthError.UserNotFound -> LoginFieldError.UserNotFound
+            AuthError.InvalidCredentials -> LoginFieldError.InvalidCredentials
+            AuthError.GoogleAccountOnly -> LoginFieldError.GoogleAccountOnly
             AuthError.InvalidEmail -> LoginFieldError.InvalidEmail
             else -> null
         }

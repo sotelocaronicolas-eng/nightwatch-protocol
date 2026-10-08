@@ -1,6 +1,7 @@
 package com.example.nightwatchprotocol.data.auth
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 class AuthErrorMapperTest {
@@ -10,8 +11,30 @@ class AuthErrorMapperTest {
     }
 
     @Test
-    fun invalidCredentialCode_mapsToWrongPassword() {
-        assertEquals(AuthError.WrongPassword, mapAuthErrorCode("ERROR_INVALID_CREDENTIAL"))
+    fun invalidCredentialCode_mapsToInvalidCredentials_notToWrongPassword() {
+        assertEquals(AuthError.InvalidCredentials, mapAuthErrorCode("ERROR_INVALID_CREDENTIAL"))
+    }
+
+    @Test
+    fun wrongPasswordAndUserNotFound_areDistinctErrors() {
+        assertNotEquals(mapAuthErrorCode("ERROR_WRONG_PASSWORD"), mapAuthErrorCode("ERROR_USER_NOT_FOUND"))
+    }
+
+    @Test
+    fun passwordPolicyCode_mapsToWeakPassword() {
+        assertEquals(AuthError.WeakPassword, mapAuthErrorCode("ERROR_PASSWORD_DOES_NOT_MEET_REQUIREMENTS"))
+    }
+
+    @Test
+    fun passwordPolicyBackendMessage_mapsToWeakPassword() {
+        val message = "PASSWORD_DOES_NOT_MEET_REQUIREMENTS : Missing password requirements: [Password must contain an upper case character]"
+        assertEquals(AuthError.WeakPassword, mapAuthErrorMessage(message))
+    }
+
+    @Test
+    fun unrelatedOrNullMessage_mapsToUnknown() {
+        assertEquals(AuthError.Unknown, mapAuthErrorMessage("too many requests"))
+        assertEquals(AuthError.Unknown, mapAuthErrorMessage(null))
     }
 
     @Test

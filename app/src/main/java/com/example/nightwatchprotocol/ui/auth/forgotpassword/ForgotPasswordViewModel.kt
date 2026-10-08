@@ -22,7 +22,14 @@ class ForgotPasswordViewModel(
 
     fun onEmailChanged(value: String) {
         _uiState.update {
-            it.copy(email = value, invalidEmailError = false, networkError = false, isEmailSent = false)
+            it.copy(
+                email = value,
+                invalidEmailError = false,
+                userNotFoundError = false,
+                networkError = false,
+                unexpectedError = false,
+                isEmailSent = false,
+            )
         }
     }
 
@@ -30,16 +37,27 @@ class ForgotPasswordViewModel(
         val state = _uiState.value
         if (state.isLoading || state.email.isBlank()) return
 
-        _uiState.update { it.copy(isLoading = true, invalidEmailError = false, networkError = false) }
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                invalidEmailError = false,
+                userNotFoundError = false,
+                networkError = false,
+                unexpectedError = false,
+            )
+        }
         viewModelScope.launch {
             try {
                 authRepository.sendPasswordResetEmail(state.email.trim())
                 _uiState.update { it.copy(isLoading = false, isEmailSent = true) }
             } catch (error: AuthError) {
-                when (error) {
-                    AuthError.InvalidEmail -> _uiState.update { it.copy(isLoading = false, invalidEmailError = true) }
-                    AuthError.NetworkError -> _uiState.update { it.copy(isLoading = false, networkError = true) }
-                    else -> _uiState.update { it.copy(isLoading = false, isEmailSent = true) }
+                _uiState.update {
+                    when (error) {
+                        AuthError.InvalidEmail -> it.copy(isLoading = false, invalidEmailError = true)
+                        AuthError.UserNotFound -> it.copy(isLoading = false, userNotFoundError = true)
+                        AuthError.NetworkError -> it.copy(isLoading = false, networkError = true)
+                        else -> it.copy(isLoading = false, unexpectedError = true)
+                    }
                 }
             }
         }

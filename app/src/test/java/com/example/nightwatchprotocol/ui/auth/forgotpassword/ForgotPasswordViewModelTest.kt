@@ -30,7 +30,7 @@ class ForgotPasswordViewModelTest {
     }
 
     @Test
-    fun send_userNotFound_stillMarksEmailSent_toAvoidLeakingAccountExistence() = runTest {
+    fun send_userNotFound_showsNotRegisteredErrorWithoutClaimingSent() = runTest {
         val fakeRepo = FakeAuthRepository()
         fakeRepo.sendPasswordResetEmailResult = Result.failure(AuthError.UserNotFound)
         val viewModel = ForgotPasswordViewModel(fakeRepo)
@@ -39,7 +39,36 @@ class ForgotPasswordViewModelTest {
         viewModel.onSendClicked()
         advanceUntilIdle()
 
-        assertTrue(viewModel.uiState.value.isEmailSent)
+        assertTrue(viewModel.uiState.value.userNotFoundError)
+        assertEquals(false, viewModel.uiState.value.isEmailSent)
+    }
+
+    @Test
+    fun send_unexpectedError_doesNotClaimEmailWasSent() = runTest {
+        val fakeRepo = FakeAuthRepository()
+        fakeRepo.sendPasswordResetEmailResult = Result.failure(AuthError.Unknown)
+        val viewModel = ForgotPasswordViewModel(fakeRepo)
+        viewModel.onEmailChanged("user@example.com")
+
+        viewModel.onSendClicked()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.unexpectedError)
+        assertEquals(false, viewModel.uiState.value.isEmailSent)
+    }
+
+    @Test
+    fun editingEmail_clearsTheNotRegisteredError() = runTest {
+        val fakeRepo = FakeAuthRepository()
+        fakeRepo.sendPasswordResetEmailResult = Result.failure(AuthError.UserNotFound)
+        val viewModel = ForgotPasswordViewModel(fakeRepo)
+        viewModel.onEmailChanged("nobody@example.com")
+        viewModel.onSendClicked()
+        advanceUntilIdle()
+
+        viewModel.onEmailChanged("nobody2@example.com")
+
+        assertEquals(false, viewModel.uiState.value.hasError)
     }
 
     @Test
