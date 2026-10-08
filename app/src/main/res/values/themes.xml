@@ -2,4 +2,11 @@
 <resources>
 
     <style name="Theme.NightWatchProtocol" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.NightWatchProtocol.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#2C595D</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/img_logo_nightwatch</item>
+        <item name="postSplashScreenTheme">@style/Theme.NightWatchProtocol</item>
+    </style>
+
 </resources>
