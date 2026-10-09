@@ -172,13 +172,13 @@ private fun LoginScreenContent(
                 isError = uiState.fieldError == LoginFieldError.UserNotFound ||
                     uiState.fieldError == LoginFieldError.InvalidEmail ||
                     uiState.fieldError == LoginFieldError.GoogleAccountOnly ||
-                    uiState.fieldError == LoginFieldError.BlankFields,
-                supportingText = when (uiState.fieldError) {
-                    LoginFieldError.UserNotFound -> "El correo no está registrado"
-                    LoginFieldError.InvalidEmail -> "Correo electrónico inválido"
-                    LoginFieldError.GoogleAccountOnly ->
+                    uiState.showUsernameRequired,
+                supportingText = when {
+                    uiState.showUsernameRequired -> "Ingresa tu correo"
+                    uiState.fieldError == LoginFieldError.UserNotFound -> "El correo no está registrado"
+                    uiState.fieldError == LoginFieldError.InvalidEmail -> "Correo electrónico inválido"
+                    uiState.fieldError == LoginFieldError.GoogleAccountOnly ->
                         "Esta cuenta se creó con Google. Usa «Continuar con Google»"
-                    LoginFieldError.BlankFields -> "Completa ambos campos"
                     else -> null
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
@@ -190,10 +190,11 @@ private fun LoginScreenContent(
                 isPassword = true,
                 isError = uiState.fieldError == LoginFieldError.WrongPassword ||
                     uiState.fieldError == LoginFieldError.InvalidCredentials ||
-                    uiState.fieldError == LoginFieldError.BlankFields,
-                supportingText = when (uiState.fieldError) {
-                    LoginFieldError.WrongPassword -> "La contraseña es incorrecta"
-                    LoginFieldError.InvalidCredentials -> "Correo o contraseña incorrectos"
+                    uiState.showPasswordRequired,
+                supportingText = when {
+                    uiState.showPasswordRequired -> "Ingresa tu contraseña"
+                    uiState.fieldError == LoginFieldError.WrongPassword -> "La contraseña es incorrecta"
+                    uiState.fieldError == LoginFieldError.InvalidCredentials -> "Correo o contraseña incorrectos"
                     else -> null
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),

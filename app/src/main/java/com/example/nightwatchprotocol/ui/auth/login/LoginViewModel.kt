@@ -29,11 +29,11 @@ class LoginViewModel(
     val events: Flow<LoginEvent> = _events.receiveAsFlow()
 
     fun onUsernameChanged(value: String) {
-        _uiState.update { it.copy(usernameOrEmail = value, fieldError = null) }
+        _uiState.update { it.copy(usernameOrEmail = value, fieldError = null, showUsernameRequired = false) }
     }
 
     fun onPasswordChanged(value: String) {
-        _uiState.update { it.copy(password = value, fieldError = null) }
+        _uiState.update { it.copy(password = value, fieldError = null, showPasswordRequired = false) }
     }
 
     fun onRememberSessionChanged(value: Boolean) {
@@ -47,11 +47,19 @@ class LoginViewModel(
         val username = state.usernameOrEmail.trim()
         val password = state.password
         if (username.isBlank() || password.isBlank()) {
-            _uiState.update { it.copy(fieldError = LoginFieldError.BlankFields) }
+            _uiState.update {
+                it.copy(
+                    fieldError = null,
+                    showUsernameRequired = username.isBlank(),
+                    showPasswordRequired = password.isBlank(),
+                )
+            }
             return
         }
 
-        _uiState.update { it.copy(isLoading = true, fieldError = null) }
+        _uiState.update {
+            it.copy(isLoading = true, fieldError = null, showUsernameRequired = false, showPasswordRequired = false)
+        }
         viewModelScope.launch {
             try {
                 authRepository.signIn(username, password)

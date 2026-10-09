@@ -6,10 +6,11 @@ data class LoginUiState(
     val rememberSession: Boolean = false,
     val isLoading: Boolean = false,
     val fieldError: LoginFieldError? = null,
+    val showUsernameRequired: Boolean = false,
+    val showPasswordRequired: Boolean = false,
 )
 
 sealed interface LoginFieldError {
-    data object BlankFields : LoginFieldError
     data object WrongPassword : LoginFieldError
     data object UserNotFound : LoginFieldError
     data object InvalidCredentials : LoginFieldError

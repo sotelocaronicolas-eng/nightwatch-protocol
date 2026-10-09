@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -38,15 +40,70 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun signIn_blankFields_showsBlankFieldsErrorAndNeverCallsRepository() = runTest {
+    fun signIn_onlyUsernameBlank_flagsOnlyTheUsernameAndNeverCallsRepository() = runTest {
         val (viewModel, fakeRepo) = createViewModel()
         viewModel.onUsernameChanged("   ")
+        viewModel.onPasswordChanged("Sup3r\$ecret")
+
+        viewModel.onSignInClicked()
+
+        assertTrue(viewModel.uiState.value.showUsernameRequired)
+        assertFalse(viewModel.uiState.value.showPasswordRequired)
+        assertEquals(0, fakeRepo.signInCallCount)
+    }
+
+    @Test
+    fun signIn_onlyPasswordBlank_flagsOnlyThePasswordAndNeverCallsRepository() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+        viewModel.onUsernameChanged("user@example.com")
         viewModel.onPasswordChanged("")
 
         viewModel.onSignInClicked()
 
-        assertEquals(LoginFieldError.BlankFields, viewModel.uiState.value.fieldError)
+        assertFalse(viewModel.uiState.value.showUsernameRequired)
+        assertTrue(viewModel.uiState.value.showPasswordRequired)
         assertEquals(0, fakeRepo.signInCallCount)
+    }
+
+    @Test
+    fun signIn_bothBlank_flagsBothAndNeverCallsRepository() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+
+        viewModel.onSignInClicked()
+
+        assertTrue(viewModel.uiState.value.showUsernameRequired)
+        assertTrue(viewModel.uiState.value.showPasswordRequired)
+        assertEquals(0, fakeRepo.signInCallCount)
+    }
+
+    @Test
+    fun typingInOneBlankField_clearsOnlyThatFieldsError() = runTest {
+        val (viewModel, _) = createViewModel()
+        viewModel.onSignInClicked()
+
+        viewModel.onUsernameChanged("user@example.com")
+
+        assertFalse(viewModel.uiState.value.showUsernameRequired)
+        assertTrue(viewModel.uiState.value.showPasswordRequired)
+
+        viewModel.onPasswordChanged("x")
+
+        assertFalse(viewModel.uiState.value.showPasswordRequired)
+    }
+
+    @Test
+    fun signIn_withBothFieldsFilled_clearsBlankFlagsAndCallsRepository() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+        viewModel.onSignInClicked()
+        viewModel.onUsernameChanged("user@example.com")
+        viewModel.onPasswordChanged("Sup3r\$ecret")
+
+        viewModel.onSignInClicked()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.showUsernameRequired)
+        assertFalse(viewModel.uiState.value.showPasswordRequired)
+        assertEquals(1, fakeRepo.signInCallCount)
     }
 
     @Test
