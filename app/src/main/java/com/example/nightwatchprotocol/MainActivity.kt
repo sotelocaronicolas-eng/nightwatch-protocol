@@ -1,16 +1,16 @@
 package com.example.nightwatchprotocol
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.fragment.app.FragmentActivity
 import com.example.nightwatchprotocol.ui.navigation.Login
 import com.example.nightwatchprotocol.ui.navigation.NightWatchNavHost
 import com.example.nightwatchprotocol.ui.navigation.PostAuthGate
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
