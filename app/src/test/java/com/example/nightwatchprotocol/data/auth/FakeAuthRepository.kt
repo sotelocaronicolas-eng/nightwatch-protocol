@@ -9,6 +9,7 @@ class FakeAuthRepository : AuthRepository {
     var signInCallCount = 0
     var registerCallCount = 0
     var sendPasswordResetEmailCallCount = 0
+    var signOutCallCount = 0
 
     override val currentUserEmail: String = "test@example.com"
 
@@ -33,5 +34,7 @@ class FakeAuthRepository : AuthRepository {
         signInWithGoogleResult.getOrThrow()
     }
 
-    override fun signOut() = Unit
+    override fun signOut() {
+        signOutCallCount++
+    }
 }

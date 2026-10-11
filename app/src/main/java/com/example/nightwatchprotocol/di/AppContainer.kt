@@ -1,8 +1,14 @@
 package com.example.nightwatchprotocol.di
 
 import android.content.Context
+import com.example.nightwatchprotocol.data.account.AccountRepository
+import com.example.nightwatchprotocol.data.account.FirebaseAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.auth.FirebaseAuthRepository
+import com.example.nightwatchprotocol.data.avatar.AvatarRepository
+import com.example.nightwatchprotocol.data.avatar.FileAvatarCache
+import com.example.nightwatchprotocol.data.profile.FirestoreProfileRepository
+import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.quiz.FirestoreQuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.LocalQuizContentRepository
 import com.example.nightwatchprotocol.data.quiz.QuizContentRepository
@@ -17,6 +23,9 @@ interface AppContainer {
     val sessionPreferences: SessionPreferences
     val quizContentRepository: QuizContentRepository
     val quizResultRepository: QuizResultRepository
+    val accountRepository: AccountRepository
+    val profileRepository: ProfileRepository
+    val avatarRepository: AvatarRepository
 }
 
 class DefaultAppContainer(context: Context) : AppContainer {
@@ -24,4 +33,8 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val sessionPreferences: SessionPreferences = SessionPreferences(context.sessionDataStore)
     override val quizContentRepository: QuizContentRepository = LocalQuizContentRepository(context)
     override val quizResultRepository: QuizResultRepository = FirestoreQuizResultRepository(FirebaseFirestore.getInstance())
+    override val accountRepository: AccountRepository = FirebaseAccountRepository(FirebaseAuth.getInstance())
+    override val profileRepository: ProfileRepository = FirestoreProfileRepository(FirebaseFirestore.getInstance())
+    override val avatarRepository: AvatarRepository =
+        AvatarRepository(profileRepository, FileAvatarCache(context.filesDir))
 }

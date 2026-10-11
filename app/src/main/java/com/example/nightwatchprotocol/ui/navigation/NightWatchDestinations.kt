@@ -15,6 +15,12 @@ object ForgotPassword
 object MainMenu
 
 @Serializable
+object UserMenu
+
+@Serializable
+object Profile
+
+@Serializable
 object PostAuthGate
 
 @Serializable

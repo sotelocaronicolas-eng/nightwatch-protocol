@@ -16,7 +16,7 @@ import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 
 @Composable
-fun MainMenuScreen(onSignOut: () -> Unit) {
+fun MainMenuScreen(onSignOut: () -> Unit, onOpenAccount: () -> Unit) {
     val context = LocalContext.current
     val application = context.applicationContext as NightWatchApplication
     val userEmail = application.container.authRepository.currentUserEmail ?: "usuario"
@@ -28,12 +28,18 @@ fun MainMenuScreen(onSignOut: () -> Unit) {
         ) {
             Text("Sesión iniciada como $userEmail", color = NightWatchOnBackground)
             NightWatchButton(
+                text = "Mi cuenta",
+                onClick = onOpenAccount,
+                modifier = Modifier.padding(top = 24.dp),
+            )
+            NightWatchButton(
                 text = "Cerrar sesión",
                 onClick = {
                     application.container.authRepository.signOut()
+                    application.container.avatarRepository.clear()
                     onSignOut()
                 },
-                modifier = Modifier.padding(top = 24.dp),
+                modifier = Modifier.padding(top = 12.dp),
             )
         }
     }

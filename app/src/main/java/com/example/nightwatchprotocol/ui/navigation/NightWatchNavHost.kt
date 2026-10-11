@@ -11,6 +11,8 @@ import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
 import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
 import com.example.nightwatchprotocol.ui.mainmenu.MainMenuScreen
 import com.example.nightwatchprotocol.ui.postauth.PostAuthGateScreen
+import com.example.nightwatchprotocol.ui.profile.myprofile.MyProfileScreen
+import com.example.nightwatchprotocol.ui.profile.usermenu.UserMenuScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementQuizScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementResultScreen
 
@@ -75,7 +77,20 @@ fun NightWatchNavHost(
                 onSignOut = {
                     navController.navigate(Login) { popUpTo<MainMenu> { inclusive = true } }
                 },
+                onOpenAccount = { navController.navigate(UserMenu) },
             )
+        }
+        composable<UserMenu> {
+            UserMenuScreen(
+                onClose = { navController.popBackStack() },
+                onOpenProfile = { navController.navigate(Profile) },
+                onSignedOut = {
+                    navController.navigate(Login) { popUpTo<MainMenu> { inclusive = true } }
+                },
+            )
+        }
+        composable<Profile> {
+            MyProfileScreen(onClose = { navController.popBackStack() })
         }
     }
 }
