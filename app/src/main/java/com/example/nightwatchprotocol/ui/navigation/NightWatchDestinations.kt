@@ -48,6 +48,30 @@ data class VerifyEmailLink(val newEmail: String)
 object EmailUpdated
 
 @Serializable
+object NotificationSettings
+
+@Serializable
+object Appearance
+
+@Serializable
+object Language
+
+@Serializable
+object Achievements
+
+@Serializable
+object Devices
+
+@Serializable
+object DeviceSignedOut
+
+@Serializable
+object Help
+
+@Serializable
+object About
+
+@Serializable
 object RecoveryEmail
 
 @Serializable

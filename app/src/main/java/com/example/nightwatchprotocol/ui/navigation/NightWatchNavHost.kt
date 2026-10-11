@@ -16,13 +16,21 @@ import com.example.nightwatchprotocol.ui.postauth.PostAuthGateScreen
 import com.example.nightwatchprotocol.ui.profile.changeemail.ChangeEmailScreen
 import com.example.nightwatchprotocol.ui.profile.changeemail.VerifyEmailLinkScreen
 import com.example.nightwatchprotocol.ui.profile.changepassword.ChangePasswordScreen
+import com.example.nightwatchprotocol.ui.profile.achievements.AchievementsScreen
+import com.example.nightwatchprotocol.ui.profile.appearance.AppearanceScreen
+import com.example.nightwatchprotocol.ui.profile.appearance.LanguageScreen
+import com.example.nightwatchprotocol.ui.profile.confirmation.DeviceSignedOutScreen
 import com.example.nightwatchprotocol.ui.profile.confirmation.EmailUpdatedScreen
 import com.example.nightwatchprotocol.ui.profile.confirmation.PasswordUpdatedScreen
 import com.example.nightwatchprotocol.ui.profile.confirmation.ProfileUpdatedScreen
 import com.example.nightwatchprotocol.ui.profile.confirmation.RecoveryEmailSavedScreen
 import com.example.nightwatchprotocol.ui.profile.confirmidentity.ConfirmIdentityScreen
 import com.example.nightwatchprotocol.ui.profile.editprofile.EditProfileScreen
+import com.example.nightwatchprotocol.ui.profile.devices.DevicesScreen
+import com.example.nightwatchprotocol.ui.profile.help.AboutScreen
+import com.example.nightwatchprotocol.ui.profile.help.HelpScreen
 import com.example.nightwatchprotocol.ui.profile.myprofile.MyProfileScreen
+import com.example.nightwatchprotocol.ui.profile.notifications.NotificationSettingsScreen
 import com.example.nightwatchprotocol.ui.profile.privacy.PrivacySecurityScreen
 import com.example.nightwatchprotocol.ui.profile.recoveryemail.RecoveryEmailScreen
 import com.example.nightwatchprotocol.ui.profile.usermenu.UserMenuScreen
@@ -106,7 +114,13 @@ fun NightWatchNavHost(
                 onClose = { navController.popBackStack() },
                 onOpenProfile = { navController.navigate(Profile) },
                 onOpenEditProfile = { navController.navigate(EditProfile) },
+                onOpenAchievements = { navController.navigate(Achievements) },
+                onOpenNotifications = { navController.navigate(NotificationSettings) },
+                onOpenAppearance = { navController.navigate(Appearance) },
+                onOpenLanguage = { navController.navigate(Language) },
                 onOpenPrivacy = { navController.navigate(PrivacySecurity) },
+                onOpenHelp = { navController.navigate(Help) },
+                onOpenAbout = { navController.navigate(About) },
                 onSignedOut = {
                     navController.navigate(Login) { popUpTo<MainMenu> { inclusive = true } }
                 },
@@ -173,8 +187,7 @@ fun NightWatchNavHost(
                 onClose = { navController.popBackStack() },
                 onOpenChangePassword = { navController.navigate(ChangePassword) },
                 onOpenRecoveryEmail = { navController.navigate(RecoveryEmail) },
-                // The device list arrives in a later stage.
-                onOpenDevices = {},
+                onOpenDevices = { navController.navigate(Devices) },
             )
         }
         composable<ChangePassword> {
@@ -196,6 +209,21 @@ fun NightWatchNavHost(
         composable<RecoveryEmailSaved> {
             RecoveryEmailSavedScreen(onBackToAccounts = { navController.popBackStack<PrivacySecurity>(inclusive = false) })
         }
+        composable<NotificationSettings> { NotificationSettingsScreen(onClose = { navController.popBackStack() }) }
+        composable<Appearance> { AppearanceScreen(onClose = { navController.popBackStack() }) }
+        composable<Language> { LanguageScreen(onClose = { navController.popBackStack() }) }
+        composable<Achievements> { AchievementsScreen(onClose = { navController.popBackStack() }) }
+        composable<Devices> {
+            DevicesScreen(
+                onClose = { navController.popBackStack() },
+                onDeviceSignedOut = { navController.navigate(DeviceSignedOut) },
+            )
+        }
+        composable<DeviceSignedOut> {
+            DeviceSignedOutScreen(onBackToDevices = { navController.popBackStack<Devices>(inclusive = false) })
+        }
+        composable<Help> { HelpScreen(onClose = { navController.popBackStack() }) }
+        composable<About> { AboutScreen(onClose = { navController.popBackStack() }) }
         composable<PasswordUpdated> {
             PasswordUpdatedScreen(onDone = { navController.popBackStack<PrivacySecurity>(inclusive = false) })
         }

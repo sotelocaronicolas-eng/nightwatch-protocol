@@ -28,6 +28,9 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 
+/** Accent used for the selected card and the check mark in Apariencia and Idioma (Figma color/accent/gold). */
+val NightWatchGold = Color(0xFFE3B54F)
+
 private val RowShape = RoundedCornerShape(16.dp)
 private val RowTextColor = Color(0xFF162523)
 
@@ -42,6 +45,7 @@ fun SettingsRow(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     trailing: (@Composable () -> Unit)? = null,
+    highlighted: Boolean = false,
     onClick: () -> Unit = {},
 ) {
     Row(
@@ -52,7 +56,7 @@ fun SettingsRow(
             .height(if (subtitle != null) 68.dp else 60.dp)
             .shadow(4.dp, RowShape)
             .background(NightWatchSurfaceButton, RowShape)
-            .border(2.dp, NightWatchBorderAccent, RowShape)
+            .border(if (highlighted) 3.dp else 2.dp, if (highlighted) NightWatchGold else NightWatchBorderAccent, RowShape)
             .clip(RowShape)
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 16.dp),

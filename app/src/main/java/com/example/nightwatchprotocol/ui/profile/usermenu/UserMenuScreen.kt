@@ -52,7 +52,13 @@ fun UserMenuScreen(
     onClose: () -> Unit,
     onOpenProfile: () -> Unit,
     onOpenEditProfile: () -> Unit,
+    onOpenAchievements: () -> Unit,
+    onOpenNotifications: () -> Unit,
+    onOpenAppearance: () -> Unit,
+    onOpenLanguage: () -> Unit,
     onOpenPrivacy: () -> Unit,
+    onOpenHelp: () -> Unit,
+    onOpenAbout: () -> Unit,
     onSignedOut: () -> Unit,
     viewModel: UserMenuViewModel = viewModel(factory = UserMenuViewModel.Factory),
 ) {
@@ -78,7 +84,13 @@ fun UserMenuScreen(
         onClose = onClose,
         onOpenProfile = onOpenProfile,
         onOpenEditProfile = onOpenEditProfile,
+        onOpenAchievements = onOpenAchievements,
+        onOpenNotifications = onOpenNotifications,
+        onOpenAppearance = onOpenAppearance,
+        onOpenLanguage = onOpenLanguage,
         onOpenPrivacy = onOpenPrivacy,
+        onOpenHelp = onOpenHelp,
+        onOpenAbout = onOpenAbout,
         onSignOut = viewModel::onSignOutClicked,
     )
 }
@@ -90,7 +102,13 @@ private fun UserMenuContent(
     onClose: () -> Unit,
     onOpenProfile: () -> Unit,
     onOpenEditProfile: () -> Unit,
+    onOpenAchievements: () -> Unit,
+    onOpenNotifications: () -> Unit,
+    onOpenAppearance: () -> Unit,
+    onOpenLanguage: () -> Unit,
     onOpenPrivacy: () -> Unit,
+    onOpenHelp: () -> Unit,
+    onOpenAbout: () -> Unit,
     onSignOut: () -> Unit,
 ) {
     NightWatchScreenBackground {
@@ -112,19 +130,19 @@ private fun UserMenuContent(
                     SettingsRow("✏️", "Editar Perfil", onClick = onOpenEditProfile)
                 }
                 MenuSection("PROGRESO") {
-                    SettingsRow("🏆", "Logros e Insignias")
+                    SettingsRow("🏆", "Logros e Insignias", onClick = onOpenAchievements)
                 }
                 MenuSection("PREFERENCIAS") {
-                    SettingsRow("🔔", "Notificaciones")
-                    SettingsRow("🎨", "Apariencia")
-                    SettingsRow("🌐", "Idioma")
+                    SettingsRow("🔔", "Notificaciones", onClick = onOpenNotifications)
+                    SettingsRow("🎨", "Apariencia", onClick = onOpenAppearance)
+                    SettingsRow("🌐", "Idioma", onClick = onOpenLanguage)
                 }
                 MenuSection("PRIVACIDAD Y SEGURIDAD") {
                     SettingsRow("🔒", "Privacidad y Seguridad", onClick = onOpenPrivacy)
                 }
                 MenuSection("SOPORTE") {
-                    SettingsRow("❓", "Ayuda y Soporte")
-                    SettingsRow("ℹ️", "Acerca de")
+                    SettingsRow("❓", "Ayuda y Soporte", onClick = onOpenHelp)
+                    SettingsRow("ℹ️", "Acerca de", onClick = onOpenAbout)
                 }
                 SignOutButton(onClick = onSignOut)
                 Text(
