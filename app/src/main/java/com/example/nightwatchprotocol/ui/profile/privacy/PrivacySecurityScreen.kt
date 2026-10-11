@@ -10,6 +10,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,6 +32,7 @@ import com.example.nightwatchprotocol.ui.components.SettingsSwitch
 import com.example.nightwatchprotocol.ui.components.TitleTopBar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
+import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 
 @Composable
 fun PrivacySecurityScreen(
@@ -37,11 +40,14 @@ fun PrivacySecurityScreen(
     onOpenChangePassword: () -> Unit,
     onOpenRecoveryEmail: () -> Unit,
     onOpenDevices: () -> Unit,
-    onDownloadData: () -> Unit,
     viewModel: PrivacySecurityViewModel = viewModel(factory = PrivacySecurityViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshRecoveryEmail() }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json"),
+    ) { uri -> viewModel.onExportDestinationChosen(uri?.toString()) }
 
     val activity = LocalActivity.current as? FragmentActivity
     LaunchedEffect(viewModel, activity) {
@@ -71,9 +77,11 @@ fun PrivacySecurityScreen(
         onOpenDevices = onOpenDevices,
         onBiometricLockToggle = viewModel::onBiometricLockToggled,
         onHidePublicProgressChange = viewModel::onHidePublicProgressChanged,
-        onDownloadData = onDownloadData,
+        onDownloadData = { exportLauncher.launch(EXPORT_FILE_NAME) },
     )
 }
+
+private const val EXPORT_FILE_NAME = "nightwatch-mis-datos.json"
 
 @Composable
 private fun PrivacySecurityContent(
@@ -143,6 +151,13 @@ private fun PrivacySecurityContent(
                     subtitle = "Exporta una copia de tu información",
                     onClick = onDownloadData,
                 )
+                when (uiState.exportStatus) {
+                    ExportStatus.Done ->
+                        Text(MESSAGE_EXPORT_DONE, color = NightWatchHeaderPanel, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+                    ExportStatus.Failed ->
+                        Text(MESSAGE_EXPORT_FAILED, color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+                    ExportStatus.InProgress, ExportStatus.Idle -> Unit
+                }
             }
         }
     }

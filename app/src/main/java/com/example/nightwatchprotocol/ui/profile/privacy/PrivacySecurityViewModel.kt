@@ -11,7 +11,9 @@ import com.example.nightwatchprotocol.data.biometric.BiometricAvailability
 import com.example.nightwatchprotocol.data.biometric.BiometricCapabilities
 import com.example.nightwatchprotocol.data.preferences.UserPreferences
 import com.example.nightwatchprotocol.data.preferences.UserSetting
+import com.example.nightwatchprotocol.data.profile.DataExportWriter
 import com.example.nightwatchprotocol.data.profile.FixedProfileData
+import com.example.nightwatchprotocol.data.profile.ProfileDataExporter
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import kotlinx.coroutines.channels.Channel
@@ -30,7 +32,13 @@ data class PrivacySecurityUiState(
     val hidePublicProgress: Boolean = false,
     val biometricLockEnabled: Boolean = false,
     val biometricError: String? = null,
+    val exportStatus: ExportStatus = ExportStatus.Idle,
 )
+
+enum class ExportStatus { Idle, InProgress, Done, Failed }
+
+const val MESSAGE_EXPORT_DONE = "Tus datos se guardaron en el archivo que elegiste."
+const val MESSAGE_EXPORT_FAILED = "No se pudo guardar el archivo. Inténtalo de nuevo."
 
 const val MESSAGE_NO_FINGERPRINT_ENROLLED = "No hay una huella registrada en este teléfono"
 const val MESSAGE_NO_FINGERPRINT_READER = "Este teléfono no tiene lector de huella"
@@ -47,6 +55,8 @@ class PrivacySecurityViewModel(
     private val profileRepository: ProfileRepository,
     private val userPreferences: UserPreferences,
     private val biometricCapabilities: BiometricCapabilities,
+    private val dataExporter: ProfileDataExporter,
+    private val dataExportWriter: DataExportWriter,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PrivacySecurityUiState())
@@ -103,6 +113,21 @@ class PrivacySecurityViewModel(
         if (error == null) viewModelScope.launch { _events.send(PrivacySecurityEvent.VerifyBiometric) }
     }
 
+    /** The user picked where to save the file ([destination] is the document URI as text); null means they cancelled. */
+    fun onExportDestinationChosen(destination: String?) {
+        val uid = authRepository.currentUserUid
+        if (destination == null || _uiState.value.exportStatus == ExportStatus.InProgress) return
+        if (uid == null) {
+            _uiState.update { it.copy(exportStatus = ExportStatus.Failed) }
+            return
+        }
+        viewModelScope.launch {
+            _uiState.update { it.copy(exportStatus = ExportStatus.InProgress) }
+            val result = runCatchingKeepCancellation { dataExportWriter.write(destination, dataExporter.buildJson(uid)) }
+            _uiState.update { it.copy(exportStatus = if (result.isSuccess) ExportStatus.Done else ExportStatus.Failed) }
+        }
+    }
+
     /** The result of the test prompt shown after [PrivacySecurityEvent.VerifyBiometric]. */
     fun onBiometricVerified(success: Boolean) {
         if (success) {
@@ -123,6 +148,8 @@ class PrivacySecurityViewModel(
                     container.profileRepository,
                     container.userPreferences,
                     container.biometricCapabilities,
+                    container.profileDataExporter,
+                    container.dataExportWriter,
                 )
             }
         }

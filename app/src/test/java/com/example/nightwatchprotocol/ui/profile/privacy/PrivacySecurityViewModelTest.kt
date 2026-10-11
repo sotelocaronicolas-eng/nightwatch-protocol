@@ -7,7 +7,11 @@ import com.example.nightwatchprotocol.data.biometric.BiometricAvailability
 import com.example.nightwatchprotocol.data.biometric.FakeBiometricCapabilities
 import com.example.nightwatchprotocol.data.preferences.UserPreferences
 import com.example.nightwatchprotocol.data.preferences.UserSetting
+import com.example.nightwatchprotocol.data.account.FakeAccountRepository
+import com.example.nightwatchprotocol.data.profile.FakeDataExportWriter
 import com.example.nightwatchprotocol.data.profile.FakeProfileRepository
+import com.example.nightwatchprotocol.data.profile.ProfileDataExporter
+import com.example.nightwatchprotocol.data.quiz.FakeQuizResultRepository
 import com.example.nightwatchprotocol.data.profile.RemoteProfile
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -30,7 +34,10 @@ class PrivacySecurityViewModelTest {
     private val preferences = UserPreferences.inMemory()
     private val capabilities = FakeBiometricCapabilities()
 
-    private fun viewModel() = PrivacySecurityViewModel(auth, profile, preferences, capabilities)
+    private val writer = FakeDataExportWriter()
+    private val exporter = ProfileDataExporter(FakeAccountRepository(), profile, FakeQuizResultRepository(), clock = { 0L })
+
+    private fun viewModel() = PrivacySecurityViewModel(auth, profile, preferences, capabilities, exporter, writer)
 
     @Test
     fun startsWithDefaults() = runTest {
@@ -190,5 +197,43 @@ class PrivacySecurityViewModelTest {
         assertFalse(vm.uiState.value.biometricLockEnabled)
         assertFalse(preferences.settings.first()[UserSetting.BIOMETRIC_LOCK])
         assertNull(vm.uiState.value.biometricError)
+    }
+
+    @Test
+    fun chosenExportDestination_receivesTheJsonAndReportsDone() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.onExportDestinationChosen("content://documentos/datos.json")
+        advanceUntilIdle()
+
+        assertEquals(ExportStatus.Done, vm.uiState.value.exportStatus)
+        assertEquals(1, writer.writes.size)
+        assertEquals("content://documentos/datos.json", writer.writes.first().first)
+        assertTrue(writer.writes.first().second.contains("nicolas@example.com"))
+    }
+
+    @Test
+    fun cancelledFilePicker_doesNothing() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.onExportDestinationChosen(null)
+        advanceUntilIdle()
+
+        assertEquals(ExportStatus.Idle, vm.uiState.value.exportStatus)
+        assertTrue(writer.writes.isEmpty())
+    }
+
+    @Test
+    fun unwritableDestination_reportsFailed() = runTest {
+        writer.result = Result.failure(java.io.IOException("sin permiso"))
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.onExportDestinationChosen("content://documentos/datos.json")
+        advanceUntilIdle()
+
+        assertEquals(ExportStatus.Failed, vm.uiState.value.exportStatus)
     }
 }

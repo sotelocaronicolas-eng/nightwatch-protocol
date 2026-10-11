@@ -39,6 +39,12 @@ object ChangePassword
 object PasswordUpdated
 
 @Serializable
+object RecoveryEmail
+
+@Serializable
+object RecoveryEmailSaved
+
+@Serializable
 object PostAuthGate
 
 @Serializable
