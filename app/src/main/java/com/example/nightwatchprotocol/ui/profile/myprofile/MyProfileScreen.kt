@@ -174,7 +174,8 @@ private fun InfoCard(uiState: MyProfileUiState, modifier: Modifier = Modifier) {
             .background(NightWatchSurfaceButtonMuted, shape)
             .border(2.dp, NightWatchBorderAccent, shape),
     ) {
-        InfoRow("Correo electrónico", uiState.email, rowHeight = 55.dp, valueSize = 10.sp, bold = true)
+        // Both address rows use the same value style as every other row; they only differ in layout (see below).
+        InfoRow("Correo electrónico", uiState.email, rowHeight = 55.dp, stackValue = true)
         InfoDivider()
         InfoRow("Nivel actual", uiState.level ?: "…", rowHeight = 43.dp)
         InfoDivider()
@@ -191,70 +192,83 @@ private fun InfoCard(uiState: MyProfileUiState, modifier: Modifier = Modifier) {
             "Correo de recuperación",
             uiState.recoveryEmail ?: "—",
             rowHeight = 49.dp,
-            valueSize = 10.sp,
+            stackValue = true,
         )
     }
 }
 
-/** Values longer than this do not fit next to their label at 10sp, so the row stacks label above value. */
-private const val STACK_VALUE_FROM_CHARS = 22
+/** The one value style of the whole card (13sp, semi-bold, black): no row shrinks its text to fit. */
+@Composable
+private fun InfoValueText(text: String, modifier: Modifier = Modifier, textAlign: TextAlign, maxLines: Int = Int.MAX_VALUE) {
+    Text(
+        text = text,
+        color = Color.Black,
+        fontFamily = NightWatchBodyFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 13.sp,
+        textAlign = textAlign,
+        maxLines = maxLines,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier,
+    )
+}
 
+/** Value text of an address: at most two lines, and only as a last resort cut with an ellipsis. */
+private const val ADDRESS_MAX_LINES = 2
+
+/**
+ * One row of the card. Short values sit on the right of their label. With [stackValue] (the two address rows) the
+ * label goes on top and the value below it, left-aligned under the label and using the full width of the card.
+ * A stacked row with no value ("—") is drawn like the other empty rows. Rows grow with the font size instead of
+ * clipping, so a large system font or a narrow screen never cuts the text.
+ */
 @Composable
 private fun InfoRow(
     label: String,
     value: String,
     rowHeight: androidx.compose.ui.unit.Dp,
-    valueSize: androidx.compose.ui.unit.TextUnit = 13.sp,
-    bold: Boolean = true,
+    stackValue: Boolean = false,
 ) {
-    if (value.length > STACK_VALUE_FROM_CHARS) {
-        // A long address (e.g. "sotelocaronicolas@gmail.com") gets its own line instead of being cut with "...".
+    val stacked = stackValue && value != EMPTY_VALUE
+    if (stacked) {
         Column(
-            modifier = Modifier.fillMaxWidth().heightIn(min = rowHeight).padding(horizontal = 20.dp, vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = rowHeight).padding(horizontal = 20.dp, vertical = 10.dp),
         ) {
-            Text(
-                text = label,
-                color = LabelColor,
-                fontFamily = NightWatchBodyFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 13.sp,
-            )
-            Text(
+            InfoLabelText(label)
+            InfoValueText(
                 text = value,
-                color = Color.Black,
-                fontFamily = NightWatchBodyFontFamily,
-                fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Normal,
-                fontSize = valueSize,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                textAlign = TextAlign.Start,
+                maxLines = ADDRESS_MAX_LINES,
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
             )
         }
         return
     }
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().height(rowHeight).padding(horizontal = 20.dp),
+        modifier = Modifier.fillMaxWidth().heightIn(min = rowHeight).padding(horizontal = 20.dp, vertical = 8.dp),
     ) {
-        Text(
-            text = label,
-            color = LabelColor,
-            fontFamily = NightWatchBodyFontFamily,
-            fontWeight = FontWeight.Medium,
-            fontSize = 13.sp,
-        )
-        Text(
+        InfoLabelText(label)
+        InfoValueText(
             text = value,
-            color = Color.Black,
-            fontFamily = NightWatchBodyFontFamily,
-            fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Normal,
-            fontSize = valueSize,
             textAlign = TextAlign.End,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f).padding(start = 12.dp),
         )
     }
 }
+
+@Composable
+private fun InfoLabelText(text: String) {
+    Text(
+        text = text,
+        color = LabelColor,
+        fontFamily = NightWatchBodyFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 13.sp,
+    )
+}
+
+private const val EMPTY_VALUE = "—"
 
 @Composable
 private fun InfoDivider() {
