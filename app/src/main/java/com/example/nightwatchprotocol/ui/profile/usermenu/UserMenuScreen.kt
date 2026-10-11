@@ -52,6 +52,7 @@ fun UserMenuScreen(
     onClose: () -> Unit,
     onOpenProfile: () -> Unit,
     onOpenEditProfile: () -> Unit,
+    onOpenPrivacy: () -> Unit,
     onSignedOut: () -> Unit,
     viewModel: UserMenuViewModel = viewModel(factory = UserMenuViewModel.Factory),
 ) {
@@ -77,6 +78,7 @@ fun UserMenuScreen(
         onClose = onClose,
         onOpenProfile = onOpenProfile,
         onOpenEditProfile = onOpenEditProfile,
+        onOpenPrivacy = onOpenPrivacy,
         onSignOut = viewModel::onSignOutClicked,
     )
 }
@@ -88,6 +90,7 @@ private fun UserMenuContent(
     onClose: () -> Unit,
     onOpenProfile: () -> Unit,
     onOpenEditProfile: () -> Unit,
+    onOpenPrivacy: () -> Unit,
     onSignOut: () -> Unit,
 ) {
     NightWatchScreenBackground {
@@ -117,7 +120,7 @@ private fun UserMenuContent(
                     SettingsRow("🌐", "Idioma")
                 }
                 MenuSection("PRIVACIDAD Y SEGURIDAD") {
-                    SettingsRow("🔒", "Privacidad y Seguridad")
+                    SettingsRow("🔒", "Privacidad y Seguridad", onClick = onOpenPrivacy)
                 }
                 MenuSection("SOPORTE") {
                     SettingsRow("❓", "Ayuda y Soporte")

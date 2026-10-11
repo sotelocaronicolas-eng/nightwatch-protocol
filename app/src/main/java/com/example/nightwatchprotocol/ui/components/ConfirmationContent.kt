@@ -134,45 +134,6 @@ fun ConfirmationContent(
 }
 
 @Composable
-private fun TitleTopBar(title: String, onClose: () -> Unit) {
-    Box(modifier = Modifier.fillMaxWidth().statusBarsPadding()) {
-        Box(modifier = Modifier.fillMaxWidth().height(72.dp)) {
-            Text(
-                text = title,
-                color = NightWatchOnBackground,
-                fontFamily = NightWatchBodyFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 17.sp,
-                modifier = Modifier.padding(start = 20.dp, top = 30.dp),
-            )
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 19.dp, end = 17.dp)
-                    .size(48.dp)
-                    .clickable(role = Role.Button, onClick = onClose),
-            ) {
-                Text(
-                    text = "X",
-                    color = NightWatchOnBackground,
-                    fontFamily = NightWatchBodyFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
-                )
-            }
-        }
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .fillMaxWidth()
-                .height(4.dp)
-                .background(Color.White),
-        )
-    }
-}
-
-@Composable
 private fun WidePillButton(text: String, onClick: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,

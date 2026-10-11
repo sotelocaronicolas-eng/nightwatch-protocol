@@ -9,6 +9,8 @@ import com.example.nightwatchprotocol.data.avatar.AvatarImageProcessor
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
 import com.example.nightwatchprotocol.data.avatar.BitmapAvatarImageProcessor
 import com.example.nightwatchprotocol.data.avatar.FileAvatarCache
+import com.example.nightwatchprotocol.data.preferences.UserPreferences
+import com.example.nightwatchprotocol.data.preferences.userDataStore
 import com.example.nightwatchprotocol.data.profile.FirestoreProfileRepository
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.quiz.FirestoreQuizResultRepository
@@ -29,6 +31,7 @@ interface AppContainer {
     val profileRepository: ProfileRepository
     val avatarRepository: AvatarRepository
     val avatarImageProcessor: AvatarImageProcessor
+    val userPreferences: UserPreferences
 }
 
 class DefaultAppContainer(context: Context) : AppContainer {
@@ -41,4 +44,5 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val avatarRepository: AvatarRepository =
         AvatarRepository(profileRepository, FileAvatarCache(context.filesDir))
     override val avatarImageProcessor: AvatarImageProcessor = BitmapAvatarImageProcessor(context.contentResolver)
+    override val userPreferences: UserPreferences = UserPreferences(context.userDataStore)
 }

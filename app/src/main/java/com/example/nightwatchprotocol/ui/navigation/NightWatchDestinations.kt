@@ -30,6 +30,15 @@ object EditProfile
 object ConfirmIdentity
 
 @Serializable
+object PrivacySecurity
+
+@Serializable
+object ChangePassword
+
+@Serializable
+object PasswordUpdated
+
+@Serializable
 object PostAuthGate
 
 @Serializable

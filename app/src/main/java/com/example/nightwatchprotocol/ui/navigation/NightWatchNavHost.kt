@@ -13,10 +13,13 @@ import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
 import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
 import com.example.nightwatchprotocol.ui.mainmenu.MainMenuScreen
 import com.example.nightwatchprotocol.ui.postauth.PostAuthGateScreen
+import com.example.nightwatchprotocol.ui.profile.changepassword.ChangePasswordScreen
+import com.example.nightwatchprotocol.ui.profile.confirmation.PasswordUpdatedScreen
 import com.example.nightwatchprotocol.ui.profile.confirmation.ProfileUpdatedScreen
 import com.example.nightwatchprotocol.ui.profile.confirmidentity.ConfirmIdentityScreen
 import com.example.nightwatchprotocol.ui.profile.editprofile.EditProfileScreen
 import com.example.nightwatchprotocol.ui.profile.myprofile.MyProfileScreen
+import com.example.nightwatchprotocol.ui.profile.privacy.PrivacySecurityScreen
 import com.example.nightwatchprotocol.ui.profile.usermenu.UserMenuScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementQuizScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementResultScreen
@@ -98,6 +101,7 @@ fun NightWatchNavHost(
                 onClose = { navController.popBackStack() },
                 onOpenProfile = { navController.navigate(Profile) },
                 onOpenEditProfile = { navController.navigate(EditProfile) },
+                onOpenPrivacy = { navController.navigate(PrivacySecurity) },
                 onSignedOut = {
                     navController.navigate(Login) { popUpTo<MainMenu> { inclusive = true } }
                 },
@@ -131,6 +135,27 @@ fun NightWatchNavHost(
                     navController.popBackStack()
                 },
             )
+        }
+        composable<PrivacySecurity> {
+            PrivacySecurityScreen(
+                onClose = { navController.popBackStack() },
+                onOpenChangePassword = { navController.navigate(ChangePassword) },
+                // These three open screens that arrive in later stages.
+                onOpenRecoveryEmail = {},
+                onOpenDevices = {},
+                onDownloadData = {},
+            )
+        }
+        composable<ChangePassword> {
+            ChangePasswordScreen(
+                onClose = { navController.popBackStack() },
+                onPasswordChanged = {
+                    navController.navigate(PasswordUpdated) { popUpTo<ChangePassword> { inclusive = true } }
+                },
+            )
+        }
+        composable<PasswordUpdated> {
+            PasswordUpdatedScreen(onDone = { navController.popBackStack<PrivacySecurity>(inclusive = false) })
         }
         composable<ProfileUpdated> {
             ProfileUpdatedScreen(onBackToProfile = { navController.backToProfile() })
