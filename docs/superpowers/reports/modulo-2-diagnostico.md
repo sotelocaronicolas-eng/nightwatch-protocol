@@ -23,16 +23,20 @@ Spec: `docs/superpowers/specs/2026-10-09-profile-settings-design.md`.
 | 6. Pantallas restantes | Hecha | `a586d1a` |
 | 7. Cierre (informe inicial, comparación con Figma, revisión) | Hecha | `ee278dc` |
 | 8. Notificaciones funcionales (permiso, canales, recordatorios locales con WorkManager) | Hecha | `5f50a3f` |
-| 9. Dispositivos funcionales (registro en Firestore, modo cooperativo) | Hecha | (commit de la Etapa 9) |
+| 9. Dispositivos funcionales (registro en Firestore, modo cooperativo) | Hecha | `66fec10` |
+| 10. Idioma y Apariencia: distribución del espacio | Hecha (medidas de Figma; sin ver en celular) | `95ca8a1` |
+| 11. Correo de recuperación no se guardaba (causa real corregida) | Hecha | `f5fb23c` |
+| 12. Cambiar contraseña: alineación y estándares del registro | Hecha | `7f94f41` |
+| 13. Género y fecha de nacimiento en el perfil | Hecha (**requiere publicar reglas nuevas**) | `8c8907b` |
 
 Pendiente: nada del plan, salvo 3C (no aprobada), publicar las reglas de `devices` (sección 7) y las pruebas en celular.
 
 ## 2. Archivos y pruebas
 
-- **Creados:** 114 archivos respecto a `main` (68 de código en `src/main`, 35 de pruebas, 9 recursos, el spec y este informe). Total de la rama: 127 archivos, +9 915 líneas.
+- **Creados:** 124 archivos respecto a `main` (74 de código en `src/main`, 38 de pruebas unitarias, 1 prueba instrumentada, 9 recursos, el spec y este informe). Total de la rama: 137 archivos, +11 588 líneas.
 - **Modificados (13):** `app/build.gradle.kts`, `gradle/libs.versions.toml`, `AndroidManifest.xml` (solo `POST_NOTIFICATIONS`, Etapa 8), `NightWatchApplication.kt` (canales y sincronización de recordatorios, Etapa 8), `MainActivity.kt`, `AuthError.kt`, `AuthErrorMapper.kt`, `AppContainer.kt`, `MainMenuScreen.kt`, `NightWatchDestinations.kt`, `NightWatchNavHost.kt`, `AuthErrorMapperTest.kt`, `FakeAuthRepository.kt`.
 - **Sin tocar:** Login, Registro, Recuperar contraseña, Quiz, Resultado, `NightWatchTextField`, tema, `.idea`, `google-services.json`.
-- **Pruebas unitarias: 302, 302 pasan, 0 fallan** (eran 80 antes del módulo: 222 nuevas; 22 de la Etapa 8 y 40 de la Etapa 9). `assembleDebug` y la compilación de `androidTest` pasan.
+- **Pruebas unitarias: 373, 373 pasan, 0 fallan** (eran 80 antes del módulo: 293 nuevas; 22 de la Etapa 8, 40 de la 9, 14 de la 11, 10 de la 12 y 47 de la 13). `assembleDebug` y la compilación de `androidTest` pasan. Hay una prueba instrumentada nueva (Etapa 10) que **solo compila**: no se ejecutó porque no hay dispositivo.
 - **Lint:** 2 errores y 34 avisos. Los 2 errores (`LocalContextGetResourceValueCall` en `LoginScreen.kt:93` y `RegisterScreen.kt:100`) son de módulos anteriores y no los toqué. De este módulo salen solo avisos menores (usar `androidx.exifinterface`, extensiones KTX, tamaño del vector del check).
 - **Nota:** quedan 3 `assert()` sueltos que no son de este módulo (`RegisterViewModelTest` ×2 y `NightWatchButtonTest`); en el módulo nuevo se usó `assertTrue`/`assertFalse`.
 
@@ -101,10 +105,40 @@ Pendiente: nada del plan, salvo 3C (no aprobada), publicar las reglas de `device
 - "Datos locales" que se limpian al ser revocado: foto de perfil (archivo local y memoria). Los switches y el identificador del dispositivo se conservan; los recordatorios no se muestran sin sesión.
 - La fila "Administrar Dispositivos" de Privacidad ahora cuenta dispositivos reales sin cierre pendiente ("Administra tus sesiones" si no se puede leer).
 
+**Etapa 10 — Idioma y Apariencia (comparé las capturas de Figma 2287:163 y 2287:181 con mis medidas; no vi la app).**
+- Figma deja ~140 dp entre el encabezado y la primera opción (y ~180 dp en Idioma); a propósito se acercó a 32 dp, como pediste. El resto sale del diseño: ilustraciones de 412×308 (Apariencia, 577×432 sin recorte) y 412×287 (Idioma, 677×369 dibujada con "cover", o sea recortada a los lados), centradas, con la opacidad del frame (0,8 y 0,7).
+- La ilustración dejó de estar anclada al fondo: va **en flujo** justo debajo de las opciones, a ancho completo y con la proporción de su frame. Todo hace scroll junto (pantallas pequeñas y fuente grande).
+- "Elige cómo se ve…" conserva el margen de Figma (8 dp dentro del borde de las tarjetas, igual a 28 dp desde el borde); el resto usa los 20 dp laterales y los 14 dp entre elementos del andamiaje común.
+- No verificado: cómo queda en tu pantalla real (en teléfonos más altos que el frame de 917 dp queda espacio libre debajo de la ilustración).
+
+**Etapa 11 — Causa real del error "No se pudo guardar el correo".**
+- Las escrituras de Firestore (`set`, `update`, `delete`) devuelven `Task<Void>`; su `await()` devuelve **`null` cuando sale bien**. El repositorio escribía `withTimeoutOrNull(5 s) { …set().await() } ?: throw …`, y `withTimeoutOrNull` también devuelve `null` al agotarse el tiempo: no se podían distinguir, así que **siempre lanzaba** aunque Firestore ya hubiera guardado el dato.
+- Descartado con el código: el mapa de campos (`recoveryEmail` + `updatedAt`) cumple las reglas publicadas (`hasOnly`, string ≤ 254); el documento `profile/main` existente no aporta campos fuera de la lista; la ViewModel no reautentica ni traga otra excepción distinta; el timeout no era el problema sino la forma de leer el resultado. No había `adb` (no se pudo mirar logcat), por eso se reprodujo con prueba: `aCallThatSucceedsWithANullResult_isNotATimeout`.
+- Corrección: `firestoreCall` (usa `withTimeout`, clasifica el fallo en *sin conexión*, *permiso denegado* o *desconocido*). Se aplicó a perfil y dispositivos. Efectos colaterales corregidos: el aviso "Quedó guardada en este teléfono" del avatar salía siempre, y "Cerrar sesión en otro dispositivo" siempre mostraba error aunque la marca se escribía.
+- **Las reglas de Firestore NO eran la causa y no cambiaron en esta etapa.**
+- Mensajes: sin conexión → "Sin conexión a internet. Revisa tu conexión e inténtalo de nuevo."; permiso denegado → "No pudimos guardar el correo por un problema de permisos de tu cuenta. Inténtalo más tarde."; otro → "No se pudo guardar el correo. Inténtalo de nuevo." Nunca se muestra el detalle técnico.
+- No verificado en celular: que el guardado ya funcione de punta a punta (la causa está demostrada por código y pruebas, no por una ejecución real).
+
+**Etapa 12 — Cambiar contraseña.**
+- Campos, requisitos y botón comparten el mismo ancho y los 20 dp laterales del botón (antes los campos medían 330 dp máx.). Esto difiere de Editar Perfil, que usa 41 dp con un botón de 299 dp: allí el botón y los campos siguen juntos.
+- La brecha de 200 dp bajo el encabezado (Figma) se redujo a 32 dp para que entren los requisitos.
+- Se reutiliza `PasswordRules.from` del registro sin tocarlo. Los **textos** de los tres requisitos ("Mínimo 8 caracteres", "Incluye una mayúscula y un número", "Incluye al menos un carácter especial") se repiten en `passwordRequirements` porque el registro los tiene dentro de una pantalla; una prueba comprueba que siguen el orden y el valor de cada regla.
+- Validación en vivo: requisitos con marca verde, "igual a la actual" y "no coincide". El botón solo se habilita si hay contraseña actual, se cumplen las 3 reglas, la nueva es distinta de la actual y la confirmación coincide.
+
+**Etapa 13 — Género y fecha de nacimiento.**
+- Campos en Editar Perfil (después de "Verificar contraseña", para no mover los campos del Figma) y en Mi Perfil (después de "Miembro desde"). Para quitar el género hay una opción extra "Sin definir" en el menú y para la fecha un enlace "Quitar fecha"; quitarlos **borra el campo** en Firestore.
+- Claves guardadas: `gender` = `male` | `female` | `other` | `prefer_not_to_say` (no la etiqueta) y `birthDate` = `yyyy-MM-dd`. Se muestran como "Masculino…" y `dd/MM/yyyy`.
+- Validación propia sin `java.time` (`minSdk` 24 y no hay desugaring): fecha real, no futura (hoy sí vale), no anterior a hoy menos 120 años (29 feb cae en 28 feb si el año no es bisiesto). El selector solo ofrece fechas válidas y el ViewModel las vuelve a comprobar.
+- Caché local en DataStore por usuario; Firestore se consulta con timeout de 5 s. Si la escritura remota falla, el dato queda en el teléfono y el flujo continúa a "Perfil actualizado" (Firestore deja la escritura en cola); no hay mensaje de aviso para este caso.
+- "Descargar mis datos" incluye `genero` (etiqueta) y `fechaDeNacimiento` (ISO), o `null`.
+- Son datos personales: no se escriben en logs ni en mensajes de error (no hay ningún log nuevo en el módulo).
+- Correos largos en Mi Perfil: los valores de más de 22 caracteres pasan a una línea propia debajo de su etiqueta, en lugar de cortarse con "…". Desvío frente a Figma, que solo trae ejemplos cortos. No verificado en pantalla real.
+
 ## 5. Pasos manuales pendientes y riesgos
 
 **Manuales:**
-1. **Reglas de `devices` (nuevas, Etapa 9):** publícalas a mano antes de probar Dispositivos; sin ellas la lista falla con "permiso denegado" y la app lo tolera (muestra el error de carga). Bloque exacto en la sección 7.
+1. **Reglas de Firestore (nuevas, Etapa 13): publícalas ANTES de probar género y fecha.** Sin ellas, guardar esos campos falla en el servidor (el dato queda en el teléfono pero no sube). Archivo completo en la sección 7.
+1. **Reglas de `devices` (Etapa 9):** ya están incluidas en el archivo completo de la sección 7; sin ellas la lista falla con "permiso denegado" y la app lo tolera (muestra el error de carga).
 1. **Reglas de Firestore (anteriores):** ya las publicaste (bloque `profile` con `recoveryEmail`, `avatarBase64`, `updatedAt`). Si cambias el tamaño máximo del avatar, ajusta el límite de 150 000 caracteres.
 2. **Firebase Auth:** el enlace de `verifyBeforeUpdateEmail` usa la plantilla de correo y el dominio autorizado del proyecto; revisa en Authentication > Plantillas que el envío de correos de Firebase esté activo (no lo pude comprobar desde aquí).
 3. **Permisos:** `USE_BIOMETRIC` se fusiona solo desde la librería (verificado en el manifest fusionado). No hay permisos de almacenamiento ni cámara.
@@ -123,6 +157,11 @@ Pendiente: nada del plan, salvo 3C (no aprobada), publicar las reglas de `device
 - **Lectura síncrona al arrancar:** `AppLockViewModel` lee la preferencia con `runBlocking` (igual que `NightWatchApplication` con la sesión) para no mostrar nada antes de decidir el bloqueo.
 - **Pruebas de pantalla:** no hay pruebas instrumentadas nuevas de Compose; solo lógica en JVM.
 - **P12 sin aprobar:** "Confirma tu identidad" pide siempre la contraseña; no hay `SecretVault`.
+- **Datos personales (Etapa 13):** género y fecha de nacimiento viven en Firestore y en una copia local sin cifrar (DataStore, como el resto de preferencias). Quien tenga el teléfono desbloqueado y root podría leerlos. No se registran en logs.
+- **Dos copias que pueden diferir:** si dos dispositivos cambian estos campos sin conexión, gana la última escritura que llegue a Firestore.
+- **Reglas más estrictas que la app:** la regla pide `gender` dentro de la lista y `birthDate` con forma `yyyy-MM-dd`; **no** valida que la fecha sea real ni pasada (eso lo hace la app). Un cliente modificado podría guardar una fecha imposible.
+- **Layout sin ver (Etapas 10, 12, 13):** el espaciado, el alineado y el menú/selector de fecha compilan y siguen las medidas de Figma, pero no se vieron en un dispositivo. Hay una prueba instrumentada para Idioma/Apariencia que solo compila.
+- **No se corrigió** el mismo patrón `withTimeoutOrNull(...) ?: throw` en código de otros módulos porque no hay ninguno: `FirestoreQuizResultRepository` hace `await()` sin esa construcción.
 
 ## 6. Checklist en el celular (por etapa)
 
@@ -184,9 +223,36 @@ Pendiente: nada del plan, salvo 3C (no aprobada), publicar las reglas de `device
 - [ ] Sin red: la lista muestra el error de carga y la sesión no se cierra.
 - [ ] "Cerrar sesión" desde el Menú o desde el Main Menu quita ese dispositivo de la lista.
 
-## 7. Reglas de Firestore (completas, con `devices`)
+**Etapa 10 — Idioma y Apariencia**
+- [ ] Apariencia: debajo del encabezado aparece "Elige cómo se ve…" y las 3 tarjetas más cerca que antes; la ilustración queda justo debajo de las tarjetas, centrada y a todo el ancho.
+- [ ] Idioma: las 2 tarjetas cerca del encabezado y el globo debajo.
+- [ ] Gira el teléfono o sube el tamaño de fuente: todo hace scroll y no se corta nada.
+- [ ] Tocar "Claro", "Automático" o "English" no hace nada (la app sigue oscura y en español).
 
-Reemplaza todo el contenido de la pestaña "Reglas" y publica. Los dos primeros bloques no cambian; el tercero es nuevo.
+**Etapa 11 — Correo de recuperación**
+- [ ] Guarda un correo válido: ahora debe salir "¡Correo guardado!" y verse en Mi Perfil y en Privacidad.
+- [ ] Pon el teléfono en modo avión y guarda otro: debe decir "Sin conexión a internet…".
+- [ ] Cambiar la foto: ya no debe salir "Quedó guardada en este teléfono" cuando hay conexión.
+- [ ] Dispositivos: "Cerrar sesión" en otro dispositivo ya no debe mostrar error.
+
+**Etapa 12 — Cambiar contraseña**
+- [ ] Los tres campos y el botón miden lo mismo y están alineados con los mismos márgenes.
+- [ ] Escribe una nueva débil: los requisitos se ponen verdes uno a uno y el botón sigue apagado.
+- [ ] Repite la contraseña actual como nueva: aviso "no puede ser igual a la actual" y botón apagado.
+- [ ] Confirmación distinta: aviso en vivo; coincidente + válida: botón activo y guarda.
+- [ ] Contraseña actual incorrecta y modo avión mantienen sus mensajes.
+
+**Etapa 13 — Género y fecha de nacimiento** (publica antes las reglas de la sección 7)
+- [ ] Mi Perfil muestra "Género" y "Fecha de nacimiento" con "—" mientras no estén definidos; el correo largo ya no se corta con "…".
+- [ ] "Correo de recuperación" tiene su tilde en Mi Perfil.
+- [ ] Editar Perfil: el menú de género ofrece Sin definir, Masculino, Femenino, Otro y Prefiero no decir; el selector de fecha no deja elegir días futuros ni años anteriores a hace 120 años.
+- [ ] Guarda ambos, vuelve a Mi Perfil y verifica `dd/MM/yyyy`; ciérrala y ábrela sin red: se ven igual.
+- [ ] "Quitar fecha" y "Sin definir" los devuelven a "—" y el campo desaparece del documento en la consola de Firestore.
+- [ ] "Descargar mis datos" incluye `genero` y `fechaDeNacimiento`.
+
+## 7. Reglas de Firestore (completas, con `devices` y los campos nuevos del perfil)
+
+Reemplaza todo el contenido de la pestaña "Reglas" y publica. `placement` y `devices` no cambian respecto a lo ya publicado; **el bloque `profile` es el único que cambia** (acepta `gender` y `birthDate`). **Publícalo ANTES de probar la Etapa 13.**
 
 ```
 rules_version = '2';
@@ -198,17 +264,23 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Perfil: correo de recuperación y avatar (sin cambios)
+    // Perfil: correo de recuperación, avatar, género y fecha de nacimiento (CAMBIA: gender y birthDate)
     match /users/{userId}/profile/{document=**} {
       allow read, delete: if request.auth != null && request.auth.uid == userId;
       allow create, update: if request.auth != null && request.auth.uid == userId
-        && request.resource.data.keys().hasOnly(['recoveryEmail', 'avatarBase64', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['recoveryEmail', 'avatarBase64', 'updatedAt', 'gender', 'birthDate'])
         && (!('recoveryEmail' in request.resource.data)
             || (request.resource.data.recoveryEmail is string
                 && request.resource.data.recoveryEmail.size() <= 254))
         && (!('avatarBase64' in request.resource.data)
             || (request.resource.data.avatarBase64 is string
-                && request.resource.data.avatarBase64.size() <= 150000));
+                && request.resource.data.avatarBase64.size() <= 150000))
+        && (!('gender' in request.resource.data)
+            || request.resource.data.gender in ['male', 'female', 'other', 'prefer_not_to_say'])
+        && (!('birthDate' in request.resource.data)
+            || (request.resource.data.birthDate is string
+                && request.resource.data.birthDate.size() == 10
+                && request.resource.data.birthDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')));
     }
 
     // NUEVO — Dispositivos (modo cooperativo): solo el dueño; id con forma de UUID; campos permitidos
@@ -227,5 +299,7 @@ service cloud.firestore {
   }
 }
 ```
+
+Perfil (Etapa 13): la app escribe `gender` (una de las 4 claves) y `birthDate` (`yyyy-MM-dd`) con `set(..., merge)` junto con `updatedAt`, y los borra con `FieldValue.delete()` al quitarlos. En el Rules Playground prueba una escritura de `users/<tu uid>/profile/main` con `gender = "male"` y `birthDate = "2000-05-07"` (permitida), otra con `gender = "x"` (denegada) y otra con `birthDate = "7/5/2000"` (denegada).
 
 Cómo la usa la app: `set(..., merge)` con `name` y `lastSeen` (marca de tiempo del servidor) y `revoked` solo al crear; `update("revoked", true)` para pedir el cierre; `delete` al cerrar sesión. En el Rules Playground prueba: lectura y escritura de `users/<tu uid>/devices/<un UUID>` (permitidas), una con un campo extra como `foo` (denegada) y una con otro uid (denegada).
