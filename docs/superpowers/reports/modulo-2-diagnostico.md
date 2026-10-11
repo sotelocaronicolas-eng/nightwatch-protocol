@@ -27,7 +27,9 @@ Spec: `docs/superpowers/specs/2026-10-09-profile-settings-design.md`.
 | 10. Idioma y Apariencia: distribución del espacio | Hecha (medidas de Figma; sin ver en celular) | `95ca8a1` |
 | 11. Correo de recuperación no se guardaba (causa real corregida) | Hecha | `f5fb23c` |
 | 12. Cambiar contraseña: alineación y estándares del registro | Hecha | `7f94f41` |
-| 13. Género y fecha de nacimiento en el perfil | Hecha (**requiere publicar reglas nuevas**) | `8c8907b` |
+| 13. Género y fecha de nacimiento en el perfil | Hecha (reglas ya publicadas por ti) | `8c8907b` |
+| Ajuste: Mi Perfil, filas de correo con la tipografía de las demás | Hecho (sin ver en celular) | `535544c` |
+| Ajuste: Idioma y Apariencia centradas verticalmente | Hecho (sin ver en celular) | `6ce0816` |
 
 Pendiente: nada del plan, salvo 3C (no aprobada), publicar las reglas de `devices` (sección 7) y las pruebas en celular.
 
@@ -133,6 +135,14 @@ Pendiente: nada del plan, salvo 3C (no aprobada), publicar las reglas de `device
 - "Descargar mis datos" incluye `genero` (etiqueta) y `fechaDeNacimiento` (ISO), o `null`.
 - Son datos personales: no se escriben en logs ni en mensajes de error (no hay ningún log nuevo en el módulo).
 - Correos largos en Mi Perfil: los valores de más de 22 caracteres pasan a una línea propia debajo de su etiqueta, en lugar de cortarse con "…". Desvío frente a Figma, que solo trae ejemplos cortos. No verificado en pantalla real.
+
+**Ajustes visuales posteriores (sin cambios en datos ni reglas).**
+- **Mi Perfil, filas de correo (`535544c`):** los valores de "Correo electrónico" y "Correo de recuperación" usan la misma tipografía que todos los demás (13 sp, semibold, negro, un único `InfoValueText`); no hay autoajuste ni reducción. Esas dos filas llevan la etiqueta arriba y el valor debajo, alineado a la izquierda y a todo el ancho de la tarjeta, con el mismo padding y los mismos separadores. Si no cabe en una línea pasa a una segunda (máximo 2) y solo entonces termina con "…". Sin valor, "—" se dibuja como en las demás filas vacías (fila en línea, alineada a la derecha). Las filas crecen con la fuente del sistema (`heightIn(min)` en lugar de alto fijo).
+  - **Figma lo resuelve distinto:** en el frame original (2068:51) los dos correos van en línea con su etiqueta, alineados a la derecha, y en **10 sp** frente a 13 sp de las demás filas (es decir, el propio diseño reduce la letra; ahí solo caben correos cortos). Se cambió a propósito por lo que pediste.
+  - No verificado: cómo se ve en tu celular, con fuente grande ni en pantallas angostas. No hay prueba de UI de esta tarjeta (la tarjeta es privada y no existe prueba de formateadores que dependa de ella); las 373 pruebas siguen pasando.
+- **Idioma y Apariencia (`6ce0816`):** el andamiaje común (`SettingsScaffold`) tiene una opción `centerVertically`: el bloque completo (opciones + ilustración) se centra en el espacio bajo el encabezado, con 24 dp arriba y abajo para que el centrado sea parejo; si no cabe (pantalla pequeña o fuente grande) empieza arriba y hace scroll. **Apariencia tenía el mismo hueco** (~200 dp libres en el frame de 917 dp) y recibió el mismo criterio para que ambas queden consistentes. Las demás pantallas que usan el andamiaje no se centran (comportamiento anterior). Sigue sin haber lógica de idioma ni de tema. La prueba instrumentada de estas pantallas sigue compilando (no se ejecuta sin dispositivo).
+  - Cambio deliberado frente a Figma: allí las opciones quedan ~140 dp (Apariencia) y ~180 dp (Idioma) bajo el encabezado y el espacio sobrante queda abajo.
+  - No verificado: el resultado real en el celular (cuánto espacio sobra depende de la altura de tu pantalla).
 
 ## 5. Pasos manuales pendientes y riesgos
 
