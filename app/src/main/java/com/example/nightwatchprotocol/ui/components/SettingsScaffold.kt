@@ -1,8 +1,6 @@
 package com.example.nightwatchprotocol.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,8 +15,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Frame shared by the settings-style screens: [TitleTopBar], then a scrolling column with 20dp side margins and
- * 14dp between items. [decoration] is drawn behind the content (the Apariencia and Idioma illustrations).
+ * Frame shared by the settings-style screens: [TitleTopBar], then one scrolling column. [content] has 20dp side
+ * margins and 14dp between items; [footer] comes right after it and spans the full width (the illustrations of
+ * Apariencia and Idioma). Everything scrolls together, so nothing is cut on small screens or with large fonts.
  */
 @Composable
 fun SettingsScaffold(
@@ -26,23 +25,27 @@ fun SettingsScaffold(
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
     topPadding: Dp = 16.dp,
-    decoration: @Composable BoxScope.() -> Unit = {},
+    footer: @Composable ColumnScope.() -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
 ) {
     NightWatchScreenBackground(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             TitleTopBar(title = title, onClose = onClose)
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                decoration()
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .navigationBarsPadding(),
+            ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                     modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(start = 20.dp, end = 20.dp, top = topPadding, bottom = 24.dp)
-                        .navigationBarsPadding(),
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, end = 20.dp, top = topPadding, bottom = 24.dp),
                     content = content,
                 )
+                footer()
             }
         }
     }
