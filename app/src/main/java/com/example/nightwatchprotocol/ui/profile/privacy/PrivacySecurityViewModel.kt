@@ -7,14 +7,19 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.biometric.BiometricAvailability
+import com.example.nightwatchprotocol.data.biometric.BiometricCapabilities
 import com.example.nightwatchprotocol.data.preferences.UserPreferences
 import com.example.nightwatchprotocol.data.preferences.UserSetting
 import com.example.nightwatchprotocol.data.profile.FixedProfileData
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -27,14 +32,28 @@ data class PrivacySecurityUiState(
     val biometricError: String? = null,
 )
 
+const val MESSAGE_NO_FINGERPRINT_ENROLLED = "No hay una huella registrada en este teléfono"
+const val MESSAGE_NO_FINGERPRINT_READER = "Este teléfono no tiene lector de huella"
+const val MESSAGE_READER_UNAVAILABLE = "El lector no está disponible ahora, inténtalo más tarde"
+const val MESSAGE_FINGERPRINT_NOT_VERIFIED = "No se pudo verificar tu huella"
+
+sealed interface PrivacySecurityEvent {
+    /** The screen must show the system prompt that proves the user's fingerprint works before the lock is turned on. */
+    data object VerifyBiometric : PrivacySecurityEvent
+}
+
 class PrivacySecurityViewModel(
     private val authRepository: AuthRepository,
     private val profileRepository: ProfileRepository,
     private val userPreferences: UserPreferences,
+    private val biometricCapabilities: BiometricCapabilities,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PrivacySecurityUiState())
     val uiState: StateFlow<PrivacySecurityUiState> = _uiState.asStateFlow()
+
+    private val _events = Channel<PrivacySecurityEvent>(Channel.BUFFERED)
+    val events: Flow<PrivacySecurityEvent> = _events.receiveAsFlow()
 
     init {
         viewModelScope.launch {
@@ -64,6 +83,36 @@ class PrivacySecurityViewModel(
         viewModelScope.launch { userPreferences.set(UserSetting.HIDE_PUBLIC_PROGRESS, hide) }
     }
 
+    /**
+     * Turning the lock off is immediate. Turning it on first checks that a fingerprint can be used and then asks the
+     * screen to show a test prompt; without an enrolled fingerprint no prompt is shown and the switch stays off.
+     */
+    fun onBiometricLockToggled(enable: Boolean) {
+        if (!enable) {
+            _uiState.update { it.copy(biometricError = null) }
+            viewModelScope.launch { userPreferences.set(UserSetting.BIOMETRIC_LOCK, false) }
+            return
+        }
+        val error = when (biometricCapabilities.availability()) {
+            BiometricAvailability.Available -> null
+            BiometricAvailability.NoneEnrolled -> MESSAGE_NO_FINGERPRINT_ENROLLED
+            BiometricAvailability.NoHardware -> MESSAGE_NO_FINGERPRINT_READER
+            BiometricAvailability.TemporarilyUnavailable, BiometricAvailability.Unsupported -> MESSAGE_READER_UNAVAILABLE
+        }
+        _uiState.update { it.copy(biometricError = error) }
+        if (error == null) viewModelScope.launch { _events.send(PrivacySecurityEvent.VerifyBiometric) }
+    }
+
+    /** The result of the test prompt shown after [PrivacySecurityEvent.VerifyBiometric]. */
+    fun onBiometricVerified(success: Boolean) {
+        if (success) {
+            _uiState.update { it.copy(biometricError = null) }
+            viewModelScope.launch { userPreferences.set(UserSetting.BIOMETRIC_LOCK, true) }
+        } else {
+            _uiState.update { it.copy(biometricError = MESSAGE_FINGERPRINT_NOT_VERIFIED) }
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -73,6 +122,7 @@ class PrivacySecurityViewModel(
                     container.authRepository,
                     container.profileRepository,
                     container.userPreferences,
+                    container.biometricCapabilities,
                 )
             }
         }

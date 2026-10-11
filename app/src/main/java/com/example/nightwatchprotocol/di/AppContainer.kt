@@ -9,6 +9,8 @@ import com.example.nightwatchprotocol.data.avatar.AvatarImageProcessor
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
 import com.example.nightwatchprotocol.data.avatar.BitmapAvatarImageProcessor
 import com.example.nightwatchprotocol.data.avatar.FileAvatarCache
+import com.example.nightwatchprotocol.data.biometric.AndroidBiometricCapabilities
+import com.example.nightwatchprotocol.data.biometric.BiometricCapabilities
 import com.example.nightwatchprotocol.data.preferences.UserPreferences
 import com.example.nightwatchprotocol.data.preferences.userDataStore
 import com.example.nightwatchprotocol.data.profile.FirestoreProfileRepository
@@ -32,6 +34,7 @@ interface AppContainer {
     val avatarRepository: AvatarRepository
     val avatarImageProcessor: AvatarImageProcessor
     val userPreferences: UserPreferences
+    val biometricCapabilities: BiometricCapabilities
 }
 
 class DefaultAppContainer(context: Context) : AppContainer {
@@ -45,4 +48,5 @@ class DefaultAppContainer(context: Context) : AppContainer {
         AvatarRepository(profileRepository, FileAvatarCache(context.filesDir))
     override val avatarImageProcessor: AvatarImageProcessor = BitmapAvatarImageProcessor(context.contentResolver)
     override val userPreferences: UserPreferences = UserPreferences(context.userDataStore)
+    override val biometricCapabilities: BiometricCapabilities = AndroidBiometricCapabilities(context)
 }

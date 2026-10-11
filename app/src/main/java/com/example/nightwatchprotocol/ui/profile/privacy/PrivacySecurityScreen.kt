@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -18,6 +20,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.fragment.app.FragmentActivity
+import com.example.nightwatchprotocol.ui.biometric.BiometricPrompter
+import com.example.nightwatchprotocol.ui.biometric.BiometricResult
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.SectionLabel
 import com.example.nightwatchprotocol.ui.components.SettingsRow
@@ -38,12 +43,33 @@ fun PrivacySecurityScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshRecoveryEmail() }
 
+    val activity = LocalActivity.current as? FragmentActivity
+    LaunchedEffect(viewModel, activity) {
+        viewModel.events.collect { event ->
+            when (event) {
+                PrivacySecurityEvent.VerifyBiometric -> {
+                    if (activity == null) {
+                        viewModel.onBiometricVerified(false)
+                    } else {
+                        // Activation needs a real fingerprint: no PIN fallback here (spec 3c).
+                        BiometricPrompter(activity).authenticate(
+                            title = "Activar bloqueo",
+                            subtitle = "Verifica tu huella para activarlo",
+                            allowDeviceCredential = false,
+                        ) { result -> viewModel.onBiometricVerified(result == BiometricResult.Success) }
+                    }
+                }
+            }
+        }
+    }
+
     PrivacySecurityContent(
         uiState = uiState,
         onClose = onClose,
         onOpenChangePassword = onOpenChangePassword,
         onOpenRecoveryEmail = onOpenRecoveryEmail,
         onOpenDevices = onOpenDevices,
+        onBiometricLockToggle = viewModel::onBiometricLockToggled,
         onHidePublicProgressChange = viewModel::onHidePublicProgressChanged,
         onDownloadData = onDownloadData,
     )
@@ -56,6 +82,7 @@ private fun PrivacySecurityContent(
     onOpenChangePassword: () -> Unit,
     onOpenRecoveryEmail: () -> Unit,
     onOpenDevices: () -> Unit,
+    onBiometricLockToggle: (Boolean) -> Unit,
     onHidePublicProgressChange: (Boolean) -> Unit,
     onDownloadData: () -> Unit,
 ) {
@@ -90,7 +117,10 @@ private fun PrivacySecurityContent(
                     emoji = "🔒",
                     label = "Bloqueo Biométrico",
                     subtitle = "Pide huella o rostro al abrir la app",
-                    trailing = { SettingsSwitch(checked = uiState.biometricLockEnabled, onCheckedChange = {}) },
+                    trailing = {
+                        SettingsSwitch(checked = uiState.biometricLockEnabled, onCheckedChange = onBiometricLockToggle)
+                    },
+                    onClick = { onBiometricLockToggle(!uiState.biometricLockEnabled) },
                 )
                 uiState.biometricError?.let { error ->
                     Text(text = error, color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
