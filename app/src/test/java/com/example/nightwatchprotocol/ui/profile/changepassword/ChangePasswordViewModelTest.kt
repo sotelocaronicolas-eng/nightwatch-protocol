@@ -5,6 +5,7 @@ import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.account.AccountProfile
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
+import com.example.nightwatchprotocol.ui.auth.register.PasswordRules
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -141,6 +142,135 @@ class ChangePasswordViewModelTest {
         vm.onConfirmPasswordChanged(strong)
 
         assertNull(vm.uiState.value.confirmError)
+    }
+
+    // ---- Same standards as the sign-up screen (PasswordRules), live validation and the submit button ----
+
+    @Test
+    fun passwordsAcceptedBySignUp_enableTheButton_andOnesItRejectsDoNot() = runTest {
+        val accepted = listOf("Abcdef1!", "Nueva1clave!", "Z9\$aaaaa", "Contra5eña_larga")
+        val rejected = listOf(
+            "Abc1!", // too short
+            "abcdefg1!", // no uppercase
+            "Abcdefgh!", // no digit
+            "Abcdefg12", // no special character
+            "abcdefgh", // only lowercase
+            "ÁÉÍÓÚ1234!x", // accented capitals do not count as uppercase for Firebase
+        )
+        for (password in accepted) {
+            val vm = viewModel()
+            vm.fill(current = "Actual1!", new = password, confirm = password)
+            assertTrue("debía aceptarse: $password", PasswordRules.from(password).allSatisfied)
+            assertTrue("el botón debía habilitarse: $password", vm.uiState.value.canSubmit)
+        }
+        for (password in rejected) {
+            val vm = viewModel()
+            vm.fill(current = "Actual1!", new = password, confirm = password)
+            assertEquals(PasswordRules.from(password).allSatisfied, vm.uiState.value.rules.allSatisfied)
+            if (!PasswordRules.from(password).allSatisfied) {
+                assertFalse("el botón debía bloquearse: $password", vm.uiState.value.canSubmit)
+            }
+        }
+    }
+
+    @Test
+    fun theLiveRules_areExactlyThoseOfTheSignUpValidator() = runTest {
+        val vm = viewModel()
+        vm.onNewPasswordChanged("abc")
+
+        assertEquals(PasswordRules.from("abc"), vm.uiState.value.rules)
+
+        vm.onNewPasswordChanged("Abcdef1!")
+
+        assertEquals(PasswordRules.from("Abcdef1!"), vm.uiState.value.rules)
+        assertTrue(vm.uiState.value.rules.allSatisfied)
+    }
+
+    @Test
+    fun theRequirementLines_followEachRuleOfTheValidator() {
+        val partial = passwordRequirements(PasswordRules.from("abcdefgh"))
+
+        assertEquals(
+            listOf(
+                "Mínimo 8 caracteres" to true,
+                "Incluye una mayúscula y un número" to false,
+                "Incluye al menos un carácter especial" to false,
+            ),
+            partial,
+        )
+        assertTrue(passwordRequirements(PasswordRules.from("Abcdef1!")).all { it.second })
+    }
+
+    @Test
+    fun aNewPasswordEqualToTheCurrent_isFlaggedLive_andBlocksTheButton() = runTest {
+        val vm = viewModel()
+        vm.fill(current = "Misma1clave!", new = "Misma1clave!", confirm = "Misma1clave!")
+
+        assertTrue(vm.uiState.value.sameAsCurrent)
+        assertFalse(vm.uiState.value.canSubmit)
+    }
+
+    @Test
+    fun sameAsCurrent_isAlsoRejectedOnSave_withoutCallingFirebase() = runTest {
+        val vm = viewModel()
+        vm.fill(current = "Misma1clave!", new = "Misma1clave!", confirm = "Misma1clave!")
+
+        vm.onSaveClicked()
+        advanceUntilIdle()
+
+        assertEquals("La nueva contraseña no puede ser igual a la actual", vm.uiState.value.newError)
+        assertTrue(account.changePasswordCalls.isEmpty())
+    }
+
+    @Test
+    fun aConfirmationThatDiffers_isFlaggedLive_andBlocksTheButton() = runTest {
+        val vm = viewModel()
+        vm.fill(current = "Actual1!", new = strong, confirm = "Otra1clave!")
+
+        assertTrue(vm.uiState.value.confirmationMismatch)
+        assertFalse(vm.uiState.value.canSubmit)
+    }
+
+    @Test
+    fun anEmptyConfirmation_blocksTheButtonWithoutShowingAMismatchYet() = runTest {
+        val vm = viewModel()
+        vm.fill(current = "Actual1!", new = strong, confirm = "")
+
+        assertFalse(vm.uiState.value.confirmationMismatch)
+        assertFalse(vm.uiState.value.canSubmit)
+    }
+
+    @Test
+    fun withoutTheCurrentPassword_theButtonIsBlocked() = runTest {
+        val vm = viewModel()
+        vm.fill(current = "", new = strong, confirm = strong)
+
+        assertFalse(vm.uiState.value.canSubmit)
+    }
+
+    @Test
+    fun whileSaving_theButtonIsBlocked() {
+        val valid = ChangePasswordUiState(currentPassword = "Actual1!", newPassword = strong, confirmPassword = strong)
+
+        assertTrue(valid.canSubmit)
+        assertFalse(valid.copy(isLoading = true).canSubmit)
+    }
+
+    @Test
+    fun existingErrorHandling_isKept_wrongCurrentPasswordAndNoConnection() = runTest {
+        account.reauthenticateResult = Result.failure(AuthError.WrongPassword)
+        val wrong = viewModel()
+        wrong.fill()
+        wrong.onSaveClicked()
+        advanceUntilIdle()
+        assertEquals("La contraseña actual no es correcta", wrong.uiState.value.currentError)
+
+        account.reauthenticateResult = Result.failure(AuthError.NetworkError)
+        val offline = viewModel()
+        offline.fill()
+        offline.onSaveClicked()
+        advanceUntilIdle()
+        assertEquals("Sin conexión a internet", offline.uiState.value.formError)
     }
 
     @Test

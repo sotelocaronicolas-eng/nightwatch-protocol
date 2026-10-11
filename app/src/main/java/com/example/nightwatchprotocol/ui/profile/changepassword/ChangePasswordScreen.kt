@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,10 +35,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.components.TitleTopBar
+import com.example.nightwatchprotocol.ui.profile.MESSAGE_PASSWORDS_DO_NOT_MATCH
 import com.example.nightwatchprotocol.ui.profile.editprofile.GOOGLE_ACCOUNT_NOTICE
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
+import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 
@@ -94,12 +99,11 @@ private fun ChangePasswordContent(
                         modifier = Modifier.padding(top = 32.dp),
                     )
                 } else {
-                    // The design leaves a large gap under the header before the first field.
+                    // Fields, requirements and button share the same width and the same 20dp side margins.
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(top = 200.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
                     ) {
-                        val fieldModifier = Modifier.widthIn(max = 330.dp)
                         NightWatchTextField(
                             label = "Contraseña actual",
                             value = uiState.currentPassword,
@@ -107,25 +111,26 @@ private fun ChangePasswordContent(
                             isPassword = true,
                             isError = uiState.currentError != null,
                             supportingText = uiState.currentError,
-                            modifier = fieldModifier,
                         )
                         NightWatchTextField(
                             label = "Nueva contraseña",
                             value = uiState.newPassword,
                             onValueChange = onNewChange,
                             isPassword = true,
-                            isError = uiState.newError != null,
-                            supportingText = uiState.newError ?: "Mínimo 8 caracteres",
-                            modifier = fieldModifier,
+                            // Live: "igual a la actual" shows while typing; the rule list below shows the rest.
+                            isError = uiState.newError != null || uiState.sameAsCurrent,
+                            supportingText = uiState.newError
+                                ?: if (uiState.sameAsCurrent) MESSAGE_SAME_PASSWORD else null,
                         )
+                        PasswordRequirements(uiState)
                         NightWatchTextField(
                             label = "Confirmar nueva contraseña",
                             value = uiState.confirmPassword,
                             onValueChange = onConfirmChange,
                             isPassword = true,
-                            isError = uiState.confirmError != null,
-                            supportingText = uiState.confirmError,
-                            modifier = fieldModifier,
+                            isError = uiState.confirmError != null || uiState.confirmationMismatch,
+                            supportingText = uiState.confirmError
+                                ?: if (uiState.confirmationMismatch) MESSAGE_PASSWORDS_DO_NOT_MATCH else null,
                         )
                     }
                     uiState.formError?.let { error ->
@@ -138,11 +143,32 @@ private fun ChangePasswordContent(
                         )
                     }
                     SaveButton(
-                        enabled = !uiState.isLoading,
+                        enabled = uiState.canSubmit,
                         onClick = onSave,
                         modifier = Modifier.padding(top = 28.dp, bottom = 32.dp),
                     )
                 }
+            }
+        }
+    }
+}
+
+/** One line per sign-up password rule, green when met: the same rules and look as the registration screen. */
+@Composable
+private fun PasswordRequirements(uiState: ChangePasswordUiState) {
+    Column(modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)) {
+        passwordRequirements(uiState.rules).forEach { (text, satisfied) ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(vertical = 2.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = "$text: ${if (satisfied) "cumplido" else "pendiente"}",
+                    tint = if (satisfied) Color(0xFF4CAF50) else NightWatchOnBackground.copy(alpha = 0.4f),
+                )
+                Text(text, color = NightWatchOnBackground, fontFamily = NightWatchBodyFontFamily, fontSize = 14.sp)
             }
         }
     }

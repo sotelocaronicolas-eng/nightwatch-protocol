@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+const val MESSAGE_SAME_PASSWORD = "La nueva contraseña no puede ser igual a la actual"
+
 data class ChangePasswordUiState(
     val currentPassword: String = "",
     val newPassword: String = "",
@@ -35,6 +37,29 @@ data class ChangePasswordUiState(
     val newError: String? = null,
     val confirmError: String? = null,
     val formError: String? = null,
+) {
+    /** The same rules as the sign-up screen (`PasswordRules`), evaluated live as the user types. */
+    val rules: PasswordRules get() = PasswordRules.from(newPassword)
+
+    val sameAsCurrent: Boolean get() = newPassword.isNotEmpty() && newPassword == currentPassword
+
+    val confirmationMismatch: Boolean get() = confirmPassword.isNotEmpty() && confirmPassword != newPassword
+
+    /** The save button is enabled only when everything is valid. */
+    val canSubmit: Boolean
+        get() = hasPassword &&
+            !isLoading &&
+            currentPassword.isNotEmpty() &&
+            rules.allSatisfied &&
+            !sameAsCurrent &&
+            confirmPassword == newPassword
+}
+
+/** The requirement lines shown under "Nueva contraseña", in the order and wording of the sign-up screen. */
+fun passwordRequirements(rules: PasswordRules): List<Pair<String, Boolean>> = listOf(
+    "Mínimo 8 caracteres" to rules.hasMinLength,
+    "Incluye una mayúscula y un número" to rules.hasUpperCaseAndDigit,
+    "Incluye al menos un carácter especial" to rules.hasSpecialChar,
 )
 
 sealed interface ChangePasswordEvent {
@@ -68,7 +93,11 @@ class ChangePasswordViewModel(
 
         // Local checks first: a mismatch or a weak password never reaches Firebase.
         val currentError = if (state.currentPassword.isEmpty()) MESSAGE_ENTER_CURRENT_PASSWORD else null
-        val newError = if (!PasswordRules.from(state.newPassword).allSatisfied) MESSAGE_PASSWORD_RULES else null
+        val newError = when {
+            !state.rules.allSatisfied -> MESSAGE_PASSWORD_RULES
+            state.sameAsCurrent -> MESSAGE_SAME_PASSWORD
+            else -> null
+        }
         val confirmError =
             if (newError == null && state.newPassword != state.confirmPassword) MESSAGE_PASSWORDS_DO_NOT_MATCH else null
         if (currentError != null || newError != null || confirmError != null) {
