@@ -28,14 +28,14 @@ private const val READ_TIMEOUT_MILLIS = 5_000L
 
 class MyProfileViewModel(
     authRepository: AuthRepository,
-    accountRepository: AccountRepository,
+    private val accountRepository: AccountRepository,
     private val quizResultRepository: QuizResultRepository,
     private val profileRepository: ProfileRepository,
     private val avatarRepository: AvatarRepository,
 ) : ViewModel() {
 
     private val uid = authRepository.currentUserUid
-    private val account = accountRepository.currentProfile()
+    private var account = accountRepository.currentProfile()
 
     private val _uiState = MutableStateFlow(
         MyProfileUiState(
@@ -59,6 +59,18 @@ class MyProfileViewModel(
             viewModelScope.launch { avatarRepository.load(uid) }
             viewModelScope.launch { loadLevel(uid) }
             viewModelScope.launch { loadRecoveryEmail(uid) }
+        }
+    }
+
+    /** Re-reads name and email, which may have changed on Editar Perfil while this screen stayed in the back stack. */
+    fun refreshAccount() {
+        account = accountRepository.currentProfile()
+        _uiState.update {
+            it.copy(
+                displayName = profileDisplayName(account?.displayName, account?.email),
+                email = account?.email.orEmpty(),
+                memberSince = memberSinceLabel(account?.creationTimeMillis),
+            )
         }
     }
 

@@ -33,6 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
@@ -49,6 +51,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
 fun UserMenuScreen(
     onClose: () -> Unit,
     onOpenProfile: () -> Unit,
+    onOpenEditProfile: () -> Unit,
     onSignedOut: () -> Unit,
     viewModel: UserMenuViewModel = viewModel(factory = UserMenuViewModel.Factory),
 ) {
@@ -57,6 +60,8 @@ fun UserMenuScreen(
     val versionName = remember(context) {
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: ""
     }
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshAccount() }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
@@ -71,6 +76,7 @@ fun UserMenuScreen(
         versionName = versionName,
         onClose = onClose,
         onOpenProfile = onOpenProfile,
+        onOpenEditProfile = onOpenEditProfile,
         onSignOut = viewModel::onSignOutClicked,
     )
 }
@@ -81,6 +87,7 @@ private fun UserMenuContent(
     versionName: String,
     onClose: () -> Unit,
     onOpenProfile: () -> Unit,
+    onOpenEditProfile: () -> Unit,
     onSignOut: () -> Unit,
 ) {
     NightWatchScreenBackground {
@@ -99,7 +106,7 @@ private fun UserMenuContent(
             ) {
                 MenuSection("CUENTA") {
                     SettingsRow("👤", "Ver Perfil", onClick = onOpenProfile)
-                    SettingsRow("✏️", "Editar Perfil")
+                    SettingsRow("✏️", "Editar Perfil", onClick = onOpenEditProfile)
                 }
                 MenuSection("PROGRESO") {
                     SettingsRow("🏆", "Logros e Insignias")

@@ -70,7 +70,7 @@ fun ProfileTopBar(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .fillMaxWidth()
-                .height(3.dp)
+                .height(4.dp)
                 .background(Color.White),
         )
     }

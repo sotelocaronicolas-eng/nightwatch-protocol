@@ -26,6 +26,11 @@ class AuthErrorMapperTest {
     }
 
     @Test
+    fun requiresRecentLoginCode_mapsToRecentLoginRequired() {
+        assertEquals(AuthError.RecentLoginRequired, mapAuthErrorCode("ERROR_REQUIRES_RECENT_LOGIN"))
+    }
+
+    @Test
     fun passwordPolicyBackendMessage_mapsToWeakPassword() {
         val message = "PASSWORD_DOES_NOT_MEET_REQUIREMENTS : Missing password requirements: [Password must contain an upper case character]"
         assertEquals(AuthError.WeakPassword, mapAuthErrorMessage(message))

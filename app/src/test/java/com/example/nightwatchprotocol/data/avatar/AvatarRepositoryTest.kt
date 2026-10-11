@@ -135,6 +135,68 @@ class AvatarRepositoryTest {
     }
 
     @Test
+    fun save_writesLocalCopyAndFirestoreAndUpdatesTheFlow() = runTest {
+        val repo = repository(UnconfinedTestDispatcher(testScheduler))
+
+        val result = repo.save("uid-1", localPhoto)
+
+        assertEquals(AvatarSyncResult.Synced, result)
+        assertArrayEquals(localPhoto, repo.avatar.value)
+        assertArrayEquals(localPhoto, cache.files["uid-1"])
+        assertEquals(listOf(Base64.Default.encode(localPhoto)), profile.savedAvatars)
+    }
+
+    @Test
+    fun save_whenFirestoreFails_keepsTheLocalPhotoAndReportsLocalOnly() = runTest {
+        val repo = repository(UnconfinedTestDispatcher(testScheduler))
+        profile.saveAvatarResult = Result.failure(RuntimeException("sin red"))
+
+        val result = repo.save("uid-1", localPhoto)
+
+        assertEquals(AvatarSyncResult.LocalOnly, result)
+        assertArrayEquals(localPhoto, repo.avatar.value)
+        assertArrayEquals(localPhoto, cache.files["uid-1"])
+    }
+
+    @Test
+    fun save_thenLoad_doesNotLetAnOlderRemotePhotoOverwriteIt() = runTest {
+        val repo = repository(UnconfinedTestDispatcher(testScheduler))
+        profile.saveAvatarResult = Result.failure(RuntimeException("sin red"))
+        profile.getProfileResult = remoteWith(remotePhoto)
+        repo.save("uid-1", localPhoto)
+
+        repo.load("uid-1")
+
+        assertArrayEquals(localPhoto, repo.avatar.value)
+    }
+
+    @Test
+    fun remove_deletesLocalCopyAndFirestoreFieldAndGoesBackToNoPhoto() = runTest {
+        val repo = repository(UnconfinedTestDispatcher(testScheduler))
+        repo.save("uid-1", localPhoto)
+
+        val result = repo.remove("uid-1")
+
+        assertEquals(AvatarSyncResult.Synced, result)
+        assertNull(repo.avatar.value)
+        assertNull(cache.files["uid-1"])
+        assertEquals(1, profile.removeAvatarCallCount)
+    }
+
+    @Test
+    fun remove_whenFirestoreFails_stillRemovesTheLocalPhoto() = runTest {
+        val repo = repository(UnconfinedTestDispatcher(testScheduler))
+        repo.save("uid-1", localPhoto)
+        profile.removeAvatarResult = Result.failure(RuntimeException("sin red"))
+
+        val result = repo.remove("uid-1")
+
+        assertEquals(AvatarSyncResult.LocalOnly, result)
+        assertNull(repo.avatar.value)
+        assertNull(cache.files["uid-1"])
+    }
+
+    @Test
     fun clear_emptiesTheAvatar() = runTest {
         val repo = repository(UnconfinedTestDispatcher(testScheduler))
         profile.getProfileResult = remoteWith(remotePhoto)

@@ -21,6 +21,15 @@ object UserMenu
 object Profile
 
 @Serializable
+object ProfileUpdated
+
+@Serializable
+object EditProfile
+
+@Serializable
+object ConfirmIdentity
+
+@Serializable
 object PostAuthGate
 
 @Serializable

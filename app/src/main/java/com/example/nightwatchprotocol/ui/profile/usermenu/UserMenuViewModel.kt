@@ -22,11 +22,11 @@ import kotlinx.coroutines.launch
 
 class UserMenuViewModel(
     private val authRepository: AuthRepository,
-    accountRepository: AccountRepository,
+    private val accountRepository: AccountRepository,
     private val avatarRepository: AvatarRepository,
 ) : ViewModel() {
 
-    private val account = accountRepository.currentProfile()
+    private var account = accountRepository.currentProfile()
 
     private val _uiState = MutableStateFlow(
         UserMenuUiState(
@@ -46,6 +46,12 @@ class UserMenuViewModel(
             }
         }
         authRepository.currentUserUid?.let { uid -> viewModelScope.launch { avatarRepository.load(uid) } }
+    }
+
+    /** Re-reads the name, which may have changed on Editar Perfil while this screen stayed in the back stack. */
+    fun refreshAccount() {
+        account = accountRepository.currentProfile()
+        _uiState.update { it.copy(displayName = profileDisplayName(account?.displayName, account?.email)) }
     }
 
     fun onSignOutClicked() {

@@ -2,7 +2,6 @@ package com.example.nightwatchprotocol.ui.profile.myprofile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,18 +22,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
+import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
 import com.example.nightwatchprotocol.ui.components.UserAvatar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBackground
@@ -42,7 +42,6 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
-import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 
 private val LabelColor = Color(0xFF404040)
@@ -51,16 +50,19 @@ private val DividerColor = Color(0xFF808080)
 @Composable
 fun MyProfileScreen(
     onClose: () -> Unit,
+    onEditProfile: () -> Unit,
     viewModel: MyProfileViewModel = viewModel(factory = MyProfileViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    MyProfileContent(uiState = uiState, onClose = onClose)
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshAccount() }
+    MyProfileContent(uiState = uiState, onClose = onClose, onEditProfile = onEditProfile)
 }
 
 @Composable
 private fun MyProfileContent(
     uiState: MyProfileUiState,
     onClose: () -> Unit,
+    onEditProfile: () -> Unit,
 ) {
     NightWatchScreenBackground {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -100,8 +102,9 @@ private fun MyProfileContent(
                         uiState = uiState,
                         modifier = Modifier.align(Alignment.TopCenter).offset(y = 347.dp),
                     )
-                    EditProfileButton(
-                        onClick = {},
+                    ProfileButton(
+                        text = "EDITAR PERFIL",
+                        onClick = onEditProfile,
                         modifier = Modifier.align(Alignment.TopCenter).offset(y = 633.dp),
                     )
                 }
@@ -226,27 +229,4 @@ private fun InfoDivider() {
             .height(1.dp)
             .background(DividerColor),
     )
-}
-
-@Composable
-private fun EditProfileButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val shape = RoundedCornerShape(20.dp)
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .width(299.dp)
-            .height(47.dp)
-            .shadow(4.dp, shape)
-            .background(NightWatchSurfaceButton, shape)
-            .clip(shape)
-            .clickable(role = Role.Button, onClick = onClick),
-    ) {
-        Text(
-            text = "EDITAR PERFIL",
-            color = Color.Black,
-            fontFamily = NightWatchBodyFontFamily,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 18.sp,
-        )
-    }
 }

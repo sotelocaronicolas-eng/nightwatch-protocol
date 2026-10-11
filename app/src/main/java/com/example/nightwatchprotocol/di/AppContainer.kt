@@ -5,7 +5,9 @@ import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.account.FirebaseAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.auth.FirebaseAuthRepository
+import com.example.nightwatchprotocol.data.avatar.AvatarImageProcessor
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
+import com.example.nightwatchprotocol.data.avatar.BitmapAvatarImageProcessor
 import com.example.nightwatchprotocol.data.avatar.FileAvatarCache
 import com.example.nightwatchprotocol.data.profile.FirestoreProfileRepository
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
@@ -26,6 +28,7 @@ interface AppContainer {
     val accountRepository: AccountRepository
     val profileRepository: ProfileRepository
     val avatarRepository: AvatarRepository
+    val avatarImageProcessor: AvatarImageProcessor
 }
 
 class DefaultAppContainer(context: Context) : AppContainer {
@@ -37,4 +40,5 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val profileRepository: ProfileRepository = FirestoreProfileRepository(FirebaseFirestore.getInstance())
     override val avatarRepository: AvatarRepository =
         AvatarRepository(profileRepository, FileAvatarCache(context.filesDir))
+    override val avatarImageProcessor: AvatarImageProcessor = BitmapAvatarImageProcessor(context.contentResolver)
 }

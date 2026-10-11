@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -47,7 +48,7 @@ class MyProfileViewModelTest {
         assertEquals("n@example.com", state.email)
         assertEquals(15, state.streakDays)
         assertEquals(AvatarDisplay.Initial("N"), state.avatar)
-        assert(state.memberSince != "—")
+        assertTrue(state.memberSince != "—")
     }
 
     @Test
