@@ -39,6 +39,15 @@ object ChangePassword
 object PasswordUpdated
 
 @Serializable
+data class ChangeEmail(val newEmail: String)
+
+@Serializable
+data class VerifyEmailLink(val newEmail: String)
+
+@Serializable
+object EmailUpdated
+
+@Serializable
 object RecoveryEmail
 
 @Serializable

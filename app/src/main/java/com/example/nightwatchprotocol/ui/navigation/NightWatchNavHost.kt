@@ -13,7 +13,10 @@ import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
 import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
 import com.example.nightwatchprotocol.ui.mainmenu.MainMenuScreen
 import com.example.nightwatchprotocol.ui.postauth.PostAuthGateScreen
+import com.example.nightwatchprotocol.ui.profile.changeemail.ChangeEmailScreen
+import com.example.nightwatchprotocol.ui.profile.changeemail.VerifyEmailLinkScreen
 import com.example.nightwatchprotocol.ui.profile.changepassword.ChangePasswordScreen
+import com.example.nightwatchprotocol.ui.profile.confirmation.EmailUpdatedScreen
 import com.example.nightwatchprotocol.ui.profile.confirmation.PasswordUpdatedScreen
 import com.example.nightwatchprotocol.ui.profile.confirmation.ProfileUpdatedScreen
 import com.example.nightwatchprotocol.ui.profile.confirmation.RecoveryEmailSavedScreen
@@ -124,9 +127,36 @@ fun NightWatchNavHost(
                 onIdentityConfirmedHandled = { entry.savedStateHandle[KEY_IDENTITY_CONFIRMED] = false },
                 onClose = { navController.popBackStack() },
                 onNavigateToConfirmIdentity = { navController.navigate(ConfirmIdentity) },
-                // The email-change flow arrives in a later stage; until then nothing is navigated here.
-                onNavigateToChangeEmail = {},
+                onNavigateToChangeEmail = { newEmail -> navController.navigate(ChangeEmail(newEmail)) },
                 onNavigateToProfileUpdated = { navController.navigate(ProfileUpdated) },
+            )
+        }
+        composable<ChangeEmail> { entry ->
+            val identityConfirmed by entry.savedStateHandle
+                .getStateFlow(KEY_IDENTITY_CONFIRMED, false)
+                .collectAsStateWithLifecycle()
+            ChangeEmailScreen(
+                identityConfirmed = identityConfirmed,
+                onIdentityConfirmedHandled = { entry.savedStateHandle[KEY_IDENTITY_CONFIRMED] = false },
+                onClose = { navController.popBackStack() },
+                onNavigateToConfirmIdentity = { navController.navigate(ConfirmIdentity) },
+                onLinkSent = { newEmail -> navController.navigate(VerifyEmailLink(newEmail)) },
+            )
+        }
+        composable<VerifyEmailLink> {
+            VerifyEmailLinkScreen(
+                onClose = { navController.popBackStack<EditProfile>(inclusive = false) },
+                onEmailUpdated = {
+                    navController.navigate(EmailUpdated) { popUpTo<ChangeEmail> { inclusive = true } }
+                },
+            )
+        }
+        composable<EmailUpdated> {
+            EmailUpdatedScreen(
+                onBackToEditProfile = {
+                    // A fresh Editar Perfil, so it shows the new email.
+                    navController.navigate(EditProfile) { popUpTo<EditProfile> { inclusive = true } }
+                },
             )
         }
         composable<ConfirmIdentity> {
