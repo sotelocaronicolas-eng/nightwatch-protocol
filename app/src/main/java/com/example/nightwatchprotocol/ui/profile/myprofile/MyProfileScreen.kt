@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -74,10 +75,11 @@ private fun MyProfileContent(
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
             ) {
+                // The height comes from the card and the button below it, so extra rows push the button down
+                // instead of overlapping it.
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(712.dp)
                         .navigationBarsPadding(),
                 ) {
                     HeaderPanel(displayName = uiState.displayName)
@@ -98,15 +100,17 @@ private fun MyProfileContent(
                         fontSize = 14.sp,
                         modifier = Modifier.align(Alignment.TopCenter).offset(y = 298.dp),
                     )
-                    InfoCard(
-                        uiState = uiState,
-                        modifier = Modifier.align(Alignment.TopCenter).offset(y = 347.dp),
-                    )
-                    ProfileButton(
-                        text = "EDITAR PERFIL",
-                        onClick = onEditProfile,
-                        modifier = Modifier.align(Alignment.TopCenter).offset(y = 633.dp),
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth().padding(top = 347.dp, bottom = 32.dp),
+                    ) {
+                        InfoCard(uiState = uiState)
+                        ProfileButton(
+                            text = "EDITAR PERFIL",
+                            onClick = onEditProfile,
+                            modifier = Modifier.padding(top = 55.dp),
+                        )
+                    }
                 }
             }
         }
@@ -178,14 +182,22 @@ private fun InfoCard(uiState: MyProfileUiState, modifier: Modifier = Modifier) {
         InfoDivider()
         InfoRow("Miembro desde", uiState.memberSince, rowHeight = 41.dp)
         InfoDivider()
+        InfoRow("Género", uiState.gender ?: "—", rowHeight = 43.dp)
+        InfoDivider()
+        InfoRow("Fecha de nacimiento", uiState.birthDate ?: "—", rowHeight = 43.dp)
+        InfoDivider()
         InfoRow(
-            "Correo de recuperacion",
+            // (Figma writes "recuperacion" without the accent; the correct spelling is used.)
+            "Correo de recuperación",
             uiState.recoveryEmail ?: "—",
             rowHeight = 49.dp,
             valueSize = 10.sp,
         )
     }
 }
+
+/** Values longer than this do not fit next to their label at 10sp, so the row stacks label above value. */
+private const val STACK_VALUE_FROM_CHARS = 22
 
 @Composable
 private fun InfoRow(
@@ -195,6 +207,30 @@ private fun InfoRow(
     valueSize: androidx.compose.ui.unit.TextUnit = 13.sp,
     bold: Boolean = true,
 ) {
+    if (value.length > STACK_VALUE_FROM_CHARS) {
+        // A long address (e.g. "sotelocaronicolas@gmail.com") gets its own line instead of being cut with "...".
+        Column(
+            modifier = Modifier.fillMaxWidth().heightIn(min = rowHeight).padding(horizontal = 20.dp, vertical = 8.dp),
+        ) {
+            Text(
+                text = label,
+                color = LabelColor,
+                fontFamily = NightWatchBodyFontFamily,
+                fontWeight = FontWeight.Medium,
+                fontSize = 13.sp,
+            )
+            Text(
+                text = value,
+                color = Color.Black,
+                fontFamily = NightWatchBodyFontFamily,
+                fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Normal,
+                fontSize = valueSize,
+                textAlign = TextAlign.End,
+                modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+            )
+        }
+        return
+    }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth().height(rowHeight).padding(horizontal = 20.dp),

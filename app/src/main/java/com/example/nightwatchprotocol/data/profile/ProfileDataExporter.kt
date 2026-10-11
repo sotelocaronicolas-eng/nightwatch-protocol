@@ -31,6 +31,7 @@ class ProfileDataExporter(
     private val accountRepository: AccountRepository,
     private val profileRepository: ProfileRepository,
     private val quizResultRepository: QuizResultRepository,
+    private val extrasRepository: ProfileExtrasRepository,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
     private val json = Json { prettyPrint = true }
@@ -43,12 +44,18 @@ class ProfileDataExporter(
         val quizResult = withTimeoutOrNull(READ_TIMEOUT_MILLIS) {
             runCatchingKeepCancellation { quizResultRepository.getResult(uid) }.getOrNull()
         }
+        // Local copy first, then Firestore; an unreadable value is simply exported as null.
+        val extras = withTimeoutOrNull(READ_TIMEOUT_MILLIS) {
+            runCatchingKeepCancellation { extrasRepository.current(uid) }.getOrNull()
+        } ?: ProfileExtras()
 
         val document: JsonObject = buildJsonObject {
             put("nombre", account?.displayName)
             put("correo", account?.email)
             put("correoDeRecuperacion", recoveryEmail)
             put("miembroDesde", account?.creationTimeMillis?.let { memberSinceLabel(it) })
+            put("genero", extras.gender?.label)
+            put("fechaDeNacimiento", extras.birthDate?.iso())
             put("nivel", levelLabel(quizResult))
             put(
                 "categoriasDebiles",

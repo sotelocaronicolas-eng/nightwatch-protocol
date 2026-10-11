@@ -12,5 +12,9 @@ data class MyProfileUiState(
     val level: String? = null,
     /** Null when there is none, it could not be read, or it is still loading. */
     val recoveryEmail: String? = null,
+    /** Label of the chosen gender; null when not defined (shown as "—"). */
+    val gender: String? = null,
+    /** `dd/MM/yyyy`; null when not defined (shown as "—"). */
+    val birthDate: String? = null,
     val avatar: AvatarDisplay = AvatarDisplay.Initial("?"),
 )

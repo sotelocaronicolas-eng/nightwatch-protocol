@@ -12,7 +12,9 @@ import com.example.nightwatchprotocol.data.preferences.UserSetting
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.profile.FakeDataExportWriter
 import com.example.nightwatchprotocol.data.profile.FakeProfileRepository
+import com.example.nightwatchprotocol.data.profile.DataStoreProfileExtrasCache
 import com.example.nightwatchprotocol.data.profile.ProfileDataExporter
+import com.example.nightwatchprotocol.data.profile.ProfileExtrasRepository
 import com.example.nightwatchprotocol.data.quiz.FakeQuizResultRepository
 import com.example.nightwatchprotocol.data.profile.RemoteProfile
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,7 +40,13 @@ class PrivacySecurityViewModelTest {
 
     private val writer = FakeDataExportWriter()
     private val devices = FakeDeviceRepository()
-    private val exporter = ProfileDataExporter(FakeAccountRepository(), profile, FakeQuizResultRepository(), clock = { 0L })
+    private val exporter = ProfileDataExporter(
+        FakeAccountRepository(),
+        profile,
+        FakeQuizResultRepository(),
+        ProfileExtrasRepository(profile, DataStoreProfileExtrasCache.inMemory()),
+        clock = { 0L },
+    )
 
     private fun viewModel() = PrivacySecurityViewModel(auth, profile, preferences, capabilities, exporter, writer, devices)
 

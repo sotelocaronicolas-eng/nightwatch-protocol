@@ -11,6 +11,7 @@ import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
 import com.example.nightwatchprotocol.data.avatar.avatarDisplay
 import com.example.nightwatchprotocol.data.profile.LEVEL_NOT_ASSESSED
+import com.example.nightwatchprotocol.data.profile.ProfileExtrasRepository
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.profile.levelLabel
 import com.example.nightwatchprotocol.data.profile.memberSinceLabel
@@ -32,6 +33,7 @@ class MyProfileViewModel(
     private val quizResultRepository: QuizResultRepository,
     private val profileRepository: ProfileRepository,
     private val avatarRepository: AvatarRepository,
+    private val extrasRepository: ProfileExtrasRepository,
 ) : ViewModel() {
 
     private val uid = authRepository.currentUserUid
@@ -53,10 +55,16 @@ class MyProfileViewModel(
                 _uiState.update { it.copy(avatar = avatarDisplay(bytes, account?.displayName, account?.email)) }
             }
         }
+        viewModelScope.launch {
+            extrasRepository.extras.collect { extras ->
+                _uiState.update { it.copy(gender = extras.gender?.label, birthDate = extras.birthDate?.display()) }
+            }
+        }
         if (uid == null) {
             _uiState.update { it.copy(level = LEVEL_NOT_ASSESSED) }
         } else {
             viewModelScope.launch { avatarRepository.load(uid) }
+            viewModelScope.launch { extrasRepository.load(uid) }
             viewModelScope.launch { loadLevel(uid) }
             viewModelScope.launch { loadRecoveryEmail(uid) }
         }
@@ -101,6 +109,7 @@ class MyProfileViewModel(
                     container.quizResultRepository,
                     container.profileRepository,
                     container.avatarRepository,
+                    container.profileExtrasRepository,
                 )
             }
         }

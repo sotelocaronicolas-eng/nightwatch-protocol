@@ -15,6 +15,12 @@ import com.example.nightwatchprotocol.data.avatar.AvatarImageProcessor
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
 import com.example.nightwatchprotocol.data.avatar.AvatarSyncResult
 import com.example.nightwatchprotocol.data.avatar.avatarDisplay
+import com.example.nightwatchprotocol.data.profile.BirthDate
+import com.example.nightwatchprotocol.data.profile.Gender
+import com.example.nightwatchprotocol.data.profile.ProfileExtras
+import com.example.nightwatchprotocol.data.profile.ProfileExtrasRepository
+import com.example.nightwatchprotocol.data.profile.birthDateIssue
+import com.example.nightwatchprotocol.data.profile.message
 import com.example.nightwatchprotocol.ui.auth.register.PasswordRules
 import com.example.nightwatchprotocol.ui.profile.MESSAGE_GENERIC_ERROR
 import com.example.nightwatchprotocol.ui.profile.MESSAGE_PASSWORDS_DO_NOT_MATCH
@@ -51,6 +57,10 @@ data class EditProfileUiState(
     val confirmError: String? = null,
     val avatarError: String? = null,
     val formError: String? = null,
+    /** Optional: null means "no definido". */
+    val gender: Gender? = null,
+    val birthDate: BirthDate? = null,
+    val birthDateError: String? = null,
 ) {
     val hasPhoto: Boolean get() = avatar is AvatarDisplay.Photo
 }
@@ -66,6 +76,8 @@ class EditProfileViewModel(
     private val accountRepository: AccountRepository,
     private val avatarRepository: AvatarRepository,
     private val avatarImageProcessor: AvatarImageProcessor,
+    private val extrasRepository: ProfileExtrasRepository,
+    private val today: () -> BirthDate = { BirthDate.today() },
 ) : ViewModel() {
 
     private val account = accountRepository.currentProfile()
@@ -73,6 +85,12 @@ class EditProfileViewModel(
 
     private var savedName = account?.displayName?.trim().orEmpty()
     private var passwordSaved = false
+
+    /** What is stored now; the extras are written only when the form differs from this. */
+    private var savedExtras = ProfileExtras()
+
+    /** Once the user touches gender or birth date, a late answer from storage must not overwrite their choice. */
+    private var extrasTouched = false
 
     private val _uiState = MutableStateFlow(
         EditProfileUiState(
@@ -94,6 +112,25 @@ class EditProfileViewModel(
             }
         }
         uid?.let { viewModelScope.launch { avatarRepository.load(it) } }
+        viewModelScope.launch {
+            extrasRepository.extras.collect { extras ->
+                savedExtras = extras
+                if (!extrasTouched) _uiState.update { it.copy(gender = extras.gender, birthDate = extras.birthDate) }
+            }
+        }
+        uid?.let { viewModelScope.launch { extrasRepository.load(it) } }
+    }
+
+    fun onGenderChanged(value: Gender?) {
+        extrasTouched = true
+        _uiState.update { it.copy(gender = value, formError = null) }
+    }
+
+    /** [value] null clears the date. A date the picker should never offer (future, over 120 years) shows an error. */
+    fun onBirthDateChanged(value: BirthDate?) {
+        extrasTouched = true
+        val issue = value?.let { birthDateIssue(it, today()) }
+        _uiState.update { it.copy(birthDate = value, birthDateError = issue?.message(), formError = null) }
     }
 
     fun onNameChanged(value: String) = _uiState.update { it.copy(name = value, nameError = null, formError = null) }
@@ -133,16 +170,20 @@ class EditProfileViewModel(
             else -> null
         }
 
+        val birthDateError = state.birthDate?.let { birthDateIssue(it, today())?.message() }
+
         _uiState.update {
             it.copy(
                 nameError = nameError,
                 emailError = emailError,
                 passwordError = passwordError,
                 confirmError = confirmError,
+                birthDateError = birthDateError,
                 formError = null,
             )
         }
-        return nameError == null && emailError == null && passwordError == null && confirmError == null
+        return nameError == null && emailError == null && passwordError == null && confirmError == null &&
+            birthDateError == null
     }
 
     private fun emailChanged(state: EditProfileUiState): Boolean =
@@ -162,6 +203,14 @@ class EditProfileViewModel(
                     accountRepository.updatePassword(state.newPassword)
                     passwordSaved = true
                     _uiState.update { it.copy(newPassword = "", confirmPassword = "") }
+                }
+                // Gender and birth date: local copy first, then Firestore. If only the remote write fails, the
+                // data is kept on this phone and Firestore keeps the write queued, so the flow continues.
+                val newExtras = ProfileExtras(state.gender, state.birthDate)
+                val currentUid = uid
+                if (currentUid != null && newExtras != savedExtras) {
+                    extrasRepository.save(currentUid, newExtras)
+                    savedExtras = newExtras
                 }
                 _uiState.update { it.copy(isSaving = false) }
                 if (state.hasPassword && emailChanged(state)) {
@@ -236,6 +285,7 @@ class EditProfileViewModel(
                     container.accountRepository,
                     container.avatarRepository,
                     container.avatarImageProcessor,
+                    container.profileExtrasRepository,
                 )
             }
         }

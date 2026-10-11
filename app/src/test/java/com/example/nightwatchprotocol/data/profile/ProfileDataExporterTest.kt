@@ -27,7 +27,9 @@ class ProfileDataExporterTest {
     private val quiz = FakeQuizResultRepository()
     private val fixedNow = 1_790_000_000_000L // 2026-09-21T14:13:20Z
 
-    private fun exporter() = ProfileDataExporter(account, profile, quiz, clock = { fixedNow })
+    private val extras = ProfileExtrasRepository(profile, DataStoreProfileExtrasCache.inMemory())
+
+    private fun exporter() = ProfileDataExporter(account, profile, quiz, extras, clock = { fixedNow })
 
     private fun parse(text: String): JsonObject = Json.parseToJsonElement(text).jsonObject
 
@@ -71,6 +73,36 @@ class ProfileDataExporterTest {
         assertEquals("nicolas@example.com", json.getValue("correo").jsonPrimitive.content)
         assertEquals("Sin evaluar", json.getValue("nivel").jsonPrimitive.content)
         assertEquals(JsonNull, json.getValue("correoDeRecuperacion"))
+    }
+
+    @Test
+    fun genderAndBirthDate_areExported() = runTest {
+        profile.getProfileResult = Result.success(RemoteProfile(gender = "female", birthDate = "1999-03-07"))
+
+        val json = parse(exporter().buildJson("uid-1"))
+
+        assertEquals("Femenino", json.getValue("genero").jsonPrimitive.content)
+        assertEquals("1999-03-07", json.getValue("fechaDeNacimiento").jsonPrimitive.content)
+    }
+
+    @Test
+    fun whenNotDefined_theyAreExportedAsNull() = runTest {
+        val json = parse(exporter().buildJson("uid-1"))
+
+        assertEquals(JsonNull, json.getValue("genero"))
+        assertEquals(JsonNull, json.getValue("fechaDeNacimiento"))
+    }
+
+    @Test
+    fun theyAreExportedFromTheLocalCopyWhenFirestoreFails() = runTest {
+        profile.getProfileResult = Result.failure(RuntimeException("sin red"))
+        extras.save("uid-1", ProfileExtras(Gender.OTHER, BirthDate(1985, 5, 5)))
+        profile.saveExtrasResult = Result.success(Unit)
+
+        val json = parse(exporter().buildJson("uid-1"))
+
+        assertEquals("Otro", json.getValue("genero").jsonPrimitive.content)
+        assertEquals("1985-05-05", json.getValue("fechaDeNacimiento").jsonPrimitive.content)
     }
 
     @Test

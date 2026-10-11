@@ -7,7 +7,12 @@ import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.avatar.AvatarDisplay
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
 import com.example.nightwatchprotocol.data.avatar.FakeAvatarCache
+import com.example.nightwatchprotocol.data.profile.BirthDate
+import com.example.nightwatchprotocol.data.profile.DataStoreProfileExtrasCache
 import com.example.nightwatchprotocol.data.profile.FakeProfileRepository
+import com.example.nightwatchprotocol.data.profile.Gender
+import com.example.nightwatchprotocol.data.profile.ProfileExtras
+import com.example.nightwatchprotocol.data.profile.ProfileExtrasRepository
 import com.example.nightwatchprotocol.data.profile.RemoteProfile
 import com.example.nightwatchprotocol.data.quiz.FakeQuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.PlacementLevel
@@ -35,7 +40,10 @@ class MyProfileViewModelTest {
     private val profile = FakeProfileRepository()
     private val avatars = AvatarRepository(profile, FakeAvatarCache(), UnconfinedTestDispatcher())
 
-    private fun viewModel() = MyProfileViewModel(auth, account, quiz, profile, avatars)
+    private val extrasCache = DataStoreProfileExtrasCache.inMemory()
+    private val extras = ProfileExtrasRepository(profile, extrasCache)
+
+    private fun viewModel() = MyProfileViewModel(auth, account, quiz, profile, avatars, extras)
 
     @Test
     fun showsTheRealAccountData() = runTest {
@@ -133,6 +141,46 @@ class MyProfileViewModelTest {
         advanceUntilIdle()
 
         assertEquals(AvatarDisplay.Photo(photo), vm.uiState.value.avatar)
+    }
+
+    @Test
+    fun genderAndBirthDate_areShownFromFirestore() = runTest {
+        profile.getProfileResult = Result.success(RemoteProfile(gender = "female", birthDate = "1999-03-07"))
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        assertEquals("Femenino", vm.uiState.value.gender)
+        assertEquals("07/03/1999", vm.uiState.value.birthDate)
+    }
+
+    @Test
+    fun whenNotDefined_theyAreNull_soTheScreenShowsADash() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        assertNull(vm.uiState.value.gender)
+        assertNull(vm.uiState.value.birthDate)
+    }
+
+    @Test
+    fun theLocalCopy_isShownEvenWhenFirestoreFails() = runTest {
+        extrasCache.write("test-uid", ProfileExtras(Gender.OTHER, BirthDate(1990, 12, 25)))
+        profile.getProfileResult = Result.failure(RuntimeException("sin red"))
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        assertEquals("Otro", vm.uiState.value.gender)
+        assertEquals("25/12/1990", vm.uiState.value.birthDate)
+    }
+
+    @Test
+    fun unknownStoredValues_areIgnoredInsteadOfBreakingTheScreen() = runTest {
+        profile.getProfileResult = Result.success(RemoteProfile(gender = "alien", birthDate = "31/12/1999"))
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        assertNull(vm.uiState.value.gender)
+        assertNull(vm.uiState.value.birthDate)
     }
 
     @Test

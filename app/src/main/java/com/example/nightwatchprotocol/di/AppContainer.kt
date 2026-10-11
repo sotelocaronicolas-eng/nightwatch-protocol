@@ -27,7 +27,9 @@ import com.example.nightwatchprotocol.data.preferences.userDataStore
 import com.example.nightwatchprotocol.data.profile.ContentResolverDataExportWriter
 import com.example.nightwatchprotocol.data.profile.DataExportWriter
 import com.example.nightwatchprotocol.data.profile.FirestoreProfileRepository
+import com.example.nightwatchprotocol.data.profile.DataStoreProfileExtrasCache
 import com.example.nightwatchprotocol.data.profile.ProfileDataExporter
+import com.example.nightwatchprotocol.data.profile.ProfileExtrasRepository
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.quiz.FirestoreQuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.LocalQuizContentRepository
@@ -49,6 +51,7 @@ interface AppContainer {
     val avatarImageProcessor: AvatarImageProcessor
     val userPreferences: UserPreferences
     val biometricCapabilities: BiometricCapabilities
+    val profileExtrasRepository: ProfileExtrasRepository
     val profileDataExporter: ProfileDataExporter
     val dataExportWriter: DataExportWriter
     val notificationPermission: NotificationPermission
@@ -72,8 +75,10 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val avatarImageProcessor: AvatarImageProcessor = BitmapAvatarImageProcessor(context.contentResolver)
     override val userPreferences: UserPreferences = UserPreferences(context.userDataStore)
     override val biometricCapabilities: BiometricCapabilities = AndroidBiometricCapabilities(context)
+    override val profileExtrasRepository: ProfileExtrasRepository =
+        ProfileExtrasRepository(profileRepository, DataStoreProfileExtrasCache(context.userDataStore))
     override val profileDataExporter: ProfileDataExporter =
-        ProfileDataExporter(accountRepository, profileRepository, quizResultRepository)
+        ProfileDataExporter(accountRepository, profileRepository, quizResultRepository, profileExtrasRepository)
     override val dataExportWriter: DataExportWriter = ContentResolverDataExportWriter(context.contentResolver)
     override val notificationPermission: NotificationPermission = AndroidNotificationPermission(context)
     override val reminderScheduler: ReminderScheduler = WorkManagerReminderScheduler(context)

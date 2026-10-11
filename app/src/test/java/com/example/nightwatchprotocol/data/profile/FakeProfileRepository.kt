@@ -32,6 +32,14 @@ class FakeProfileRepository : ProfileRepository {
         removeAvatarResult.getOrThrow()
     }
 
+    var saveExtrasResult: Result<Unit> = Result.success(Unit)
+    var savedExtras = mutableListOf<Pair<String?, String?>>()
+
+    override suspend fun saveExtras(uid: String, gender: String?, birthDate: String?) {
+        savedExtras += gender to birthDate
+        saveExtrasResult.getOrThrow()
+    }
+
     override suspend fun saveRecoveryEmail(uid: String, recoveryEmail: String) {
         savedRecoveryEmails += recoveryEmail
         saveRecoveryEmailResult.getOrThrow()

@@ -16,8 +16,20 @@ class FirestoreProfileRepository(
         return RemoteProfile(
             recoveryEmail = snapshot.getString("recoveryEmail"),
             avatarBase64 = snapshot.getString("avatarBase64"),
+            gender = snapshot.getString("gender"),
+            birthDate = snapshot.getString("birthDate"),
         )
     }
+
+    // A null value deletes the field, so "no definido" is really removed from the document.
+    override suspend fun saveExtras(uid: String, gender: String?, birthDate: String?) =
+        merge(
+            uid,
+            mapOf(
+                "gender" to (gender ?: FieldValue.delete()),
+                "birthDate" to (birthDate ?: FieldValue.delete()),
+            ),
+        )
 
     override suspend fun saveAvatar(uid: String, avatarBase64: String) =
         merge(uid, mapOf("avatarBase64" to avatarBase64))
