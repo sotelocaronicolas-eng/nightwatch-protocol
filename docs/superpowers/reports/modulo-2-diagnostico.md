@@ -189,7 +189,7 @@ Pendiente: nada del plan, salvo 3C (no aprobada), publicar las reglas de `device
 Reemplaza todo el contenido de la pestaña "Reglas" y publica. Los dos primeros bloques no cambian; el tercero es nuevo.
 
 ```
-rules_version = 2;
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -202,11 +202,11 @@ service cloud.firestore {
     match /users/{userId}/profile/{document=**} {
       allow read, delete: if request.auth != null && request.auth.uid == userId;
       allow create, update: if request.auth != null && request.auth.uid == userId
-        && request.resource.data.keys().hasOnly([recoveryEmail, avatarBase64, updatedAt])
-        && (!(recoveryEmail in request.resource.data)
+        && request.resource.data.keys().hasOnly(['recoveryEmail', 'avatarBase64', 'updatedAt'])
+        && (!('recoveryEmail' in request.resource.data)
             || (request.resource.data.recoveryEmail is string
                 && request.resource.data.recoveryEmail.size() <= 254))
-        && (!(avatarBase64 in request.resource.data)
+        && (!('avatarBase64' in request.resource.data)
             || (request.resource.data.avatarBase64 is string
                 && request.resource.data.avatarBase64.size() <= 150000));
     }
@@ -215,14 +215,14 @@ service cloud.firestore {
     match /users/{userId}/devices/{deviceId} {
       allow read, delete: if request.auth != null && request.auth.uid == userId;
       allow create, update: if request.auth != null && request.auth.uid == userId
-        && deviceId.matches(^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})
-        && request.resource.data.keys().hasOnly([name, lastSeen, revoked])
-        && request.resource.data.keys().hasAll([name])
+        && deviceId.matches('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+        && request.resource.data.keys().hasOnly(['name', 'lastSeen', 'revoked'])
+        && request.resource.data.keys().hasAll(['name'])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
         && request.resource.data.name.size() <= 80
-        && (!(lastSeen in request.resource.data) || request.resource.data.lastSeen is timestamp)
-        && (!(revoked in request.resource.data) || request.resource.data.revoked is bool);
+        && (!('lastSeen' in request.resource.data) || request.resource.data.lastSeen is timestamp)
+        && (!('revoked' in request.resource.data) || request.resource.data.revoked is bool);
     }
   }
 }
