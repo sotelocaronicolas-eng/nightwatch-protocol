@@ -25,8 +25,12 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 // Both screens look like the design but choose nothing: the app stays dark and in Spanish (decision 3).
 // Tapping "Claro", "Automático" or "English" does nothing.
 
-/** Gap between the header and the first item. The design has ~140dp; the options are brought closer on purpose. */
-private val ContentTopPadding = 32.dp
+/**
+ * Both screens center their whole block (options + illustration) in the space under the header, with the scroll as a
+ * fallback. The top padding equals the scaffold's bottom padding (24dp) so the block is centered, not pushed down.
+ * (Figma pins the options ~140dp below the header and leaves the empty space at the bottom; this is a deliberate change.)
+ */
+private val ContentTopPadding = 24.dp
 
 /** Illustration boxes from Figma: 412x308 (Apariencia) and 412x287 (Idioma, drawn with "cover"). */
 private const val AppearanceIllustrationRatio = 412f / 308f
@@ -38,6 +42,7 @@ fun AppearanceScreen(onClose: () -> Unit) {
         title = "Apariencia",
         onClose = onClose,
         topPadding = ContentTopPadding,
+        centerVertically = true,
         footer = { Illustration(R.drawable.img_appearance_bg, AppearanceIllustrationRatio, alpha = 0.8f) },
     ) {
         Text(
@@ -66,6 +71,7 @@ fun LanguageScreen(onClose: () -> Unit) {
         title = "Idioma",
         onClose = onClose,
         topPadding = ContentTopPadding,
+        centerVertically = true,
         footer = { Illustration(R.drawable.img_language_bg, LanguageIllustrationRatio, alpha = 0.7f) },
     ) {
         SettingsRow(emoji = "🇪🇸", label = "Español", highlighted = true, trailing = { CheckMark() })
