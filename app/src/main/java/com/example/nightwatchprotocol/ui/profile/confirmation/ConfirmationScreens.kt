@@ -55,7 +55,7 @@ fun PasswordUpdatedScreen(onDone: () -> Unit) {
 fun DeviceSignedOutScreen(onBackToDevices: () -> Unit) {
     ConfirmationContent(
         title = "¡Sesión cerrada!",
-        message = "Se cerró la sesión en ese dispositivo.",
+        message = "Ese dispositivo cerrará su sesión la próxima vez que abra NightWatch. No revoca el acceso de Firebase.",
         buttonText = "VOLVER A DISPOSITIVOS",
         onButtonClick = onBackToDevices,
         onClose = onBackToDevices,

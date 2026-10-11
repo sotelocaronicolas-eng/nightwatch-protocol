@@ -80,6 +80,12 @@ class AvatarRepository(
         refreshedUid = uid
     }
 
+    /** Forgets the photo for good: the in-memory copy and the local file (used when the session is ended remotely). */
+    suspend fun wipe(uid: String) {
+        withContext(ioDispatcher) { cache.delete(uid) }
+        clear()
+    }
+
     fun clear() {
         loadedUid = null
         refreshedUid = null

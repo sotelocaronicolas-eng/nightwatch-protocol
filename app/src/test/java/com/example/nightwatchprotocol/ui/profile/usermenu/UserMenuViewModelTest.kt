@@ -8,6 +8,10 @@ import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.avatar.AvatarDisplay
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
 import com.example.nightwatchprotocol.data.avatar.FakeAvatarCache
+import com.example.nightwatchprotocol.data.device.DeviceIdStore
+import com.example.nightwatchprotocol.data.device.DeviceSessionManager
+import com.example.nightwatchprotocol.data.device.FakeDeviceInfoProvider
+import com.example.nightwatchprotocol.data.device.FakeDeviceRepository
 import com.example.nightwatchprotocol.data.profile.FakeProfileRepository
 import com.example.nightwatchprotocol.data.profile.RemoteProfile
 import kotlin.io.encoding.Base64
@@ -30,7 +34,16 @@ class UserMenuViewModelTest {
     private val profile = FakeProfileRepository()
     private val avatars = AvatarRepository(profile, FakeAvatarCache(), UnconfinedTestDispatcher())
 
-    private fun viewModel() = UserMenuViewModel(auth, account, avatars)
+    private val devices = FakeDeviceRepository()
+    private val sessionManager = DeviceSessionManager(
+        auth,
+        devices,
+        DeviceIdStore.inMemory { "device-me" },
+        FakeDeviceInfoProvider(),
+        avatars,
+    )
+
+    private fun viewModel() = UserMenuViewModel(auth, account, avatars, sessionManager)
 
     @Test
     fun showsNameStreakAndInitial() = runTest {

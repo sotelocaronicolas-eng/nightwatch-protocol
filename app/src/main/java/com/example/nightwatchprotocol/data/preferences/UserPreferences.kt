@@ -46,7 +46,8 @@ class UserPreferences(private val dataStore: DataStore<Preferences>) {
     }
 }
 
-private class InMemoryPreferencesDataStore : DataStore<Preferences> {
+/** Test double for any DataStore-backed class in this module. */
+internal class InMemoryPreferencesDataStore : DataStore<Preferences> {
     private val state = MutableStateFlow(emptyPreferences())
 
     override val data: Flow<Preferences> = state

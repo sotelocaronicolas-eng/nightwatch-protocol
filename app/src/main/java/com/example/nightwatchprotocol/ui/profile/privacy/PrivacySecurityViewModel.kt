@@ -11,8 +11,8 @@ import com.example.nightwatchprotocol.data.biometric.BiometricAvailability
 import com.example.nightwatchprotocol.data.biometric.BiometricCapabilities
 import com.example.nightwatchprotocol.data.preferences.UserPreferences
 import com.example.nightwatchprotocol.data.preferences.UserSetting
+import com.example.nightwatchprotocol.data.device.DeviceRepository
 import com.example.nightwatchprotocol.data.profile.DataExportWriter
-import com.example.nightwatchprotocol.data.profile.FixedProfileData
 import com.example.nightwatchprotocol.data.profile.ProfileDataExporter
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
@@ -28,7 +28,8 @@ import kotlinx.coroutines.launch
 data class PrivacySecurityUiState(
     /** Null while loading, when there is none, or when it could not be read. */
     val recoveryEmail: String? = null,
-    val activeDevices: Int = FixedProfileData.ACTIVE_DEVICES,
+    /** Devices with an open session in the cooperative registry; null while loading or when it cannot be read. */
+    val activeDevices: Int? = null,
     val hidePublicProgress: Boolean = false,
     val biometricLockEnabled: Boolean = false,
     val biometricError: String? = null,
@@ -57,6 +58,7 @@ class PrivacySecurityViewModel(
     private val biometricCapabilities: BiometricCapabilities,
     private val dataExporter: ProfileDataExporter,
     private val dataExportWriter: DataExportWriter,
+    private val deviceRepository: DeviceRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PrivacySecurityUiState())
@@ -77,6 +79,16 @@ class PrivacySecurityViewModel(
             }
         }
         refreshRecoveryEmail()
+        refreshDevices()
+    }
+
+    /** Counts the devices that have not been asked to sign out. */
+    fun refreshDevices() {
+        val uid = authRepository.currentUserUid ?: return
+        viewModelScope.launch {
+            val devices = runCatchingKeepCancellation { deviceRepository.listDevices(uid) }.getOrNull()
+            _uiState.update { it.copy(activeDevices = devices?.count { device -> !device.revoked }) }
+        }
     }
 
     /** Re-reads the recovery email, which may have just been saved on its own screen. */
@@ -150,6 +162,7 @@ class PrivacySecurityViewModel(
                     container.biometricCapabilities,
                     container.profileDataExporter,
                     container.dataExportWriter,
+                    container.deviceRepository,
                 )
             }
         }

@@ -11,6 +11,12 @@ import com.example.nightwatchprotocol.data.avatar.BitmapAvatarImageProcessor
 import com.example.nightwatchprotocol.data.avatar.FileAvatarCache
 import com.example.nightwatchprotocol.data.biometric.AndroidBiometricCapabilities
 import com.example.nightwatchprotocol.data.biometric.BiometricCapabilities
+import com.example.nightwatchprotocol.data.device.AndroidDeviceInfoProvider
+import com.example.nightwatchprotocol.data.device.DeviceIdStore
+import com.example.nightwatchprotocol.data.device.DeviceInfoProvider
+import com.example.nightwatchprotocol.data.device.DeviceRepository
+import com.example.nightwatchprotocol.data.device.DeviceSessionManager
+import com.example.nightwatchprotocol.data.device.FirestoreDeviceRepository
 import com.example.nightwatchprotocol.data.notifications.AndroidNotificationPermission
 import com.example.nightwatchprotocol.data.notifications.NotificationPermission
 import com.example.nightwatchprotocol.data.notifications.ReminderCoordinator
@@ -48,6 +54,10 @@ interface AppContainer {
     val notificationPermission: NotificationPermission
     val reminderScheduler: ReminderScheduler
     val reminderCoordinator: ReminderCoordinator
+    val deviceRepository: DeviceRepository
+    val deviceIdStore: DeviceIdStore
+    val deviceInfoProvider: DeviceInfoProvider
+    val deviceSessionManager: DeviceSessionManager
 }
 
 class DefaultAppContainer(context: Context) : AppContainer {
@@ -69,4 +79,9 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val reminderScheduler: ReminderScheduler = WorkManagerReminderScheduler(context)
     override val reminderCoordinator: ReminderCoordinator =
         ReminderCoordinator(reminderScheduler, notificationPermission, userPreferences)
+    override val deviceRepository: DeviceRepository = FirestoreDeviceRepository(FirebaseFirestore.getInstance())
+    override val deviceIdStore: DeviceIdStore = DeviceIdStore(context.userDataStore)
+    override val deviceInfoProvider: DeviceInfoProvider = AndroidDeviceInfoProvider()
+    override val deviceSessionManager: DeviceSessionManager =
+        DeviceSessionManager(authRepository, deviceRepository, deviceIdStore, deviceInfoProvider, avatarRepository)
 }

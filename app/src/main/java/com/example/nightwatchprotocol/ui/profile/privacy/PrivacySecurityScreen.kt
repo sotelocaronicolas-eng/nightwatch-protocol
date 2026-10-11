@@ -43,7 +43,10 @@ fun PrivacySecurityScreen(
     viewModel: PrivacySecurityViewModel = viewModel(factory = PrivacySecurityViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshRecoveryEmail() }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.refreshRecoveryEmail()
+        viewModel.refreshDevices()
+    }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json"),
@@ -117,7 +120,11 @@ private fun PrivacySecurityContent(
                 SettingsRow(
                     emoji = "📱",
                     label = "Administrar Dispositivos",
-                    subtitle = "${uiState.activeDevices} dispositivos activos",
+                    subtitle = when (val count = uiState.activeDevices) {
+                        null -> "Administra tus sesiones"
+                        1 -> "1 dispositivo activo"
+                        else -> "$count dispositivos activos"
+                    },
                     onClick = onOpenDevices,
                 )
                 SectionLabel("PRIVACIDAD", dimmed = false, modifier = Modifier.padding(top = 14.dp))

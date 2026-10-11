@@ -9,6 +9,7 @@ import com.example.nightwatchprotocol.NightWatchApplication
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
+import com.example.nightwatchprotocol.data.device.DeviceSessionManager
 import com.example.nightwatchprotocol.data.avatar.avatarDisplay
 import com.example.nightwatchprotocol.data.profile.profileDisplayName
 import kotlinx.coroutines.channels.Channel
@@ -24,6 +25,7 @@ class UserMenuViewModel(
     private val authRepository: AuthRepository,
     private val accountRepository: AccountRepository,
     private val avatarRepository: AvatarRepository,
+    private val sessionManager: DeviceSessionManager,
 ) : ViewModel() {
 
     private var account = accountRepository.currentProfile()
@@ -55,9 +57,11 @@ class UserMenuViewModel(
     }
 
     fun onSignOutClicked() {
-        authRepository.signOut()
-        avatarRepository.clear()
-        viewModelScope.launch { _events.send(UserMenuEvent.SignedOut) }
+        viewModelScope.launch {
+            // Removes this device from the registry (best effort), signs out and clears the in-memory avatar.
+            sessionManager.endSession()
+            _events.send(UserMenuEvent.SignedOut)
+        }
     }
 
     companion object {
@@ -65,7 +69,12 @@ class UserMenuViewModel(
             initializer {
                 val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as NightWatchApplication
                 val container = application.container
-                UserMenuViewModel(container.authRepository, container.accountRepository, container.avatarRepository)
+                UserMenuViewModel(
+                    container.authRepository,
+                    container.accountRepository,
+                    container.avatarRepository,
+                    container.deviceSessionManager,
+                )
             }
         }
     }

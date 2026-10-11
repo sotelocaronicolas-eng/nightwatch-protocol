@@ -217,6 +217,9 @@ fun NightWatchNavHost(
             DevicesScreen(
                 onClose = { navController.popBackStack() },
                 onDeviceSignedOut = { navController.navigate(DeviceSignedOut) },
+                onSessionEnded = {
+                    navController.navigate(Login) { popUpTo(0) { inclusive = true } }
+                },
             )
         }
         composable<DeviceSignedOut> {

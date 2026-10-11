@@ -5,6 +5,8 @@ import app.cash.turbine.test
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.biometric.BiometricAvailability
 import com.example.nightwatchprotocol.data.biometric.FakeBiometricCapabilities
+import com.example.nightwatchprotocol.data.device.DeviceRecord
+import com.example.nightwatchprotocol.data.device.FakeDeviceRepository
 import com.example.nightwatchprotocol.data.preferences.UserPreferences
 import com.example.nightwatchprotocol.data.preferences.UserSetting
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
@@ -35,9 +37,10 @@ class PrivacySecurityViewModelTest {
     private val capabilities = FakeBiometricCapabilities()
 
     private val writer = FakeDataExportWriter()
+    private val devices = FakeDeviceRepository()
     private val exporter = ProfileDataExporter(FakeAccountRepository(), profile, FakeQuizResultRepository(), clock = { 0L })
 
-    private fun viewModel() = PrivacySecurityViewModel(auth, profile, preferences, capabilities, exporter, writer)
+    private fun viewModel() = PrivacySecurityViewModel(auth, profile, preferences, capabilities, exporter, writer, devices)
 
     @Test
     fun startsWithDefaults() = runTest {
@@ -46,7 +49,7 @@ class PrivacySecurityViewModelTest {
 
         assertFalse(vm.uiState.value.hidePublicProgress)
         assertFalse(vm.uiState.value.biometricLockEnabled)
-        assertEquals(2, vm.uiState.value.activeDevices)
+        assertEquals(0, vm.uiState.value.activeDevices) // nobody registered yet in the fake registry
     }
 
     @Test
@@ -235,5 +238,25 @@ class PrivacySecurityViewModelTest {
         advanceUntilIdle()
 
         assertEquals(ExportStatus.Failed, vm.uiState.value.exportStatus)
+    }
+
+    @Test
+    fun activeDevices_countsTheRealDevicesThatWereNotAskedToSignOut() = runTest {
+        devices.put("test-uid", DeviceRecord("a", "Uno", 1L, revoked = false))
+        devices.put("test-uid", DeviceRecord("b", "Dos", 1L, revoked = false))
+        devices.put("test-uid", DeviceRecord("c", "Tres", 1L, revoked = true))
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        assertEquals(2, vm.uiState.value.activeDevices)
+    }
+
+    @Test
+    fun activeDevices_isNullWhenTheRegistryCannotBeRead() = runTest {
+        devices.listFails = true
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        assertNull(vm.uiState.value.activeDevices)
     }
 }
