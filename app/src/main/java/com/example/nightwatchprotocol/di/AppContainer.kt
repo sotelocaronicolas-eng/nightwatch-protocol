@@ -11,6 +11,11 @@ import com.example.nightwatchprotocol.data.avatar.BitmapAvatarImageProcessor
 import com.example.nightwatchprotocol.data.avatar.FileAvatarCache
 import com.example.nightwatchprotocol.data.biometric.AndroidBiometricCapabilities
 import com.example.nightwatchprotocol.data.biometric.BiometricCapabilities
+import com.example.nightwatchprotocol.data.notifications.AndroidNotificationPermission
+import com.example.nightwatchprotocol.data.notifications.NotificationPermission
+import com.example.nightwatchprotocol.data.notifications.ReminderCoordinator
+import com.example.nightwatchprotocol.data.notifications.ReminderScheduler
+import com.example.nightwatchprotocol.data.notifications.WorkManagerReminderScheduler
 import com.example.nightwatchprotocol.data.preferences.UserPreferences
 import com.example.nightwatchprotocol.data.preferences.userDataStore
 import com.example.nightwatchprotocol.data.profile.ContentResolverDataExportWriter
@@ -40,6 +45,9 @@ interface AppContainer {
     val biometricCapabilities: BiometricCapabilities
     val profileDataExporter: ProfileDataExporter
     val dataExportWriter: DataExportWriter
+    val notificationPermission: NotificationPermission
+    val reminderScheduler: ReminderScheduler
+    val reminderCoordinator: ReminderCoordinator
 }
 
 class DefaultAppContainer(context: Context) : AppContainer {
@@ -57,4 +65,8 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val profileDataExporter: ProfileDataExporter =
         ProfileDataExporter(accountRepository, profileRepository, quizResultRepository)
     override val dataExportWriter: DataExportWriter = ContentResolverDataExportWriter(context.contentResolver)
+    override val notificationPermission: NotificationPermission = AndroidNotificationPermission(context)
+    override val reminderScheduler: ReminderScheduler = WorkManagerReminderScheduler(context)
+    override val reminderCoordinator: ReminderCoordinator =
+        ReminderCoordinator(reminderScheduler, notificationPermission, userPreferences)
 }
