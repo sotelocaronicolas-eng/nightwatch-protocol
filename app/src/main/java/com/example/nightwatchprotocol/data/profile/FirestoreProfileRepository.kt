@@ -1,21 +1,18 @@
 package com.example.nightwatchprotocol.data.profile
 
+import com.example.nightwatchprotocol.data.firestore.firestoreCall
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withTimeoutOrNull
-
-private const val TIMEOUT_MILLIS = 5_000L
 
 class FirestoreProfileRepository(
     private val firestore: FirebaseFirestore,
 ) : ProfileRepository {
 
-    // A Firestore call with no usable connection can stay pending instead of failing, so each one is bounded.
+    // Every call is bounded and reports its failure kind (see firestoreCall); a write's await() returns null on success.
     override suspend fun getProfile(uid: String): RemoteProfile {
-        val snapshot = withTimeoutOrNull(TIMEOUT_MILLIS) { profileDocument(uid).get().await() }
-            ?: throw ProfileUnavailableException()
+        val snapshot = firestoreCall { profileDocument(uid).get().await() }
         return RemoteProfile(
             recoveryEmail = snapshot.getString("recoveryEmail"),
             avatarBase64 = snapshot.getString("avatarBase64"),
@@ -33,8 +30,7 @@ class FirestoreProfileRepository(
 
     private suspend fun merge(uid: String, fields: Map<String, Any>) {
         val data = fields + ("updatedAt" to FieldValue.serverTimestamp())
-        withTimeoutOrNull(TIMEOUT_MILLIS) { profileDocument(uid).set(data, SetOptions.merge()).await() }
-            ?: throw ProfileUnavailableException()
+        firestoreCall { profileDocument(uid).set(data, SetOptions.merge()).await() }
     }
 
     private fun profileDocument(uid: String) =

@@ -7,6 +7,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.firestore.FailureKind
+import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import com.example.nightwatchprotocol.ui.profile.isPlausibleEmail
@@ -21,6 +23,16 @@ import kotlinx.coroutines.launch
 
 const val MESSAGE_RECOVERY_EMAIL_INVALID = "Correo electrónico inválido"
 const val MESSAGE_RECOVERY_EMAIL_NOT_SAVED = "No se pudo guardar el correo. Inténtalo de nuevo."
+const val MESSAGE_RECOVERY_EMAIL_OFFLINE = "Sin conexión a internet. Revisa tu conexión e inténtalo de nuevo."
+const val MESSAGE_RECOVERY_EMAIL_PERMISSION =
+    "No pudimos guardar el correo por un problema de permisos de tu cuenta. Inténtalo más tarde."
+
+/** One short message per kind of failure; the technical cause is never shown to the user. */
+fun recoveryEmailErrorMessage(error: Throwable?): String = when ((error as? FirestoreAccessException)?.kind) {
+    FailureKind.Offline -> MESSAGE_RECOVERY_EMAIL_OFFLINE
+    FailureKind.PermissionDenied -> MESSAGE_RECOVERY_EMAIL_PERMISSION
+    FailureKind.Unknown, null -> MESSAGE_RECOVERY_EMAIL_NOT_SAVED
+}
 
 data class RecoveryEmailUiState(
     val email: String = "",
@@ -81,8 +93,7 @@ class RecoveryEmailViewModel(
                 _uiState.update { it.copy(isSaving = false) }
                 _events.send(RecoveryEmailEvent.Saved)
             } else {
-                // Covers a rejected write (permission denied), no connection and the 5 s timeout alike.
-                _uiState.update { it.copy(isSaving = false, error = MESSAGE_RECOVERY_EMAIL_NOT_SAVED) }
+                _uiState.update { it.copy(isSaving = false, error = recoveryEmailErrorMessage(result.exceptionOrNull())) }
             }
         }
     }

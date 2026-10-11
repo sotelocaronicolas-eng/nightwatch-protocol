@@ -8,8 +8,6 @@ data class DeviceRecord(
     val revoked: Boolean,
 )
 
-class DeviceUnavailableException : Exception("No se pudo leer o escribir el dispositivo a tiempo")
-
 /**
  * Our own device registry in Firestore. Every call throws when it fails or takes longer than the repository's
  * timeout. A revoked mark is only a request that the other device honours the next time its app is active:

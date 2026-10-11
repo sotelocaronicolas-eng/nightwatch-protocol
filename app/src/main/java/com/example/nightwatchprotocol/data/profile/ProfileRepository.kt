@@ -8,8 +8,6 @@ data class RemoteProfile(
     val avatarBase64: String? = null,
 )
 
-class ProfileUnavailableException : Exception("No se pudo leer el perfil a tiempo")
-
 interface ProfileRepository {
     /** Throws when the read fails or takes longer than the repository's timeout. */
     suspend fun getProfile(uid: String): RemoteProfile
