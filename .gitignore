@@ -1,5 +1,6 @@
 *.iml
 .gradle
+.gradle/
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -13,3 +14,20 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Compilación (también la de los módulos, p. ej. app/build)
+build/
+app/build/
+captures/
+
+# Carpeta de configuración de Android Studio (cada quien tiene la suya)
+.idea/
+
+# Credenciales: cada integrante descarga su propio google-services.json desde Firebase Console
+google-services.json
+
+# Llaves de firma y artefactos de instalación
+*.jks
+*.keystore
+*.apk
+*.aab
