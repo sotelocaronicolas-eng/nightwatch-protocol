@@ -18,6 +18,7 @@ fun mapAuthErrorCode(errorCode: String?): AuthError = when (errorCode) {
     "ERROR_INVALID_EMAIL" -> AuthError.InvalidEmail
     "ERROR_EMAIL_ALREADY_IN_USE" -> AuthError.EmailAlreadyInUse
     "ERROR_WEAK_PASSWORD", "ERROR_PASSWORD_DOES_NOT_MEET_REQUIREMENTS" -> AuthError.WeakPassword
+    "ERROR_REQUIRES_RECENT_LOGIN" -> AuthError.RecentLoginRequired
     else -> AuthError.Unknown
 }
 
