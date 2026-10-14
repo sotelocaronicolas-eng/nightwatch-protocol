@@ -7,6 +7,39 @@ Spec: `docs/superpowers/specs/2026-10-09-profile-settings-design.md`.
 
 > **Actualización (Etapas 8 y 9):** Notificaciones y Dispositivos pasaron de solo visuales a funcionales. Ver las secciones marcadas con 8 y 9 y el bloque de reglas nuevo en la sección 7.
 
+> **Aviso: los hashes de los commits cambiaron.** Para poder subir el repositorio se reescribió el historial con
+> `git filter-repo` y se quitaron de todos los commits y ramas `app/google-services.json` y `.idea/`, que estaban
+> versionados desde el inicio. El contenido, los mensajes, el orden y la cantidad de commits no cambiaron, solo los
+> hashes. **Los hashes que aparecen más abajo en este informe son los anteriores**; esta es la equivalencia
+> (hash anterior → hash nuevo):
+>
+> | Commit | Anterior | Nuevo |
+> |---|---|---|
+> | `MainActivity` pasa a `FragmentActivity` y `androidx.biometric` | `f86946e` | `e21fd8b` |
+> | Spec del Módulo 2 | `3ff9c24` | `4f1ca78` |
+> | Etapa 1: cimientos, Menú de usuario y Mi Perfil | `a809f3e` | `4dc4752` |
+> | Etapa 2: Editar Perfil, avatar y Confirma tu identidad | `3cb5fc9` | `1d78bea` |
+> | Etapa 3A: Privacidad y Cambiar contraseña | `ff9ae51` | `47de98f` |
+> | Etapa 3B: bloqueo biométrico | `b667e39` | `36c3279` |
+> | Etapa 4: correo de recuperación y datos | `980de66` | `5e185e0` |
+> | Etapa 5: cambio de correo con enlace | `ca3ccb5` | `a5be8d3` |
+> | Etapa 6: pantallas restantes | `a586d1a` | `b50ef42` |
+> | Etapa 7: informe de cierre | `ee278dc` | `4400e57` |
+> | Etapa 8: notificaciones | `5f50a3f` | `8c757aa` |
+> | Etapa 9: dispositivos | `66fec10` | `e5f85d5` |
+> | Corrección de comillas del bloque de reglas en el informe | `2c8b116` | `06b3b8d` |
+> | Etapa 10: Idioma y Apariencia | `95ca8a1` | `ba070a7` |
+> | Etapa 11: correo de recuperación (causa real) | `f5fb23c` | `6b6b6d6` |
+> | Etapa 12: Cambiar contraseña | `7f94f41` | `4f29950` |
+> | Etapa 13: género y fecha de nacimiento | `8c8907b` | `d6b1933` |
+> | Informe con las etapas 10 a 13 | `449e152` | `cccb1ea` |
+> | Ajuste: Mi Perfil, filas de correo | `535544c` | `6a7c796` |
+> | Ajuste: Idioma y Apariencia centradas | `6ce0816` | `e615e73` |
+> | Informe con los ajustes de Mi Perfil e Idioma/Apariencia | `f240667` | `98497a3` |
+>
+> Commits nuevos posteriores a la limpieza: `329a2c3` (`.gitignore`), `1ad5cb2` (`firestore.rules`) y `996f50e` (`README.md`).
+> En los commits anteriores a `98497a3` que no están en la tabla (los del Módulo 1) también cambió el hash.
+
 ## 1. Etapas
 
 | Etapa | Estado | Commit |
