@@ -57,7 +57,11 @@ El detalle de decisiones, riesgos y pruebas manuales está en
 [`docs/superpowers/reports/modulo-2-diagnostico.md`](docs/superpowers/reports/modulo-2-diagnostico.md).
 
 ## Requisitos
-- **Android Studio** reciente, con el JDK que incluye (AGP 9 necesita JDK 17 o superior).
+- **Android Studio** reciente.
+- **JDK 25 para ejecutar Gradle.** `gradle/gradle-daemon-jvm.properties` fija `toolchainVersion=25`, y el resolver
+  *foojay* de `settings.gradle.kts` puede descargarlo solo si no lo tienes. AGP 9.3 exige como mínimo JDK 17, pero ese
+  mínimo no cuenta mientras el proyecto pida 25. El código se compila para Java 11 (`compileOptions` en
+  `app/build.gradle.kts`).
 - **Android SDK 37** (`compileSdk` y `targetSdk` = 37). `minSdk` = **24** (Android 7.0).
 - Un dispositivo o emulador con Android 7.0 o superior. Para probar el bloqueo biométrico hace falta una huella
   registrada, y para el inicio de sesión con Google, un dispositivo con Google Play Services.
@@ -107,7 +111,7 @@ Desde la terminal:
 ./gradlew connectedDebugAndroidTest          # pruebas instrumentadas (necesitan un dispositivo o emulador)
 ```
 
-Hay 373 pruebas unitarias. Las pruebas de ViewModel usan `MainDispatcherRule` y Turbine; los repositorios se
+Hay 375 pruebas unitarias. Las pruebas de ViewModel usan `MainDispatcherRule` y Turbine; los repositorios se
 sustituyen por *fakes* (`FakeAuthRepository`, `FakeProfileRepository`, etc.). Las pruebas instrumentadas de Compose
 solo se ejecutan con un dispositivo.
 
@@ -152,3 +156,16 @@ NightWatchProtocol/
 El `.gitignore` excluye lo generado y lo sensible: `build/`, `.gradle/`, `.idea/`, `local.properties`,
 `google-services.json`, `*.jks`, `*.keystore`, `*.apk` y `*.aab`. No subas credenciales, llaves de firma ni
 archivos de configuración de tu proyecto de Firebase.
+
+## Cómo trabajamos en equipo
+
+- Nadie sube cambios directo a `main`. Todo entra por Pull Request con al menos 1 aprobación de otro integrante.
+- Una rama por tarea, con un nombre descriptivo (por ejemplo `modulo-3-...`, `mantenimiento/...` o `experimento/...`).
+- Nunca se usa `git push --force`.
+- `google-services.json` y `local.properties` nunca se suben al repositorio. Cada integrante descarga su propio
+  `google-services.json` desde la consola de Firebase (**Configuración del proyecto > Tus apps**) y lo pone en `app/`.
+- No se actualizan AGP, Gradle ni Kotlin desde el Upgrade Assistant sin acordarlo antes en equipo.
+
+Esto es un acuerdo entre nosotros, no una protección automática: las reglas de protección de ramas de GitHub
+requieren un plan de pago en repositorios privados, así que nada impide técnicamente subir a `main`. Depende de que
+cada quien lo cumpla.
