@@ -227,14 +227,47 @@ class DevicesViewModelTest {
     }
 
     @Test
-    fun signOutAll_whenThereIsNothingToSignOut_doesNotCallTheServer() = runTest {
+    fun signOutAll_whenThereAreNoOtherDevices_stillRevokesTheOtherSessionsOnTheServer() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.events.test {
+            vm.onSignOutAllClicked()
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+
+        assertEquals(1, auth.signOutOtherSessionsCallCount)
+        assertEquals("No hay otros dispositivos con sesión abierta.", vm.uiState.value.notice)
+        assertFalse(vm.uiState.value.isWorking)
+    }
+
+    @Test
+    fun signOutAll_whenEveryDeviceIsAlreadyMarked_stillRevokesOnTheServer_everyTime() = runTest {
+        devices.put(uid, other("device-b", "Samsung S26", hour, revoked = true))
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.onSignOutAllClicked()
+        advanceUntilIdle()
+        vm.onSignOutAllClicked()
+        advanceUntilIdle()
+
+        assertEquals(2, auth.signOutOtherSessionsCallCount)
+        assertTrue(devices.revokeCalls.isEmpty())
+    }
+
+    @Test
+    fun signOutAll_withNothingToMark_showsTheErrorIfTheServerRevocationFails() = runTest {
+        auth.signOutOtherSessionsResult = Result.failure(AuthError.NetworkError)
         val vm = viewModel()
         advanceUntilIdle()
 
         vm.onSignOutAllClicked()
         advanceUntilIdle()
 
-        assertEquals(0, auth.signOutOtherSessionsCallCount)
+        assertEquals(MESSAGE_OTHER_SESSIONS_FAILED, vm.uiState.value.error)
+        assertNull(vm.uiState.value.notice)
     }
 
     @Test

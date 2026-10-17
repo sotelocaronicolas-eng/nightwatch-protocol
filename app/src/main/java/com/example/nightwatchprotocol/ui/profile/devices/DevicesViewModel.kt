@@ -108,14 +108,11 @@ class DevicesViewModel(
 
     /**
      * "CERRAR SESIÓN EN TODOS": every device except this one. Besides the cooperative mark on each device, the backend
-     * is asked to revoke the other sessions for real ([AuthRepository.signOutOtherSessions]; a no-op on Firebase).
+     * is asked to revoke the other sessions for real ([AuthRepository.signOutOtherSessions]; a no-op on Firebase), on
+     * every tap: the list only knows the devices that registered themselves, and a session can exist without a mark.
      */
     fun onSignOutAllClicked() {
         val others = _uiState.value.devices.filter { !it.isCurrent && !it.isRevoked }
-        if (others.isEmpty()) {
-            _uiState.update { it.copy(notice = MESSAGE_NO_OTHER_DEVICES, error = null) }
-            return
-        }
         revoke(others, revokeSessions = true)
     }
 
@@ -127,6 +124,11 @@ class DevicesViewModel(
             // The real revocation goes first: if it fails nothing was marked, so tapping the button again retries it.
             if (revokeSessions && runCatchingKeepCancellation { authRepository.signOutOtherSessions() }.isFailure) {
                 _uiState.update { it.copy(isWorking = false, error = MESSAGE_OTHER_SESSIONS_FAILED) }
+                return@launch
+            }
+            if (targets.isEmpty()) {
+                // Nothing to mark: the server revocation above was the whole action.
+                _uiState.update { it.copy(isWorking = false, notice = MESSAGE_NO_OTHER_DEVICES) }
                 return@launch
             }
             val failures = targets.count { target ->
