@@ -93,6 +93,7 @@ class RegisterViewModel(
     private suspend fun handleRegisterError(error: AuthError) {
         val fieldError = when (error) {
             AuthError.EmailAlreadyInUse -> RegisterFieldError.EmailAlreadyInUse
+            AuthError.GoogleAccountOnly -> RegisterFieldError.EmailRegisteredWithGoogle
             AuthError.InvalidEmail -> RegisterFieldError.InvalidEmail
             AuthError.WeakPassword -> RegisterFieldError.WeakPassword
             else -> null

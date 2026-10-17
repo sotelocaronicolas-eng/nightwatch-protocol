@@ -195,9 +195,12 @@ private fun RegisterScreenContent(
                     value = uiState.email,
                     onValueChange = onEmailChanged,
                     isError = uiState.fieldError == RegisterFieldError.EmailAlreadyInUse ||
+                        uiState.fieldError == RegisterFieldError.EmailRegisteredWithGoogle ||
                         uiState.fieldError == RegisterFieldError.InvalidEmail,
                     supportingText = when (uiState.fieldError) {
                         RegisterFieldError.EmailAlreadyInUse -> "Ya tienes una cuenta con este correo"
+                        RegisterFieldError.EmailRegisteredWithGoogle ->
+                            "Este correo ya está registrado con Google. Usa «Continuar con Google»"
                         RegisterFieldError.InvalidEmail -> "Correo electrónico inválido"
                         else -> null
                     },

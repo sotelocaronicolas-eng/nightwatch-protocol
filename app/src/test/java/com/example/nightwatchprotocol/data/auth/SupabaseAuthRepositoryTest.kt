@@ -343,6 +343,81 @@ class SupabaseAuthRepositoryTest {
         assertTrue(status.asked.isEmpty())
     }
 
+    // ---- sign-up: individual errors ----
+
+    private suspend fun SupabaseAuthRepository.registerFailure(): AuthError =
+        try {
+            register("Ana", "ana@example.com", "Secreta1!")
+            fail("debía lanzar")
+            AuthError.Unknown
+        } catch (e: AuthError) {
+            e
+        }
+
+    @Test
+    fun register_emailWithPassword_isEmailAlreadyInUse_withoutCallingSignUp() = runTest {
+        val status = FakeAccountStatusLookup().apply { result = Result.success(AccountStatus.Password) }
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        assertEquals(AuthError.EmailAlreadyInUse, repository(stub, status.lookup).registerFailure())
+        assertEquals(0, stub.signUpCalls)
+    }
+
+    @Test
+    fun register_googleOnlyEmail_isGoogleAccountOnly_withoutCallingSignUp() = runTest {
+        val status = FakeAccountStatusLookup().apply { result = Result.success(AccountStatus.OtherProvider) }
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        assertEquals(AuthError.GoogleAccountOnly, repository(stub, status.lookup).registerFailure())
+        assertEquals(0, stub.signUpCalls)
+    }
+
+    @Test
+    fun register_newEmail_goesOnToSignUp() = runTest {
+        val status = FakeAccountStatusLookup().apply { result = Result.success(AccountStatus.NotFound) }
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        repository(stub, status.lookup).register("Ana", "ana@example.com", "Secreta1!")
+
+        assertEquals(1, stub.signUpCalls)
+        assertEquals(listOf("ana@example.com"), status.asked)
+    }
+
+    @Test
+    fun register_whenTheLookupFails_goesOnToSignUp_andSupabasesOwnErrorIsMappedAsBefore() = runTest {
+        val status = FakeAccountStatusLookup().apply { result = Result.failure(RuntimeException("rpc caída")) }
+        val stub = AuthStub(SessionStatus.NotAuthenticated()).apply { signUpError = restError("user_already_exists", 422) }
+
+        assertEquals(AuthError.EmailAlreadyInUse, repository(stub, status.lookup).registerFailure())
+        assertEquals(1, stub.signUpCalls)
+    }
+
+    @Test
+    fun register_lookupFailsAndSignUpSucceeds_opensTheSession() = runTest {
+        val status = FakeAccountStatusLookup().apply { result = Result.failure(RuntimeException("rpc caída")) }
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        val repo = repository(stub, status.lookup)
+        repo.register("Ana", "ana@example.com", "Secreta1!")
+
+        assertEquals("nuevo@example.com", repo.currentUserEmail)
+    }
+
+    @Test
+    fun register_withoutASession_afterSignUp_isEmailConfirmationRequired() = runTest {
+        val stub = AuthStub(SessionStatus.NotAuthenticated()).apply { opensSession = false }
+
+        assertEquals(AuthError.EmailConfirmationRequired, repository(stub).registerFailure())
+    }
+
+    @Test
+    fun registerErrorFor_coversEveryStatus() {
+        assertEquals(AuthError.EmailAlreadyInUse, registerErrorFor(AccountStatus.Password))
+        assertEquals(AuthError.GoogleAccountOnly, registerErrorFor(AccountStatus.OtherProvider))
+        assertNull(registerErrorFor(AccountStatus.NotFound))
+        assertNull(registerErrorFor(null))
+    }
+
     @Test
     fun loginErrorFor_coversEveryStatus() {
         assertEquals(AuthError.UserNotFound, loginErrorFor(AccountStatus.NotFound))

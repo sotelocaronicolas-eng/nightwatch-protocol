@@ -99,6 +99,18 @@ class RegisterViewModelTest {
     }
 
     @Test
+    fun register_emailRegisteredWithGoogle_showsItsOwnFieldError() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+        fakeRepo.registerResult = Result.failure(AuthError.GoogleAccountOnly)
+        viewModel.fillValidForm()
+
+        viewModel.onRegisterClicked()
+        advanceUntilIdle()
+
+        assertEquals(RegisterFieldError.EmailRegisteredWithGoogle, viewModel.uiState.value.fieldError)
+    }
+
+    @Test
     fun register_invalidEmail_showsInvalidEmailError() = runTest {
         val (viewModel, fakeRepo) = createViewModel()
         fakeRepo.registerResult = Result.failure(AuthError.InvalidEmail)

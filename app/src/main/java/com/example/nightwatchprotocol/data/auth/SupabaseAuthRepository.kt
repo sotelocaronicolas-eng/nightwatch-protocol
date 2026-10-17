@@ -121,9 +121,15 @@ class SupabaseAuthRepository(
     /**
      * Creates the account and signs in. If the project has "Confirm email" turned ON, Supabase creates the user but
      * opens no session: that is NOT reported as a success, it fails with [AuthError.EmailConfirmationRequired].
+     *
+     * An email that already has an account fails first, without calling signUp: [AuthError.EmailAlreadyInUse] if it
+     * has a password, [AuthError.GoogleAccountOnly] if it was created with another provider (Google).
      */
     override suspend fun register(name: String, email: String, password: String) = authCall {
         beginNewSession()
+        // Tell "already registered" apart before creating anything. A failed lookup just goes on to signUp, where
+        // Supabase's own user_already_exists is mapped as before.
+        registerErrorFor(lookUpStatus(email))?.let { throw it }
         auth.signUpWith(Email, redirectUrl = null) {
             this.email = email
             this.password = password

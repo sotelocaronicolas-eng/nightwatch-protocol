@@ -51,6 +51,7 @@ data class RegisterUiState(
 
 sealed interface RegisterFieldError {
     data object EmailAlreadyInUse : RegisterFieldError
+    data object EmailRegisteredWithGoogle : RegisterFieldError
     data object InvalidEmail : RegisterFieldError
     data object PasswordMismatch : RegisterFieldError
     data object WeakPassword : RegisterFieldError
