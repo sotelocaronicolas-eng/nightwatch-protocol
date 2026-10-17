@@ -27,6 +27,9 @@ begin;
 -- Resultado del quiz de nivelación. Una fila por usuario (user_id es la clave primaria).
 -- Los valores permitidos salen de PlacementLevel.kt y QuizCategory.kt (se guardan con .name).
 -- Nota: firestore.rules solo comprobaba el dueño aquí; estos CHECK son una validación nueva y más estricta.
+-- El operador <@ ("está contenido en") ignora los duplicados: {'CONTRASENAS','CONTRASENAS',...} pasaría
+-- aunque se repita la misma categoría. Por eso también se limita la cantidad de elementos a 4, que es el
+-- número de categorías de QuizCategory.
 create table public.placement (
   user_id         uuid        not null primary key references auth.users (id) on delete cascade,
   level           text        not null
@@ -34,7 +37,10 @@ create table public.placement (
   weak_categories text[]      not null default '{}',
   completed_at    timestamptz not null default now(),
   constraint placement_weak_categories_valid
-    check (weak_categories <@ array['CONCEPTOS_BASICOS', 'CONTRASENAS', 'INGENIERIA_SOCIAL', 'REDES_MALWARE']::text[])
+    check (
+      weak_categories <@ array['CONCEPTOS_BASICOS', 'CONTRASENAS', 'INGENIERIA_SOCIAL', 'REDES_MALWARE']::text[]
+      and cardinality(weak_categories) <= 4
+    )
 );
 
 -- Perfil. Una fila por usuario. Mismas validaciones que la regla de /profile en firestore.rules:
@@ -86,6 +92,9 @@ begin
   return new;
 end;
 $$;
+
+-- Función solo para el trigger: no debe poder llamarse por la API (RPC) ni por ningún rol.
+revoke execute on function public.set_updated_at() from public, anon, authenticated;
 
 create trigger profile_set_updated_at
   before insert or update on public.profile
