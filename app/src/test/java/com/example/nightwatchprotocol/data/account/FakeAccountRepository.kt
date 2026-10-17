@@ -77,6 +77,14 @@ class FakeAccountRepository(
         resendEmailChangeCodeResult.getOrThrow()
     }
 
+    var unlinkOutdatedGoogleAccountsResult = true
+    val unlinkOutdatedGoogleAccountsCalls = mutableListOf<String>()
+
+    override suspend fun unlinkOutdatedGoogleAccounts(newEmail: String): Boolean {
+        unlinkOutdatedGoogleAccountsCalls += newEmail
+        return unlinkOutdatedGoogleAccountsResult
+    }
+
     private fun nextResult(results: MutableList<Result<Unit>>): Result<Unit> =
         if (results.size > 1) results.removeAt(0) else results.first()
 }

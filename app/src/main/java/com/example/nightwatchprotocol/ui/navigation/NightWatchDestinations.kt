@@ -57,8 +57,9 @@ data class ChangeEmail(val newEmail: String)
 @Serializable
 data class VerifyEmailLink(val newEmail: String)
 
+/** [notice] is a non-blocking warning shown under the confirmation (e.g. the old Google account was not unlinked). */
 @Serializable
-object EmailUpdated
+data class EmailUpdated(val notice: String? = null)
 
 @Serializable
 object NotificationSettings

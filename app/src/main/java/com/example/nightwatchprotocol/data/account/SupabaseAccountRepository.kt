@@ -86,6 +86,41 @@ class SupabaseAccountRepository(
         accountCall { auth.resendEmail(OtpType.Email.EMAIL_CHANGE, newEmail) }
     }
 
+    /**
+     * Reads the user's identities from the server and unlinks every Google one whose `identity_data.email` is not
+     * [newEmail] (case-insensitive). The email identity is never touched. Needs "Allow manual linking" in the panel;
+     * without it the server refuses and this returns false. A failed unlink does not stop the next ones.
+     */
+    override suspend fun unlinkOutdatedGoogleAccounts(newEmail: String): Boolean {
+        return try {
+            val identities = auth.retrieveUserForCurrentSession(updateSession = true).identities.orEmpty()
+            val outdated = identities.filter { identity ->
+                identity.provider == GOOGLE_PROVIDER &&
+                    !(identity.identityData[IDENTITY_EMAIL_KEY] as? JsonPrimitive)?.contentOrNull.equals(newEmail, ignoreCase = true)
+            }
+            var allUnlinked = true
+            for (identity in outdated) {
+                val identityId = identity.identityId
+                if (identityId == null) {
+                    allUnlinked = false
+                    continue
+                }
+                try {
+                    auth.unlinkIdentity(identityId)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    allUnlinked = false
+                }
+            }
+            allUnlinked
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     // The link flow is Firebase's. Here the change is confirmed by verifyEmailChangeCode, never by polling.
     override suspend fun isEmailChanged(newEmail: String): Boolean = false
 
@@ -114,3 +149,5 @@ internal fun UserInfo.toAccountProfile() = AccountProfile(
 )
 
 private const val EMAIL_PROVIDER = "email"
+private const val GOOGLE_PROVIDER = "google"
+private const val IDENTITY_EMAIL_KEY = "email"

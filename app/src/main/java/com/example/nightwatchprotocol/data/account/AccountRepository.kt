@@ -47,4 +47,11 @@ interface AccountRepository {
 
     /** Sends a new code to [newEmail], without changing the pending request. */
     suspend fun resendEmailChangeCode(newEmail: String): Unit = throw AuthError.Unknown
+
+    /**
+     * Run after an email change was confirmed: unlinks the Google accounts of this user whose email is not
+     * [newEmail] (they would still open the account with the old address). It never throws; false means something
+     * could not be unlinked. Firebase has nothing to unlink.
+     */
+    suspend fun unlinkOutdatedGoogleAccounts(newEmail: String): Boolean = true
 }

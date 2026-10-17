@@ -79,6 +79,9 @@ data class VerifyCodeUiState(
 sealed interface VerifyCodeEvent {
     /** The code was accepted; the caller decides where the flow goes next. */
     data object Verified : VerifyCodeEvent
+
+    /** Accepted, but a secondary step failed (see [CodeFlow.completionNotice]); the next screen shows [notice]. */
+    data class VerifiedWithNotice(val notice: String) : VerifyCodeEvent
 }
 
 /**
@@ -141,7 +144,8 @@ class VerifyCodeViewModel(
             try {
                 flow.confirm(state.code)
                 _uiState.update { it.copy(isConfirming = false) }
-                _events.send(VerifyCodeEvent.Verified)
+                val notice = flow.completionNotice
+                _events.send(if (notice == null) VerifyCodeEvent.Verified else VerifyCodeEvent.VerifiedWithNotice(notice))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: AuthError) {

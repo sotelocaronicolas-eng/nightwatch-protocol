@@ -71,7 +71,7 @@ fun PasswordRecoveryDialog(
             LaunchedEffect(codeViewModel) {
                 codeViewModel.events.collect { event ->
                     when (event) {
-                        VerifyCodeEvent.Verified -> onVerified()
+                        VerifyCodeEvent.Verified, is VerifyCodeEvent.VerifiedWithNotice -> onVerified()
                     }
                 }
             }

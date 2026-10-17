@@ -20,6 +20,9 @@ enum class CodePurpose {
 interface CodeFlow {
     suspend fun confirm(code: String)
     suspend fun resend()
+
+    /** A non-blocking warning for the screen that follows a successful [confirm]; null when everything went well. */
+    val completionNotice: String? get() = null
 }
 
 class SignUpCodeFlow(private val authRepository: AuthRepository, private val email: String) : CodeFlow {
@@ -27,9 +30,21 @@ class SignUpCodeFlow(private val authRepository: AuthRepository, private val ema
     override suspend fun resend() = authRepository.resendSignUpCode(email)
 }
 
-/** [email] is the new address, the one the code was sent to. */
+const val MESSAGE_GOOGLE_UNLINK_FAILED = "Tu cuenta de Google anterior sigue vinculada a este perfil."
+
+/**
+ * [email] is the new address, the one the code was sent to. Once it is confirmed, the Google accounts with another
+ * email are unlinked; if that fails the change still stands and [completionNotice] says so.
+ */
 class EmailChangeCodeFlow(private val accountRepository: AccountRepository, private val email: String) : CodeFlow {
-    override suspend fun confirm(code: String) = accountRepository.verifyEmailChangeCode(email, code)
+    override var completionNotice: String? = null
+        private set
+
+    override suspend fun confirm(code: String) {
+        accountRepository.verifyEmailChangeCode(email, code)
+        completionNotice = if (accountRepository.unlinkOutdatedGoogleAccounts(email)) null else MESSAGE_GOOGLE_UNLINK_FAILED
+    }
+
     override suspend fun resend() = accountRepository.resendEmailChangeCode(email)
 }
 

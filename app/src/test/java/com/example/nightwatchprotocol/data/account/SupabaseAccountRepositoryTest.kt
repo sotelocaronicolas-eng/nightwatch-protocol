@@ -8,6 +8,7 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.auth.user.Identity
 import io.github.jan.supabase.auth.user.UserInfo
 import io.github.jan.supabase.auth.user.UserSession
 import io.github.jan.supabase.auth.user.UserUpdateBuilder
@@ -22,7 +23,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -51,6 +55,12 @@ class SupabaseAccountRepositoryTest {
         val verifyCalls = mutableListOf<List<Any?>>()
         val resendCalls = mutableListOf<List<Any?>>()
 
+        /** What the server reports for the user's identities, and the unlinking that was asked for. */
+        var identities: List<Identity> = emptyList()
+        var retrieveError: Throwable? = null
+        val unlinked = mutableListOf<String>()
+        val unlinkFailsFor = mutableSetOf<String>()
+
         val auth: Auth = Proxy.newProxyInstance(Auth::class.java.classLoader, arrayOf(Auth::class.java)) { _, method, args ->
             when (method.name) {
                 "getSessionStatus" -> status
@@ -67,14 +77,21 @@ class SupabaseAccountRepositoryTest {
                     resendCalls += listOf(args[0], args[1])
                     answer(args, Unit)
                 }
+                "retrieveUserForCurrentSession" ->
+                    answer(args, UserInfo(aud = "authenticated", id = "ana-id", email = "nuevo@example.com", identities = identities), retrieveError)
+                "unlinkIdentity" -> {
+                    val identityId = args[0] as String
+                    unlinked += identityId
+                    answer(args, Unit, if (identityId in unlinkFailsFor) AuthRestException("manual_linking_disabled", "x", fakeHttpResponse(422)) else null)
+                }
                 else -> throw UnsupportedOperationException(method.name)
             }
         } as Auth
 
         // A failure travels through the continuation, like a real one (a Proxy would wrap a checked exception).
         @Suppress("UNCHECKED_CAST")
-        private fun answer(args: Array<Any?>, value: Any): Any {
-            val failure = error ?: return value
+        private fun answer(args: Array<Any?>, value: Any, failure: Throwable? = error): Any {
+            failure ?: return value
             (args.last() as Continuation<Any?>).resumeWithException(failure)
             return COROUTINE_SUSPENDED
         }
@@ -156,6 +173,74 @@ class SupabaseAccountRepositoryTest {
         repository(stub).resendEmailChangeCode("nuevo@example.com")
 
         assertEquals(listOf<Any?>(OtpType.Email.EMAIL_CHANGE, "nuevo@example.com"), stub.resendCalls.single())
+    }
+
+    // ---- unlinking the old Google account after the email change ----
+
+    private fun identity(id: String, provider: String, email: String?) = Identity(
+        id = "$provider-user",
+        identityData = buildJsonObject { if (email != null) put("email", email) },
+        identityId = id,
+        provider = provider,
+        userId = "ana-id",
+    )
+
+    @Test
+    fun unlink_removesOnlyTheGoogleIdentitiesWithAnotherEmail() = runTest {
+        val stub = AuthStub(ana).apply {
+            identities = listOf(
+                identity("id-email", "email", "nuevo@example.com"),
+                identity("id-google-old", "google", "ana@example.com"),
+            )
+        }
+
+        val ok = repository(stub).unlinkOutdatedGoogleAccounts("nuevo@example.com")
+
+        assertTrue(ok)
+        assertEquals(listOf("id-google-old"), stub.unlinked)
+    }
+
+    @Test
+    fun unlink_leavesAGoogleIdentityWithTheNewEmail_ignoringCase() = runTest {
+        val stub = AuthStub(ana).apply {
+            identities = listOf(
+                identity("id-email", "email", "nuevo@example.com"),
+                identity("id-google", "google", "Nuevo@Example.com"),
+            )
+        }
+
+        assertTrue(repository(stub).unlinkOutdatedGoogleAccounts("nuevo@example.com"))
+        assertTrue(stub.unlinked.isEmpty())
+    }
+
+    @Test
+    fun unlink_neverTouchesTheEmailIdentity_evenIfItsEmailDiffers() = runTest {
+        val stub = AuthStub(ana).apply { identities = listOf(identity("id-email", "email", "ana@example.com")) }
+
+        assertTrue(repository(stub).unlinkOutdatedGoogleAccounts("nuevo@example.com"))
+        assertTrue(stub.unlinked.isEmpty())
+    }
+
+    @Test
+    fun unlink_aFailureIsReportedAsFalse_andTheOtherIdentitiesAreStillTried() = runTest {
+        val stub = AuthStub(ana).apply {
+            identities = listOf(
+                identity("id-google-1", "google", "uno@example.com"),
+                identity("id-google-2", "google", "dos@example.com"),
+            )
+            unlinkFailsFor += "id-google-1"
+        }
+
+        assertFalse(repository(stub).unlinkOutdatedGoogleAccounts("nuevo@example.com"))
+        assertEquals(listOf("id-google-1", "id-google-2"), stub.unlinked)
+    }
+
+    @Test
+    fun unlink_ifTheIdentitiesCannotBeRead_returnsFalseWithoutThrowing() = runTest {
+        val stub = AuthStub(ana).apply { retrieveError = java.io.IOException("sin red") }
+
+        assertFalse(repository(stub).unlinkOutdatedGoogleAccounts("nuevo@example.com"))
+        assertTrue(stub.unlinked.isEmpty())
     }
 
     @Test

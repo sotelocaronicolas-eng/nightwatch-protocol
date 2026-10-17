@@ -18,10 +18,11 @@ fun ProfileUpdatedScreen(onBackToProfile: () -> Unit) {
 }
 
 @Composable
-fun EmailUpdatedScreen(onBackToEditProfile: () -> Unit) {
+fun EmailUpdatedScreen(onBackToEditProfile: () -> Unit, notice: String? = null) {
+    val message = "Tu correo electrónico fue verificado y actualizado con éxito."
     ConfirmationContent(
         title = "¡Correo actualizado!",
-        message = "Tu correo electrónico fue verificado y actualizado con éxito.",
+        message = if (notice == null) message else "$message\n$notice",
         buttonText = "VOLVER A EDITAR PERFIL",
         onButtonClick = onBackToEditProfile,
         onClose = onBackToEditProfile,

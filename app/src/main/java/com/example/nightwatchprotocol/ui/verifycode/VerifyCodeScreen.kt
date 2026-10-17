@@ -65,7 +65,7 @@ const val CODE_FIELD_TAG = "code-field"
 
 @Composable
 fun VerifyCodeScreen(
-    onVerified: () -> Unit,
+    onVerified: (notice: String?) -> Unit,
     onClose: () -> Unit,
     viewModel: VerifyCodeViewModel = viewModel(factory = VerifyCodeViewModel.Factory),
 ) {
@@ -74,7 +74,8 @@ fun VerifyCodeScreen(
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                VerifyCodeEvent.Verified -> onVerified()
+                VerifyCodeEvent.Verified -> onVerified(null)
+                is VerifyCodeEvent.VerifiedWithNotice -> onVerified(event.notice)
             }
         }
     }

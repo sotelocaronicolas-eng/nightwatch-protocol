@@ -95,14 +95,14 @@ fun NightWatchNavHost(
         composable<VerifyCode> { entry ->
             val purpose = entry.toRoute<VerifyCode>().purpose
             VerifyCodeScreen(
-                onVerified = {
+                onVerified = { notice ->
                     when (purpose) {
                         // The session is open now: the same road as a normal sign-up (quiz or main menu).
                         CodePurpose.SIGN_UP ->
                             navController.navigate(PostAuthGate) { popUpTo<Login> { inclusive = true } }
                         // Same exit as the link flow: "¡Correo actualizado!" replaces the email-change screens.
                         CodePurpose.EMAIL_CHANGE ->
-                            navController.navigate(EmailUpdated) { popUpTo<ChangeEmail> { inclusive = true } }
+                            navController.navigate(EmailUpdated(notice)) { popUpTo<ChangeEmail> { inclusive = true } }
                     }
                 },
                 onClose = {
@@ -207,12 +207,13 @@ fun NightWatchNavHost(
             VerifyEmailLinkScreen(
                 onClose = { navController.popBackStack<EditProfile>(inclusive = false) },
                 onEmailUpdated = {
-                    navController.navigate(EmailUpdated) { popUpTo<ChangeEmail> { inclusive = true } }
+                    navController.navigate(EmailUpdated()) { popUpTo<ChangeEmail> { inclusive = true } }
                 },
             )
         }
-        composable<EmailUpdated> {
+        composable<EmailUpdated> { entry ->
             EmailUpdatedScreen(
+                notice = entry.toRoute<EmailUpdated>().notice,
                 onBackToEditProfile = {
                     // A fresh Editar Perfil, so it shows the new email.
                     navController.navigate(EditProfile) { popUpTo<EditProfile> { inclusive = true } }

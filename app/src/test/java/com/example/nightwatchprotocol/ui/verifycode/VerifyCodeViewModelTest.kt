@@ -22,6 +22,7 @@ class FakeCodeFlow : CodeFlow {
     var resendResult: Result<Unit> = Result.success(Unit)
     val confirmed = mutableListOf<String>()
     var resendCalls = 0
+    override var completionNotice: String? = null
 
     override suspend fun confirm(code: String) {
         confirmed += code
@@ -100,6 +101,18 @@ class VerifyCodeViewModelTest {
             assertEquals(VerifyCodeEvent.Verified, awaitItem())
         }
         assertEquals(listOf("123456"), flow.confirmed)
+    }
+
+    @Test
+    fun aValidCodeWithACompletionNotice_emitsVerifiedWithTheNotice() = runTest {
+        flow.completionNotice = "aviso"
+        val vm = viewModel()
+        vm.onCodeChanged("123456")
+
+        vm.events.test {
+            vm.onConfirmClicked()
+            assertEquals(VerifyCodeEvent.VerifiedWithNotice("aviso"), awaitItem())
+        }
     }
 
     @Test
