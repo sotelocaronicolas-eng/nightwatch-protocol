@@ -53,9 +53,13 @@ El esquema está en `supabase/migrations/0001_esquema_inicial.sql`. **Nada lo ej
 
 Los archivos de `supabase/migrations/` se ejecutan **en orden numérico** (`0001`, `0002`, ...) y **una sola vez
 por proyecto**. Una migración que ya se aplicó **no se edita**: cualquier cambio posterior va en una migración
-nueva con el siguiente número. Hoy hay dos: `0001_esquema_inicial.sql` (tablas, RLS, políticas y grants) y
-`0002_minimo_privilegio.sql` (quita a `authenticated` los privilegios `TRUNCATE`, `REFERENCES` y `TRIGGER`,
-que Supabase concede por defecto y la app no necesita).
+nueva con el siguiente número. Hoy hay tres:
+
+1. `0001_esquema_inicial.sql`: tablas, RLS, políticas y grants.
+2. `0002_minimo_privilegio.sql`: quita a `authenticated` los privilegios `TRUNCATE`, `REFERENCES` y `TRIGGER`,
+   que Supabase concede por defecto y la app no necesita.
+3. `0003_revoca_rls_auto_enable.sql`: revoca `EXECUTE` de `public.rls_auto_enable()` (función que crea Supabase
+   con "Enable automatic RLS" y que el Security Advisor marcaba como llamable por `anon` y `authenticated`).
 
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
