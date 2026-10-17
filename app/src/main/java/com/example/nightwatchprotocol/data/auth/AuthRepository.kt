@@ -44,6 +44,13 @@ interface AuthRepository {
     fun signOut()
 
     /**
+     * Really revokes the sessions of the user's other devices, on the server. Supabase does it by invalidating their
+     * refresh tokens (their already-issued access tokens keep working until they expire). Backends that cannot (Firebase)
+     * do nothing: the cooperative `revoked` mark on each device is all they have. Throws `AuthError` on failure.
+     */
+    suspend fun signOutOtherSessions() {}
+
+    /**
      * Confirms an account created by [register] with the 6-digit code from its email, and opens the session.
      * Only the backend that asks for a code (Supabase, with "Confirm email" on) implements it; Firebase never calls it.
      */

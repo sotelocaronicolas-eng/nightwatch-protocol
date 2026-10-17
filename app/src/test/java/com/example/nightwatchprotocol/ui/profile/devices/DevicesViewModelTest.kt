@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.profile.devices
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
 import com.example.nightwatchprotocol.data.avatar.FakeAvatarCache
@@ -185,8 +186,89 @@ class DevicesViewModelTest {
     }
 
     @Test
-    fun theLimitationNoticeSaysItDoesNotRevokeFirebase() {
+    fun theLimitationNoticeSaysItDoesNotRevokeImmediately_andNamesNoBackend() {
         assertTrue(DEVICES_LIMITATION_NOTICE.contains("No revoca"))
-        assertTrue(DEVICES_LIMITATION_NOTICE.contains("Firebase"))
+        assertFalse(DEVICES_LIMITATION_NOTICE.contains("Firebase"))
+        assertFalse(DEVICES_LIMITATION_NOTICE.contains("Supabase"))
+    }
+
+    // ---- the real revocation of the other sessions ----
+
+    @Test
+    fun signOutAll_alsoRevokesTheOtherSessionsOnTheServer() = runTest {
+        devices.put(uid, other("device-b", "Samsung S26", hour))
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.events.test {
+            vm.onSignOutAllClicked()
+            assertEquals(DevicesEvent.DeviceSignedOut, awaitItem())
+        }
+        advanceUntilIdle()
+
+        assertEquals(1, auth.signOutOtherSessionsCallCount)
+        assertEquals(listOf("device-b"), devices.revokeCalls)
+    }
+
+    @Test
+    fun signingOutASingleDevice_neverRevokesTheOtherSessionsOnTheServer() = runTest {
+        devices.put(uid, other("device-b", "Samsung S26", hour))
+        devices.put(uid, other("device-c", "iPhone", 2 * hour))
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.events.test {
+            vm.onDeviceClicked("device-b")
+            assertEquals(DevicesEvent.DeviceSignedOut, awaitItem())
+        }
+        advanceUntilIdle()
+
+        assertEquals(0, auth.signOutOtherSessionsCallCount)
+    }
+
+    @Test
+    fun signOutAll_whenThereIsNothingToSignOut_doesNotCallTheServer() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.onSignOutAllClicked()
+        advanceUntilIdle()
+
+        assertEquals(0, auth.signOutOtherSessionsCallCount)
+    }
+
+    @Test
+    fun ifTheServerRevocationFails_nothingIsMarked_andTheErrorIsShown() = runTest {
+        devices.put(uid, other("device-b", "Samsung S26", hour))
+        auth.signOutOtherSessionsResult = Result.failure(AuthError.NetworkError)
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.events.test {
+            vm.onSignOutAllClicked()
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+
+        assertEquals(MESSAGE_OTHER_SESSIONS_FAILED, vm.uiState.value.error)
+        assertTrue(devices.revokeCalls.isEmpty())
+        assertFalse(vm.uiState.value.isWorking)
+    }
+
+    @Test
+    fun afterAFailedRevocation_tappingAgainRetriesIt() = runTest {
+        devices.put(uid, other("device-b", "Samsung S26", hour))
+        auth.signOutOtherSessionsResult = Result.failure(AuthError.NetworkError)
+        val vm = viewModel()
+        advanceUntilIdle()
+        vm.onSignOutAllClicked()
+        advanceUntilIdle()
+
+        auth.signOutOtherSessionsResult = Result.success(Unit)
+        vm.events.test {
+            vm.onSignOutAllClicked()
+            assertEquals(DevicesEvent.DeviceSignedOut, awaitItem())
+        }
+        assertEquals(2, auth.signOutOtherSessionsCallCount)
     }
 }

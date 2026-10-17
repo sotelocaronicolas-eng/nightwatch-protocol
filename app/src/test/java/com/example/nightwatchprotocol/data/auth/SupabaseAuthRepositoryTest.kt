@@ -121,8 +121,7 @@ class SupabaseAuthRepositoryTest {
                 }
                 "signOut" -> {
                     signOutScopes += args[0] as SignOutScope
-                    signOutError?.let { throw it }
-                    Unit
+                    outcome(args, signOutError, opens = false)
                 }
                 "clearSession" -> {
                     clearSessionCalls++
@@ -565,6 +564,39 @@ class SupabaseAuthRepositoryTest {
         val stub = AuthStub(SessionStatus.NotAuthenticated()).apply { signInError = restError("bad_jwt") }
         try {
             repository(stub).signInWithGoogle("token", "nonce")
+            fail("debía lanzar")
+        } catch (e: AuthError) {
+            assertEquals(AuthError.Unknown, e)
+        }
+    }
+
+    // ---- real revocation of the other sessions ----
+
+    @Test
+    fun signOutOtherSessions_usesTheOthersScope_andKeepsThisSessionSignedIn() = runTest {
+        val stub = AuthStub(authenticated(ana))
+        val repo = repository(stub)
+
+        repo.signOutOtherSessions()
+
+        assertEquals(listOf(SignOutScope.OTHERS), stub.signOutScopes)
+        assertEquals(0, stub.clearSessionCalls)
+        assertEquals("ana@example.com", repo.currentUserEmail)
+    }
+
+    @Test
+    fun signOutOtherSessions_failuresAreMapped() = runTest {
+        val offline = AuthStub(authenticated(ana)).apply { signOutError = java.io.IOException("sin red") }
+        try {
+            repository(offline).signOutOtherSessions()
+            fail("debía lanzar")
+        } catch (e: AuthError) {
+            assertEquals(AuthError.NetworkError, e)
+        }
+
+        val refused = AuthStub(authenticated(ana)).apply { signOutError = restError("session_not_found", 403) }
+        try {
+            repository(refused).signOutOtherSessions()
             fail("debía lanzar")
         } catch (e: AuthError) {
             assertEquals(AuthError.Unknown, e)

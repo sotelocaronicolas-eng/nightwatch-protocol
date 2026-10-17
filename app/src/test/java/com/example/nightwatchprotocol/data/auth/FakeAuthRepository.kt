@@ -67,6 +67,14 @@ class FakeAuthRepository : AuthRepository {
         verifyRecoveryCodeResult.getOrThrow()
     }
 
+    var signOutOtherSessionsResult: Result<Unit> = Result.success(Unit)
+    var signOutOtherSessionsCallCount = 0
+
+    override suspend fun signOutOtherSessions() {
+        signOutOtherSessionsCallCount++
+        signOutOtherSessionsResult.getOrThrow()
+    }
+
     var verifySignUpCodeResult: Result<Unit> = Result.success(Unit)
     var resendSignUpCodeResult: Result<Unit> = Result.success(Unit)
     val verifySignUpCodeCalls = mutableListOf<Pair<String, String>>()

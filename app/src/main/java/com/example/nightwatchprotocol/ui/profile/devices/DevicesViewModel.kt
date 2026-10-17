@@ -26,13 +26,17 @@ const val MESSAGE_DEVICES_LOAD_FAILED = "No pudimos cargar tus dispositivos. Rev
 const val MESSAGE_DEVICE_SIGN_OUT_FAILED = "No pudimos cerrar la sesión en ese dispositivo. Inténtalo de nuevo."
 const val MESSAGE_NO_OTHER_DEVICES = "No hay otros dispositivos con sesión abierta."
 
+const val MESSAGE_OTHER_SESSIONS_FAILED = "No pudimos cerrar las otras sesiones. Inténtalo de nuevo."
+
 /**
  * Shown on the screen and on the confirmation: signing out another device is a request that device honours the
- * next time its app opens. It does NOT revoke the Firebase session (a client-only limitation).
+ * next time its app opens. It is not an immediate revocation of the account's access (a client-only limitation;
+ * "cerrar sesión en todos" also revokes the other sessions on the server when the backend can, but access tokens
+ * already issued live until they expire). Neutral about the backend on purpose.
  */
 const val DEVICES_LIMITATION_NOTICE =
     "Cerrar la sesión en otro dispositivo le pide a NightWatch que se cierre allí la próxima vez que se abra la app. " +
-        "No revoca el acceso de tu cuenta de Firebase."
+        "No revoca de inmediato el acceso de tu cuenta."
 
 data class DeviceItem(
     val id: String,
@@ -102,21 +106,29 @@ class DevicesViewModel(
         revoke(listOf(item))
     }
 
-    /** "CERRAR SESIÓN EN TODOS": every device except this one. */
+    /**
+     * "CERRAR SESIÓN EN TODOS": every device except this one. Besides the cooperative mark on each device, the backend
+     * is asked to revoke the other sessions for real ([AuthRepository.signOutOtherSessions]; a no-op on Firebase).
+     */
     fun onSignOutAllClicked() {
         val others = _uiState.value.devices.filter { !it.isCurrent && !it.isRevoked }
         if (others.isEmpty()) {
             _uiState.update { it.copy(notice = MESSAGE_NO_OTHER_DEVICES, error = null) }
             return
         }
-        revoke(others)
+        revoke(others, revokeSessions = true)
     }
 
-    private fun revoke(targets: List<DeviceItem>) {
+    private fun revoke(targets: List<DeviceItem>, revokeSessions: Boolean = false) {
         val uid = authRepository.currentUserUid ?: return
         if (_uiState.value.isWorking) return
         viewModelScope.launch {
             _uiState.update { it.copy(isWorking = true, error = null, notice = null) }
+            // The real revocation goes first: if it fails nothing was marked, so tapping the button again retries it.
+            if (revokeSessions && runCatchingKeepCancellation { authRepository.signOutOtherSessions() }.isFailure) {
+                _uiState.update { it.copy(isWorking = false, error = MESSAGE_OTHER_SESSIONS_FAILED) }
+                return@launch
+            }
             val failures = targets.count { target ->
                 runCatchingKeepCancellation { deviceRepository.setRevoked(uid, target.id, true) }.isFailure
             }

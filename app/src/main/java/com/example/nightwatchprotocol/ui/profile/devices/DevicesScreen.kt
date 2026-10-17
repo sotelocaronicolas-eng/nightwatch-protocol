@@ -49,7 +49,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 
 private val DeviceLabelColor = Color(0xFF404040)
 
-/** Cooperative device list (see [DEVICES_LIMITATION_NOTICE]): real devices from Firestore, not Firebase sessions. */
+/** Cooperative device list (see [DEVICES_LIMITATION_NOTICE]): the registered devices of the account, not the backend's sessions. */
 @Composable
 fun DevicesScreen(
     onClose: () -> Unit,

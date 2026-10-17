@@ -226,6 +226,14 @@ class SupabaseAuthRepository(
         }
     }
 
+    /**
+     * `signOut(OTHERS)` asks the server to invalidate the refresh token of every session except this one, which stays
+     * signed in (supabase-kt does not clear the local session for this scope).
+     */
+    override suspend fun signOutOtherSessions() = authCall {
+        auth.signOut(SignOutScope.OTHERS)
+    }
+
     // A sign-out still running must not wipe the session that is about to be opened.
     private suspend fun beginNewSession() {
         pendingSignOut?.join()
