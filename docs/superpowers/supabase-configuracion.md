@@ -53,7 +53,7 @@ El esquema está en `supabase/migrations/0001_esquema_inicial.sql`. **Nada lo ej
 
 Los archivos de `supabase/migrations/` se ejecutan **en orden numérico** (`0001`, `0002`, ...) y **una sola vez
 por proyecto**. Una migración que ya se aplicó **no se edita**: cualquier cambio posterior va en una migración
-nueva con el siguiente número. Hoy hay cinco:
+nueva con el siguiente número. Hoy hay seis:
 
 1. `0001_esquema_inicial.sql`: tablas, RLS, políticas y grants.
 2. `0002_minimo_privilegio.sql`: quita a `authenticated` los privilegios `TRUNCATE`, `REFERENCES` y `TRIGGER`,
@@ -65,6 +65,9 @@ nueva con el siguiente número. Hoy hay cinco:
 5. `0005_estado_de_cuenta.sql`: función `public.account_status(p_email)`, que devuelve `not_found`, `password` u
    `other_provider` para que el login y el registro muestren errores individualizados (**pendiente de ejecutar**;
    ver "Errores individualizados").
+6. `0006_verificacion_correo_recuperacion.sql`: tabla `recovery_email_codes`, cierra la columna
+   `profile.recovery_email` al cliente y crea `verify_recovery_email_code(p_code)` (**pendiente de ejecutar**; ver
+   "Parte D").
 
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
@@ -264,12 +267,74 @@ marca nada y el botón puede repetirse. Cerrar un solo dispositivo sigue siendo 
   "expiró" si pasaron 600 s desde que ella envió el código (según el reloj del teléfono) y "incorrecto" en otro caso.
   Con el reloj del teléfono mal puesto el mensaje puede equivocarse (el código se acepta o rechaza igual, según el servidor).
 - **Sesión de recuperación.** Entre verificar el código y guardar la contraseña nueva hay una sesión abierta sin que la
-  persona haya escrito contraseña. Si la app se mata justo en esa pantalla, al abrirla de nuevo la persona entra (ya
-  demostró controlar el correo). Salir con "X" o con Atrás la cierra.
+  persona haya escrito contraseña. Salir con "X" o con Atrás la cierra. Si la app se mata justo en esa pantalla, queda
+  guardada una marca de "recuperación en curso" (se escribe **antes** de pedir la verificación) y al abrir la app de
+  nuevo se cierra esa sesión y se va al login (Parte C, C3).
 - **Contraseña nueva igual a la anterior.** Supabase la rechaza (`same_password`) y la app lo muestra como "La contraseña
   no cumple con los requerimientos" (el mismo mapeo que ya usaban "Cambiar contraseña" y Editar Perfil).
 - **Pedir otro código de recuperación invalida el anterior**, y el envío repetido lo limita el intervalo de 60 s.
-- **"Cerrar sesión en todos" con todos los dispositivos ya marcados** muestra "No hay otros dispositivos con sesión
-  abierta" y no vuelve a revocar en el servidor (se conserva el comportamiento de Firebase).
+- **"Cerrar sesión en todos" revoca en el servidor en cada toque** (Parte C, C4), aunque todos los dispositivos ya estén
+  marcados. Si no hay otros dispositivos que marcar, igual se revoca y se muestra "No hay otros dispositivos con sesión
+  abierta".
 - **Firebase no cambia**, salvo el texto de Dispositivos, que ya no nombra a Firebase ("No revoca de inmediato el acceso
   de tu cuenta").
+
+## Parte C: correcciones de la prueba en dispositivo
+
+- **C1, espaciado del quiz y de los resultados (los dos backends).** Las preguntas siguen Figma `2017:30`: barra de
+  progreso, "Pregunta X de 6" y la categoría arriba, bajo la barra de estado; la pregunta y sus 4 opciones centradas en el
+  espacio que queda; el botón (SIGUIENTE / FINALIZAR en la última) abajo. Si no cabe, solo la parte del medio se desplaza.
+  "¡Resultados listos!" (`2017:126`) respeta la barra de estado y el margen superior del diseño. Es un commit
+  independiente para poder llevarlo a `main`.
+- **C2, desvincular la cuenta de Google vieja al cambiar el correo (Supabase).** Tras verificar el código del cambio de
+  correo, la app lee las identidades del usuario (`retrieveUserForCurrentSession`) y llama a `unlinkIdentity` por cada
+  identidad **Google** cuyo `identity_data.email` no sea el correo nuevo (sin distinguir mayúsculas). La identidad de
+  correo nunca se toca. **Requiere "Allow manual linking" activado** en el panel (*Authentication > Sign In / Providers*,
+  sección de *User Signups*); sin él el servidor rechaza el desvínculo.
+  Si la desvinculación falla, **el cambio de correo no falla**: "¡Correo actualizado!" muestra debajo el aviso "Tu cuenta
+  de Google anterior sigue vinculada a este perfil." Antes no había ningún aviso posterior a una verificación (los avisos
+  existentes, como `notice` en Dispositivos o "Te enviamos un código nuevo.", viven en la misma pantalla); este es el
+  patrón nuevo: `CodeFlow.completionNotice` > `VerifyCodeEvent.VerifiedWithNotice` > `EmailUpdated(notice)`.
+- **C3, no dejar sesión abierta si se interrumpe la recuperación (Supabase).** Al pedir la verificación del código de
+  recuperación se guarda en DataStore (`SessionPreferences`) la marca "recuperación en curso"; se borra si el código se
+  rechaza, al guardar la contraseña nueva (ya con la sesión cerrada) y al salir con X/Atrás. En el arranque, después de
+  `awaitSessionReady` y antes de decidir la ruta, si la marca existe se cierra la sesión, se borra la marca y se va al
+  login.
+- **C4, "Cerrar sesión en todos" siempre revoca en el servidor (Supabase).** Cada toque llama a
+  `signOut(SignOutScope.OTHERS)`, aunque todos los dispositivos ya estén marcados. La marca cooperativa y el aviso se
+  conservan.
+
+## Parte D: verificar con código el correo de recuperación
+
+**Qué hace.** Con `BACKEND=supabase`, "GUARDAR CORREO" en *Correo de Recuperación* ya no guarda directo: envía un código
+de 6 dígitos al correo alterno, abre la pantalla "Verifica tu Correo" (el mismo componente de los otros flujos, con
+reenvío y cuenta regresiva) y solo con el código correcto se guarda y aparece "¡Correo guardado!" (botón "VOLVER A
+CUENTAS"). Con `BACKEND=firebase` sigue guardando directo (capacidad `ProfileRepository.verifiesRecoveryEmailWithCode`).
+
+**Por qué hay un envío propio.** Supabase Auth solo envía códigos al correo **principal** del usuario. El del correo
+alterno lo envía la Edge Function `send-recovery-email-code` por la **API transaccional de Brevo**.
+
+**Piezas (todas se despliegan a mano; ver la lista de pasos abajo).**
+
+| Pieza | Qué es |
+|---|---|
+| `supabase/migrations/0006_verificacion_correo_recuperacion.sql` | Tabla `public.recovery_email_codes` (solo el *hash* del código; ningún privilegio para `anon` ni `authenticated`), cierra `profile.recovery_email` al cliente (el `INSERT`/`UPDATE` de `authenticated` queda limitado por columna) y crea `public.verify_recovery_email_code(p_code)` (`SECURITY DEFINER`, solo `authenticated`) |
+| `supabase/functions/send-recovery-email-code/index.ts` | Edge Function: exige el JWT, valida el correo, limita (60 s entre envíos, 5 por hora), guarda el hash y envía por Brevo. Su `README.md` tiene el despliegue |
+| App | `functions-kt` (mismo BOM 3.2.4) invoca la función; `rpc` llama a la función SQL. Mapeo: `429` > espera con los segundos; `same_as_primary` > "Usa un correo distinto al principal"; `email_failed` > error de envío; `invalid` > "El código ingresado no es correcto."; `expired` > expirado; `too_many_attempts` > demasiados intentos |
+
+**Formato del hash** (idéntico en la función y en el SQL): `sha256_hex("<user_id>:<código>")`, con el `user_id` en
+minúsculas con guiones. **El código y el hash nunca se registran ni se devuelven.**
+
+**Seguridad.** Con 6 dígitos hay 1.000.000 de códigos; lo que protege de adivinarlos son los límites: 5 intentos por
+código (la función SQL), 60 s entre envíos y 5 envíos por hora (la Edge Function) y el vencimiento de 10 minutos.
+`profile.recovery_email` ya no puede escribirse desde la app: solo `verify_recovery_email_code` lo escribe. En el
+`UPDATE` de `profile` se concede también `user_id` porque el *upsert* de PostgREST lo incluye en el `SET`; no abre nada
+porque la política `profile_update_own` (`WITH CHECK user_id = auth.uid()`) impide cambiarlo.
+
+**Límite diario de Brevo.** Estos correos salen por la API de Brevo, no por el SMTP de Supabase: **cuentan en el límite
+diario de Brevo** (300 al día en el plan gratuito, junto con los correos de Auth que ya salen por el SMTP de Brevo), no
+en el límite de correos de Supabase.
+
+**Orden de despliegue.** Ejecutar `0006` **antes** de instalar la versión de la app de la Parte D: después de `0006`
+una versión anterior de la app ya no puede guardar el correo de recuperación (la columna se cerró) y la nueva sin la
+función desplegada no puede enviar el código.
