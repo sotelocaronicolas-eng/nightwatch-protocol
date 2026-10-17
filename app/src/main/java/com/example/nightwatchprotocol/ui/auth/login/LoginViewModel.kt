@@ -70,10 +70,32 @@ class LoginViewModel(
                 sessionPreferences.setRememberSession(state.rememberSession)
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(LoginEvent.NavigateToMainMenu)
+            } catch (error: AuthError.EmailNotConfirmed) {
+                continueToVerification(username, state.rememberSession)
             } catch (error: AuthError) {
                 handleSignInError(error)
             }
         }
+    }
+
+    /**
+     * A user who never confirmed the email ends up on the same code screen as a new sign-up, with a fresh code. If
+     * the new code cannot be sent because of the connection, say so; any other failure (e.g. a code was sent a
+     * moment ago) still goes on: that code is valid, and the screen can resend.
+     */
+    private suspend fun continueToVerification(email: String, rememberSession: Boolean) {
+        try {
+            authRepository.resendSignUpCode(email)
+        } catch (error: AuthError.NetworkError) {
+            _uiState.update { it.copy(isLoading = false) }
+            _events.send(LoginEvent.ShowErrorDialog(ErrorDialogKind.NETWORK))
+            return
+        } catch (error: AuthError) {
+            // keep going
+        }
+        sessionPreferences.setRememberSession(rememberSession)
+        _uiState.update { it.copy(isLoading = false) }
+        _events.send(LoginEvent.NavigateToVerifyCode(email))
     }
 
     /** The screen is about to open Google's account chooser; returns the hashed nonce for its request, or null. */

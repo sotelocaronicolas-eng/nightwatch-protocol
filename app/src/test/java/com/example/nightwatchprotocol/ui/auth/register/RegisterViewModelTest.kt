@@ -8,6 +8,7 @@ import com.example.nightwatchprotocol.data.auth.GoogleNonce
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.ui.auth.login.ErrorDialogKind
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -222,6 +223,24 @@ class RegisterViewModelTest {
         assertFalse(PasswordRules.from("Éxito-ñandú1").hasUpperCaseAndDigit)
         assertFalse(PasswordRules.from("Passw٣rd!").hasUpperCaseAndDigit)
         assertTrue(PasswordRules.from("Passw0rd!").hasUpperCaseAndDigit)
+    }
+
+    @Test
+    fun register_withoutASession_isNotAnError_andGoesToTheCodeScreenWithTheEmail() = runTest {
+        val fakeRepo = FakeAuthRepository().apply {
+            registerResult = Result.failure(AuthError.EmailConfirmationRequired)
+        }
+        val sessionPreferences = SessionPreferences.inMemory()
+        val viewModel = RegisterViewModel(fakeRepo, sessionPreferences, "test-web-client-id")
+        viewModel.fillValidForm()
+
+        viewModel.events.test {
+            viewModel.onRegisterClicked()
+            assertEquals(RegisterEvent.NavigateToVerifyCode("nicolas@example.com"), awaitItem())
+        }
+        assertFalse(viewModel.uiState.value.isLoading)
+        assertEquals(null, viewModel.uiState.value.fieldError)
+        assertTrue(sessionPreferences.rememberSessionFlow.first())
     }
 
     @Test

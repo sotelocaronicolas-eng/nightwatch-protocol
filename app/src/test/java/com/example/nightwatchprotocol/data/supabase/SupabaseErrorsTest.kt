@@ -49,6 +49,16 @@ class SupabaseErrorsTest {
     }
 
     @Test
+    fun auth_emailNotConfirmed_isItsOwnError() {
+        assertEquals(AuthError.EmailNotConfirmed, mapSupabaseAuthError(authError("email_not_confirmed")))
+    }
+
+    @Test
+    fun auth_otpExpired_isInvalidCode_becauseTheServerSaysTheSameForWrongAndExpired() {
+        assertEquals(AuthError.InvalidCode, mapSupabaseAuthError(authError("otp_expired", 403)))
+    }
+
+    @Test
     fun auth_weakPasswordCode_isWeakPassword() {
         assertEquals(AuthError.WeakPassword, mapSupabaseAuthError(authError("weak_password")))
     }
@@ -77,7 +87,7 @@ class SupabaseErrorsTest {
 
     @Test
     fun auth_codesWithoutCategory_areUnknown() {
-        listOf("over_request_rate_limit", "over_email_send_rate_limit", "signup_disabled", "email_not_confirmed", "session_expired")
+        listOf("over_request_rate_limit", "over_email_send_rate_limit", "signup_disabled", "session_expired")
             .forEach { assertEquals(it, AuthError.Unknown, mapSupabaseAuthError(authError(it))) }
     }
 

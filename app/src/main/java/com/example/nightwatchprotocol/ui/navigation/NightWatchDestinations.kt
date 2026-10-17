@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.ui.navigation
 
+import com.example.nightwatchprotocol.ui.verifycode.CodePurpose
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,6 +11,10 @@ object Register
 
 @Serializable
 object ForgotPassword
+
+/** The 6-digit code screen, shared by sign-up, email change and password recovery. */
+@Serializable
+data class VerifyCode(val email: String, val purpose: CodePurpose)
 
 @Serializable
 object MainMenu

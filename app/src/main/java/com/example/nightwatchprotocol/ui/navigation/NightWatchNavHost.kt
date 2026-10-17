@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
 import com.example.nightwatchprotocol.ui.auth.forgotpassword.ForgotPasswordScreen
 import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
@@ -36,6 +37,8 @@ import com.example.nightwatchprotocol.ui.profile.recoveryemail.RecoveryEmailScre
 import com.example.nightwatchprotocol.ui.profile.usermenu.UserMenuScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementQuizScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementResultScreen
+import com.example.nightwatchprotocol.ui.verifycode.CodePurpose
+import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeScreen
 
 /** Key under which "Confirma tu identidad" tells the screen below it that the password was verified. */
 private const val KEY_IDENTITY_CONFIRMED = "identity_confirmed"
@@ -58,6 +61,7 @@ fun NightWatchNavHost(
                 },
                 onNavigateToRegister = { navController.navigate(Register) },
                 onNavigateToForgotPassword = { navController.navigate(ForgotPassword) },
+                onNavigateToVerifyCode = { email -> navController.navigate(VerifyCode(email, CodePurpose.SIGN_UP)) },
             )
         }
         composable<Register> {
@@ -65,7 +69,25 @@ fun NightWatchNavHost(
                 onRegisterSuccess = {
                     navController.navigate(PostAuthGate) { popUpTo<Login> { inclusive = true } }
                 },
+                onNavigateToVerifyCode = { email -> navController.navigate(VerifyCode(email, CodePurpose.SIGN_UP)) },
                 onNavigateBack = { navController.popBackStack() },
+            )
+        }
+        composable<VerifyCode> { entry ->
+            val purpose = entry.toRoute<VerifyCode>().purpose
+            VerifyCodeScreen(
+                onVerified = {
+                    when (purpose) {
+                        // The session is open now: the same road as a normal sign-up (quiz or main menu).
+                        CodePurpose.SIGN_UP ->
+                            navController.navigate(PostAuthGate) { popUpTo<Login> { inclusive = true } }
+                    }
+                },
+                onClose = {
+                    when (purpose) {
+                        CodePurpose.SIGN_UP -> navController.popBackStack<Login>(inclusive = false)
+                    }
+                },
             )
         }
         composable<ForgotPassword> {

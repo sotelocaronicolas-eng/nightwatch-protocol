@@ -54,4 +54,19 @@ class FakeAuthRepository : AuthRepository {
     override fun signOut() {
         signOutCallCount++
     }
+
+    var verifySignUpCodeResult: Result<Unit> = Result.success(Unit)
+    var resendSignUpCodeResult: Result<Unit> = Result.success(Unit)
+    val verifySignUpCodeCalls = mutableListOf<Pair<String, String>>()
+    val resendSignUpCodeCalls = mutableListOf<String>()
+
+    override suspend fun verifySignUpCode(email: String, code: String) {
+        verifySignUpCodeCalls += email to code
+        verifySignUpCodeResult.getOrThrow()
+    }
+
+    override suspend fun resendSignUpCode(email: String) {
+        resendSignUpCodeCalls += email
+        resendSignUpCodeResult.getOrThrow()
+    }
 }

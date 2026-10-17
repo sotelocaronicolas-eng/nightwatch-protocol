@@ -11,6 +11,10 @@ sealed class AuthError(message: String) : Exception(message) {
     data object RecentLoginRequired : AuthError("Por seguridad, confirma tu identidad para continuar")
     /** The account was created but the backend wants the email confirmed first, so there is no session yet. */
     data object EmailConfirmationRequired : AuthError("Revisa tu correo para confirmar tu cuenta antes de entrar")
+    /** Signing in with the right password, but the email was never confirmed with its code. */
+    data object EmailNotConfirmed : AuthError("Confirma tu correo con el código que te enviamos")
+    /** The 6-digit code was refused. The server answers the same for a wrong and for an expired code. */
+    data object InvalidCode : AuthError("El código ingresado no es correcto.")
     data object NetworkError : AuthError("Sin conexión a internet")
     data object Unknown : AuthError("Se produjo un error inesperado. Intenta de nuevo.")
 }

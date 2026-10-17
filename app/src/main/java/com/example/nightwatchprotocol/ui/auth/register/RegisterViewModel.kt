@@ -64,6 +64,11 @@ class RegisterViewModel(
                 sessionPreferences.setRememberSession(true)
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(RegisterEvent.NavigateToMainMenu)
+            } catch (error: AuthError.EmailConfirmationRequired) {
+                // Not a failure: with "Confirm email" on, the account waits for the code that was just emailed.
+                sessionPreferences.setRememberSession(true)
+                _uiState.update { it.copy(isLoading = false) }
+                _events.send(RegisterEvent.NavigateToVerifyCode(state.email.trim()))
             } catch (error: AuthError) {
                 handleRegisterError(error)
             }

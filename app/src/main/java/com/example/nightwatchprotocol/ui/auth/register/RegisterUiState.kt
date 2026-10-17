@@ -60,5 +60,8 @@ sealed interface RegisterFieldError {
 sealed interface RegisterEvent {
     data object NavigateToMainMenu : RegisterEvent
     data object NavigateBack : RegisterEvent
+
+    /** The account exists but no session was opened: the email must be confirmed with the code sent to it. */
+    data class NavigateToVerifyCode(val email: String) : RegisterEvent
     data class ShowErrorDialog(val kind: com.example.nightwatchprotocol.ui.auth.login.ErrorDialogKind) : RegisterEvent
 }

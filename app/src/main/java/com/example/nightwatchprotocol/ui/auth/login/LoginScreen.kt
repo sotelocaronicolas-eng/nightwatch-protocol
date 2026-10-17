@@ -55,6 +55,7 @@ fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
+    onNavigateToVerifyCode: (email: String) -> Unit,
     viewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -68,6 +69,7 @@ fun LoginScreen(
                 LoginEvent.NavigateToMainMenu -> onLoginSuccess()
                 LoginEvent.NavigateToRegister -> onNavigateToRegister()
                 LoginEvent.NavigateToForgotPassword -> onNavigateToForgotPassword()
+                is LoginEvent.NavigateToVerifyCode -> onNavigateToVerifyCode(event.email)
                 is LoginEvent.ShowErrorDialog -> dialogKind = event.kind
             }
         }

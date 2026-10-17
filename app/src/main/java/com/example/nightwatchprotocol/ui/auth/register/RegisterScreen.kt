@@ -62,6 +62,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RegisterScreen(
     onRegisterSuccess: () -> Unit,
+    onNavigateToVerifyCode: (email: String) -> Unit,
     onNavigateBack: () -> Unit,
     viewModel: RegisterViewModel = viewModel(factory = RegisterViewModel.Factory),
 ) {
@@ -75,6 +76,7 @@ fun RegisterScreen(
             when (event) {
                 RegisterEvent.NavigateToMainMenu -> onRegisterSuccess()
                 RegisterEvent.NavigateBack -> onNavigateBack()
+                is RegisterEvent.NavigateToVerifyCode -> onNavigateToVerifyCode(event.email)
                 is RegisterEvent.ShowErrorDialog -> dialogKind = event.kind
             }
         }

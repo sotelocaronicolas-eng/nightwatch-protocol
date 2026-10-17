@@ -198,7 +198,7 @@ fun VerifyEmailLinkScreen(
 }
 
 @Composable
-private fun EmailScreenHeader(title: String, message: String) {
+internal fun EmailScreenHeader(title: String, message: String) {
     Text(
         text = title,
         color = NightWatchOnBackground,
@@ -220,7 +220,7 @@ private fun EmailScreenHeader(title: String, message: String) {
 }
 
 @Composable
-private fun EnvelopeImage() {
+internal fun EnvelopeImage() {
     Image(
         painter = painterResource(R.drawable.img_envelope),
         contentDescription = null,

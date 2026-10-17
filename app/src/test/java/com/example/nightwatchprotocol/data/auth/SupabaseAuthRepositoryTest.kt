@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.data.auth
 
 import com.example.nightwatchprotocol.data.account.toAccountProfile
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.SessionManager
 import io.github.jan.supabase.auth.SignOutScope
 import io.github.jan.supabase.auth.exception.AuthRestException
@@ -71,6 +72,12 @@ class SupabaseAuthRepositoryTest {
         val signInProviders = mutableListOf<Any?>()
         val signInConfigs = mutableListOf<Any?>()
         var signUpCalls = 0
+
+        /** verifyEmailOtp (type, email, token) and resendEmail (type, email); a null error = success. */
+        var verifyError: Throwable? = null
+        var resendError: Throwable? = null
+        val verifyCalls = mutableListOf<List<Any?>>()
+        val resendCalls = mutableListOf<List<Any?>>()
         val signOutScopes = mutableListOf<SignOutScope>()
         var clearSessionCalls = 0
         var storedLoads = 0
@@ -98,6 +105,14 @@ class SupabaseAuthRepositoryTest {
                     signUpCalls++
                     outcome(args, signUpError)
                 }
+                "verifyEmailOtp" -> {
+                    verifyCalls += listOf(args[0], args[1], args[2])
+                    outcome(args, verifyError)
+                }
+                "resendEmail" -> {
+                    resendCalls += listOf(args[0], args[1])
+                    outcome(args, resendError, opens = false)
+                }
                 "signOut" -> {
                     signOutScopes += args[0] as SignOutScope
                     signOutError?.let { throw it }
@@ -115,13 +130,13 @@ class SupabaseAuthRepositoryTest {
         // A Proxy would wrap a checked exception (supabase-kt's RestException) in UndeclaredThrowableException, so the
         // failure is delivered through the suspend function's continuation, which is what a real failure does anyway.
         @Suppress("UNCHECKED_CAST")
-        private fun outcome(args: Array<Any?>, error: Throwable?): Any? {
+        private fun outcome(args: Array<Any?>, error: Throwable?, opens: Boolean = true): Any? {
             val continuation = args.last() as Continuation<Any?>
             if (error != null) {
                 continuation.resumeWithException(error)
                 return COROUTINE_SUSPENDED
             }
-            if (opensSession) {
+            if (opens && opensSession) {
                 val newUser = UserInfo(aud = "authenticated", id = "new-id", email = "nuevo@example.com")
                 status.value = SessionStatus.Authenticated(
                     UserSession(accessToken = "a", refreshToken = "r", expiresIn = 3600, tokenType = "bearer", user = newUser),
@@ -440,6 +455,71 @@ class SupabaseAuthRepositoryTest {
         assertNull(parseAccountStatus("algo raro"))
         assertNull(parseAccountStatus(""))
         assertNull(parseAccountStatus(null))
+    }
+
+    // ---- sign-up with a code ----
+
+    @Test
+    fun signUpCode_isVerifiedWithTheSignUpOtpType_andOpensTheSession() = runTest {
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        val repo = repository(stub)
+        repo.verifySignUpCode("ana@example.com", "123456")
+
+        assertEquals(listOf<Any?>(OtpType.Email.SIGNUP, "ana@example.com", "123456"), stub.verifyCalls.single())
+        assertEquals("nuevo@example.com", repo.currentUserEmail)
+    }
+
+    @Test
+    fun signUpCode_aWrongOrExpiredCode_isInvalidCode() = runTest {
+        val stub = AuthStub(SessionStatus.NotAuthenticated()).apply { verifyError = restError("otp_expired", 403) }
+        try {
+            repository(stub).verifySignUpCode("ana@example.com", "000000")
+            fail("debía lanzar")
+        } catch (e: AuthError) {
+            assertEquals(AuthError.InvalidCode, e)
+        }
+    }
+
+    @Test
+    fun signUpCode_verifyingAfterASignOut_isNotHiddenByTheLocalSignOutFlag() = runTest {
+        val stub = AuthStub(authenticated(ana))
+        val repo = repository(stub)
+        repo.signOut()
+        runCurrent()
+
+        repo.verifySignUpCode("ana@example.com", "123456")
+
+        assertEquals("nuevo@example.com", repo.currentUserEmail)
+    }
+
+    @Test
+    fun signUpCode_resendUsesTheSignUpOtpType() = runTest {
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        repository(stub).resendSignUpCode("ana@example.com")
+
+        assertEquals(listOf<Any?>(OtpType.Email.SIGNUP, "ana@example.com"), stub.resendCalls.single())
+    }
+
+    @Test
+    fun signUpCode_resendFailuresAreMapped() = runTest {
+        val stub = AuthStub(SessionStatus.NotAuthenticated()).apply { resendError = java.io.IOException("sin red") }
+        try {
+            repository(stub).resendSignUpCode("ana@example.com")
+            fail("debía lanzar")
+        } catch (e: AuthError) {
+            assertEquals(AuthError.NetworkError, e)
+        }
+    }
+
+    @Test
+    fun login_withAnUnconfirmedEmail_isEmailNotConfirmed_withoutTheLookup() = runTest {
+        val status = FakeAccountStatusLookup()
+        val stub = AuthStub(SessionStatus.NotAuthenticated()).apply { signInError = restError("email_not_confirmed") }
+
+        assertEquals(AuthError.EmailNotConfirmed, repository(stub, status.lookup).signInFailure())
+        assertTrue(status.asked.isEmpty())
     }
 
     // ---- Google (ID token + nonce) ----

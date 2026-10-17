@@ -51,6 +51,9 @@ fun mapAuthErrorCode(code: AuthErrorCode?): AuthError = when (code) {
     AuthErrorCode.WeakPassword, AuthErrorCode.SamePassword -> AuthError.WeakPassword
     AuthErrorCode.EmailAddressInvalid -> AuthError.InvalidEmail
     AuthErrorCode.ReauthenticationNeeded, AuthErrorCode.ReauthenticationNotValid -> AuthError.RecentLoginRequired
+    AuthErrorCode.EmailNotConfirmed -> AuthError.EmailNotConfirmed
+    // GoTrue says otp_expired ("Token has expired or is invalid") for a wrong code as well as for an expired one.
+    AuthErrorCode.OtpExpired -> AuthError.InvalidCode
     else -> AuthError.Unknown
 }
 

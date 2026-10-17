@@ -3,6 +3,7 @@ package com.example.nightwatchprotocol.data.auth
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import com.example.nightwatchprotocol.data.supabase.mapSupabaseAuthError
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.SignOutScope
 import io.github.jan.supabase.auth.providers.Google
 import io.github.jan.supabase.auth.providers.builtin.Email
@@ -138,6 +139,19 @@ class SupabaseAuthRepository(
             data = buildJsonObject { put(DISPLAY_NAME_KEY, name) }
         }
         if (!hasOpenSession(auth.sessionStatus.value)) throw AuthError.EmailConfirmationRequired
+    }
+
+    /**
+     * "Confirm email" is on, so [register] left no session. The code is the one the "Confirm sign up" template
+     * prints; with a valid one Supabase opens the session, and the sign-up goes on like a normal login.
+     */
+    override suspend fun verifySignUpCode(email: String, code: String) = authCall {
+        beginNewSession()
+        auth.verifyEmailOtp(OtpType.Email.SIGNUP, email, code)
+    }
+
+    override suspend fun resendSignUpCode(email: String) = authCall {
+        auth.resendEmail(OtpType.Email.SIGNUP, email)
     }
 
     // Not built in this block: the reset email needs a redirect/OTP flow that Supabase does not host.

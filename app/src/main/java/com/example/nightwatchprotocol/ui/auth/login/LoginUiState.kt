@@ -41,5 +41,8 @@ sealed interface LoginEvent {
     data object NavigateToMainMenu : LoginEvent
     data object NavigateToRegister : LoginEvent
     data object NavigateToForgotPassword : LoginEvent
+
+    /** The password was right but the email was never confirmed: a new code was sent, go and type it. */
+    data class NavigateToVerifyCode(val email: String) : LoginEvent
     data class ShowErrorDialog(val kind: ErrorDialogKind) : LoginEvent
 }

@@ -25,4 +25,13 @@ interface AuthRepository {
     /** [nonce] is the raw nonce whose SHA-256 was sent to Google; backends that do not use one ignore it. */
     suspend fun signInWithGoogle(idToken: String, nonce: String? = null)
     fun signOut()
+
+    /**
+     * Confirms an account created by [register] with the 6-digit code from its email, and opens the session.
+     * Only the backend that asks for a code (Supabase, with "Confirm email" on) implements it; Firebase never calls it.
+     */
+    suspend fun verifySignUpCode(email: String, code: String): Unit = throw AuthError.Unknown
+
+    /** Sends a new sign-up code to [email]. Same availability as [verifySignUpCode]. */
+    suspend fun resendSignUpCode(email: String): Unit = throw AuthError.Unknown
 }

@@ -208,6 +208,55 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun signIn_unconfirmedEmail_sendsANewCode_andGoesToTheCodeScreen() = runTest {
+        val fakeRepo = FakeAuthRepository().apply { signInResult = Result.failure(AuthError.EmailNotConfirmed) }
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+        viewModel.onUsernameChanged(" user@example.com ")
+        viewModel.onPasswordChanged("Sup3r\$ecret")
+
+        viewModel.events.test {
+            viewModel.onSignInClicked()
+            assertEquals(LoginEvent.NavigateToVerifyCode("user@example.com"), awaitItem())
+        }
+        assertEquals(listOf("user@example.com"), fakeRepo.resendSignUpCodeCalls)
+        assertFalse(viewModel.uiState.value.isLoading)
+        assertEquals(null, viewModel.uiState.value.fieldError)
+    }
+
+    @Test
+    fun signIn_unconfirmedEmail_whenTheNewCodeIsRateLimited_stillGoesToTheCodeScreen() = runTest {
+        val fakeRepo = FakeAuthRepository().apply {
+            signInResult = Result.failure(AuthError.EmailNotConfirmed)
+            resendSignUpCodeResult = Result.failure(AuthError.Unknown)
+        }
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+        viewModel.onUsernameChanged("user@example.com")
+        viewModel.onPasswordChanged("Sup3r\$ecret")
+
+        viewModel.events.test {
+            viewModel.onSignInClicked()
+            assertEquals(LoginEvent.NavigateToVerifyCode("user@example.com"), awaitItem())
+        }
+    }
+
+    @Test
+    fun signIn_unconfirmedEmail_withoutConnection_showsTheNetworkDialog() = runTest {
+        val fakeRepo = FakeAuthRepository().apply {
+            signInResult = Result.failure(AuthError.EmailNotConfirmed)
+            resendSignUpCodeResult = Result.failure(AuthError.NetworkError)
+        }
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+        viewModel.onUsernameChanged("user@example.com")
+        viewModel.onPasswordChanged("Sup3r\$ecret")
+
+        viewModel.events.test {
+            viewModel.onSignInClicked()
+            assertEquals(LoginEvent.ShowErrorDialog(ErrorDialogKind.NETWORK), awaitItem())
+        }
+        assertFalse(viewModel.uiState.value.isLoading)
+    }
+
+    @Test
     fun signInWithGoogle_success_navigatesToMainMenu() = runTest {
         val (viewModel, _) = createViewModel()
 
