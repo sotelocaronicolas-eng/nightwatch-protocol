@@ -109,11 +109,9 @@ class DefaultAppContainer(context: Context) : AppContainer {
      * devices. With BACKEND=firebase nothing below changes, and nothing from Supabase or the Firebase-free paths
      * is created.
      *
-     * STILL PENDING in supabase mode (they fail with AuthError.Unknown instead of crashing):
-     *   - Email change (Supabase confirms on the old and the new address; needs a link or code flow).
-     *   - Password recovery (Supabase hosts no page: needs a deep link or a code flow).
-     * Also pending: an observer of sessionStatus that sends the user to Login when the session dies, and
-     * "sign out all other sessions" (signOut(SignOutScope.OTHERS)).
+     * Block B adds Google sign-in (ID token + nonce), the 6-digit codes (sign-up, email change, password recovery)
+     * and "sign out all other sessions" (signOut(SignOutScope.OTHERS)), all inside those repositories.
+     * Still pending: an observer of sessionStatus that sends the user to Login when the session dies.
      */
     private val supabaseAuthRepository: SupabaseAuthRepository? =
         if (backend == Backend.SUPABASE) {

@@ -1,8 +1,8 @@
 # Configuración local de Supabase
 
 Guía corta para cada integrante del equipo. Contexto técnico completo en
-[`reports/supabase-evaluacion.md`](reports/supabase-evaluacion.md). Por ahora la app sigue usando Firebase:
-esta configuración solo prepara el terreno para las próximas etapas.
+[`reports/supabase-evaluacion.md`](reports/supabase-evaluacion.md). La app usa Firebase por defecto
+(`BACKEND=firebase`); con `BACKEND=supabase` usa Supabase (bloques A y B de esta guía).
 
 ## 1. Crear tu `local.properties`
 
@@ -86,9 +86,9 @@ y la foto de perfil en Storage. Con `BACKEND=firebase` nada cambia.
 | Dispositivos (`public.devices`), incluida la revocación cooperativa | Funciona |
 | Cambiar nombre, confirmar identidad, cambiar contraseña | Funciona |
 | Descargar mis datos | Funciona (ya usaba los repositorios) |
-| Inicio de sesión con Google | **No**: falla con el error genérico, sin cerrar la app |
-| Cambio de correo | **No**: igual |
-| Recuperación de contraseña ("Olvidé mi contraseña") | **No**: igual |
+| Inicio de sesión con Google | Funciona desde el [Bloque B](#bloque-b-google-códigos-por-correo-y-sesiones) |
+| Cambio de correo | Funciona desde el Bloque B (con código) |
+| Recuperación de contraseña ("Olvidé mi contraseña") | Funciona desde el Bloque B (con código) |
 
 ### Cómo probar
 
@@ -101,8 +101,10 @@ nuevo.
 
 ### Ajustes del panel de Supabase
 
-- **Authentication > Providers > Email > Confirm email: desactivado.** Con "Confirm email" activado, el registro
-  crea la cuenta pero no abre sesión; la app lo informa como un error (`EmailConfirmationRequired`) y no entra.
+- **Authentication > Providers > Email > Confirm email.** El Bloque A se probó con "Confirm email" **desactivado**.
+  Desde el Bloque B el registro está pensado para tenerlo **ACTIVADO**: el registro crea la cuenta sin abrir sesión y
+  la app lleva a la pantalla del código de 6 dígitos (ver el Bloque B). Con él desactivado el registro sigue entrando
+  directo, como en el Bloque A.
 - **Authentication > Password** (reglas del registro de la app, en `RegisterUiState.kt`):
   - Largo mínimo: **8**.
   - Debe incluir una mayúscula `A-Z` **y** un dígito `0-9`.
@@ -160,10 +162,9 @@ Requisito del curso: los errores de login y de registro deben ser individuales, 
   con un código de verificación de 6 dígitos enviado al correo (bloque B). No se puede resolver consultando al
   proveedor: Google no permite averiguar si una dirección de Gmail existe. `account_status` solo dice si ya hay una
   cuenta en NightWatch con ese correo.
-- **Cierre remoto de sesión.** Sigue siendo cooperativo (la marca `revoked` solo se cumple cuando el otro teléfono
-  abre la app). La revocación real de Supabase (`signOut(SignOutScope.OTHERS)`) **no** está conectada: el botón
-  "Cerrar sesión en todos" solo marca los dispositivos, y el texto de la pantalla todavía habla de Firebase.
-  Conectarla exige un método nuevo en el repositorio y tocar `DevicesViewModel`.
+- **Cierre remoto de sesión.** El cierre de un dispositivo concreto sigue siendo cooperativo (la marca `revoked` solo
+  se cumple cuando el otro teléfono abre la app). "Cerrar sesión en todos" además revoca de verdad las otras sesiones
+  desde el Bloque B (`signOut(SignOutScope.OTHERS)`).
 - **Marca de tiempo de "visto por última vez".** La pone el reloj del teléfono, no el servidor.
 - **Sesión sin red.** Si el token venció y no hay red, la app conserva al usuario guardado para no sacarlo al login;
   los datos fallan como "sin conexión" hasta que vuelva la red y se renueve el token. Si el servidor revoca la sesión
@@ -172,3 +173,103 @@ Requisito del curso: los errores de login y de registro deben ser individuales, 
   fuera de cualquier respaldo: `AndroidManifest.xml` tiene `allowBackup="false"` y tanto `data_extraction_rules.xml`
   (respaldo en la nube y transferencia entre teléfonos) como `backup_rules.xml` excluyen `sharedpref`, `file`,
   `database` y `root`. No hay nada pendiente aquí.
+
+## Bloque B: Google, códigos por correo y sesiones
+
+Con `BACKEND=supabase` la app suma el inicio de sesión con Google, la verificación del correo con un código de 6 dígitos
+(registro, cambio de correo y recuperación de contraseña), el reenvío con cuenta regresiva y la revocación real de las
+otras sesiones. Con `BACKEND=firebase` nada de esto cambia: el cambio de correo y la recuperación siguen por enlace, con
+las pantallas de siempre. Cada flujo se elige por una capacidad que expone el repositorio (`usesGoogleNonce`,
+`recoversPasswordWithCode`, `changesEmailWithCode`), no por `BuildConfig` en la interfaz.
+
+### Configuración exacta del panel (lo que el Bloque B espera)
+
+Se hace a mano en el panel de Supabase; ninguna migración ni el código lo cambian. Los nombres de los menús cambian entre
+versiones del panel: lo que importa son los ajustes de la columna derecha.
+
+| Dónde | Valor |
+|---|---|
+| **Authentication > Emails > SMTP Settings** | SMTP propio (Brevo). Con el SMTP integrado de Supabase el límite de correos por hora es muy bajo |
+| **Authentication > Emails > Templates**: "Confirm sign up", "Change email address" y "Reset password" | Solo el código, `{{ .Token }}`. **Sin enlaces** (`{{ .ConfirmationURL }}`): la app no maneja *deep links* |
+| **Authentication > Sign In / Providers > Email**: *Email OTP length* | **6** |
+| *Email OTP expiration* | **600** segundos (la app decide "El código expiró" con esos mismos 600 s) |
+| *Minimum interval between emails to the same user* | **60** segundos (la cuenta regresiva de la app) |
+| **Secure email change** | **Desactivado**: al cambiar el correo llega **un solo** código, al correo **nuevo** |
+| **Confirm email** | **ACTIVADO**: el registro no abre sesión hasta verificar el código |
+| **Authentication > Sign In / Providers > Google** | Activado, con el **Client ID web** (el mismo `default_web_client_id` que centraliza `AppContainer`). **Sin client secret**: se usa solo el flujo nativo con ID token. *Skip nonce checks* **desactivado** (el nonce es obligatorio) |
+| **Password** (del Bloque A) | Sin cambios: mínimo 8, mayúscula, minúscula, dígito y símbolo |
+
+### Los flujos
+
+Tipos de OTP de supabase-kt 3.2.4 (`OtpType.Email`):
+
+| Flujo | Verificar el código | Reenviar |
+|---|---|---|
+| Registro (y login con correo sin confirmar) | `SIGNUP` | `resendEmail(SIGNUP)` |
+| Cambio de correo | `EMAIL_CHANGE` (con el correo **nuevo**) | `resendEmail(EMAIL_CHANGE)` |
+| Recuperación de contraseña | `RECOVERY` | `resetPasswordForEmail` otra vez (Supabase no tiene `resend` para recuperación) |
+
+**Google.** "Continuar con Google" (login y registro) genera un nonce aleatorio de 32 bytes por intento. Su SHA-256 en
+hexadecimal va a Credential Manager (`setNonce`) y el nonce **sin hashear** a `signInWith(IDToken)` con el proveedor
+Google. Cancelar el selector de cuentas no muestra ningún mensaje; sin conexión sale el diálogo de red; cualquier otro
+fallo, el genérico. Si ya existe una cuenta con contraseña y el mismo correo, **Supabase vincula la identidad de Google
+al mismo usuario** (mismo `uid`, mismos datos): después de entrar con Google, esa cuenta también entra con su contraseña.
+
+**Registro.** Un registro que termina sin sesión no es un error: lleva a la pantalla "Verifica tu Correo" con el correo.
+Con el código correcto (`verifyEmailOtp(SIGNUP)`) queda la sesión y sigue el flujo de siempre (quiz o menú). Si alguien
+inicia sesión con un correo sin confirmar (`email_not_confirmed`), la app envía un código nuevo y lo lleva a la misma
+pantalla. Si ese envío choca con el límite de 60 s, entra igual: el código anterior sigue valiendo.
+
+**Cambio de correo.** Editar Perfil > "Confirma tu identidad" (la contraseña, que con el flujo por código se pide siempre
+antes de enviar nada) > "Confirmar Correo" ("ENVIAR CÓDIGO", `updateUser` con el correo nuevo) > "Verifica tu Correo" >
+"¡Correo actualizado!" > "VOLVER A EDITAR PERFIL". Mi Perfil toma el correo nuevo de la sesión que devuelve la
+verificación.
+
+**Recuperación de contraseña.** "¿Olvidaste tu contraseña?" abre el diálogo "Recuperación de contraseña" sobre el login,
+con el correo ya escrito. Primero consulta `account_status`: `not_found` muestra "Correo no encontrado", `other_provider`
+dice que la cuenta se creó con Google y `password` continúa con `resetPasswordForEmail`. El mismo diálogo muestra las 6
+casillas; con el código correcto (`RECOVERY`) se abre una sesión de recuperación y la app va a la pantalla de contraseña
+nueva (con la lista de requisitos de `PasswordRules`). `updateUser` con la contraseña, **cierra la sesión**, muestra
+"¡Contraseña actualizada!" y vuelve al login. Salir de la pantalla de contraseña nueva sin guardar también cierra la
+sesión.
+
+**Reenviar y errores del código.** "Reenviar el código de 6 digitos" queda deshabilitado con la cuenta regresiva
+("Reenviar en 45 s") durante 60 s tras cada envío. Si el servidor responde `over_email_send_rate_limit`, la cuenta
+regresiva usa los segundos que indica. Errores: "El código ingresado no es correcto.", "El código expiró. Solicita uno
+nuevo.", "Demasiados intentos..." (`over_request_rate_limit`) y el mensaje de "Sin conexión a internet" de siempre.
+
+**Cerrar sesión en todos.** Además de marcar cada dispositivo (cierre cooperativo, como antes), llama a
+`signOut(SignOutScope.OTHERS)`, que invalida los *refresh tokens* de las demás sesiones. Va primero: si falla, no se
+marca nada y el botón puede repetirse. Cerrar un solo dispositivo sigue siendo solo la marca cooperativa.
+
+### Diferencias deliberadas con Figma
+
+- **Recuperación por correo, no por SMS.** Figma (`113:38` y `110:332`) pide un celular y manda un SMS; el SMS cuesta
+  dinero, así que el diálogo pide el correo y manda el código por correo. Los textos de esos diálogos se adaptaron
+  (correo en vez de celular, "Hemos enviado un código a <correo>").
+- **Pantalla de contraseña nueva reutilizada.** No existe en Figma. Es "Cambiar Contraseña" (`2289:107`) sin el campo de
+  contraseña actual, y termina en "¡Contraseña actualizada!" (`2289:154`) con el título "Nueva Contraseña".
+- **El recuadro del código.** Las pantallas usan la barra gris con los dígitos de `2106:61` y el diálogo, las 6 casillas
+  de `110:332`; las dos son el mismo campo (`CodeInput`).
+- **Confirmar identidad antes de enviar el código de cambio de correo** (Figma no lo muestra): ver arriba.
+
+### Limitaciones conocidas
+
+- **Remitente sin dominio propio.** Con un remitente `@gmail.com` por Brevo, los correos pueden caer en **spam** o ser
+  rechazados por DMARC. Para una demo, pedir al evaluador que revise la carpeta de spam; la solución real es un dominio
+  propio con SPF/DKIM.
+- **El access token de otras sesiones sigue válido hasta que expira.** `signOut(OTHERS)` mata el *refresh token*; el JWT
+  ya emitido vale hasta su vencimiento (1 hora por defecto). El teléfono "cerrado" puede seguir leyendo datos ese rato.
+- **Incorrecto y expirado son iguales para el servidor.** Supabase responde `otp_expired` en los dos casos. La app dice
+  "expiró" si pasaron 600 s desde que ella envió el código (según el reloj del teléfono) y "incorrecto" en otro caso.
+  Con el reloj del teléfono mal puesto el mensaje puede equivocarse (el código se acepta o rechaza igual, según el servidor).
+- **Sesión de recuperación.** Entre verificar el código y guardar la contraseña nueva hay una sesión abierta sin que la
+  persona haya escrito contraseña. Si la app se mata justo en esa pantalla, al abrirla de nuevo la persona entra (ya
+  demostró controlar el correo). Salir con "X" o con Atrás la cierra.
+- **Contraseña nueva igual a la anterior.** Supabase la rechaza (`same_password`) y la app lo muestra como "La contraseña
+  no cumple con los requerimientos" (el mismo mapeo que ya usaban "Cambiar contraseña" y Editar Perfil).
+- **Pedir otro código de recuperación invalida el anterior**, y el envío repetido lo limita el intervalo de 60 s.
+- **"Cerrar sesión en todos" con todos los dispositivos ya marcados** muestra "No hay otros dispositivos con sesión
+  abierta" y no vuelve a revocar en el servidor (se conserva el comportamiento de Firebase).
+- **Firebase no cambia**, salvo el texto de Dispositivos, que ya no nombra a Firebase ("No revoca de inmediato el acceso
+  de tu cuenta").
