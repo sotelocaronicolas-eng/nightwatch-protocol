@@ -44,6 +44,7 @@ const val DISPLAY_NAME_KEY = "display_name"
  */
 class SupabaseAuthRepository(
     private val auth: Auth,
+    private val accountStatusLookup: AccountStatusLookup,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
     private val sessionReadyTimeoutMillis: Long = SESSION_READY_TIMEOUT_MILLIS,
     private val signOutTimeoutMillis: Long = SIGN_OUT_TIMEOUT_MILLIS,
@@ -93,13 +94,29 @@ class SupabaseAuthRepository(
         }
     }
 
-    override suspend fun signIn(email: String, password: String) = authCall {
-        beginNewSession()
-        auth.signInWith(Email) {
-            this.email = email
-            this.password = password
+    /**
+     * Supabase answers `invalid_credentials` for an unknown email and for a wrong password alike. Only then, the
+     * email is looked up (see [AccountStatusLookup]) to tell them apart with the same errors Firebase used. If the
+     * lookup fails for any reason, the generic [AuthError.InvalidCredentials] stands: it never throws by itself.
+     */
+    override suspend fun signIn(email: String, password: String) {
+        try {
+            authCall {
+                beginNewSession()
+                // redirectUrl = null is what the default resolves to (no deep link is configured); it is explicit so
+                // the call does not depend on the Android application context.
+                auth.signInWith(Email, redirectUrl = null) {
+                    this.email = email
+                    this.password = password
+                }
+            }
+        } catch (e: AuthError.InvalidCredentials) {
+            throw loginErrorFor(lookUpStatus(email))
         }
     }
+
+    private suspend fun lookUpStatus(email: String): AccountStatus? =
+        runCatchingKeepCancellation { accountStatusLookup.statusOf(email) }.getOrNull()
 
     /**
      * Creates the account and signs in. If the project has "Confirm email" turned ON, Supabase creates the user but
@@ -107,7 +124,7 @@ class SupabaseAuthRepository(
      */
     override suspend fun register(name: String, email: String, password: String) = authCall {
         beginNewSession()
-        auth.signUpWith(Email) {
+        auth.signUpWith(Email, redirectUrl = null) {
             this.email = email
             this.password = password
             data = buildJsonObject { put(DISPLAY_NAME_KEY, name) }

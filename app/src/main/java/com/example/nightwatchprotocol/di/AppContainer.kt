@@ -8,6 +8,7 @@ import com.example.nightwatchprotocol.data.account.FirebaseAccountRepository
 import com.example.nightwatchprotocol.data.account.SupabaseAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.auth.FirebaseAuthRepository
+import com.example.nightwatchprotocol.data.auth.SupabaseAccountStatusLookup
 import com.example.nightwatchprotocol.data.auth.SupabaseAuthRepository
 import com.example.nightwatchprotocol.data.avatar.AVATAR_BUCKET
 import com.example.nightwatchprotocol.data.avatar.AvatarImageProcessor
@@ -116,7 +117,11 @@ class DefaultAppContainer(context: Context) : AppContainer {
      * "sign out all other sessions" (signOut(SignOutScope.OTHERS)).
      */
     private val supabaseAuthRepository: SupabaseAuthRepository? =
-        if (backend == Backend.SUPABASE) SupabaseAuthRepository(supabaseClient.auth) else null
+        if (backend == Backend.SUPABASE) {
+            SupabaseAuthRepository(supabaseClient.auth, SupabaseAccountStatusLookup(supabaseClient.postgrest))
+        } else {
+            null
+        }
 
     // The row owner always comes from the session, never from a screen. Read lazily: only built in supabase mode.
     private val sessionUserId: () -> String? = { supabaseAuthRepository?.currentUserUid }

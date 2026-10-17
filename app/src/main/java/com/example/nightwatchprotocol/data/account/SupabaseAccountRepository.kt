@@ -43,7 +43,7 @@ class SupabaseAccountRepository(
     override suspend fun reauthenticate(currentPassword: String) {
         val email = requireUser().email ?: throw AuthError.Unknown
         accountCall {
-            auth.signInWith(Email) {
+            auth.signInWith(Email, redirectUrl = null) {
                 this.email = email
                 this.password = currentPassword
             }
