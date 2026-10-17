@@ -41,7 +41,13 @@ class FakeAuthRepository : AuthRepository {
         sendPasswordResetEmailResult.getOrThrow()
     }
 
-    override suspend fun signInWithGoogle(idToken: String) {
+    override val usesGoogleNonce: Boolean get() = googleUsesNonce
+
+    var googleUsesNonce = false
+    val signInWithGoogleNonces = mutableListOf<String?>()
+
+    override suspend fun signInWithGoogle(idToken: String, nonce: String?) {
+        signInWithGoogleNonces += nonce
         signInWithGoogleResult.getOrThrow()
     }
 

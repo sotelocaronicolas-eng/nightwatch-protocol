@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
+import com.example.nightwatchprotocol.data.auth.GoogleNonce
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -11,6 +12,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -219,6 +221,77 @@ class LoginViewModelTest {
     fun signInWithGoogle_failure_showsUnknownErrorDialog() = runTest {
         val fakeRepo = FakeAuthRepository()
         fakeRepo.signInWithGoogleResult = Result.failure(AuthError.Unknown)
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+
+        viewModel.events.test {
+            viewModel.onGoogleIdTokenReceived("fake-id-token")
+            assertEquals(LoginEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN), awaitItem())
+        }
+    }
+
+    @Test
+    fun signInWithGoogle_withANonceBackend_sendsTheRawNonceOfTheAttempt() = runTest {
+        val fakeRepo = FakeAuthRepository().apply { googleUsesNonce = true }
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+
+        val hashed = viewModel.onGoogleSignInStarted()
+        viewModel.onGoogleIdTokenReceived("fake-id-token")
+        advanceUntilIdle()
+
+        val raw = fakeRepo.signInWithGoogleNonces.single()
+        assertEquals(GoogleNonce.sha256Hex(raw!!), hashed)
+    }
+
+    @Test
+    fun signInWithGoogle_onFirebase_neverUsesANonce() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+
+        assertNull(viewModel.onGoogleSignInStarted())
+        viewModel.onGoogleIdTokenReceived("fake-id-token")
+        advanceUntilIdle()
+
+        assertEquals(listOf<String?>(null), fakeRepo.signInWithGoogleNonces)
+    }
+
+    @Test
+    fun googleCancelled_withANonceBackend_showsNothing() = runTest {
+        val fakeRepo = FakeAuthRepository().apply { googleUsesNonce = true }
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+
+        viewModel.events.test {
+            viewModel.onGoogleSignInCancelled()
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun googleCancelled_onFirebase_keepsTheOldGenericDialog() = runTest {
+        val (viewModel, _) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onGoogleSignInCancelled()
+            assertEquals(LoginEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN), awaitItem())
+        }
+    }
+
+    @Test
+    fun signInWithGoogle_noConnection_withANonceBackend_showsTheNetworkDialog() = runTest {
+        val fakeRepo = FakeAuthRepository().apply {
+            googleUsesNonce = true
+            signInWithGoogleResult = Result.failure(AuthError.NetworkError)
+        }
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+
+        viewModel.events.test {
+            viewModel.onGoogleIdTokenReceived("fake-id-token")
+            assertEquals(LoginEvent.ShowErrorDialog(ErrorDialogKind.NETWORK), awaitItem())
+        }
+    }
+
+    @Test
+    fun signInWithGoogle_noConnection_onFirebase_keepsTheOldGenericDialog() = runTest {
+        val fakeRepo = FakeAuthRepository().apply { signInWithGoogleResult = Result.failure(AuthError.NetworkError) }
         val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
 
         viewModel.events.test {

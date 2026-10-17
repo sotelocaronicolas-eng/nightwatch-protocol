@@ -110,7 +110,6 @@ class DefaultAppContainer(context: Context) : AppContainer {
      * is created.
      *
      * STILL PENDING in supabase mode (they fail with AuthError.Unknown instead of crashing):
-     *   - Google sign-in (the ID token still has to be configured as a Supabase provider).
      *   - Email change (Supabase confirms on the old and the new address; needs a link or code flow).
      *   - Password recovery (Supabase hosts no page: needs a deep link or a code flow).
      * Also pending: an observer of sessionStatus that sends the user to Login when the session dies, and

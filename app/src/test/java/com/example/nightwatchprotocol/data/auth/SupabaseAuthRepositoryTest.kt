@@ -5,6 +5,8 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.SessionManager
 import io.github.jan.supabase.auth.SignOutScope
 import io.github.jan.supabase.auth.exception.AuthRestException
+import io.github.jan.supabase.auth.providers.Google
+import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.auth.status.RefreshFailureCause
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.auth.user.Identity
@@ -66,6 +68,8 @@ class SupabaseAuthRepositoryTest {
         var signUpError: Throwable? = null
         var opensSession = true
         var signInCalls = 0
+        val signInProviders = mutableListOf<Any?>()
+        val signInConfigs = mutableListOf<Any?>()
         var signUpCalls = 0
         val signOutScopes = mutableListOf<SignOutScope>()
         var clearSessionCalls = 0
@@ -86,6 +90,8 @@ class SupabaseAuthRepositoryTest {
                 "getSessionManager" -> sessionManager
                 "signInWith" -> {
                     signInCalls++
+                    signInProviders += args[0]
+                    signInConfigs += args[2]
                     outcome(args, signInError)
                 }
                 "signUpWith" -> {
@@ -436,17 +442,54 @@ class SupabaseAuthRepositoryTest {
         assertNull(parseAccountStatus(null))
     }
 
-    // ---- not available in this block ----
+    // ---- Google (ID token + nonce) ----
 
     @Test
-    fun googleAndPasswordReset_failWithAClassifiedError_notACrash() = runTest {
-        val repo = repository(AuthStub(SessionStatus.NotAuthenticated()))
+    fun google_sendsTheIdTokenWithTheGoogleProviderAndTheRawNonce() = runTest {
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        repository(stub).signInWithGoogle("el-id-token", "nonce-sin-hash")
+
+        assertEquals(IDToken, stub.signInProviders.single())
+        @Suppress("UNCHECKED_CAST")
+        val config = IDToken.Config().also { (stub.signInConfigs.single() as IDToken.Config.() -> Unit)(it) }
+        assertEquals("el-id-token", config.idToken)
+        assertEquals(Google, config.provider)
+        assertEquals("nonce-sin-hash", config.nonce)
+    }
+
+    @Test
+    fun google_usesNonces() = runTest {
+        assertTrue(repository(AuthStub(SessionStatus.NotAuthenticated())).usesGoogleNonce)
+    }
+
+    @Test
+    fun google_noConnection_isNetworkError() = runTest {
+        val stub = AuthStub(SessionStatus.NotAuthenticated()).apply { signInError = java.io.IOException("sin red") }
         try {
-            repo.signInWithGoogle("token")
+            repository(stub).signInWithGoogle("token", "nonce")
+            fail("debía lanzar")
+        } catch (e: AuthError) {
+            assertEquals(AuthError.NetworkError, e)
+        }
+    }
+
+    @Test
+    fun google_aRejectedToken_isMappedLikeAnyOtherAuthError() = runTest {
+        val stub = AuthStub(SessionStatus.NotAuthenticated()).apply { signInError = restError("bad_jwt") }
+        try {
+            repository(stub).signInWithGoogle("token", "nonce")
             fail("debía lanzar")
         } catch (e: AuthError) {
             assertEquals(AuthError.Unknown, e)
         }
+    }
+
+    // ---- not available in this block ----
+
+    @Test
+    fun passwordReset_failsWithAClassifiedError_notACrash() = runTest {
+        val repo = repository(AuthStub(SessionStatus.NotAuthenticated()))
         try {
             repo.sendPasswordResetEmail("ana@example.com")
             fail("debía lanzar")

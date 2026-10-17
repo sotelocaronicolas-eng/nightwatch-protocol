@@ -8,8 +8,10 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.auth.GoogleSignInAttempt
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.ui.auth.login.ErrorDialogKind
+import com.example.nightwatchprotocol.ui.auth.login.googleErrorKind
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +31,8 @@ class RegisterViewModel(
 
     private val _events = Channel<RegisterEvent>(Channel.BUFFERED)
     val events: Flow<RegisterEvent> = _events.receiveAsFlow()
+
+    private val googleAttempt = GoogleSignInAttempt(authRepository)
 
     fun onFullNameChanged(value: String) = _uiState.update { it.copy(fullName = value, fieldError = null) }
     fun onEmailChanged(value: String) = _uiState.update { it.copy(email = value, fieldError = null) }
@@ -70,20 +74,29 @@ class RegisterViewModel(
         viewModelScope.launch { _events.send(RegisterEvent.NavigateBack) }
     }
 
+    /** The screen is about to open Google's account chooser; returns the hashed nonce for its request, or null. */
+    fun onGoogleSignInStarted(): String? = googleAttempt.begin()
+
     fun onGoogleIdTokenReceived(idToken: String) {
         if (_uiState.value.isLoading) return
         _uiState.update { it.copy(isLoading = true) }
+        val nonce = googleAttempt.finish()
         viewModelScope.launch {
             try {
-                authRepository.signInWithGoogle(idToken)
+                authRepository.signInWithGoogle(idToken, nonce)
                 sessionPreferences.setRememberSession(true)
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(RegisterEvent.NavigateToMainMenu)
             } catch (error: AuthError) {
                 _uiState.update { it.copy(isLoading = false) }
-                _events.send(RegisterEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN))
+                _events.send(RegisterEvent.ShowErrorDialog(googleErrorKind(authRepository, error)))
             }
         }
+    }
+
+    /** The user closed the account chooser: no message, except on Firebase, which keeps its generic dialog. */
+    fun onGoogleSignInCancelled() {
+        if (!authRepository.usesGoogleNonce) onGoogleSignInFailed()
     }
 
     fun onGoogleSignInFailed() {

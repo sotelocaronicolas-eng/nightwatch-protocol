@@ -46,10 +46,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialException
+import com.example.nightwatchprotocol.ui.auth.GoogleCredentialResult
+import com.example.nightwatchprotocol.ui.auth.requestGoogleIdToken
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.auth.login.ErrorDialogKind
@@ -59,9 +57,6 @@ import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.launch
 
 @Composable
@@ -95,26 +90,11 @@ fun RegisterScreen(
         onCloseClicked = viewModel::onNavigateBackClicked,
         onGoogleSignInClicked = {
             coroutineScope.launch {
-                val credentialManager = CredentialManager.create(context)
-                val option = GetSignInWithGoogleOption.Builder(
-                    serverClientId = viewModel.googleWebClientId,
-                ).build()
-                val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
-                try {
-                    val result = credentialManager.getCredential(context, request)
-                    val credential = result.credential
-                    if (credential is CustomCredential &&
-                        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                    ) {
-                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        viewModel.onGoogleIdTokenReceived(googleIdTokenCredential.idToken)
-                    } else {
-                        viewModel.onGoogleSignInFailed()
-                    }
-                } catch (e: GetCredentialException) {
-                    viewModel.onGoogleSignInFailed()
-                } catch (e: GoogleIdTokenParsingException) {
-                    viewModel.onGoogleSignInFailed()
+                val hashedNonce = viewModel.onGoogleSignInStarted()
+                when (val result = requestGoogleIdToken(context, viewModel.googleWebClientId, hashedNonce)) {
+                    is GoogleCredentialResult.IdToken -> viewModel.onGoogleIdTokenReceived(result.idToken)
+                    GoogleCredentialResult.Cancelled -> viewModel.onGoogleSignInCancelled()
+                    GoogleCredentialResult.Failed -> viewModel.onGoogleSignInFailed()
                 }
             }
         },

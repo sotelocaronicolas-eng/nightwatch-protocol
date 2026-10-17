@@ -57,7 +57,8 @@ class FirebaseAuthRepository(
         }
     }
 
-    override suspend fun signInWithGoogle(idToken: String) {
+    // The nonce is ignored: Firebase never gets one (usesGoogleNonce is false), so its request is unchanged.
+    override suspend fun signInWithGoogle(idToken: String, nonce: String?) {
         runCatchingFirebase {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
             firebaseAuth.signInWithCredential(credential).await()

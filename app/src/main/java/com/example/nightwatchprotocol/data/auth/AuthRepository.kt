@@ -11,9 +11,18 @@ interface AuthRepository {
      */
     suspend fun awaitSessionReady()
 
+    /**
+     * True when the backend checks a nonce on Google sign-in (Supabase): the screen must then hash a fresh nonce into
+     * Credential Manager's request and pass the raw one to [signInWithGoogle]. Firebase does not use it. This also
+     * marks the backend whose Google failures are told apart (cancelled / no connection) instead of one generic dialog.
+     */
+    val usesGoogleNonce: Boolean get() = false
+
     suspend fun signIn(email: String, password: String)
     suspend fun register(name: String, email: String, password: String)
     suspend fun sendPasswordResetEmail(email: String)
-    suspend fun signInWithGoogle(idToken: String)
+
+    /** [nonce] is the raw nonce whose SHA-256 was sent to Google; backends that do not use one ignore it. */
+    suspend fun signInWithGoogle(idToken: String, nonce: String? = null)
     fun signOut()
 }

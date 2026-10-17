@@ -4,7 +4,9 @@ import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import com.example.nightwatchprotocol.data.supabase.mapSupabaseAuthError
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.SignOutScope
+import io.github.jan.supabase.auth.providers.Google
 import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.CoroutineScope
@@ -34,8 +36,8 @@ const val DISPLAY_NAME_KEY = "display_name"
 /**
  * Email and password sign-in on Supabase Auth.
  *
- * Not available in this backend yet (they fail with [AuthError.Unknown], never with a crash): Google sign-in and
- * password recovery. Email change lives in [SupabaseAccountRepository].
+ * Not available in this backend yet (it fails with [AuthError.Unknown], never with a crash): password recovery.
+ * Email change lives in [SupabaseAccountRepository].
  *
  * The user is read from `sessionStatus`, which is what `currentUserOrNull()` reads, plus one fallback: with a
  * token that already expired and no network, supabase-kt reports `RefreshFailure` (or keeps `Initializing` while it
@@ -143,9 +145,23 @@ class SupabaseAuthRepository(
         throw AuthError.Unknown
     }
 
-    // Not built in this block: Credential Manager's ID token still has to be configured as a Supabase provider.
-    override suspend fun signInWithGoogle(idToken: String) {
-        throw AuthError.Unknown
+    override val usesGoogleNonce: Boolean get() = true
+
+    /**
+     * Native Google sign-in: Credential Manager's ID token goes straight to Supabase (no browser, no client secret).
+     * [nonce] is the RAW nonce; Google got its SHA-256. The provider has "Skip nonce checks" off, so a missing or
+     * wrong nonce is rejected by the server.
+     *
+     * If an account with the same email and a password already exists, Supabase links the Google identity to that
+     * same user (same uid, same data) instead of creating a second one.
+     */
+    override suspend fun signInWithGoogle(idToken: String, nonce: String?) = authCall {
+        beginNewSession()
+        auth.signInWith(IDToken, redirectUrl = null) {
+            this.idToken = idToken
+            this.provider = Google
+            this.nonce = nonce
+        }
     }
 
     /**
