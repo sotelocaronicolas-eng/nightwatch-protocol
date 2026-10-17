@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.data.profile
 
+import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.avatar.AVATAR_STORAGE_TIMEOUT_MILLIS
 import com.example.nightwatchprotocol.data.avatar.AvatarFormat
 import com.example.nightwatchprotocol.data.avatar.AvatarStorage
@@ -9,6 +10,7 @@ import com.example.nightwatchprotocol.data.avatar.detectAvatarFormat
 import com.example.nightwatchprotocol.data.avatar.isOwnAvatarPath
 import com.example.nightwatchprotocol.data.firestore.FailureKind
 import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
+import com.example.nightwatchprotocol.data.supabase.RecoveryEmailCodeApi
 import com.example.nightwatchprotocol.data.supabase.requireSessionUserId
 import com.example.nightwatchprotocol.data.supabase.supabaseCall
 import io.github.jan.supabase.postgrest.Postgrest
@@ -57,11 +59,6 @@ internal fun extrasPayload(userId: String, gender: String?, birthDate: String?):
     put("birth_date", birthDate?.let(::JsonPrimitive) ?: JsonNull)
 }
 
-internal fun recoveryEmailPayload(userId: String, recoveryEmail: String): JsonObject = buildJsonObject {
-    put("user_id", userId)
-    put("recovery_email", recoveryEmail)
-}
-
 internal fun avatarPathPayload(userId: String, avatarPath: String?): JsonObject = buildJsonObject {
     put("user_id", userId)
     put("avatar_path", avatarPath?.let(::JsonPrimitive) ?: JsonNull)
@@ -71,6 +68,7 @@ class SupabaseProfileRepository(
     private val postgrest: Postgrest,
     private val avatarStorage: AvatarStorage,
     private val currentUserId: () -> String?,
+    private val recoveryCodes: RecoveryEmailCodeApi,
 ) : ProfileRepository {
 
     // No row yet simply means an empty profile, like a missing Firestore document.
@@ -85,8 +83,27 @@ class SupabaseProfileRepository(
     override suspend fun saveExtras(uid: String, gender: String?, birthDate: String?) =
         upsertPartial(extrasPayload(requireSessionUserId(currentUserId), gender, birthDate))
 
-    override suspend fun saveRecoveryEmail(uid: String, recoveryEmail: String) =
-        upsertPartial(recoveryEmailPayload(requireSessionUserId(currentUserId), recoveryEmail))
+    /**
+     * Migration 0006 closed `profile.recovery_email` to the client: no upsert of this app sends it any more (it would
+     * fail with "permission denied"). The column is written by the server when a code is verified, so the screen uses
+     * [requestRecoveryEmailCode] and [verifyRecoveryEmailCode] ([verifiesRecoveryEmailWithCode] is true).
+     */
+    override suspend fun saveRecoveryEmail(uid: String, recoveryEmail: String) {
+        requireSessionUserId(currentUserId)
+        throw FirestoreAccessException(FailureKind.PermissionDenied)
+    }
+
+    override val verifiesRecoveryEmailWithCode: Boolean get() = true
+
+    override suspend fun requestRecoveryEmailCode(email: String) {
+        if (currentUserId() == null) throw AuthError.Unknown
+        recoveryCodes.sendCode(email)
+    }
+
+    override suspend fun verifyRecoveryEmailCode(code: String) {
+        if (currentUserId() == null) throw AuthError.Unknown
+        recoveryCodes.verifyCode(code)
+    }
 
     /**
      * The photo is a file in the private 'avatars' bucket (`<user_id>/avatar.jpg`, upserted) and only its path is

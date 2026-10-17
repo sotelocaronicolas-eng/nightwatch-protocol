@@ -34,6 +34,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 fun RecoveryEmailScreen(
     onClose: () -> Unit,
     onSaved: () -> Unit,
+    onCodeSent: (email: String) -> Unit,
     viewModel: RecoveryEmailViewModel = viewModel(factory = RecoveryEmailViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -42,6 +43,7 @@ fun RecoveryEmailScreen(
         viewModel.events.collect { event ->
             when (event) {
                 RecoveryEmailEvent.Saved -> onSaved()
+                is RecoveryEmailEvent.CodeSent -> onCodeSent(event.email)
             }
         }
     }

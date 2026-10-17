@@ -53,4 +53,23 @@ class FakeProfileRepository : ProfileRepository {
         savedRecoveryEmails += recoveryEmail
         saveRecoveryEmailResult.getOrThrow()
     }
+
+    /** Set to true to behave like the backend that saves the recovery email only after a code is confirmed. */
+    var usesCode = false
+    var requestRecoveryEmailCodeResult: Result<Unit> = Result.success(Unit)
+    var verifyRecoveryEmailCodeResult: Result<Unit> = Result.success(Unit)
+    val requestedRecoveryEmailCodes = mutableListOf<String>()
+    val verifiedRecoveryEmailCodes = mutableListOf<String>()
+
+    override val verifiesRecoveryEmailWithCode: Boolean get() = usesCode
+
+    override suspend fun requestRecoveryEmailCode(email: String) {
+        requestedRecoveryEmailCodes += email
+        requestRecoveryEmailCodeResult.getOrThrow()
+    }
+
+    override suspend fun verifyRecoveryEmailCode(code: String) {
+        verifiedRecoveryEmailCodes += code
+        verifyRecoveryEmailCodeResult.getOrThrow()
+    }
 }

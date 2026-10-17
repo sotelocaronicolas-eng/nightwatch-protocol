@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.data.profile
 
+import com.example.nightwatchprotocol.data.auth.AuthError
 import kotlin.coroutines.cancellation.CancellationException
 
 /** What `users/{uid}/profile/main` holds. A missing document or field is simply null. */
@@ -35,6 +36,19 @@ interface ProfileRepository {
      * the profile ([RemoteProfile.avatarBase64]); null when there is nothing to download. Throws on failure.
      */
     suspend fun downloadAvatar(uid: String, profile: RemoteProfile): ByteArray? = null
+
+    /**
+     * True when the recovery email is saved only after a 6-digit code sent to it was confirmed (Supabase): the screen
+     * then uses [requestRecoveryEmailCode] and [verifyRecoveryEmailCode] instead of [saveRecoveryEmail]. False when
+     * [saveRecoveryEmail] stores it directly (Firebase).
+     */
+    val verifiesRecoveryEmailWithCode: Boolean get() = false
+
+    /** Sends a code to [email]. Throws `AuthError` (RateLimited, SameAsPrimaryEmail, EmailSendFailed, NetworkError...). */
+    suspend fun requestRecoveryEmailCode(email: String): Unit = throw AuthError.Unknown
+
+    /** Checks [code]; the server saves the pending email as the recovery email. Throws `AuthError` on failure. */
+    suspend fun verifyRecoveryEmailCode(code: String): Unit = throw AuthError.Unknown
 }
 
 /** Like runCatching, but a cancelled coroutine is never swallowed as an ordinary failure. */

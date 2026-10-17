@@ -103,12 +103,16 @@ fun NightWatchNavHost(
                         // Same exit as the link flow: "¡Correo actualizado!" replaces the email-change screens.
                         CodePurpose.EMAIL_CHANGE ->
                             navController.navigate(EmailUpdated(notice)) { popUpTo<ChangeEmail> { inclusive = true } }
+                        // The server saved the recovery email when it accepted the code.
+                        CodePurpose.RECOVERY_EMAIL ->
+                            navController.navigate(RecoveryEmailSaved) { popUpTo<RecoveryEmail> { inclusive = true } }
                     }
                 },
                 onClose = {
                     when (purpose) {
                         CodePurpose.SIGN_UP -> navController.popBackStack<Login>(inclusive = false)
                         CodePurpose.EMAIL_CHANGE -> navController.popBackStack<EditProfile>(inclusive = false)
+                        CodePurpose.RECOVERY_EMAIL -> navController.popBackStack<RecoveryEmail>(inclusive = false)
                     }
                 },
             )
@@ -251,6 +255,7 @@ fun NightWatchNavHost(
                 onSaved = {
                     navController.navigate(RecoveryEmailSaved) { popUpTo<RecoveryEmail> { inclusive = true } }
                 },
+                onCodeSent = { email -> navController.navigate(VerifyCode(email, CodePurpose.RECOVERY_EMAIL)) },
             )
         }
         composable<RecoveryEmailSaved> {

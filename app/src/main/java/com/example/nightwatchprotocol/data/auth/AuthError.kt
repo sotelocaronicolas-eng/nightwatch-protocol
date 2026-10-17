@@ -24,6 +24,10 @@ sealed class AuthError(message: String) : Exception(message) {
      * ("you can only request this after 45 seconds"), or null if it did not say.
      */
     data class RateLimited(val retryAfterSeconds: Int?) : AuthError("Espera un momento antes de pedir otro código.")
+    /** The recovery email is the account's own email: it must be a different address. */
+    data object SameAsPrimaryEmail : AuthError("Usa un correo distinto al principal")
+    /** The email with the code could not be sent (the mail provider refused it). */
+    data object EmailSendFailed : AuthError("No pudimos enviar el código. Inténtalo de nuevo.")
     data object NetworkError : AuthError("Sin conexión a internet")
     data object Unknown : AuthError("Se produjo un error inesperado. Intenta de nuevo.")
 }

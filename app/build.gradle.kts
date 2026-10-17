@@ -97,6 +97,7 @@ dependencies {
     implementation(libs.supabase.auth)
     implementation(libs.supabase.postgrest)
     implementation(libs.supabase.storage)
+    implementation(libs.supabase.functions)
     implementation(libs.ktor.client.okhttp)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)

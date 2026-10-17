@@ -1,8 +1,10 @@
 package com.example.nightwatchprotocol.data.profile
 
+import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.avatar.FakeAvatarStorage
 import com.example.nightwatchprotocol.data.firestore.FailureKind
 import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
+import com.example.nightwatchprotocol.data.supabase.RecoveryEmailCodeApi
 import com.example.nightwatchprotocol.data.supabase.unusedPostgrest
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
@@ -10,6 +12,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 
@@ -72,10 +75,96 @@ class SupabaseProfileRepositoryTest {
     }
 
     @Test
-    fun recoveryEmailPayload_touchesOnlyThatColumn() {
-        val payload = recoveryEmailPayload("u", "rec@example.com")
+    fun noWritePayloadOfTheApp_sendsTheRecoveryEmailColumn() {
+        // Migration 0006 revoked INSERT/UPDATE on profile.recovery_email: sending it would fail with "permission denied".
+        listOf(extrasPayload("u", "male", "2001-02-03"), extrasPayload("u", null, null), avatarPathPayload("u", "u/avatar.jpg"))
+            .forEach { assertFalse("recovery_email" in it) }
+    }
 
-        assertEquals(setOf("user_id", "recovery_email"), payload.keys)
+    /** Records what the repository asked the server, and fails when the test says so. */
+    private class FakeRecoveryCodes : RecoveryEmailCodeApi {
+        var failure: AuthError? = null
+        val sent = mutableListOf<String>()
+        val verified = mutableListOf<String>()
+
+        override suspend fun sendCode(email: String) {
+            sent += email
+            failure?.let { throw it }
+        }
+
+        override suspend fun verifyCode(code: String) {
+            verified += code
+            failure?.let { throw it }
+        }
+    }
+
+    private fun newRepository(codes: RecoveryEmailCodeApi, userId: String? = "u") =
+        SupabaseProfileRepository(unusedPostgrest(), FakeAvatarStorage(), currentUserId = { userId }, codes)
+
+    @Test
+    fun theRecoveryEmailIsVerifiedWithACode() {
+        assertTrue(newRepository(FakeRecoveryCodes()).verifiesRecoveryEmailWithCode)
+    }
+
+    @Test
+    fun requestAndVerify_goToTheServerApi() = runTest {
+        val codes = FakeRecoveryCodes()
+        val repository = newRepository(codes)
+
+        repository.requestRecoveryEmailCode("respaldo@example.com")
+        repository.verifyRecoveryEmailCode("123456")
+
+        assertEquals(listOf("respaldo@example.com"), codes.sent)
+        assertEquals(listOf("123456"), codes.verified)
+    }
+
+    @Test
+    fun requestAndVerify_passTheServerErrorsOn() = runTest {
+        val codes = FakeRecoveryCodes().apply { failure = AuthError.RateLimited(30) }
+        val repository = newRepository(codes)
+
+        listOf<suspend () -> Unit>(
+            { repository.requestRecoveryEmailCode("respaldo@example.com") },
+            { repository.verifyRecoveryEmailCode("123456") },
+        ).forEach { call ->
+            try {
+                call()
+                fail("debía lanzar")
+            } catch (e: AuthError) {
+                assertEquals(AuthError.RateLimited(30), e)
+            }
+        }
+    }
+
+    @Test
+    fun requestAndVerify_withoutASession_failBeforeAnyRequest() = runTest {
+        val codes = FakeRecoveryCodes()
+        val repository = newRepository(codes, userId = null)
+
+        listOf<suspend () -> Unit>(
+            { repository.requestRecoveryEmailCode("respaldo@example.com") },
+            { repository.verifyRecoveryEmailCode("123456") },
+        ).forEach { call ->
+            try {
+                call()
+                fail("debía lanzar")
+            } catch (e: AuthError) {
+                assertEquals(AuthError.Unknown, e)
+            }
+        }
+        assertTrue(codes.sent.isEmpty() && codes.verified.isEmpty())
+    }
+
+    @Test
+    fun saveRecoveryEmail_neverWritesTheColumnFromTheClient() = runTest {
+        val codes = FakeRecoveryCodes()
+        try {
+            newRepository(codes).saveRecoveryEmail("u", "respaldo@example.com")
+            fail("debía lanzar")
+        } catch (e: FirestoreAccessException) {
+            assertEquals(FailureKind.PermissionDenied, e.kind)
+        }
+        assertTrue(codes.sent.isEmpty())
     }
 
     @Test
@@ -86,7 +175,7 @@ class SupabaseProfileRepositoryTest {
 
     @Test
     fun withoutASession_everyCallFailsAsPermissionDenied_beforeAnyRequest() = runTest {
-        val repository = SupabaseProfileRepository(unusedPostgrest(), FakeAvatarStorage(), currentUserId = { null })
+        val repository = newRepository(FakeRecoveryCodes(), userId = null)
 
         listOf<suspend () -> Unit>(
             { repository.getProfile("x") },

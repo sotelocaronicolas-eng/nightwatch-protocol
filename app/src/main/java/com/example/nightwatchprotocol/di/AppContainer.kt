@@ -46,6 +46,7 @@ import com.example.nightwatchprotocol.data.quiz.QuizContentRepository
 import com.example.nightwatchprotocol.data.quiz.QuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.SupabasePlacementRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
+import com.example.nightwatchprotocol.data.supabase.SupabaseRecoveryEmailCodeApi
 import com.example.nightwatchprotocol.data.session.sessionDataStore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -53,6 +54,8 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.functions.Functions
+import io.github.jan.supabase.functions.functions
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.Storage
@@ -100,6 +103,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
             install(Auth)
             install(Postgrest)
             install(Storage)
+            install(Functions)
         }
     }
 
@@ -111,6 +115,8 @@ class DefaultAppContainer(context: Context) : AppContainer {
      *
      * Block B adds Google sign-in (ID token + nonce), the 6-digit codes (sign-up, email change, password recovery)
      * and "sign out all other sessions" (signOut(SignOutScope.OTHERS)), all inside those repositories.
+     * Part D adds the Functions plugin: the recovery email is verified with a code sent by the Edge Function
+     * send-recovery-email-code and checked by the SQL function verify_recovery_email_code (migration 0006).
      * Still pending: an observer of sessionStatus that sends the user to Login when the session dies.
      */
     private val supabaseAuthRepository: SupabaseAuthRepository? =
@@ -147,6 +153,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
                 supabaseClient.postgrest,
                 SupabaseAvatarStorage(supabaseClient.storage[AVATAR_BUCKET]),
                 sessionUserId,
+                SupabaseRecoveryEmailCodeApi(supabaseClient.functions, supabaseClient.postgrest),
             )
         } else {
             FirestoreProfileRepository(FirebaseFirestore.getInstance())

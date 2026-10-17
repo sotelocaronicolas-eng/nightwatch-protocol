@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.firestore.FailureKind
 import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
@@ -40,8 +41,23 @@ data class RecoveryEmailUiState(
     val error: String? = null,
 )
 
+/** Why asking for the code failed (Supabase). The seconds, when the server gave them, are in the text. */
+fun recoveryEmailCodeErrorMessage(error: Throwable?): String = when (error) {
+    is AuthError.RateLimited ->
+        error.retryAfterSeconds?.let { "Espera $it s antes de pedir otro código." } ?: "Espera un momento antes de pedir otro código."
+    AuthError.SameAsPrimaryEmail -> AuthError.SameAsPrimaryEmail.message.orEmpty()
+    AuthError.EmailSendFailed -> AuthError.EmailSendFailed.message.orEmpty()
+    AuthError.InvalidEmail -> MESSAGE_RECOVERY_EMAIL_INVALID
+    AuthError.NetworkError -> MESSAGE_RECOVERY_EMAIL_OFFLINE
+    else -> MESSAGE_RECOVERY_EMAIL_NOT_SAVED
+}
+
 sealed interface RecoveryEmailEvent {
+    /** The email was saved directly (Firebase). */
     data object Saved : RecoveryEmailEvent
+
+    /** A 6-digit code was sent to [email]; the next screen is where it is typed, and it saves the email when accepted. */
+    data class CodeSent(val email: String) : RecoveryEmailEvent
 }
 
 class RecoveryEmailViewModel(
@@ -88,6 +104,17 @@ class RecoveryEmailViewModel(
         }
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, error = null) }
+            if (profileRepository.verifiesRecoveryEmailWithCode) {
+                // The address is only saved once the code sent to it is confirmed on the next screen.
+                val sent = runCatchingKeepCancellation { profileRepository.requestRecoveryEmailCode(email) }
+                if (sent.isSuccess) {
+                    _uiState.update { it.copy(isSaving = false) }
+                    _events.send(RecoveryEmailEvent.CodeSent(email))
+                } else {
+                    _uiState.update { it.copy(isSaving = false, error = recoveryEmailCodeErrorMessage(sent.exceptionOrNull())) }
+                }
+                return@launch
+            }
             val result = runCatchingKeepCancellation { profileRepository.saveRecoveryEmail(uid, email) }
             if (result.isSuccess) {
                 _uiState.update { it.copy(isSaving = false) }

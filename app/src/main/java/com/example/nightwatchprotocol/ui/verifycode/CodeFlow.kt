@@ -3,6 +3,7 @@ package com.example.nightwatchprotocol.ui.verifycode
 import androidx.annotation.Keep
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
@@ -17,6 +18,9 @@ enum class CodePurpose {
 
     /** Confirming the new address of a signed-in user (Supabase, code sent to the new email). */
     EMAIL_CHANGE,
+
+    /** Confirming the alternate (recovery) email of a signed-in user; the code goes to that address. */
+    RECOVERY_EMAIL,
 }
 
 /** What the code screen does: check the code, and send a new one. Both throw `AuthError` on failure. */
@@ -77,12 +81,20 @@ class RecoveryCodeFlow(
     override suspend fun resend() = authRepository.sendPasswordResetEmail(email)
 }
 
+/** [email] is the recovery address the code was sent to; the server keeps the pending address, only the code is sent. */
+class RecoveryEmailCodeFlow(private val profileRepository: ProfileRepository, private val email: String) : CodeFlow {
+    override suspend fun confirm(code: String) = profileRepository.verifyRecoveryEmailCode(code)
+    override suspend fun resend() = profileRepository.requestRecoveryEmailCode(email)
+}
+
 fun codeFlowFor(
     purpose: CodePurpose,
     email: String,
     authRepository: AuthRepository,
     accountRepository: AccountRepository,
+    profileRepository: ProfileRepository,
 ): CodeFlow = when (purpose) {
     CodePurpose.SIGN_UP -> SignUpCodeFlow(authRepository, email)
     CodePurpose.EMAIL_CHANGE -> EmailChangeCodeFlow(accountRepository, email)
+    CodePurpose.RECOVERY_EMAIL -> RecoveryEmailCodeFlow(profileRepository, email)
 }

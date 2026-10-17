@@ -5,6 +5,7 @@ import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
 import com.example.nightwatchprotocol.data.profile.RemoteProfile
 import com.example.nightwatchprotocol.data.profile.SupabaseProfileRepository
 import com.example.nightwatchprotocol.data.supabase.unusedPostgrest
+import com.example.nightwatchprotocol.data.supabase.unusedRecoveryEmailCodeApi
 import java.io.IOException
 import kotlin.io.encoding.Base64
 import kotlinx.coroutines.test.runTest
@@ -91,7 +92,7 @@ class AvatarStorageTest {
     // ---- SupabaseProfileRepository: avatar paths that never reach the database ----
 
     private fun repository(storage: FakeAvatarStorage, userId: String? = "u1") =
-        SupabaseProfileRepository(unusedPostgrest(), storage, currentUserId = { userId })
+        SupabaseProfileRepository(unusedPostgrest(), storage, currentUserId = { userId }, unusedRecoveryEmailCodeApi())
 
     private suspend fun assertFails(kind: FailureKind, call: suspend () -> Unit) {
         try {

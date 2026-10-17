@@ -195,7 +195,13 @@ class VerifyCodeViewModel(
                 val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as NightWatchApplication
                 val route = createSavedStateHandle().toRoute<VerifyCode>()
                 val container = application.container
-                val flow = codeFlowFor(route.purpose, route.email, container.authRepository, container.accountRepository)
+                val flow = codeFlowFor(
+                    route.purpose,
+                    route.email,
+                    container.authRepository,
+                    container.accountRepository,
+                    container.profileRepository,
+                )
                 VerifyCodeViewModel(flow, route.email)
             }
         }

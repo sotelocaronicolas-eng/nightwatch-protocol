@@ -3,6 +3,7 @@ package com.example.nightwatchprotocol.ui.verifycode
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
+import com.example.nightwatchprotocol.data.profile.FakeProfileRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -18,7 +19,7 @@ class CodeFlowTest {
     fun signUp_confirmsAndResendsThroughTheAuthRepository() = runTest {
         val auth = FakeAuthRepository()
         val account = FakeAccountRepository()
-        val flow = codeFlowFor(CodePurpose.SIGN_UP, "ana@example.com", auth, account)
+        val flow = codeFlowFor(CodePurpose.SIGN_UP, "ana@example.com", auth, account, FakeProfileRepository())
 
         flow.confirm("123456")
         flow.resend()
@@ -71,7 +72,7 @@ class CodeFlowTest {
     fun emailChange_confirmsAndResendsThroughTheAccountRepository_withTheNewEmail() = runTest {
         val auth = FakeAuthRepository()
         val account = FakeAccountRepository()
-        val flow = codeFlowFor(CodePurpose.EMAIL_CHANGE, "nuevo@example.com", auth, account)
+        val flow = codeFlowFor(CodePurpose.EMAIL_CHANGE, "nuevo@example.com", auth, account, FakeProfileRepository())
 
         flow.confirm("654321")
         flow.resend()
@@ -79,6 +80,18 @@ class CodeFlowTest {
         assertEquals(listOf("nuevo@example.com" to "654321"), account.verifyEmailChangeCodeCalls)
         assertEquals(listOf("nuevo@example.com"), account.resendEmailChangeCodeCalls)
         assertTrue(auth.verifySignUpCodeCalls.isEmpty())
+    }
+
+    @Test
+    fun recoveryEmail_confirmsWithTheCodeOnly_andResendingAsksForANewCodeForThatEmail() = runTest {
+        val profile = FakeProfileRepository()
+        val flow = codeFlowFor(CodePurpose.RECOVERY_EMAIL, "respaldo@example.com", FakeAuthRepository(), FakeAccountRepository(), profile)
+
+        flow.confirm("246810")
+        flow.resend()
+
+        assertEquals(listOf("246810"), profile.verifiedRecoveryEmailCodes)
+        assertEquals(listOf("respaldo@example.com"), profile.requestedRecoveryEmailCodes)
     }
 
     @Test
