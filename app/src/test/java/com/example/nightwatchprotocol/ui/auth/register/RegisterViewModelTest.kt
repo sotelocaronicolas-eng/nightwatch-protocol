@@ -150,14 +150,14 @@ class RegisterViewModelTest {
     fun passwordRules_allSatisfied_whenAllThreeRulesPass() {
         val rules = PasswordRules.from("Sup3r\$ecret!")
 
-        assert(rules.allSatisfied)
+        assertTrue(rules.allSatisfied)
     }
 
     @Test
     fun passwordRules_notSatisfied_whenMissingSpecialChar() {
         val rules = PasswordRules.from("Sup3rSecret1")
 
-        assert(!rules.allSatisfied)
+        assertFalse(rules.allSatisfied)
     }
 
     @Test
