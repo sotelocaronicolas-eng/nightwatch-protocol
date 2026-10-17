@@ -38,7 +38,13 @@ import kotlin.coroutines.cancellation.CancellationException
 fun mapSupabaseAuthError(error: Throwable): AuthError = when (error) {
     // Checked before AuthRestException: it is a subclass whose code is also "weak_password".
     is AuthWeakPasswordException -> AuthError.WeakPassword
-    is AuthRestException -> mapAuthErrorCode(error.errorCode)
+    // Only the seconds are read from the description; the exception itself is never kept (see the note above).
+    is AuthRestException ->
+        if (error.errorCode == AuthErrorCode.OverEmailSendRateLimit) {
+            AuthError.RateLimited(retryAfterSeconds(error.errorDescription))
+        } else {
+            mapAuthErrorCode(error.errorCode)
+        }
     is IOException -> AuthError.NetworkError
     else -> AuthError.Unknown
 }
@@ -54,8 +60,20 @@ fun mapAuthErrorCode(code: AuthErrorCode?): AuthError = when (code) {
     AuthErrorCode.EmailNotConfirmed -> AuthError.EmailNotConfirmed
     // GoTrue says otp_expired ("Token has expired or is invalid") for a wrong code as well as for an expired one.
     AuthErrorCode.OtpExpired -> AuthError.InvalidCode
+    AuthErrorCode.OverRequestRateLimit -> AuthError.TooManyAttempts
+    AuthErrorCode.OverEmailSendRateLimit -> AuthError.RateLimited(null)
     else -> AuthError.Unknown
 }
+
+private val RETRY_SECONDS = Regex("""(\d+)\s*(?:seconds?|segundos?|s)\b""", RegexOption.IGNORE_CASE)
+private const val MAX_RETRY_SECONDS = 3_600
+
+/**
+ * The wait Supabase asks for in `over_email_send_rate_limit`: "For security purposes, you can only request this after
+ * 45 seconds." Null when the text has no number of seconds (the caller then uses its own default).
+ */
+fun retryAfterSeconds(description: String?): Int? =
+    RETRY_SECONDS.find(description.orEmpty())?.groupValues?.get(1)?.toIntOrNull()?.takeIf { it > 0 }?.coerceAtMost(MAX_RETRY_SECONDS)
 
 /** Postgres "insufficient_privilege": a missing GRANT or a row-level-security violation. */
 const val POSTGRES_INSUFFICIENT_PRIVILEGE = "42501"

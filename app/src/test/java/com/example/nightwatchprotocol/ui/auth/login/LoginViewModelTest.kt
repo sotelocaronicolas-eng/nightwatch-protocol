@@ -249,7 +249,7 @@ class LoginViewModelTest {
     fun signIn_unconfirmedEmail_whenTheNewCodeIsRateLimited_stillGoesToTheCodeScreen() = runTest {
         val fakeRepo = FakeAuthRepository().apply {
             signInResult = Result.failure(AuthError.EmailNotConfirmed)
-            resendSignUpCodeResult = Result.failure(AuthError.Unknown)
+            resendSignUpCodeResult = Result.failure(AuthError.RateLimited(42))
         }
         val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
         viewModel.onUsernameChanged("user@example.com")

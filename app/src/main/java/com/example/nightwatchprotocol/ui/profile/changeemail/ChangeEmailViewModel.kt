@@ -128,6 +128,7 @@ class ChangeEmailViewModel(
     private fun messageFor(error: AuthError): String = when (error) {
         AuthError.InvalidEmail -> MESSAGE_EMAIL_INVALID
         AuthError.EmailAlreadyInUse -> MESSAGE_EMAIL_IN_USE
+        is AuthError.RateLimited -> "Espera un momento antes de pedir otro código."
         AuthError.NetworkError -> "Sin conexión a internet"
         else -> MESSAGE_GENERIC_ERROR
     }

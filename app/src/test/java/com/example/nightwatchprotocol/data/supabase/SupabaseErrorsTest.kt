@@ -59,6 +59,43 @@ class SupabaseErrorsTest {
     }
 
     @Test
+    fun auth_emailRateLimit_carriesTheSecondsTheServerAskedFor() {
+        val error = AuthRestException(
+            "over_email_send_rate_limit",
+            "For security purposes, you can only request this after 45 seconds.",
+            fakeHttpResponse(429),
+        )
+
+        assertEquals(AuthError.RateLimited(45), mapSupabaseAuthError(error))
+    }
+
+    @Test
+    fun auth_emailRateLimit_withoutSeconds_hasNoWait() {
+        assertEquals(AuthError.RateLimited(null), mapSupabaseAuthError(authError("over_email_send_rate_limit", 429)))
+    }
+
+    @Test
+    fun auth_requestRateLimit_isTooManyAttempts() {
+        assertEquals(AuthError.TooManyAttempts, mapSupabaseAuthError(authError("over_request_rate_limit", 429)))
+    }
+
+    @Test
+    fun retryAfterSeconds_readsTheNumberOfSeconds() {
+        assertEquals(45, retryAfterSeconds("For security purposes, you can only request this after 45 seconds."))
+        assertEquals(1, retryAfterSeconds("try again after 1 second"))
+        assertEquals(30, retryAfterSeconds("espera 30 segundos"))
+        assertEquals(3_600, retryAfterSeconds("after 99999 seconds"))
+    }
+
+    @Test
+    fun retryAfterSeconds_isNullWithoutAUsableNumber() {
+        assertEquals(null, retryAfterSeconds(null))
+        assertEquals(null, retryAfterSeconds(""))
+        assertEquals(null, retryAfterSeconds("Too many requests"))
+        assertEquals(null, retryAfterSeconds("after 0 seconds"))
+    }
+
+    @Test
     fun auth_weakPasswordCode_isWeakPassword() {
         assertEquals(AuthError.WeakPassword, mapSupabaseAuthError(authError("weak_password")))
     }
@@ -87,7 +124,7 @@ class SupabaseErrorsTest {
 
     @Test
     fun auth_codesWithoutCategory_areUnknown() {
-        listOf("over_request_rate_limit", "over_email_send_rate_limit", "signup_disabled", "session_expired")
+        listOf("signup_disabled", "session_expired")
             .forEach { assertEquals(it, AuthError.Unknown, mapSupabaseAuthError(authError(it))) }
     }
 

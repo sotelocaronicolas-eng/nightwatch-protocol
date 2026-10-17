@@ -250,14 +250,15 @@ internal fun CodeHint(
 
 @Composable
 internal fun ResendLink(uiState: VerifyCodeUiState, onResend: () -> Unit, modifier: Modifier = Modifier) {
+    // "Reenviar el código de 6 digitos", or "Reenviar en 45 s" (dimmed, not clickable) while the countdown runs.
     Text(
-        text = "Reenviar el código de $CODE_LENGTH digitos",
-        color = NightWatchHeaderPanel,
+        text = uiState.resendLabel,
+        color = if (uiState.canResend) NightWatchHeaderPanel else NightWatchHeaderPanel.copy(alpha = 0.5f),
         fontFamily = NightWatchBodyFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 13.sp,
         modifier = modifier
-            .clickable(enabled = !uiState.isResending, role = Role.Button, onClick = onResend)
+            .clickable(enabled = uiState.canResend, role = Role.Button, onClick = onResend)
             .padding(8.dp),
     )
 }

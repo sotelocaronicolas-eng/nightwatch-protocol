@@ -31,6 +31,7 @@ enum class RecoveryEmailError(val message: String) {
     InvalidEmail("Correo electrónico inválido"),
     NotFound("Correo no encontrado"),
     GoogleAccountOnly("Esta cuenta se creó con Google. Usa «Continuar con Google»"),
+    TooSoon("Espera un momento antes de pedir otro código."),
     Offline("Sin conexión a internet"),
     Generic("Se produjo un error inesperado. Intenta de nuevo."),
 }
@@ -95,6 +96,7 @@ class PasswordRecoveryViewModel(
         AuthError.UserNotFound -> RecoveryEmailError.NotFound
         AuthError.GoogleAccountOnly -> RecoveryEmailError.GoogleAccountOnly
         AuthError.InvalidEmail -> RecoveryEmailError.InvalidEmail
+        is AuthError.RateLimited -> RecoveryEmailError.TooSoon
         AuthError.NetworkError -> RecoveryEmailError.Offline
         else -> RecoveryEmailError.Generic
     }
