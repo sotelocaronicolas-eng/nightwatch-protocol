@@ -161,6 +161,35 @@ class RegisterViewModelTest {
     }
 
     @Test
+    fun passwordRules_notSatisfied_whenThereIsNoLowercaseLetter() {
+        val rules = PasswordRules.from("SUP3R\$ECRET!")
+
+        assertFalse(rules.hasLowercase)
+        assertFalse(rules.allSatisfied)
+    }
+
+    @Test
+    fun passwordRules_lowercaseRule_isAsciiOnly_andOneLetterIsEnough() {
+        assertFalse(PasswordRules.from("ÑANDÚ-1Ñ!ñé").hasLowercase) // ñ and é are not a-z
+        assertTrue(PasswordRules.from("SUP3R\$ECRETa").hasLowercase)
+    }
+
+    @Test
+    fun registerButton_staysDisabled_whenThePasswordHasNoLowercaseLetter() {
+        val (viewModel, _) = createViewModel()
+        viewModel.fillValidForm()
+        viewModel.onPasswordChanged("SUP3R\$ECRET!")
+        viewModel.onConfirmPasswordChanged("SUP3R\$ECRET!")
+
+        assertFalse(viewModel.uiState.value.isRegisterEnabled)
+
+        viewModel.onPasswordChanged("Sup3r\$ecret!")
+        viewModel.onConfirmPasswordChanged("Sup3r\$ecret!")
+
+        assertTrue(viewModel.uiState.value.isRegisterEnabled)
+    }
+
+    @Test
     fun passwordRules_everyFirebaseSpecialCharacterCounts() {
         for (special in PasswordRules.FIREBASE_SPECIAL_CHARACTERS) {
             assertTrue("'$special' should count as special", PasswordRules.from("Passw0rd$special").hasSpecialChar)

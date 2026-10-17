@@ -3,10 +3,11 @@ package com.example.nightwatchprotocol.ui.auth.register
 data class PasswordRules(
     val hasMinLength: Boolean,
     val hasUpperCaseAndDigit: Boolean,
+    val hasLowercase: Boolean,
     val hasSpecialChar: Boolean,
 ) {
     val allSatisfied: Boolean
-        get() = hasMinLength && hasUpperCaseAndDigit && hasSpecialChar
+        get() = hasMinLength && hasUpperCaseAndDigit && hasLowercase && hasSpecialChar
 
     companion object {
         // Mirrors Firebase's password policy so a password accepted here is never rejected
@@ -18,6 +19,9 @@ data class PasswordRules(
         fun from(password: String) = PasswordRules(
             hasMinLength = password.length >= 8,
             hasUpperCaseAndDigit = password.any { it in 'A'..'Z' } && password.any { it in '0'..'9' },
+            // a-z only, like the uppercase rule: Supabase's "Lowercase, uppercase letters, digits and symbols" policy
+            // asks for it, and Firebase accepts such a password too.
+            hasLowercase = password.any { it in 'a'..'z' },
             hasSpecialChar = password.any { it in FIREBASE_SPECIAL_CHARACTERS },
         )
     }

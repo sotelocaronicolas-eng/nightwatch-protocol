@@ -155,6 +155,7 @@ class ChangePasswordViewModelTest {
             "Abcdefgh!", // no digit
             "Abcdefg12", // no special character
             "abcdefgh", // only lowercase
+            "ABCDEFG1!", // no lowercase
             "ÁÉÍÓÚ1234!x", // accented capitals do not count as uppercase for Firebase
         )
         for (password in accepted) {
@@ -194,6 +195,7 @@ class ChangePasswordViewModelTest {
             listOf(
                 "Mínimo 8 caracteres" to true,
                 "Incluye una mayúscula y un número" to false,
+                "Incluye una minúscula" to true,
                 "Incluye al menos un carácter especial" to false,
             ),
             partial,

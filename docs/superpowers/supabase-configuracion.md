@@ -103,11 +103,12 @@ nuevo.
 - **Authentication > Password** (reglas del registro de la app, en `RegisterUiState.kt`):
   - Largo mínimo: **8**.
   - Debe incluir una mayúscula `A-Z` **y** un dígito `0-9`.
+  - Debe incluir una minúscula `a-z`.
   - Debe incluir un carácter especial de este conjunto: `^ $ * . [ ] { } ( ) ? " ! @ # % & / \ , > < ' : ; | _ ~ ` = + -`.
-  - La app **no** exige una minúscula. La opción del panel más cercana es *Minimum length 8* + *Lowercase,
-    uppercase letters, digits and symbols*; la única diferencia es que el servidor sí exigirá una minúscula. Una
-    contraseña válida en la app pero sin minúsculas (por ejemplo `ABCDEFG1!`) la rechaza el servidor y la app
-    muestra el aviso de contraseña débil.
+  - En el panel: *Minimum length* **8** y *Password requirements* **Lowercase, uppercase letters, digits and
+    symbols**. La app y el servidor piden lo mismo (la lista del registro y de "Cambiar contraseña" muestra los
+    cuatro requisitos, con Firebase y con Supabase). Si el servidor tuviera un conjunto de símbolos más estrecho
+    que el de la app, esa contraseña se rechazaría con el aviso de contraseña débil.
 - **Secure password change** (misma sección): si está activado, el servidor pide una sesión reciente para cambiar la
   contraseña. "Cambiar contraseña" ya vuelve a iniciar sesión antes, así que lo cumple.
 - Con el SMTP integrado de Supabase hay un límite muy bajo de correos por hora; este bloque no envía ninguno.

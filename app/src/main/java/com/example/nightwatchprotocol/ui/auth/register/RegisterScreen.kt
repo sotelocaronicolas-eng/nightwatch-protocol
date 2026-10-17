@@ -236,6 +236,7 @@ private fun RegisterScreenContent(
                 Column(modifier = Modifier.padding(top = 16.dp)) {
                     PasswordRuleRow("Mínimo 8 caracteres", uiState.passwordRules.hasMinLength)
                     PasswordRuleRow("Incluye una mayúscula y un número", uiState.passwordRules.hasUpperCaseAndDigit)
+                    PasswordRuleRow("Incluye una minúscula", uiState.passwordRules.hasLowercase)
                     PasswordRuleRow("Incluye al menos un carácter especial", uiState.passwordRules.hasSpecialChar)
                 }
                 NightWatchButton(

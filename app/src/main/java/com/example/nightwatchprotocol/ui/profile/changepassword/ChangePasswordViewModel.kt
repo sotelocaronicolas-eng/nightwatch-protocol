@@ -59,6 +59,7 @@ data class ChangePasswordUiState(
 fun passwordRequirements(rules: PasswordRules): List<Pair<String, Boolean>> = listOf(
     "Mínimo 8 caracteres" to rules.hasMinLength,
     "Incluye una mayúscula y un número" to rules.hasUpperCaseAndDigit,
+    "Incluye una minúscula" to rules.hasLowercase,
     "Incluye al menos un carácter especial" to rules.hasSpecialChar,
 )
 
