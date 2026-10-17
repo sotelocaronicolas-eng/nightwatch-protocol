@@ -139,5 +139,7 @@ una URL pública. La copia local de la foto se conserva igual que con Firebase.
 - **Sesión sin red.** Si el token venció y no hay red, la app conserva al usuario guardado para no sacarlo al login;
   los datos fallan como "sin conexión" hasta que vuelva la red y se renueve el token. Si el servidor revoca la sesión
   después, todavía no hay un observador que lleve al login (pendiente).
-- **Respaldo de Android.** La sesión de Supabase se guarda en preferencias compartidas y todavía no está excluida de
-  `backup_rules.xml` / `data_extraction_rules.xml` (pendiente del informe de evaluación, sección 6).
+- **Respaldo de Android.** La sesión de Supabase se guarda en preferencias compartidas (`sharedpref`), y ya queda
+  fuera de cualquier respaldo: `AndroidManifest.xml` tiene `allowBackup="false"` y tanto `data_extraction_rules.xml`
+  (respaldo en la nube y transferencia entre teléfonos) como `backup_rules.xml` excluyen `sharedpref`, `file`,
+  `database` y `root`. No hay nada pendiente aquí.
