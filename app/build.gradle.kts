@@ -1,9 +1,25 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.services)
 }
+
+// local.properties se lee con providers.fileContents (y no con File) para que el configuration
+// cache se invalide cuando el archivo cambie. Si no existe o falta una clave, queda el valor por defecto.
+val localProps = Properties().apply {
+    val text = providers.fileContents(rootProject.layout.projectDirectory.file("local.properties")).asText
+    if (text.isPresent) load(text.get().reader())
+}
+
+fun localProp(name: String, default: String = ""): String =
+    localProps.getProperty(name)?.trim()?.takeIf { it.isNotEmpty() } ?: default
+
+/** Escapa el valor para usarlo como literal String en el BuildConfig generado. */
+fun buildConfigString(value: String): String =
+    "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 android {
     namespace = "com.example.nightwatchprotocol"
@@ -19,6 +35,14 @@ android {
         versionName = "1.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SUPABASE_URL", buildConfigString(localProp("SUPABASE_URL")))
+        buildConfigField(
+            "String",
+            "SUPABASE_PUBLISHABLE_KEY",
+            buildConfigString(localProp("SUPABASE_PUBLISHABLE_KEY")),
+        )
+        buildConfigField("String", "BACKEND", buildConfigString(localProp("BACKEND", "firebase")))
     }
 
     buildTypes {
@@ -33,6 +57,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }

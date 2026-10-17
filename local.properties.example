@@ -1,0 +1,6 @@
+# Copia este archivo como local.properties y completa tus valores.
+# local.properties NUNCA se sube a git (está en .gitignore).
+# La clave secret o service_role de Supabase NUNCA va en la app: solo la clave publishable.
+SUPABASE_URL=https://TU-PROYECTO.supabase.co
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_TU_CLAVE
+BACKEND=firebase
