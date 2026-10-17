@@ -49,5 +49,13 @@ El esquema está en `supabase/migrations/0001_esquema_inicial.sql`. **Nada lo ej
    políticas y ningún privilegio para `anon`.
 4. Prueba con dos usuarios que cada uno no puede leer, escribir ni borrar las filas del otro.
 
+### Cómo se manejan las migraciones
+
+Los archivos de `supabase/migrations/` se ejecutan **en orden numérico** (`0001`, `0002`, ...) y **una sola vez
+por proyecto**. Una migración que ya se aplicó **no se edita**: cualquier cambio posterior va en una migración
+nueva con el siguiente número. Hoy hay dos: `0001_esquema_inicial.sql` (tablas, RLS, políticas y grants) y
+`0002_minimo_privilegio.sql` (quita a `authenticated` los privilegios `TRUNCATE`, `REFERENCES` y `TRIGGER`,
+que Supabase concede por defecto y la app no necesita).
+
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
