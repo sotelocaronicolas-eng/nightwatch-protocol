@@ -17,6 +17,9 @@ class FirebaseAuthRepository(
     override val currentUserUid: String?
         get() = firebaseAuth.currentUser?.uid
 
+    // FirebaseAuth.currentUser is already available when the SDK is initialised: nothing to wait for.
+    override suspend fun awaitSessionReady() = Unit
+
     override suspend fun signIn(email: String, password: String) {
         try {
             runCatchingFirebase {

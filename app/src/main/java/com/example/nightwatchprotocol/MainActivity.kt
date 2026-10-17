@@ -16,7 +16,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.nightwatchprotocol.ui.applock.AppLockScreen
 import com.example.nightwatchprotocol.ui.applock.AppLockViewModel
@@ -26,23 +28,42 @@ import com.example.nightwatchprotocol.ui.navigation.Login
 import com.example.nightwatchprotocol.ui.navigation.NightWatchNavHost
 import com.example.nightwatchprotocol.ui.navigation.PostAuthGate
 import com.example.nightwatchprotocol.ui.session.DeviceSessionViewModel
+import com.example.nightwatchprotocol.ui.startup.StartRoute
+import com.example.nightwatchprotocol.ui.startup.StartupViewModel
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class MainActivity : FragmentActivity() {
     private val appLockViewModel: AppLockViewModel by viewModels { AppLockViewModel.Factory }
     private val deviceSessionViewModel: DeviceSessionViewModel by viewModels { DeviceSessionViewModel.Factory }
+    private val startupViewModel: StartupViewModel by viewModels { StartupViewModel.Factory }
     private var isUnlockPromptShowing = false
 
+    // The view models that read the session in their init are only touched once the session is ready.
+    private var sessionReady = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val application = application as NightWatchApplication
-        val startDestination = if (application.container.authRepository.currentUserEmail != null) {
-            PostAuthGate
-        } else {
-            Login
+        // The splash stays up (the main thread is never blocked) until the session is readable and the route is known.
+        splashScreen.setKeepOnScreenCondition { startupViewModel.startRoute.value == null }
+        lifecycleScope.launch {
+            val route = startupViewModel.startRoute.filterNotNull().first()
+            val startDestination: Any = when (route) {
+                StartRoute.PostAuthGate -> PostAuthGate
+                StartRoute.Login -> Login
+            }
+            showContent(startDestination)
+            sessionReady = true
+            // onStart already ran while the session was loading: report it now.
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) reportActivityStarted()
         }
+    }
+
+    private fun showContent(startDestination: Any) {
         setContent {
             NightWatchProtocolTheme {
                 val lockState by appLockViewModel.uiState.collectAsStateWithLifecycle()
@@ -83,13 +104,17 @@ class MainActivity : FragmentActivity() {
 
     override fun onStart() {
         super.onStart()
-        appLockViewModel.onActivityStarted(SystemClock.elapsedRealtime())
-        deviceSessionViewModel.onActivityStarted(SystemClock.elapsedRealtime())
+        if (sessionReady) reportActivityStarted()
     }
 
     override fun onStop() {
         super.onStop()
-        appLockViewModel.onActivityStopped(SystemClock.elapsedRealtime())
+        if (sessionReady) appLockViewModel.onActivityStopped(SystemClock.elapsedRealtime())
+    }
+
+    private fun reportActivityStarted() {
+        appLockViewModel.onActivityStarted(SystemClock.elapsedRealtime())
+        deviceSessionViewModel.onActivityStarted(SystemClock.elapsedRealtime())
     }
 
     private fun showUnlockPrompt() {

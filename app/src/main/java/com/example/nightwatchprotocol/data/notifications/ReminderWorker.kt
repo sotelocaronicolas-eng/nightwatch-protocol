@@ -16,6 +16,8 @@ class ReminderWorker(
         val kind = inputData.getString(KEY_KIND)?.let { name -> ReminderKind.entries.firstOrNull { it.name == name } }
             ?: return Result.failure()
         val container = (applicationContext as NightWatchApplication).container
+        // The stored session may still be loading when the system starts the process just for this work.
+        container.authRepository.awaitSessionReady()
 
         val stillEnabled = container.userPreferences.settings.first()[kind.setting]
         if (!stillEnabled) {

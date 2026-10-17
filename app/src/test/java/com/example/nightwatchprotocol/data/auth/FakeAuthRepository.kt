@@ -1,5 +1,7 @@
 package com.example.nightwatchprotocol.data.auth
 
+import kotlinx.coroutines.CompletableDeferred
+
 class FakeAuthRepository : AuthRepository {
     var signInResult: Result<Unit> = Result.success(Unit)
     var registerResult: Result<Unit> = Result.success(Unit)
@@ -11,9 +13,18 @@ class FakeAuthRepository : AuthRepository {
     var sendPasswordResetEmailCallCount = 0
     var signOutCallCount = 0
 
-    override val currentUserEmail: String = "test@example.com"
+    override var currentUserEmail: String? = "test@example.com"
 
     override var currentUserUid: String? = "test-uid"
+
+    /** When set, [awaitSessionReady] suspends until it is completed. */
+    var sessionReadyGate: CompletableDeferred<Unit>? = null
+    var awaitSessionReadyCallCount = 0
+
+    override suspend fun awaitSessionReady() {
+        awaitSessionReadyCallCount++
+        sessionReadyGate?.await()
+    }
 
     override suspend fun signIn(email: String, password: String) {
         signInCallCount++
