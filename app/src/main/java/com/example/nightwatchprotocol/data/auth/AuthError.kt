@@ -9,6 +9,8 @@ sealed class AuthError(message: String) : Exception(message) {
     data object EmailAlreadyInUse : AuthError("Ya tienes una cuenta con este correo")
     data object WeakPassword : AuthError("La contraseña no cumple con los requerimientos")
     data object RecentLoginRequired : AuthError("Por seguridad, confirma tu identidad para continuar")
+    /** The account was created but the backend wants the email confirmed first, so there is no session yet. */
+    data object EmailConfirmationRequired : AuthError("Revisa tu correo para confirmar tu cuenta antes de entrar")
     data object NetworkError : AuthError("Sin conexión a internet")
     data object Unknown : AuthError("Se produjo un error inesperado. Intenta de nuevo.")
 }
