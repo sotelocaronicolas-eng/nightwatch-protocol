@@ -68,6 +68,10 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.supabase.auth)
+    implementation(libs.supabase.postgrest)
+    implementation(libs.ktor.client.okhttp)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
 }
