@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.data.profile
 
+import com.example.nightwatchprotocol.data.avatar.FakeAvatarStorage
 import com.example.nightwatchprotocol.data.firestore.FailureKind
 import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
 import com.example.nightwatchprotocol.data.supabase.unusedPostgrest
@@ -85,7 +86,7 @@ class SupabaseProfileRepositoryTest {
 
     @Test
     fun withoutASession_everyCallFailsAsPermissionDenied_beforeAnyRequest() = runTest {
-        val repository = SupabaseProfileRepository(unusedPostgrest(), currentUserId = { null })
+        val repository = SupabaseProfileRepository(unusedPostgrest(), FakeAvatarStorage(), currentUserId = { null })
 
         listOf<suspend () -> Unit>(
             { repository.getProfile("x") },

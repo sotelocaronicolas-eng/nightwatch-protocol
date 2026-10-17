@@ -29,6 +29,12 @@ interface ProfileRepository {
 
     /** Merges gender (a [Gender] key) and birth date (ISO text); a null removes that field. Throws on failure or timeout. */
     suspend fun saveExtras(uid: String, gender: String?, birthDate: String?)
+
+    /**
+     * The photo bytes when the backend stores the photo as a file ([RemoteProfile.avatarPath]) instead of inside
+     * the profile ([RemoteProfile.avatarBase64]); null when there is nothing to download. Throws on failure.
+     */
+    suspend fun downloadAvatar(uid: String, profile: RemoteProfile): ByteArray? = null
 }
 
 /** Like runCatching, but a cancelled coroutine is never swallowed as an ordinary failure. */

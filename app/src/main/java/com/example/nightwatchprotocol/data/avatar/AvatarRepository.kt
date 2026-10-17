@@ -44,7 +44,9 @@ class AvatarRepository(
         if (loadedUid == uid) refreshedUid = uid
 
         // Not clearing the local copy when Firestore has no avatar: it may be a local photo that has not synced yet.
-        val remoteBytes = remote.avatarBase64?.let(::decodeOrNull) ?: return
+        val remoteBytes = remote.avatarBase64?.let(::decodeOrNull)
+            ?: runCatchingKeepCancellation { profileRepository.downloadAvatar(uid, remote) }.getOrNull()?.takeIf { it.isNotEmpty() }
+            ?: return
         if (loadedUid != uid || remoteBytes.contentEquals(cached)) return
 
         withContext(ioDispatcher) { cache.write(uid, remoteBytes) }

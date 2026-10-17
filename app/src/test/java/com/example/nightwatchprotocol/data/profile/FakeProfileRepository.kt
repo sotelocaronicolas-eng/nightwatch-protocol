@@ -32,6 +32,15 @@ class FakeProfileRepository : ProfileRepository {
         removeAvatarResult.getOrThrow()
     }
 
+    /** What a backend that keeps the photo as a file returns from [downloadAvatar]. */
+    var downloadAvatarResult: Result<ByteArray?> = Result.success(null)
+    var downloadAvatarCallCount = 0
+
+    override suspend fun downloadAvatar(uid: String, profile: RemoteProfile): ByteArray? {
+        downloadAvatarCallCount++
+        return downloadAvatarResult.getOrThrow()
+    }
+
     var saveExtrasResult: Result<Unit> = Result.success(Unit)
     var savedExtras = mutableListOf<Pair<String?, String?>>()
 
