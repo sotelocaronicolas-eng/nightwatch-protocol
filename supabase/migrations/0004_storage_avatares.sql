@@ -10,8 +10,8 @@
 --   * Políticas en storage.objects para el rol authenticated: cada usuario solo ve, sube, reemplaza y borra
 --     lo que está en SU carpeta. El anon no recibe ninguna política, así que no tiene acceso.
 --
--- Convención de rutas: <user_id>/avatar.jpg dentro del bucket 'avatars'. La primera carpeta del nombre
--- del objeto debe ser el uid del usuario (profile.avatar_path guarda esa misma ruta).
+-- Convención de rutas: <user_id>/avatar.jpg dentro del bucket 'avatars' (profile.avatar_path guarda esa misma
+-- ruta). Subir o reemplazar exige ese nombre exacto; leer y borrar exigen que la primera carpeta sea el uid.
 --
 -- Formatos y tamaño: la app solo genera JPEG (BitmapAvatarImageProcessor: 256x256, calidad 80/60/40,
 -- tope práctico de unos 100 KB). El bucket acepta solo image/jpeg y hasta 256 KB (262144 bytes).
@@ -38,7 +38,7 @@ on conflict (id) do update
 -- 2. Políticas en storage.objects - solo authenticated y solo la carpeta del propio usuario
 --    (select auth.uid()) en vez de auth.uid() a secas: Postgres lo evalúa una vez por consulta y no por fila.
 --    select y delete usan using; insert usa with check; update usa ambos, así nadie puede mover un objeto
---    a la carpeta de otra persona cambiando su nombre.
+--    a otra ruta (ni a la carpeta de otra persona) cambiando su nombre.
 -- -----------------------------------------------------------------------------------------------------
 
 create policy avatars_select_own on storage.objects
@@ -48,22 +48,25 @@ create policy avatars_select_own on storage.objects
     and (storage.foldername(name))[1] = (select auth.uid())::text
   );
 
+-- insert y update exigen el nombre EXACTO '<uid>/avatar.jpg' y no solo la carpeta: así nadie puede llenar el
+-- Storage del plan gratuito subiendo archivos con otros nombres dentro de su carpeta. select y delete se quedan
+-- con la condición de carpeta (leer o borrar solo alcanza lo propio).
 create policy avatars_insert_own on storage.objects
   for insert to authenticated
   with check (
     bucket_id = 'avatars'
-    and (storage.foldername(name))[1] = (select auth.uid())::text
+    and name = (select auth.uid())::text || '/avatar.jpg'
   );
 
 create policy avatars_update_own on storage.objects
   for update to authenticated
   using (
     bucket_id = 'avatars'
-    and (storage.foldername(name))[1] = (select auth.uid())::text
+    and name = (select auth.uid())::text || '/avatar.jpg'
   )
   with check (
     bucket_id = 'avatars'
-    and (storage.foldername(name))[1] = (select auth.uid())::text
+    and name = (select auth.uid())::text || '/avatar.jpg'
   );
 
 create policy avatars_delete_own on storage.objects
