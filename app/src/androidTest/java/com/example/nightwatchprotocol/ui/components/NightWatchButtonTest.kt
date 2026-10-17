@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
+import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 
@@ -22,6 +23,6 @@ class NightWatchButtonTest {
 
         composeTestRule.onNodeWithText("INICIAR SESIÓN").performClick()
 
-        assert(!clicked) { "onClick fired on a disabled button" }
+        assertFalse("onClick fired on a disabled button", clicked)
     }
 }

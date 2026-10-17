@@ -4,7 +4,6 @@ import android.app.Application
 import com.example.nightwatchprotocol.data.notifications.ReminderNotifier
 import com.example.nightwatchprotocol.di.AppContainer
 import com.example.nightwatchprotocol.di.DefaultAppContainer
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,7 +21,7 @@ class NightWatchApplication : Application() {
 
         val shouldRemainSignedIn = runBlocking { container.sessionPreferences.rememberSessionFlow.first() }
         if (!shouldRemainSignedIn) {
-            FirebaseAuth.getInstance().signOut()
+            container.authRepository.signOut()
         }
 
         ReminderNotifier.createChannels(this)

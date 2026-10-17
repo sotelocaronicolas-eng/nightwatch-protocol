@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 class LoginViewModel(
     private val authRepository: AuthRepository,
     private val sessionPreferences: SessionPreferences,
+    val googleWebClientId: String,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -121,7 +122,11 @@ class LoginViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as NightWatchApplication
-                LoginViewModel(application.container.authRepository, application.container.sessionPreferences)
+                LoginViewModel(
+                    application.container.authRepository,
+                    application.container.sessionPreferences,
+                    application.container.googleWebClientId,
+                )
             }
         }
     }
