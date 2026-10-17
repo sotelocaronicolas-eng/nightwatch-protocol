@@ -23,8 +23,15 @@ class LoginViewModelTest {
     private fun createViewModel(
         fakeAuthRepository: FakeAuthRepository = FakeAuthRepository(),
     ): Pair<LoginViewModel, FakeAuthRepository> {
-        val viewModel = LoginViewModel(fakeAuthRepository, SessionPreferences.inMemory())
+        val viewModel = LoginViewModel(fakeAuthRepository, SessionPreferences.inMemory(), "test-web-client-id")
         return viewModel to fakeAuthRepository
+    }
+
+    @Test
+    fun `exposes the google web client id it was given`() {
+        val (viewModel, _) = createViewModel()
+
+        assertEquals("test-web-client-id", viewModel.googleWebClientId)
     }
 
     @Test
@@ -212,7 +219,7 @@ class LoginViewModelTest {
     fun signInWithGoogle_failure_showsUnknownErrorDialog() = runTest {
         val fakeRepo = FakeAuthRepository()
         fakeRepo.signInWithGoogleResult = Result.failure(AuthError.Unknown)
-        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory())
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
 
         viewModel.events.test {
             viewModel.onGoogleIdTokenReceived("fake-id-token")
@@ -224,7 +231,7 @@ class LoginViewModelTest {
     fun signInWithGoogle_respectsUncheckedRememberSession() = runTest {
         val fakeRepo = FakeAuthRepository()
         val sessionPreferences = SessionPreferences.inMemory()
-        val viewModel = LoginViewModel(fakeRepo, sessionPreferences)
+        val viewModel = LoginViewModel(fakeRepo, sessionPreferences, "test-web-client-id")
         viewModel.onRememberSessionChanged(false)
 
         viewModel.onGoogleIdTokenReceived("fake-id-token")
