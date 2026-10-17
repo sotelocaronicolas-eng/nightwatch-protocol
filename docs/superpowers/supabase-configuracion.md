@@ -53,7 +53,7 @@ El esquema está en `supabase/migrations/0001_esquema_inicial.sql`. **Nada lo ej
 
 Los archivos de `supabase/migrations/` se ejecutan **en orden numérico** (`0001`, `0002`, ...) y **una sola vez
 por proyecto**. Una migración que ya se aplicó **no se edita**: cualquier cambio posterior va en una migración
-nueva con el siguiente número. Hoy hay cuatro:
+nueva con el siguiente número. Hoy hay cinco:
 
 1. `0001_esquema_inicial.sql`: tablas, RLS, políticas y grants.
 2. `0002_minimo_privilegio.sql`: quita a `authenticated` los privilegios `TRUNCATE`, `REFERENCES` y `TRIGGER`,
@@ -62,6 +62,9 @@ nueva con el siguiente número. Hoy hay cuatro:
    con "Enable automatic RLS" y que el Security Advisor marcaba como llamable por `anon` y `authenticated`).
 4. `0004_storage_avatares.sql`: bucket privado `avatars` y sus 4 políticas en `storage.objects` (**pendiente de
    ejecutar**; ver el Bloque A).
+5. `0005_estado_de_cuenta.sql`: función `public.account_status(p_email)`, que devuelve `not_found`, `password` u
+   `other_provider` para que el login y el registro muestren errores individualizados (**pendiente de ejecutar**;
+   ver "Errores individualizados").
 
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
@@ -128,9 +131,35 @@ una URL pública. La copia local de la foto se conserva igual que con Firebase.
   después. Supabase no: sin conexión la escritura falla como "sin conexión" y el dato queda solo en el teléfono
   (la foto y el género/fecha ya tienen copia local) hasta que se vuelva a guardar. Lo mismo pasa con el resultado del
   quiz: si falla, hay que repetirlo o guardarlo de nuevo.
-- **Mensajes de error al iniciar sesión.** Supabase responde igual para un correo que no existe y para una
-  contraseña incorrecta (a propósito). Todo cae en "Correo o contraseña incorrectos"; ya no aparecen "La contraseña
-  es incorrecta", "El correo no está registrado" ni "Esta cuenta se creó con Google…".
+- **Mensajes de error al iniciar sesión y al registrarse.** Supabase responde igual (`invalid_credentials`) para un
+  correo que no existe y para una contraseña incorrecta, a propósito. Para mantener los mismos mensajes que Firebase,
+  la app consulta `public.account_status` (migración `0005`); ver la sección siguiente. Sin ejecutar `0005`, o si la
+  consulta falla, el login vuelve al mensaje genérico "Correo o contraseña incorrectos" y el registro deja que
+  Supabase responda `user_already_exists`.
+
+### Errores individualizados y `account_status` (0005)
+
+Requisito del curso: los errores de login y de registro deben ser individuales, como con Firebase.
+
+| Situación | Mensaje |
+|---|---|
+| Login, el correo no existe | "El correo no está registrado" |
+| Login, el correo existe con contraseña | "La contraseña es incorrecta" |
+| Login, el correo solo existe con Google | "Esta cuenta se creó con Google. Usa «Continuar con Google»" |
+| Registro, el correo ya tiene contraseña | "Ya tienes una cuenta con este correo" |
+| Registro, el correo ya existe con Google | "Este correo ya está registrado con Google. Usa «Continuar con Google»" |
+
+- **Cuándo se consulta.** En el login, solo después de que Supabase responda `invalid_credentials` (un login correcto
+  o un fallo de red no consultan nada). En el registro, antes de `signUp`. Si la consulta falla por cualquier motivo,
+  se usan los errores genéricos de arriba.
+- **Compromiso de seguridad aceptado.** `account_status` es `SECURITY DEFINER` y la pueden ejecutar `anon` y
+  `authenticated`: cualquiera puede preguntar si un correo tiene cuenta y de qué tipo (enumeración de cuentas). Solo
+  devuelve una de tres palabras, nunca el id ni otro dato. **El Security Advisor de Supabase marcará esta función; la
+  advertencia está aceptada por requisito del curso** y no hay que "corregirla".
+- **Verificación de correos reales.** Comprobar que una dirección existe de verdad (que alguien la controla) se hará
+  con un código de verificación de 6 dígitos enviado al correo (bloque B). No se puede resolver consultando al
+  proveedor: Google no permite averiguar si una dirección de Gmail existe. `account_status` solo dice si ya hay una
+  cuenta en NightWatch con ese correo.
 - **Cierre remoto de sesión.** Sigue siendo cooperativo (la marca `revoked` solo se cumple cuando el otro teléfono
   abre la app). La revocación real de Supabase (`signOut(SignOutScope.OTHERS)`) **no** está conectada: el botón
   "Cerrar sesión en todos" solo marca los dispositivos, y el texto de la pantalla todavía habla de Firebase.
