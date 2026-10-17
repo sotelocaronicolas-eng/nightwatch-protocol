@@ -3,6 +3,7 @@ package com.example.nightwatchprotocol.ui.auth.forgotpassword
 import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
+import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -19,7 +20,7 @@ class PasswordRecoveryViewModelTest {
 
     private val auth = FakeAuthRepository().apply { recoversWithCode = true }
 
-    private fun viewModel(prefill: String = "ana@example.com") = PasswordRecoveryViewModel(auth, prefill)
+    private fun viewModel(prefill: String = "ana@example.com") = PasswordRecoveryViewModel(auth, SessionPreferences.inMemory(), prefill)
 
     @Test
     fun startsOnTheEmailStep_withTheEmailTypedOnLogin() {

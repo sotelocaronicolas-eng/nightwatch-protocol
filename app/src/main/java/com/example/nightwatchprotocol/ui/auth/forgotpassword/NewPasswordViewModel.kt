@@ -9,6 +9,7 @@ import com.example.nightwatchprotocol.NightWatchApplication
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.ui.auth.register.PasswordRules
 import com.example.nightwatchprotocol.ui.profile.MESSAGE_GENERIC_ERROR
 import com.example.nightwatchprotocol.ui.profile.MESSAGE_PASSWORDS_DO_NOT_MATCH
@@ -54,6 +55,7 @@ sealed interface NewPasswordEvent {
 class NewPasswordViewModel(
     private val accountRepository: AccountRepository,
     private val authRepository: AuthRepository,
+    private val sessionPreferences: SessionPreferences,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NewPasswordUiState())
@@ -85,6 +87,7 @@ class NewPasswordViewModel(
             try {
                 accountRepository.updatePassword(state.newPassword)
                 authRepository.signOut()
+                sessionPreferences.setRecoveryInProgress(false)
                 _uiState.update { it.copy(isLoading = false, newPassword = "", confirmPassword = "") }
                 _events.send(NewPasswordEvent.PasswordReset)
             } catch (e: CancellationException) {
@@ -100,7 +103,10 @@ class NewPasswordViewModel(
     /** "X" or the back button: no password was set, so the recovery session must not stay open. */
     fun onCancelClicked() {
         authRepository.signOut()
-        viewModelScope.launch { _events.send(NewPasswordEvent.Cancelled) }
+        viewModelScope.launch {
+            sessionPreferences.setRecoveryInProgress(false)
+            _events.send(NewPasswordEvent.Cancelled)
+        }
     }
 
     private fun NewPasswordUiState.applyError(error: AuthError): NewPasswordUiState = when (error) {
@@ -113,7 +119,11 @@ class NewPasswordViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as NightWatchApplication
-                NewPasswordViewModel(application.container.accountRepository, application.container.authRepository)
+                NewPasswordViewModel(
+                    application.container.accountRepository,
+                    application.container.authRepository,
+                    application.container.sessionPreferences,
+                )
             }
         }
     }

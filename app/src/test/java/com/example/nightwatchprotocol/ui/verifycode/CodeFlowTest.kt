@@ -3,8 +3,10 @@ package com.example.nightwatchprotocol.ui.verifycode
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
+import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -29,7 +31,7 @@ class CodeFlowTest {
     @Test
     fun recovery_confirmsWithTheRecoveryCode_andResendingAsksForANewRecoveryEmail() = runTest {
         val auth = FakeAuthRepository()
-        val flow = RecoveryCodeFlow(auth, "ana@example.com")
+        val flow = RecoveryCodeFlow(auth, SessionPreferences.inMemory(), "ana@example.com")
 
         flow.confirm("111222")
         flow.resend()
@@ -37,6 +39,32 @@ class CodeFlowTest {
         assertEquals(listOf("ana@example.com" to "111222"), auth.verifyRecoveryCodeCalls)
         assertEquals(1, auth.sendPasswordResetEmailCallCount)
         assertTrue(auth.resendSignUpCodeCalls.isEmpty())
+    }
+
+    @Test
+    fun recovery_aVerifiedCode_leavesTheRecoveryMark() = runTest {
+        val preferences = SessionPreferences.inMemory()
+        val flow = RecoveryCodeFlow(FakeAuthRepository(), preferences, "ana@example.com")
+
+        flow.confirm("111222")
+
+        assertTrue(preferences.isRecoveryInProgress())
+    }
+
+    @Test
+    fun recovery_aRefusedCode_doesNotLeaveTheRecoveryMark() = runTest {
+        val auth = FakeAuthRepository().apply { verifyRecoveryCodeResult = Result.failure(AuthError.InvalidCode) }
+        val preferences = SessionPreferences.inMemory()
+        val flow = RecoveryCodeFlow(auth, preferences, "ana@example.com")
+
+        try {
+            flow.confirm("000000")
+            fail("debía lanzar")
+        } catch (e: AuthError) {
+            assertEquals(AuthError.InvalidCode, e)
+        }
+
+        assertFalse(preferences.isRecoveryInProgress())
     }
 
     @Test

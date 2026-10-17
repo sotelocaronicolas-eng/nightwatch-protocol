@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.ui.profile.isPlausibleEmail
 import com.example.nightwatchprotocol.ui.verifycode.RecoveryCodeFlow
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeViewModel
@@ -50,6 +51,7 @@ data class PasswordRecoveryUiState(
  */
 class PasswordRecoveryViewModel(
     private val authRepository: AuthRepository,
+    private val sessionPreferences: SessionPreferences,
     prefillEmail: String = "",
 ) : ViewModel() {
 
@@ -88,7 +90,7 @@ class PasswordRecoveryViewModel(
     fun codeViewModelFactory(): ViewModelProvider.Factory {
         val email = _uiState.value.email
         return viewModelFactory {
-            initializer { VerifyCodeViewModel(RecoveryCodeFlow(authRepository, email), email) }
+            initializer { VerifyCodeViewModel(RecoveryCodeFlow(authRepository, sessionPreferences, email), email) }
         }
     }
 
@@ -105,7 +107,11 @@ class PasswordRecoveryViewModel(
         fun factory(prefillEmail: String): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as NightWatchApplication
-                PasswordRecoveryViewModel(application.container.authRepository, prefillEmail)
+                PasswordRecoveryViewModel(
+                    application.container.authRepository,
+                    application.container.sessionPreferences,
+                    prefillEmail,
+                )
             }
         }
     }

@@ -3,6 +3,9 @@ package com.example.nightwatchprotocol.ui.verifycode
 import androidx.annotation.Keep
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.session.SessionPreferences
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
 /** Which flow a code screen belongs to. It travels in the navigation route, so it is serializable. */
@@ -52,8 +55,25 @@ class EmailChangeCodeFlow(private val accountRepository: AccountRepository, priv
  * Password recovery. It has no navigation purpose because its code screen is the dialog over Login, not a route.
  * Supabase cannot "resend" a recovery code, so resending is asking for a new recovery email.
  */
-class RecoveryCodeFlow(private val authRepository: AuthRepository, private val email: String) : CodeFlow {
-    override suspend fun confirm(code: String) = authRepository.verifyRecoveryCode(email, code)
+class RecoveryCodeFlow(
+    private val authRepository: AuthRepository,
+    private val sessionPreferences: SessionPreferences,
+    private val email: String,
+) : CodeFlow {
+    /**
+     * Verifying opens a session without a typed password, so "recovery in progress" is stored BEFORE asking: if the app
+     * dies right after the session opens, the next start still finds the mark and closes it. A refused code removes it.
+     */
+    override suspend fun confirm(code: String) {
+        sessionPreferences.setRecoveryInProgress(true)
+        try {
+            authRepository.verifyRecoveryCode(email, code)
+        } catch (e: Exception) {
+            withContext(NonCancellable) { sessionPreferences.setRecoveryInProgress(false) }
+            throw e
+        }
+    }
+
     override suspend fun resend() = authRepository.sendPasswordResetEmail(email)
 }
 

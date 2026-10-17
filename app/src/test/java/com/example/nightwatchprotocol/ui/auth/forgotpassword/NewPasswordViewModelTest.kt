@@ -5,6 +5,7 @@ import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
+import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -22,7 +23,8 @@ class NewPasswordViewModelTest {
 
     private val account = FakeAccountRepository()
     private val auth = FakeAuthRepository()
-    private fun viewModel() = NewPasswordViewModel(account, auth)
+    private val preferences = SessionPreferences.inMemory()
+    private fun viewModel() = NewPasswordViewModel(account, auth, preferences)
 
     private fun NewPasswordViewModel.fill(password: String = "Nueva\$Clave1", confirm: String = password) {
         onNewPasswordChanged(password)
@@ -122,5 +124,47 @@ class NewPasswordViewModelTest {
         assertEquals(1, auth.signOutCallCount)
         assertTrue(account.updatePasswordCalls.isEmpty())
         assertNull(vm.uiState.value.formError)
+    }
+
+    // ---- the "recovery in progress" mark ----
+
+    @Test
+    fun savingThePassword_clearsTheRecoveryMark() = runTest {
+        preferences.setRecoveryInProgress(true)
+        val vm = viewModel()
+        vm.fill()
+
+        vm.events.test {
+            vm.onSaveClicked()
+            assertEquals(NewPasswordEvent.PasswordReset, awaitItem())
+        }
+
+        assertFalse(preferences.isRecoveryInProgress())
+    }
+
+    @Test
+    fun leavingWithoutSaving_clearsTheRecoveryMark() = runTest {
+        preferences.setRecoveryInProgress(true)
+        val vm = viewModel()
+
+        vm.events.test {
+            vm.onCancelClicked()
+            assertEquals(NewPasswordEvent.Cancelled, awaitItem())
+        }
+
+        assertFalse(preferences.isRecoveryInProgress())
+    }
+
+    @Test
+    fun aFailedSave_keepsTheRecoveryMark_becauseTheSessionIsStillOpen() = runTest {
+        preferences.setRecoveryInProgress(true)
+        account.updatePasswordResults = mutableListOf(Result.failure(AuthError.NetworkError))
+        val vm = viewModel()
+        vm.fill()
+
+        vm.onSaveClicked()
+        advanceUntilIdle()
+
+        assertTrue(preferences.isRecoveryInProgress())
     }
 }

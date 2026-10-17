@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +22,7 @@ enum class StartRoute { Login, PostAuthGate }
  */
 class StartupViewModel(
     authRepository: AuthRepository,
+    sessionPreferences: SessionPreferences,
 ) : ViewModel() {
 
     private val _startRoute = MutableStateFlow<StartRoute?>(null)
@@ -29,6 +31,15 @@ class StartupViewModel(
     init {
         viewModelScope.launch {
             authRepository.awaitSessionReady()
+            // A password recovery that was interrupted left a session open without the user ever typing a password:
+            // close it (and wait for the sign-out to finish) before deciding the route, and go to Login.
+            if (sessionPreferences.isRecoveryInProgress()) {
+                authRepository.signOut()
+                authRepository.awaitSessionReady()
+                sessionPreferences.setRecoveryInProgress(false)
+                _startRoute.value = StartRoute.Login
+                return@launch
+            }
             _startRoute.value = if (authRepository.currentUserEmail != null) StartRoute.PostAuthGate else StartRoute.Login
         }
     }
@@ -37,7 +48,7 @@ class StartupViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as NightWatchApplication
-                StartupViewModel(application.container.authRepository)
+                StartupViewModel(application.container.authRepository, application.container.sessionPreferences)
             }
         }
     }
