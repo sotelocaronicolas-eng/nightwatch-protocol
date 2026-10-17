@@ -10,6 +10,8 @@ data class RemoteProfile(
     val gender: String? = null,
     /** ISO `yyyy-MM-dd` as stored; parsed by [BirthDate.parseIso]. */
     val birthDate: String? = null,
+    /** Where the photo lives when it is stored as a file (Supabase Storage); null for Base64 backends. */
+    val avatarPath: String? = null,
 )
 
 interface ProfileRepository {
