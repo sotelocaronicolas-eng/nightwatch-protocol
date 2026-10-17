@@ -81,11 +81,15 @@ fun NightWatchNavHost(
                         // The session is open now: the same road as a normal sign-up (quiz or main menu).
                         CodePurpose.SIGN_UP ->
                             navController.navigate(PostAuthGate) { popUpTo<Login> { inclusive = true } }
+                        // Same exit as the link flow: "¡Correo actualizado!" replaces the email-change screens.
+                        CodePurpose.EMAIL_CHANGE ->
+                            navController.navigate(EmailUpdated) { popUpTo<ChangeEmail> { inclusive = true } }
                     }
                 },
                 onClose = {
                     when (purpose) {
                         CodePurpose.SIGN_UP -> navController.popBackStack<Login>(inclusive = false)
+                        CodePurpose.EMAIL_CHANGE -> navController.popBackStack<EditProfile>(inclusive = false)
                     }
                 },
             )
@@ -177,6 +181,7 @@ fun NightWatchNavHost(
                 onClose = { navController.popBackStack() },
                 onNavigateToConfirmIdentity = { navController.navigate(ConfirmIdentity) },
                 onLinkSent = { newEmail -> navController.navigate(VerifyEmailLink(newEmail)) },
+                onCodeSent = { newEmail -> navController.navigate(VerifyCode(newEmail, CodePurpose.EMAIL_CHANGE)) },
             )
         }
         composable<VerifyEmailLink> {

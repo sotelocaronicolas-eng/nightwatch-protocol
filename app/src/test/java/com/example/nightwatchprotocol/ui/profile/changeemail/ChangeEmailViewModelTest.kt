@@ -42,6 +42,67 @@ class ChangeEmailViewModelTest {
     }
 
     @Test
+    fun withTheCodeFlow_theTextsAskForACode_andNothingIsSentBeforeTheIdentityIsConfirmed() = runTest {
+        account.usesCode = true
+        val vm = viewModel()
+        assertTrue(vm.uiState.value.usesCode)
+
+        vm.events.test {
+            vm.onSendLinkClicked()
+            assertEquals(ChangeEmailEvent.NavigateToConfirmIdentity, awaitItem())
+        }
+        assertTrue(account.requestEmailChangeCalls.isEmpty())
+    }
+
+    @Test
+    fun withTheCodeFlow_afterConfirmingTheIdentity_theCodeIsSentAndTheCodeScreenFollows() = runTest {
+        account.usesCode = true
+        val vm = viewModel()
+
+        vm.events.test {
+            vm.onIdentityConfirmed()
+            assertEquals(ChangeEmailEvent.CodeSent("nuevo@example.com"), awaitItem())
+        }
+        assertEquals(listOf("nuevo@example.com"), account.requestEmailChangeCalls)
+    }
+
+    @Test
+    fun withTheCodeFlow_onceConfirmed_aSecondSendDoesNotAskAgain() = runTest {
+        account.usesCode = true
+        val vm = viewModel()
+
+        vm.events.test {
+            vm.onIdentityConfirmed()
+            assertEquals(ChangeEmailEvent.CodeSent("nuevo@example.com"), awaitItem())
+            vm.onSendLinkClicked()
+            assertEquals(ChangeEmailEvent.CodeSent("nuevo@example.com"), awaitItem())
+        }
+        assertEquals(2, account.requestEmailChangeCalls.size)
+    }
+
+    @Test
+    fun withTheCodeFlow_aRejectedAddressStillShowsItsError() = runTest {
+        account.usesCode = true
+        account.requestEmailChangeResults = mutableListOf(Result.failure(AuthError.EmailAlreadyInUse))
+        val vm = viewModel()
+        vm.onIdentityConfirmed()
+        advanceUntilIdle()
+
+        assertEquals(MESSAGE_EMAIL_IN_USE, vm.uiState.value.error)
+    }
+
+    @Test
+    fun withTheLinkFlow_theTextsAreTheOldOnes_andNoIdentityIsAskedUpFront() = runTest {
+        val vm = viewModel()
+        assertFalse(vm.uiState.value.usesCode)
+
+        vm.events.test {
+            vm.onSendLinkClicked()
+            assertEquals(ChangeEmailEvent.LinkSent("nuevo@example.com"), awaitItem())
+        }
+    }
+
+    @Test
     fun theEmailIsTrimmedBeforeSending() = runTest {
         val vm = viewModel(" nuevo@example.com ")
 

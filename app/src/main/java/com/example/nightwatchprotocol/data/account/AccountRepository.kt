@@ -1,5 +1,7 @@
 package com.example.nightwatchprotocol.data.account
 
+import com.example.nightwatchprotocol.data.auth.AuthError
+
 data class AccountProfile(
     val displayName: String?,
     val email: String?,
@@ -32,4 +34,17 @@ interface AccountRepository {
 
     /** Reloads the user and says whether the account email is now [newEmail]. */
     suspend fun isEmailChanged(newEmail: String): Boolean
+
+    /**
+     * True when [requestEmailChange] sends a 6-digit code to the new address (Supabase), to be checked with
+     * [verifyEmailChangeCode]; false when it sends a link that is opened outside the app (Firebase). The screens pick
+     * the flow from this, not from the backend.
+     */
+    val changesEmailWithCode: Boolean get() = false
+
+    /** Confirms the email change with the code sent to [newEmail]; the account email is [newEmail] afterwards. */
+    suspend fun verifyEmailChangeCode(newEmail: String, code: String): Unit = throw AuthError.Unknown
+
+    /** Sends a new code to [newEmail], without changing the pending request. */
+    suspend fun resendEmailChangeCode(newEmail: String): Unit = throw AuthError.Unknown
 }

@@ -5,6 +5,7 @@ import com.example.nightwatchprotocol.data.auth.DISPLAY_NAME_KEY
 import com.example.nightwatchprotocol.data.auth.SupabaseAuthRepository
 import com.example.nightwatchprotocol.data.supabase.mapSupabaseAuthError
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.serialization.json.JsonPrimitive
@@ -15,10 +16,8 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.ExperimentalTime
 
 /**
- * Account operations on Supabase Auth: display name, identity confirmation and password change.
- *
- * Not available in this backend yet: changing the email (Supabase sends the confirmation to the old and the new
- * address and expects a link or a code that the app does not handle yet).
+ * Account operations on Supabase Auth: display name, identity confirmation, password change and email change
+ * (with a 6-digit code, see [requestEmailChange]).
  */
 class SupabaseAccountRepository(
     private val auth: Auth,
@@ -65,12 +64,29 @@ class SupabaseAccountRepository(
         updatePassword(newPassword)
     }
 
-    // Not built in this block (see the class comment).
+    override val changesEmailWithCode: Boolean get() = true
+
+    /**
+     * With "Secure email change" OFF in the panel, Supabase sends ONE code, to the new address (the "Change email
+     * address" template prints `{{ .Token }}`). The account email stays the old one until the code is verified.
+     */
     override suspend fun requestEmailChange(newEmail: String) {
-        throw AuthError.Unknown
+        requireUser()
+        accountCall { auth.updateUser(redirectUrl = null) { email = newEmail } }
     }
 
-    // Nothing can be pending, because requestEmailChange never sends anything.
+    /** Verifies with the email-change OTP type; the session that comes back already carries the new email. */
+    override suspend fun verifyEmailChangeCode(newEmail: String, code: String) {
+        requireUser()
+        accountCall { auth.verifyEmailOtp(OtpType.Email.EMAIL_CHANGE, newEmail, code) }
+    }
+
+    override suspend fun resendEmailChangeCode(newEmail: String) {
+        requireUser()
+        accountCall { auth.resendEmail(OtpType.Email.EMAIL_CHANGE, newEmail) }
+    }
+
+    // The link flow is Firebase's. Here the change is confirmed by verifyEmailChangeCode, never by polling.
     override suspend fun isEmailChanged(newEmail: String): Boolean = false
 
     private fun requireUser(): UserInfo = authRepository.currentUser ?: throw AuthError.Unknown

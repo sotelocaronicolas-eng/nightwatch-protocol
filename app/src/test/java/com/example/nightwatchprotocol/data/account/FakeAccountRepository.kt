@@ -57,6 +57,26 @@ class FakeAccountRepository(
         return isEmailChangedResult.getOrThrow()
     }
 
+    override val changesEmailWithCode: Boolean get() = usesCode
+
+    /** Set to true to make this fake behave like the backend that confirms the email change with a code. */
+    var usesCode = false
+    var verifyEmailChangeCodeResult: Result<Unit> = Result.success(Unit)
+    var resendEmailChangeCodeResult: Result<Unit> = Result.success(Unit)
+    val verifyEmailChangeCodeCalls = mutableListOf<Pair<String, String>>()
+    val resendEmailChangeCodeCalls = mutableListOf<String>()
+
+    override suspend fun verifyEmailChangeCode(newEmail: String, code: String) {
+        verifyEmailChangeCodeCalls += newEmail to code
+        verifyEmailChangeCodeResult.getOrThrow()
+        profile = profile?.copy(email = newEmail)
+    }
+
+    override suspend fun resendEmailChangeCode(newEmail: String) {
+        resendEmailChangeCodeCalls += newEmail
+        resendEmailChangeCodeResult.getOrThrow()
+    }
+
     private fun nextResult(results: MutableList<Result<Unit>>): Result<Unit> =
         if (results.size > 1) results.removeAt(0) else results.first()
 }

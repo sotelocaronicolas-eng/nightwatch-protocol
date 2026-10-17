@@ -38,8 +38,10 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 
-// "Confirmar Correo" and "Verifica tu Correo". The design talks about a 6-digit code; Firebase sends a link
-// instead (decision 2), so the code field disappears and the texts and buttons are adapted (spec 4b).
+// "Confirmar Correo" and "Verifica tu Correo". The design talks about a 6-digit code. Firebase sends a link instead
+// (decision 2), so there the code field disappears and the texts and buttons are adapted (spec 4b); with a backend
+// that sends the code (Supabase) the texts of the design are used and "Verifica tu Correo" is the shared code screen
+// (ui/verifycode).
 
 @Composable
 fun ChangeEmailScreen(
@@ -48,6 +50,7 @@ fun ChangeEmailScreen(
     onClose: () -> Unit,
     onNavigateToConfirmIdentity: () -> Unit,
     onLinkSent: (String) -> Unit,
+    onCodeSent: (String) -> Unit,
     viewModel: ChangeEmailViewModel = viewModel(factory = ChangeEmailViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -63,6 +66,7 @@ fun ChangeEmailScreen(
         viewModel.events.collect { event ->
             when (event) {
                 is ChangeEmailEvent.LinkSent -> onLinkSent(event.newEmail)
+                is ChangeEmailEvent.CodeSent -> onCodeSent(event.newEmail)
                 ChangeEmailEvent.NavigateToConfirmIdentity -> onNavigateToConfirmIdentity()
             }
         }
@@ -81,7 +85,11 @@ fun ChangeEmailScreen(
                 ) {
                     EmailScreenHeader(
                         title = "Confirmar Correo",
-                        message = "Escribe tu nuevo correo. Te enviaremos un enlace de verificación para confirmarlo.",
+                        message = if (uiState.usesCode) {
+                            "Escribe tu nuevo correo. Te enviaremos un código de verificación para confirmarlo."
+                        } else {
+                            "Escribe tu nuevo correo. Te enviaremos un enlace de verificación para confirmarlo."
+                        },
                     )
                     EnvelopeImage()
                     if (uiState.hasPassword) {
@@ -108,7 +116,7 @@ fun ChangeEmailScreen(
                 }
                 if (uiState.hasPassword) {
                     ProfileButton(
-                        text = "ENVIAR ENLACE",
+                        text = if (uiState.usesCode) "ENVIAR CÓDIGO" else "ENVIAR ENLACE",
                         onClick = viewModel::onSendLinkClicked,
                         enabled = !uiState.isSending,
                         modifier = Modifier
