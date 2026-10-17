@@ -111,7 +111,7 @@ Desde la terminal:
 ./gradlew connectedDebugAndroidTest          # pruebas instrumentadas (necesitan un dispositivo o emulador)
 ```
 
-Hay 375 pruebas unitarias. Las pruebas de ViewModel usan `MainDispatcherRule` y Turbine; los repositorios se
+Todas las pruebas unitarias deben pasar antes de abrir un Pull Request. Las pruebas de ViewModel usan `MainDispatcherRule` y Turbine; los repositorios se
 sustituyen por *fakes* (`FakeAuthRepository`, `FakeProfileRepository`, etc.). Las pruebas instrumentadas de Compose
 solo se ejecutan con un dispositivo.
 
