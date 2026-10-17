@@ -42,6 +42,9 @@ sealed interface LoginEvent {
     data object NavigateToRegister : LoginEvent
     data object NavigateToForgotPassword : LoginEvent
 
+    /** The recovery runs in a dialog over Login (backends that recover with a code), starting from [prefillEmail]. */
+    data class OpenRecoveryDialog(val prefillEmail: String) : LoginEvent
+
     /** The password was right but the email was never confirmed: a new code was sent, go and type it. */
     data class NavigateToVerifyCode(val email: String) : LoginEvent
     data class ShowErrorDialog(val kind: ErrorDialogKind) : LoginEvent

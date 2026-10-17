@@ -40,14 +40,14 @@ fun RecoveryEmailSavedScreen(onBackToAccounts: () -> Unit) {
 }
 
 @Composable
-fun PasswordUpdatedScreen(onDone: () -> Unit) {
+fun PasswordUpdatedScreen(onDone: () -> Unit, headerTitle: String = "Cambiar Contraseña") {
     ConfirmationContent(
         title = "¡Contraseña actualizada!",
         message = "Usa tu nueva contraseña la próxima vez que inicies sesión.",
         buttonText = "Listo",
         onButtonClick = onDone,
         onClose = onDone,
-        headerTitle = "Cambiar Contraseña",
+        headerTitle = headerTitle,
     )
 }
 

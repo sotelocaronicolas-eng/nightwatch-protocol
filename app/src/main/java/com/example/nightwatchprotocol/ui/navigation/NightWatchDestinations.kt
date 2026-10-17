@@ -12,6 +12,14 @@ object Register
 @Serializable
 object ForgotPassword
 
+/** Password recovery by code: the new password, set under the session that the code opened. */
+@Serializable
+object NewPassword
+
+/** "¡Contraseña actualizada!" at the end of the recovery; it goes back to Login. */
+@Serializable
+object PasswordReset
+
 /** The 6-digit code screen, shared by sign-up, email change and password recovery. */
 @Serializable
 data class VerifyCode(val email: String, val purpose: CodePurpose)

@@ -33,6 +33,15 @@ class EmailChangeCodeFlow(private val accountRepository: AccountRepository, priv
     override suspend fun resend() = accountRepository.resendEmailChangeCode(email)
 }
 
+/**
+ * Password recovery. It has no navigation purpose because its code screen is the dialog over Login, not a route.
+ * Supabase cannot "resend" a recovery code, so resending is asking for a new recovery email.
+ */
+class RecoveryCodeFlow(private val authRepository: AuthRepository, private val email: String) : CodeFlow {
+    override suspend fun confirm(code: String) = authRepository.verifyRecoveryCode(email, code)
+    override suspend fun resend() = authRepository.sendPasswordResetEmail(email)
+}
+
 fun codeFlowFor(
     purpose: CodePurpose,
     email: String,

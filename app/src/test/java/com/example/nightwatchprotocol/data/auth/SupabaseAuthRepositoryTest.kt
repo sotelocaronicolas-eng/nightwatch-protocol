@@ -78,6 +78,8 @@ class SupabaseAuthRepositoryTest {
         var resendError: Throwable? = null
         val verifyCalls = mutableListOf<List<Any?>>()
         val resendCalls = mutableListOf<List<Any?>>()
+        var resetError: Throwable? = null
+        val resetCalls = mutableListOf<String>()
         val signOutScopes = mutableListOf<SignOutScope>()
         var clearSessionCalls = 0
         var storedLoads = 0
@@ -108,6 +110,10 @@ class SupabaseAuthRepositoryTest {
                 "verifyEmailOtp" -> {
                     verifyCalls += listOf(args[0], args[1], args[2])
                     outcome(args, verifyError)
+                }
+                "resetPasswordForEmail" -> {
+                    resetCalls += args[0] as String
+                    outcome(args, resetError, opens = false)
                 }
                 "resendEmail" -> {
                     resendCalls += listOf(args[0], args[1])
@@ -565,16 +571,90 @@ class SupabaseAuthRepositoryTest {
         }
     }
 
-    // ---- not available in this block ----
+    // ---- password recovery with a code ----
+
+    private suspend fun SupabaseAuthRepository.resetFailure(): AuthError =
+        try {
+            sendPasswordResetEmail("ana@example.com")
+            fail("debía lanzar")
+            AuthError.Unknown
+        } catch (e: AuthError) {
+            e
+        }
 
     @Test
-    fun passwordReset_failsWithAClassifiedError_notACrash() = runTest {
-        val repo = repository(AuthStub(SessionStatus.NotAuthenticated()))
+    fun recovery_isDoneWithACode() = runTest {
+        assertTrue(repository(AuthStub(SessionStatus.NotAuthenticated())).recoversPasswordWithCode)
+    }
+
+    @Test
+    fun recovery_unknownEmail_isUserNotFound_andNothingIsSent() = runTest {
+        val status = FakeAccountStatusLookup().apply { result = Result.success(AccountStatus.NotFound) }
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        assertEquals(AuthError.UserNotFound, repository(stub, status.lookup).resetFailure())
+        assertTrue(stub.resetCalls.isEmpty())
+    }
+
+    @Test
+    fun recovery_googleOnlyEmail_isGoogleAccountOnly_andNothingIsSent() = runTest {
+        val status = FakeAccountStatusLookup().apply { result = Result.success(AccountStatus.OtherProvider) }
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        assertEquals(AuthError.GoogleAccountOnly, repository(stub, status.lookup).resetFailure())
+        assertTrue(stub.resetCalls.isEmpty())
+    }
+
+    @Test
+    fun recovery_emailWithPassword_sendsTheRecoveryEmail() = runTest {
+        val status = FakeAccountStatusLookup().apply { result = Result.success(AccountStatus.Password) }
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        repository(stub, status.lookup).sendPasswordResetEmail("ana@example.com")
+
+        assertEquals(listOf("ana@example.com"), status.asked)
+        assertEquals(listOf("ana@example.com"), stub.resetCalls)
+    }
+
+    @Test
+    fun recovery_whenTheLookupFails_theResetGoesOn() = runTest {
+        val status = FakeAccountStatusLookup().apply { result = Result.failure(RuntimeException("rpc caída")) }
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        repository(stub, status.lookup).sendPasswordResetEmail("ana@example.com")
+
+        assertEquals(listOf("ana@example.com"), stub.resetCalls)
+    }
+
+    @Test
+    fun recovery_serverFailuresAreMapped() = runTest {
+        val status = FakeAccountStatusLookup().apply { result = Result.success(AccountStatus.Password) }
+        val offline = AuthStub(SessionStatus.NotAuthenticated()).apply { resetError = java.io.IOException("sin red") }
+        assertEquals(AuthError.NetworkError, repository(offline, status.lookup).resetFailure())
+
+        val invalid = AuthStub(SessionStatus.NotAuthenticated()).apply { resetError = restError("email_address_invalid") }
+        assertEquals(AuthError.InvalidEmail, repository(invalid, status.lookup).resetFailure())
+    }
+
+    @Test
+    fun recoveryCode_isVerifiedWithTheRecoveryOtpType_andOpensTheSession() = runTest {
+        val stub = AuthStub(SessionStatus.NotAuthenticated())
+
+        val repo = repository(stub)
+        repo.verifyRecoveryCode("ana@example.com", "123456")
+
+        assertEquals(listOf<Any?>(OtpType.Email.RECOVERY, "ana@example.com", "123456"), stub.verifyCalls.single())
+        assertEquals("nuevo@example.com", repo.currentUserEmail)
+    }
+
+    @Test
+    fun recoveryCode_aWrongCode_isInvalidCode() = runTest {
+        val stub = AuthStub(SessionStatus.NotAuthenticated()).apply { verifyError = restError("otp_expired", 403) }
         try {
-            repo.sendPasswordResetEmail("ana@example.com")
+            repository(stub).verifyRecoveryCode("ana@example.com", "000000")
             fail("debía lanzar")
         } catch (e: AuthError) {
-            assertEquals(AuthError.Unknown, e)
+            assertEquals(AuthError.InvalidCode, e)
         }
     }
 

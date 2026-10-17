@@ -25,9 +25,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.auth.GoogleCredentialResult
+import com.example.nightwatchprotocol.ui.auth.forgotpassword.PasswordRecoveryDialog
 import com.example.nightwatchprotocol.ui.auth.requestGoogleIdToken
 import com.example.nightwatchprotocol.ui.components.GoogleSignInButton
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
@@ -56,16 +59,24 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
     onNavigateToVerifyCode: (email: String) -> Unit,
+    onNavigateToNewPassword: () -> Unit,
     viewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var dialogKind by remember { mutableStateOf<ErrorDialogKind?>(null) }
+    // The recovery dialog: the email it starts from (null = closed) and a number that is new at every opening.
+    var recoveryPrefill by rememberSaveable { mutableStateOf<String?>(null) }
+    var recoveryOpenId by rememberSaveable { mutableIntStateOf(0) }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
+                is LoginEvent.OpenRecoveryDialog -> {
+                    recoveryOpenId++
+                    recoveryPrefill = event.prefillEmail
+                }
                 LoginEvent.NavigateToMainMenu -> onLoginSuccess()
                 LoginEvent.NavigateToRegister -> onNavigateToRegister()
                 LoginEvent.NavigateToForgotPassword -> onNavigateToForgotPassword()
@@ -94,6 +105,18 @@ fun LoginScreen(
             }
         },
     )
+
+    recoveryPrefill?.let { prefill ->
+        PasswordRecoveryDialog(
+            openId = recoveryOpenId,
+            prefillEmail = prefill,
+            onDismiss = { recoveryPrefill = null },
+            onVerified = {
+                recoveryPrefill = null
+                onNavigateToNewPassword()
+            },
+        )
+    }
 
     dialogKind?.let { kind ->
         AlertDialog(

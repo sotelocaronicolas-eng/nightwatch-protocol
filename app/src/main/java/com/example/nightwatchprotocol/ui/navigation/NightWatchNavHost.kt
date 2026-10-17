@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
 import com.example.nightwatchprotocol.ui.auth.forgotpassword.ForgotPasswordScreen
+import com.example.nightwatchprotocol.ui.auth.forgotpassword.NewPasswordScreen
 import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
 import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
 import com.example.nightwatchprotocol.ui.mainmenu.MainMenuScreen
@@ -62,6 +63,24 @@ fun NightWatchNavHost(
                 onNavigateToRegister = { navController.navigate(Register) },
                 onNavigateToForgotPassword = { navController.navigate(ForgotPassword) },
                 onNavigateToVerifyCode = { email -> navController.navigate(VerifyCode(email, CodePurpose.SIGN_UP)) },
+                onNavigateToNewPassword = { navController.navigate(NewPassword) },
+            )
+        }
+        composable<NewPassword> {
+            NewPasswordScreen(
+                onPasswordReset = {
+                    navController.navigate(PasswordReset) { popUpTo(0) { inclusive = true } }
+                },
+                onCancelled = {
+                    navController.navigate(Login) { popUpTo(0) { inclusive = true } }
+                },
+            )
+        }
+        composable<PasswordReset> {
+            // The recovery session was closed by the new-password screen: Login is the only way on.
+            PasswordUpdatedScreen(
+                onDone = { navController.navigate(Login) { popUpTo(0) { inclusive = true } } },
+                headerTitle = "Nueva Contraseña",
             )
         }
         composable<Register> {

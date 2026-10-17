@@ -24,6 +24,19 @@ class CodeFlowTest {
     }
 
     @Test
+    fun recovery_confirmsWithTheRecoveryCode_andResendingAsksForANewRecoveryEmail() = runTest {
+        val auth = FakeAuthRepository()
+        val flow = RecoveryCodeFlow(auth, "ana@example.com")
+
+        flow.confirm("111222")
+        flow.resend()
+
+        assertEquals(listOf("ana@example.com" to "111222"), auth.verifyRecoveryCodeCalls)
+        assertEquals(1, auth.sendPasswordResetEmailCallCount)
+        assertTrue(auth.resendSignUpCodeCalls.isEmpty())
+    }
+
+    @Test
     fun emailChange_confirmsAndResendsThroughTheAccountRepository_withTheNewEmail() = runTest {
         val auth = FakeAuthRepository()
         val account = FakeAccountRepository()

@@ -1,6 +1,7 @@
 package com.example.nightwatchprotocol.ui.verifycode
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,7 +21,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +38,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
@@ -49,6 +57,7 @@ import com.example.nightwatchprotocol.ui.profile.changeemail.EnvelopeImage
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
+import com.example.nightwatchprotocol.ui.theme.NightWatchLinkAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 
@@ -81,13 +90,92 @@ fun VerifyCodeScreen(
     )
 }
 
+enum class VerifyCodeLayout {
+    /** Full screen: "VERIFICAR CÓDIGO" / "CÓDIGO INCORRECTO" (sign-up and email change). */
+    Screen,
+
+    /** The dialog over Login with six boxes: "OLVIDASTE LA CONTRASEÑA" (password recovery). */
+    Dialog,
+}
+
 /**
- * The 6-digit code screen of Figma ("VERIFICAR CÓDIGO" and "CÓDIGO INCORRECTO"), used by the sign-up, the
- * email change and the password recovery. What differs between them is only the [title], the [recipient] and the
- * view model behind the callbacks.
+ * The 6-digit code UI, used by the sign-up, the email change and the password recovery. What differs between them is
+ * only the [title], the [recipient], the [layout] (screen or dialog) and the view model behind the callbacks.
  */
 @Composable
 fun VerifyCodeContent(
+    title: String,
+    recipient: String,
+    uiState: VerifyCodeUiState,
+    onCodeChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onResend: () -> Unit,
+    onClose: () -> Unit,
+    layout: VerifyCodeLayout = VerifyCodeLayout.Screen,
+) {
+    when (layout) {
+        VerifyCodeLayout.Screen ->
+            VerifyCodeScreenLayout(title, recipient, uiState, onCodeChange, onConfirm, onResend, onClose)
+        VerifyCodeLayout.Dialog ->
+            VerifyCodeDialogLayout(title, recipient, uiState, onCodeChange, onConfirm, onResend, onClose)
+    }
+}
+
+@Composable
+private fun VerifyCodeDialogLayout(
+    title: String,
+    recipient: String,
+    uiState: VerifyCodeUiState,
+    onCodeChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onResend: () -> Unit,
+    onClose: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onClose,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(title, modifier = Modifier.weight(1f))
+                Image(
+                    painter = painterResource(R.drawable.img_logo_nightwatch),
+                    contentDescription = null,
+                    modifier = Modifier.padding(start = 12.dp).size(44.dp),
+                )
+            }
+        },
+        text = {
+            Column {
+                Text(
+                    "Hemos enviado un código a $recipient. Ingresa el código recibido para verificar tu identidad " +
+                        "y continuar con el proceso de restablecimiento de tu contraseña.",
+                )
+                CodeInput(
+                    code = uiState.code,
+                    onCodeChange = onCodeChange,
+                    style = CodeInputStyle.Boxes,
+                    isError = uiState.error != null,
+                    modifier = Modifier.padding(top = 20.dp),
+                )
+                CodeHint(uiState, onSurfaceColor = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
+                ResendLink(uiState, onResend, modifier = Modifier.padding(top = 4.dp))
+            }
+        },
+        dismissButton = { TextButton(onClick = onClose) { Text("Volver al menú") } },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                enabled = uiState.error != null || uiState.canConfirm,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = NightWatchLinkAccent,
+                    contentColor = Color.Black,
+                ),
+            ) { Text(if (uiState.error?.clearsCode == true) "Reintentar" else "Confirmar") }
+        },
+    )
+}
+
+@Composable
+private fun VerifyCodeScreenLayout(
     title: String,
     recipient: String,
     uiState: VerifyCodeUiState,
@@ -143,11 +231,15 @@ fun VerifyCodeContent(
 
 /** The line under the field: the error (red) or the notice, otherwise the instruction. */
 @Composable
-internal fun CodeHint(uiState: VerifyCodeUiState, modifier: Modifier = Modifier) {
+internal fun CodeHint(
+    uiState: VerifyCodeUiState,
+    modifier: Modifier = Modifier,
+    onSurfaceColor: Color = NightWatchHeaderPanel,
+) {
     val error = uiState.error
     Text(
         text = error?.message ?: uiState.notice ?: "Ingrese el codigo de $CODE_LENGTH digitos",
-        color = if (error != null) NightWatchError else NightWatchHeaderPanel,
+        color = if (error != null) NightWatchError else onSurfaceColor,
         fontFamily = NightWatchBodyFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 13.sp,

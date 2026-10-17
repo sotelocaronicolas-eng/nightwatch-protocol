@@ -133,7 +133,15 @@ class LoginViewModel(
     }
 
     fun onForgotPasswordClicked() {
-        viewModelScope.launch { _events.send(LoginEvent.NavigateToForgotPassword) }
+        viewModelScope.launch {
+            _events.send(
+                if (authRepository.recoversPasswordWithCode) {
+                    LoginEvent.OpenRecoveryDialog(_uiState.value.usernameOrEmail.trim())
+                } else {
+                    LoginEvent.NavigateToForgotPassword
+                },
+            )
+        }
     }
 
     private suspend fun handleSignInError(error: AuthError) {

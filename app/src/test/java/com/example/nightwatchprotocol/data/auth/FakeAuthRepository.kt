@@ -55,6 +55,18 @@ class FakeAuthRepository : AuthRepository {
         signOutCallCount++
     }
 
+    override val recoversPasswordWithCode: Boolean get() = recoversWithCode
+
+    /** Set to true to make this fake behave like the backend that recovers the password with a code. */
+    var recoversWithCode = false
+    var verifyRecoveryCodeResult: Result<Unit> = Result.success(Unit)
+    val verifyRecoveryCodeCalls = mutableListOf<Pair<String, String>>()
+
+    override suspend fun verifyRecoveryCode(email: String, code: String) {
+        verifyRecoveryCodeCalls += email to code
+        verifyRecoveryCodeResult.getOrThrow()
+    }
+
     var verifySignUpCodeResult: Result<Unit> = Result.success(Unit)
     var resendSignUpCodeResult: Result<Unit> = Result.success(Unit)
     val verifySignUpCodeCalls = mutableListOf<Pair<String, String>>()

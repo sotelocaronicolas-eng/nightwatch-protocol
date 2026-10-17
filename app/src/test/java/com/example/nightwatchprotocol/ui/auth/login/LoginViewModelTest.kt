@@ -208,6 +208,28 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun forgotPassword_withTheCodeFlow_opensTheDialog_startingFromTheTypedEmail() = runTest {
+        val fakeRepo = FakeAuthRepository().apply { recoversWithCode = true }
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+        viewModel.onUsernameChanged("  ana@example.com ")
+
+        viewModel.events.test {
+            viewModel.onForgotPasswordClicked()
+            assertEquals(LoginEvent.OpenRecoveryDialog("ana@example.com"), awaitItem())
+        }
+    }
+
+    @Test
+    fun forgotPassword_withTheLinkFlow_keepsGoingToTheOldScreen() = runTest {
+        val (viewModel, _) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onForgotPasswordClicked()
+            assertEquals(LoginEvent.NavigateToForgotPassword, awaitItem())
+        }
+    }
+
+    @Test
     fun signIn_unconfirmedEmail_sendsANewCode_andGoesToTheCodeScreen() = runTest {
         val fakeRepo = FakeAuthRepository().apply { signInResult = Result.failure(AuthError.EmailNotConfirmed) }
         val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")

@@ -37,8 +37,8 @@ const val DISPLAY_NAME_KEY = "display_name"
 /**
  * Email and password sign-in on Supabase Auth.
  *
- * Not available in this backend yet (it fails with [AuthError.Unknown], never with a crash): password recovery.
- * Email change lives in [SupabaseAccountRepository].
+ * Also Google sign-in (ID token + nonce), the codes of the sign-up and of the password recovery. Email change lives in
+ * [SupabaseAccountRepository].
  *
  * The user is read from `sessionStatus`, which is what `currentUserOrNull()` reads, plus one fallback: with a
  * token that already expired and no network, supabase-kt reports `RefreshFailure` (or keeps `Initializing` while it
@@ -154,9 +154,29 @@ class SupabaseAuthRepository(
         auth.resendEmail(OtpType.Email.SIGNUP, email)
     }
 
-    // Not built in this block: the reset email needs a redirect/OTP flow that Supabase does not host.
-    override suspend fun sendPasswordResetEmail(email: String) {
-        throw AuthError.Unknown
+    override val recoversPasswordWithCode: Boolean get() = true
+
+    /**
+     * Supabase would answer the same whether or not the email exists, so [AccountStatusLookup] is asked first, to give
+     * the same individual errors as login: [AuthError.UserNotFound] and [AuthError.GoogleAccountOnly]. If the lookup
+     * itself fails, the reset goes on (Supabase then sends nothing for an unknown address). The "Reset password"
+     * template prints the code (`{{ .Token }}`); there is no link, so no redirect URL is needed.
+     *
+     * Supabase has no "resend" for recovery, so asking again is simply calling this again.
+     */
+    override suspend fun sendPasswordResetEmail(email: String) = authCall {
+        when (lookUpStatus(email)) {
+            AccountStatus.NotFound -> throw AuthError.UserNotFound
+            AccountStatus.OtherProvider -> throw AuthError.GoogleAccountOnly
+            AccountStatus.Password, null -> Unit
+        }
+        auth.resetPasswordForEmail(email, redirectUrl = null)
+    }
+
+    /** The recovery OTP type; the session it opens is the one that sets the new password. */
+    override suspend fun verifyRecoveryCode(email: String, code: String) = authCall {
+        beginNewSession()
+        auth.verifyEmailOtp(OtpType.Email.RECOVERY, email, code)
     }
 
     override val usesGoogleNonce: Boolean get() = true
