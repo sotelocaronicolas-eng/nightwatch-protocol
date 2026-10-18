@@ -1,0 +1,74 @@
+[
+  {
+    "topic": "CONTRASENAS",
+    "title": "Contraseñas y Autenticación",
+    "islandName": "Isla de las Contraseñas",
+    "emoji": "🔑",
+    "cards": [
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "Una contraseña segura es la primera barrera contra accesos no autorizados a tus cuentas." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Las contraseñas débiles o reutilizadas son la causa más común de robo de cuentas." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "Usa un gestor de contraseñas, activa la autenticación de dos factores (2FA) y nunca reutilices la misma contraseña en varios sitios." }
+    ],
+    "source": "Figma LECCION - Contraseñas y Autenticación (2294:112); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+  },
+  {
+    "topic": "PHISHING",
+    "title": "Phishing",
+    "islandName": "Bahía del Phishing",
+    "emoji": "🎣",
+    "cards": [
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "Intentos de engañarte para que reveles información sensible, haciéndose pasar por una fuente confiable." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Es el vector de ataque más usado porque no explota software — te explota a ti." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "Verifica el remitente real, pasa el cursor sobre los enlaces antes de hacer clic y nunca compartas contraseñas por correo." }
+    ],
+    "source": "Figma LECCION - Phishing (2294:130); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+  },
+  {
+    "topic": "MALWARE",
+    "title": "Malware",
+    "islandName": "Arrecife del Malware",
+    "emoji": "🦠",
+    "cards": [
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "Software diseñado para dañar, espiar o tomar control de un dispositivo sin permiso." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Un solo archivo infectado puede comprometer toda una red en minutos." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "No ejecutes archivos de fuentes desconocidas, mantén tu sistema actualizado y usa un antivirus activo." }
+    ],
+    "source": "Figma LECCION - Malware (2294:148); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+  },
+  {
+    "topic": "INGENIERIA_SOCIAL",
+    "title": "Ingeniería Social",
+    "islandName": "Cueva del Engaño Social",
+    "emoji": "🎭",
+    "cards": [
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "Manipulación psicológica para que una persona revele información o haga algo inseguro." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Ataca la confianza humana, el eslabón más difícil de \"parchar\" en cualquier sistema." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "Verifica la identidad por un canal alterno, desconfía de la urgencia y sigue el protocolo aunque \"parezca\" tu jefe." }
+    ],
+    "source": "Figma LECCION - Ingeniería Social (2294:166); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+  },
+  {
+    "topic": "REDES_SEGURAS",
+    "title": "Islas de Redes Seguras",
+    "islandName": "Islas de Redes Seguras",
+    "emoji": "📡",
+    "cards": [
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "Proteger la comunicación entre dispositivos de accesos no autorizados." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Una red Wi-Fi pública sin cifrar expone todo lo que envías y recibes." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "Usa VPN en redes públicas, cierra puertos que no uses y verifica el cifrado WPA3." }
+    ],
+    "source": "Figma LECCION - Islas de Redes Seguras (2294:184); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72). SUPUESTO: el mapa muestra 🔒 (bloqueada) en vez del ícono de esta isla, así que se usa el de la lección"
+  },
+  {
+    "topic": "FIREWALL",
+    "title": "Fortaleza del Firewall",
+    "islandName": "Fortaleza del Firewall",
+    "emoji": "🧱",
+    "cards": [
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "Una barrera que filtra el tráfico de red según reglas de seguridad definidas." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Bloquea conexiones no autorizadas antes de que lleguen a tus sistemas." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "Define reglas explícitas de entrada/salida: bloquea todo por defecto y permite solo lo necesario." }
+    ],
+    "source": "Figma LECCION - Fortaleza del Firewall (2294:202); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72). SUPUESTO: el mapa muestra 🔒 (bloqueada) en vez del ícono de esta isla, así que se usa el de la lección"
+  }
+]

@@ -21,6 +21,9 @@ import com.example.nightwatchprotocol.data.device.DeviceInfoProvider
 import com.example.nightwatchprotocol.data.device.DeviceRepository
 import com.example.nightwatchprotocol.data.device.DeviceSessionManager
 import com.example.nightwatchprotocol.data.device.SupabaseDeviceRepository
+import com.example.nightwatchprotocol.data.learning.LearningContentRepository
+import com.example.nightwatchprotocol.data.learning.LearningProgressRepository
+import com.example.nightwatchprotocol.data.learning.LocalLearningContentRepository
 import com.example.nightwatchprotocol.data.notifications.AndroidNotificationPermission
 import com.example.nightwatchprotocol.data.notifications.NotificationPermission
 import com.example.nightwatchprotocol.data.notifications.ReminderCoordinator
@@ -41,6 +44,7 @@ import com.example.nightwatchprotocol.data.quiz.QuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.SupabasePlacementRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.data.session.sessionDataStore
+import com.example.nightwatchprotocol.data.supabase.SupabaseLearningProgressRepository
 import com.example.nightwatchprotocol.data.supabase.SupabaseRecoveryEmailCodeApi
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
@@ -75,6 +79,8 @@ interface AppContainer {
     val deviceIdStore: DeviceIdStore
     val deviceInfoProvider: DeviceInfoProvider
     val deviceSessionManager: DeviceSessionManager
+    val learningContentRepository: LearningContentRepository
+    val learningProgressRepository: LearningProgressRepository
 }
 
 /**
@@ -141,4 +147,8 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val deviceInfoProvider: DeviceInfoProvider = AndroidDeviceInfoProvider()
     override val deviceSessionManager: DeviceSessionManager =
         DeviceSessionManager(authRepository, deviceRepository, deviceIdStore, deviceInfoProvider, avatarRepository)
+    override val learningContentRepository: LearningContentRepository =
+        LocalLearningContentRepository { name -> context.assets.open(name).bufferedReader().use { it.readText() } }
+    override val learningProgressRepository: LearningProgressRepository =
+        SupabaseLearningProgressRepository(supabaseClient.postgrest, sessionUserId)
 }
