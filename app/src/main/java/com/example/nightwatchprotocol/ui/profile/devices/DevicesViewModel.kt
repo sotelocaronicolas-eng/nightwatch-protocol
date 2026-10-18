@@ -108,7 +108,7 @@ class DevicesViewModel(
 
     /**
      * "CERRAR SESIÓN EN TODOS": every device except this one. Besides the cooperative mark on each device, the backend
-     * is asked to revoke the other sessions for real ([AuthRepository.signOutOtherSessions]; a no-op on Firebase), on
+     * is asked to revoke the other sessions for real ([AuthRepository.signOutOtherSessions]), on
      * every tap: the list only knows the devices that registered themselves, and a session can exist without a mark.
      */
     fun onSignOutAllClicked() {

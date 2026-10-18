@@ -74,7 +74,7 @@ class DeviceSessionViewModelTest {
     }
 
     @Test
-    fun quickRestarts_doNotAskFirestoreAgain() = runTest {
+    fun quickRestarts_doNotAskTheServerAgain() = runTest {
         val vm = viewModel()
 
         vm.onActivityStarted(1_000)

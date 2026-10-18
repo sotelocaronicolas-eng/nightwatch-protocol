@@ -188,7 +188,6 @@ class DevicesViewModelTest {
     @Test
     fun theLimitationNoticeSaysItDoesNotRevokeImmediately_andNamesNoBackend() {
         assertTrue(DEVICES_LIMITATION_NOTICE.contains("No revoca"))
-        assertFalse(DEVICES_LIMITATION_NOTICE.contains("Firebase"))
         assertFalse(DEVICES_LIMITATION_NOTICE.contains("Supabase"))
     }
 

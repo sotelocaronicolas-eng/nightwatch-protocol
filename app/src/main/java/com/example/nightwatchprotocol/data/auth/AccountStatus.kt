@@ -11,7 +11,7 @@ import kotlinx.serialization.json.put
  * What `public.account_status(email)` (migration 0005) says about an email.
  *
  * COMPROMISE ACCEPTED BY THE COURSE: this lets anyone ask whether an email has an account (account enumeration).
- * It exists only so login and sign-up can show the same individual errors Firebase did, because Supabase answers
+ * It exists only so login and sign-up can show individual errors ("not registered", "wrong password"), because Supabase answers
  * `invalid_credentials` for everything on purpose.
  */
 enum class AccountStatus(val wire: String) {

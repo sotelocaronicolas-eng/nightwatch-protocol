@@ -39,7 +39,7 @@ class AvatarRepositoryTest {
     }
 
     @Test
-    fun localCopy_isShownBeforeFirestoreAnswers() = runTest {
+    fun localCopy_isShownBeforeServerAnswers() = runTest {
         val repo = repository(UnconfinedTestDispatcher(testScheduler))
         cache.files["uid-1"] = localPhoto
         profile.getProfileNeverCompletes = true
@@ -52,7 +52,7 @@ class AvatarRepositoryTest {
     }
 
     @Test
-    fun firestoreFailure_keepsTheLocalCopy() = runTest {
+    fun serverFailure_keepsTheLocalCopy() = runTest {
         val repo = repository(UnconfinedTestDispatcher(testScheduler))
         cache.files["uid-1"] = localPhoto
         profile.getProfileResult = Result.failure(RuntimeException("offline"))
@@ -111,7 +111,7 @@ class AvatarRepositoryTest {
     }
 
     @Test
-    fun secondLoadForTheSameUser_doesNotReadFirestoreAgain() = runTest {
+    fun secondLoadForTheSameUser_doesNotReadServerAgain() = runTest {
         val repo = repository(UnconfinedTestDispatcher(testScheduler))
         profile.getProfileResult = remoteWith(remotePhoto)
 
@@ -135,7 +135,7 @@ class AvatarRepositoryTest {
     }
 
     @Test
-    fun save_writesLocalCopyAndFirestoreAndUpdatesTheFlow() = runTest {
+    fun save_writesLocalCopyAndServerAndUpdatesTheFlow() = runTest {
         val repo = repository(UnconfinedTestDispatcher(testScheduler))
 
         val result = repo.save("uid-1", localPhoto)
@@ -147,7 +147,7 @@ class AvatarRepositoryTest {
     }
 
     @Test
-    fun save_whenFirestoreFails_keepsTheLocalPhotoAndReportsLocalOnly() = runTest {
+    fun save_whenServerFails_keepsTheLocalPhotoAndReportsLocalOnly() = runTest {
         val repo = repository(UnconfinedTestDispatcher(testScheduler))
         profile.saveAvatarResult = Result.failure(RuntimeException("sin red"))
 
@@ -171,7 +171,7 @@ class AvatarRepositoryTest {
     }
 
     @Test
-    fun remove_deletesLocalCopyAndFirestoreFieldAndGoesBackToNoPhoto() = runTest {
+    fun remove_deletesLocalCopyAndServerFieldAndGoesBackToNoPhoto() = runTest {
         val repo = repository(UnconfinedTestDispatcher(testScheduler))
         repo.save("uid-1", localPhoto)
 
@@ -184,7 +184,7 @@ class AvatarRepositoryTest {
     }
 
     @Test
-    fun remove_whenFirestoreFails_stillRemovesTheLocalPhoto() = runTest {
+    fun remove_whenServerFails_stillRemovesTheLocalPhoto() = runTest {
         val repo = repository(UnconfinedTestDispatcher(testScheduler))
         repo.save("uid-1", localPhoto)
         profile.removeAvatarResult = Result.failure(RuntimeException("sin red"))

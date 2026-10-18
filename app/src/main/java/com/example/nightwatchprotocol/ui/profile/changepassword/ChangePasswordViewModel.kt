@@ -92,7 +92,7 @@ class ChangePasswordViewModel(
         val state = _uiState.value
         if (state.isLoading || !state.hasPassword) return
 
-        // Local checks first: a mismatch or a weak password never reaches Firebase.
+        // Local checks first: a mismatch or a weak password never reaches the server.
         val currentError = if (state.currentPassword.isEmpty()) MESSAGE_ENTER_CURRENT_PASSWORD else null
         val newError = when {
             !state.rules.allSatisfied -> MESSAGE_PASSWORD_RULES

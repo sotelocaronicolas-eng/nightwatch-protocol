@@ -86,7 +86,7 @@ class EditProfileViewModelTest {
     }
 
     @Test
-    fun unchangedName_isNotSentToFirebase() = runTest {
+    fun unchangedName_isNotSentToTheServer() = runTest {
         val vm = viewModel()
 
         vm.events.test {
@@ -346,7 +346,7 @@ class EditProfileViewModelTest {
     }
 
     @Test
-    fun whenFirestoreCannotBeWritten_theDataStaysLocalAndTheFlowContinues() = runTest {
+    fun whenTheServerCannotBeWritten_theDataStaysLocalAndTheFlowContinues() = runTest {
         profile.saveExtrasResult = Result.failure(RuntimeException("sin red"))
         val vm = viewModel()
         advanceUntilIdle()
@@ -410,7 +410,7 @@ class EditProfileViewModelTest {
     }
 
     @Test
-    fun photoWhenFirestoreFails_isKeptLocallyAndShowsTheLocalOnlyMessage() = runTest {
+    fun photoWhenTheServerFails_isKeptLocallyAndShowsTheLocalOnlyMessage() = runTest {
         profile.saveAvatarResult = Result.failure(RuntimeException("sin red"))
         val vm = viewModel()
 

@@ -7,7 +7,7 @@ class FakeProfileRepository : ProfileRepository {
     var saveAvatarResult: Result<Unit> = Result.success(Unit)
     var removeAvatarResult: Result<Unit> = Result.success(Unit)
 
-    /** Suspends forever, like a Firestore read with no network. */
+    /** Suspends forever, like a server read with no network. */
     var getProfileNeverCompletes: Boolean = false
 
     var getProfileCallCount = 0

@@ -1,6 +1,6 @@
 package com.example.nightwatchprotocol.data.profile
 
-/** The only values the Firestore rules accept for `gender` are the [key]s below. */
+/** The only values the `gender` column accepts (a CHECK constraint) are the [key]s below. */
 enum class Gender(val key: String, val label: String) {
     MALE("male", "Masculino"),
     FEMALE("female", "Femenino"),

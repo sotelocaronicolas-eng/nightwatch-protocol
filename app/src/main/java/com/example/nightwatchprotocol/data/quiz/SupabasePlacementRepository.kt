@@ -27,7 +27,7 @@ fun PlacementResult.toRow(userId: String, completedAt: Instant): PlacementRow = 
     completedAt = completedAt.toString(),
 )
 
-/** Null for an unknown level; unknown categories are dropped, like the Firestore repository does. */
+/** Null for an unknown level; unknown categories are dropped. */
 fun PlacementRow.toDomain(): PlacementResult? {
     val placementLevel = PlacementLevel.entries.firstOrNull { it.name == level } ?: return null
     val categories = weakCategories.mapNotNull { name -> QuizCategory.entries.firstOrNull { it.name == name } }.toSet()

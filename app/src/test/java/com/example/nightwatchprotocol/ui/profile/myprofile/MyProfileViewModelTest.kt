@@ -134,7 +134,7 @@ class MyProfileViewModelTest {
     }
 
     @Test
-    fun avatarFromFirestore_replacesTheInitial() = runTest {
+    fun avatarFromTheServer_replacesTheInitial() = runTest {
         val photo = byteArrayOf(5, 6, 7)
         profile.getProfileResult = Result.success(RemoteProfile(avatarBase64 = Base64.Default.encode(photo)))
         val vm = viewModel()
@@ -144,7 +144,7 @@ class MyProfileViewModelTest {
     }
 
     @Test
-    fun genderAndBirthDate_areShownFromFirestore() = runTest {
+    fun genderAndBirthDate_areShownFromTheServer() = runTest {
         profile.getProfileResult = Result.success(RemoteProfile(gender = "female", birthDate = "1999-03-07"))
         val vm = viewModel()
         advanceUntilIdle()
@@ -163,7 +163,7 @@ class MyProfileViewModelTest {
     }
 
     @Test
-    fun theLocalCopy_isShownEvenWhenFirestoreFails() = runTest {
+    fun theLocalCopy_isShownEvenWhenTheServerFails() = runTest {
         extrasCache.write("test-uid", ProfileExtras(Gender.OTHER, BirthDate(1990, 12, 25)))
         profile.getProfileResult = Result.failure(RuntimeException("sin red"))
         val vm = viewModel()

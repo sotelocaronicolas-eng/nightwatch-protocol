@@ -204,15 +204,15 @@ class RegisterViewModelTest {
     }
 
     @Test
-    fun passwordRules_everyFirebaseSpecialCharacterCounts() {
-        for (special in PasswordRules.FIREBASE_SPECIAL_CHARACTERS) {
+    fun passwordRules_everyServerSpecialCharacterCounts() {
+        for (special in PasswordRules.SPECIAL_CHARACTERS) {
             assertTrue("'$special' should count as special", PasswordRules.from("Passw0rd$special").hasSpecialChar)
         }
     }
 
     @Test
-    fun passwordRules_charactersFirebaseDoesNotCountAsSpecial_areRejectedLocally() {
-        // !isLetterOrDigit() would accept all of these, but Firebase would not.
+    fun passwordRules_charactersTheServerDoesNotCountAsSpecial_areRejectedLocally() {
+        // !isLetterOrDigit() would accept all of these, but the server would not.
         for (notSpecial in listOf(" ", "ñ", "é", "€", "¿", "¡")) {
             assertFalse("'$notSpecial' must not count as special", PasswordRules.from("Passw0rd$notSpecial").hasSpecialChar)
         }

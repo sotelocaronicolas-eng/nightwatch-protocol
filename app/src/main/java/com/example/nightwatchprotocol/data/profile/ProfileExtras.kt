@@ -58,7 +58,7 @@ class DataStoreProfileExtrasCache(private val dataStore: DataStore<Preferences>)
 
 /**
  * Single source of the user's gender and birth date for every screen. Shows the local copy first, then refreshes
- * from `users/{uid}/profile/main`; a save writes the local copy first and then Firestore.
+ * from the `profile` row; a save writes the local copy first and then the server.
  */
 class ProfileExtrasRepository(
     private val profileRepository: ProfileRepository,
@@ -84,7 +84,7 @@ class ProfileExtrasRepository(
         _extras.value = fresh
     }
 
-    /** Remote failure keeps the local copy and reports [ProfileSyncResult.LocalOnly]; Firestore may sync it later. */
+    /** Remote failure keeps the local copy and reports [ProfileSyncResult.LocalOnly]; the next save sends it again. */
     suspend fun save(uid: String, extras: ProfileExtras): ProfileSyncResult {
         loadedUid = uid
         cache.write(uid, extras)
@@ -95,7 +95,7 @@ class ProfileExtrasRepository(
         return if (synced) ProfileSyncResult.Synced else ProfileSyncResult.LocalOnly
     }
 
-    /** What the screens should show right now, trying the cache and then Firestore. */
+    /** What the screens should show right now, trying the cache and then the server. */
     suspend fun current(uid: String): ProfileExtras {
         load(uid)
         return _extras.value

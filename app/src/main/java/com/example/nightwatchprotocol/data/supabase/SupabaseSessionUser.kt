@@ -8,7 +8,7 @@ import com.example.nightwatchprotocol.data.common.DataAccessException
  * repository interfaces still receive from the UI is never trusted: with row-level security it could not reach
  * another user's rows anyway, but the row owner must always be the session's user.
  *
- * No session is reported as [FailureKind.PermissionDenied] (the same as Firestore's UNAUTHENTICATED), before any request.
+ * No session is reported as [FailureKind.PermissionDenied] (as an unauthenticated request would be), before any request.
  */
 fun requireSessionUserId(currentUserId: () -> String?): String =
     currentUserId() ?: throw DataAccessException(FailureKind.PermissionDenied)

@@ -22,9 +22,9 @@ enum class SessionCheck {
 }
 
 /**
- * Cooperative sessions (spec: no backend). This device registers itself in `users/{uid}/devices/{id}` and, each
- * time the app is active, reads its own mark: if another device set `revoked`, it signs itself out.
- * It never revokes a Firebase token; a modified client could simply ignore the mark.
+ * Cooperative sessions. This device registers itself in the `devices` table and, each time the app is active, reads
+ * its own mark: if another device set `revoked`, it signs itself out. The mark alone revokes no session; a modified
+ * client could simply ignore it.
  */
 class DeviceSessionManager(
     private val authRepository: AuthRepository,

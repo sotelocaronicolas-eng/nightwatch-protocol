@@ -9,9 +9,9 @@ data class DeviceRecord(
 )
 
 /**
- * Our own device registry in Firestore. Every call throws when it fails or takes longer than the repository's
+ * Our own device registry (the `devices` table). Every call throws when it fails or takes longer than the repository's
  * timeout. A revoked mark is only a request that the other device honours the next time its app is active:
- * it does not revoke any Firebase token.
+ * it does not revoke any session (that is `AuthRepository.signOutOtherSessions`).
  */
 interface DeviceRepository {
     suspend fun getDevice(uid: String, deviceId: String): DeviceRecord?

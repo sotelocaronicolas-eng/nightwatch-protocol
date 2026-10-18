@@ -22,7 +22,7 @@ class ConfirmIdentityViewModelTest {
     private fun viewModel() = ConfirmIdentityViewModel(account)
 
     @Test
-    fun emptyPassword_showsAnErrorAndDoesNotCallFirebase() = runTest {
+    fun emptyPassword_showsAnErrorAndDoesNotCallTheServer() = runTest {
         val vm = viewModel()
 
         vm.onConfirmClicked()

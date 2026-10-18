@@ -30,11 +30,11 @@ fun DeviceRow.toRecord(): DeviceRecord = DeviceRecord(
     revoked = revoked,
 )
 
-/** Null for a missing or unreadable timestamp, like a Firestore document without `lastSeen`. */
+/** Null for a missing or unreadable timestamp. */
 internal fun parseTimestampMillis(text: String?): Long? =
     text?.let { runCatching { OffsetDateTime.parse(it).toInstant().toEpochMilli() }.getOrNull() }
 
-/** The `devices.name` column only accepts 1 to 80 characters (the same limit as the old Firestore rule). */
+/** The `devices.name` column only accepts 1 to 80 characters (enforced by a CHECK constraint). */
 internal const val MAX_DEVICE_NAME_LENGTH = 80
 
 internal fun sanitizeDeviceName(name: String): String =
@@ -55,8 +55,8 @@ internal fun saveDevicePayload(userId: String, deviceId: String, name: String, r
     }
 
 /**
- * Cooperative device registry on `public.devices`, the same model as the Firestore one: a revoked mark is only
- * honoured by the other device the next time its app is active.
+ * Cooperative device registry on `public.devices`: a revoked mark is only honoured by the other device the next time
+ * its app is active.
  *
  * `last_seen` is the phone's clock (an upsert cannot ask the server for `now()`); a badly set clock only shows a
  * wrong "visto hace…" in the list.
@@ -95,7 +95,7 @@ class SupabaseDeviceRepository(
         }
     }
 
-    // Unlike Firestore's update(), Postgres does not fail when the row does not exist: nothing is changed.
+    // Postgres does not fail when the row does not exist: nothing is changed.
     override suspend fun setRevoked(uid: String, deviceId: String, revoked: Boolean) {
         val userId = requireSessionUserId(currentUserId)
         supabaseCall {

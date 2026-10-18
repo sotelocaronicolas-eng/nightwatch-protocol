@@ -62,7 +62,7 @@ class ProfileExtrasTest {
     // ---- Repository ----
 
     @Test
-    fun load_showsFirestoreValuesAndCachesThem() = runTest {
+    fun load_showsServerValuesAndCachesThem() = runTest {
         profile.getProfileResult = Result.success(RemoteProfile(gender = "female", birthDate = "1999-03-07"))
 
         repository.load("uid-1")
@@ -102,7 +102,7 @@ class ProfileExtrasTest {
     }
 
     @Test
-    fun save_writesTheCacheFirstAndThenFirestoreWithTheRightFormats() = runTest {
+    fun save_writesTheCacheFirstAndThenServerWithTheRightFormats() = runTest {
         val result = repository.save("uid-1", ProfileExtras(Gender.PREFER_NOT_TO_SAY, BirthDate(2000, 5, 7)))
 
         assertEquals(ProfileSyncResult.Synced, result)
@@ -112,14 +112,14 @@ class ProfileExtrasTest {
     }
 
     @Test
-    fun save_withNoValues_sendsNullsSoFirestoreDeletesTheFields() = runTest {
+    fun save_withNoValues_sendsNullsSoServerDeletesTheFields() = runTest {
         repository.save("uid-1", ProfileExtras(null, null))
 
         assertEquals(listOf<Pair<String?, String?>>(null to null), profile.savedExtras)
     }
 
     @Test
-    fun save_whenFirestoreFails_keepsTheLocalCopy() = runTest {
+    fun save_whenServerFails_keepsTheLocalCopy() = runTest {
         profile.saveExtrasResult = Result.failure(RuntimeException("sin red"))
 
         val result = repository.save("uid-1", ProfileExtras(Gender.MALE, BirthDate(1990, 1, 2)))
@@ -130,7 +130,7 @@ class ProfileExtrasTest {
     }
 
     @Test
-    fun current_triesTheCacheAndFirestore() = runTest {
+    fun current_triesTheCacheAndServer() = runTest {
         profile.getProfileResult = Result.success(RemoteProfile(gender = "male"))
 
         assertEquals(ProfileExtras(Gender.MALE, null), repository.current("uid-1"))

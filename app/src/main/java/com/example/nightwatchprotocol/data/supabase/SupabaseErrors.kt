@@ -28,12 +28,12 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 
 /**
- * Auth errors. What is lost compared with Firebase:
+ * Auth errors. Two things the server does not say by itself:
  *  - `invalid_credentials` is answered the same for an unknown email and for a wrong password (on purpose, so the API
- *    cannot be used to find out which emails have an account). It maps to [AuthError.InvalidCredentials]; Firebase's
- *    "El correo no está registrado" ([AuthError.UserNotFound]) and "La contraseña es incorrecta"
- *    ([AuthError.WrongPassword]) can no longer be produced.
- *  - [AuthError.GoogleAccountOnly] cannot be produced either (Supabase has no "which providers does this email use").
+ *    cannot be used to find out which emails have an account). It maps to [AuthError.InvalidCredentials];
+ *    [AuthError.UserNotFound] and [AuthError.WrongPassword] come from the `account_status` lookup
+ *    (see `SupabaseAuthRepository.signIn`).
+ *  - [AuthError.GoogleAccountOnly] also comes from that lookup (Supabase has no "which providers does this email use").
  */
 fun mapSupabaseAuthError(error: Throwable): AuthError = when (error) {
     // Checked before AuthRestException: it is a subclass whose code is also "weak_password".

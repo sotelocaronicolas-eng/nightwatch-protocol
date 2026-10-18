@@ -44,7 +44,7 @@ class ProfileDataExporter(
         val quizResult = withTimeoutOrNull(READ_TIMEOUT_MILLIS) {
             runCatchingKeepCancellation { quizResultRepository.getResult(uid) }.getOrNull()
         }
-        // Local copy first, then Firestore; an unreadable value is simply exported as null.
+        // Local copy first, then the server; an unreadable value is simply exported as null.
         val extras = withTimeoutOrNull(READ_TIMEOUT_MILLIS) {
             runCatchingKeepCancellation { extrasRepository.current(uid) }.getOrNull()
         } ?: ProfileExtras()
