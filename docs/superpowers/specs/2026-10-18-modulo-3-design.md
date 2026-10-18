@@ -1,9 +1,16 @@
 # Módulo 3: Ruta de aprendizaje, lecciones, laboratorios y examen final: spec de diseño
 
-Estado: **v2, con las decisiones del grupo del 2026-10-18 (sección 13).** Quedan propuestas por confirmar en la sección 14. No se programa nada hasta que el grupo las confirme y se apruebe `0007`.
+Estado: **v3, con las decisiones del grupo del 2026-10-18 (secciones 13 y 14). No queda ninguna pregunta abierta.** Ver la sección "Estado" más abajo.
 Fecha: 2026-10-18. Rama: `modulo-3`. Figma: fileKey `wd3fQTzF5NqsfGfdR4I1lb` (una sola página, `0:1`).
 
 Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del repo, nodo de Figma `nombre (ID)` o "decisión del grupo P#"). Lo que no tiene fuente va marcado **SUPUESTO** o **PROPUESTA** y no está decidido.
+
+## Estado
+
+- **No queda ninguna pregunta abierta.** Las 15 preguntas de la v1 están resueltas en la sección 13 y las 8 propuestas de la v2 (Q1 a Q8) están confirmadas por el grupo en la sección 14.
+- **Lo único que falta antes de programar es ejecutar `0007`** (Etapa 0, sección 10): el usuario revisa `supabase/migrations/0007_progreso_aprendizaje.sql`, lo ejecuta a mano en el SQL Editor y corre sus consultas de verificación comentadas. Hasta entonces el archivo sigue como "BORRADOR sin aplicar".
+- Cuando la Etapa 0 esté hecha, se puede empezar la Etapa 1. Nada de la app está programado todavía.
+- Lo que sigue marcado como **SUPUESTO** en el texto (por ejemplo, "Tu nivel: Sin evaluar" si no se puede leer el resultado del quiz, o que los objetivos del lab se cumplan en cualquier orden) y los **textos propuestos de la pantalla de aprobado y de la introducción del examen (F7)** son detalles que no estaban en la lista de confirmaciones del grupo; no bloquean y se anotan en el informe de cierre (Etapa 6) para que el grupo los vea.
 
 ## 1. Alcance
 
@@ -25,7 +32,7 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | 6 | `FIREWALL` | Fortaleza del Firewall | Fortaleza del Firewall (2294:202) | 🧱 Firewall (2491:328) | Configura tu Firewall | Configura tu Firewall (2383:271) |
 | 7 | *(examen)* | Prueba Final | Examen Final (2486:249) | n/a | tarjeta "Examen Final", etiqueta "Prueba" | n/a |
 
-- El **orden de Figma** (lecciones "MÓDULO 1 a 6 de 6", islas y preguntas del examen) es el de la tabla: Contraseñas, **Phishing, Malware**, Ingeniería Social, Redes Seguras, Firewall. La lista del grupo enumeraba Malware antes que Phishing; se sigue Figma (ver sección 4, C12).
+- El **orden de Figma** (lecciones "MÓDULO 1 a 6 de 6", islas y preguntas del examen) es el de la tabla: Contraseñas, **Phishing, Malware**, Ingeniería Social, Redes Seguras, Firewall. La lista del grupo enumeraba Malware antes que Phishing; se sigue Figma, confirmado en la sección 14 (Q7; ver sección 4, C12).
 - Los títulos de las tarjetas de Labs y los de dentro de la terminal **no coinciden** en tres labs (p. ej. "Detecta el Correo Falso" frente a "Correo Sospechoso"). Se usa cada uno donde Figma lo usa (C13).
 - **Sin cambios** en módulos 1 y 2, salvo lo mínimo para conectar (`CLAUDE.md` regla 7.6): el Main Menu y las rutas de salida del quiz.
 - **Cero riesgos sobre datos anteriores (P5):** `0007` solo crea tablas nuevas; no referencia ni modifica `placement` ni ninguna tabla de módulos anteriores.
@@ -58,7 +65,7 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 
 **Nuevo (de Figma y de las decisiones del grupo):** mapa de 6 islas + Prueba Final con desbloqueo en orden, 6 lecciones, 6 laboratorios con terminal simulada, examen de 6 preguntas sin límites, barra inferior, avisos "Próximamente".
 
-**Sigue sin definir:** ver sección 14 (propuestas por confirmar). Racha real e insignias pasan al módulo 4 (P9).
+**Sin definir:** nada pendiente (secciones 13 y 14). Racha real e insignias pasan al módulo 4 (P9).
 
 ## 4. Contradicciones e inconsistencias (estado actual)
 
@@ -69,13 +76,13 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | C3 | "3 de 7 islas" frente a 2 labs completados en la lista | Figma 2266:72, 2271:84 | Resuelta: una isla = lección vista **y** lab completado (P3). Los datos de Figma son un ejemplo |
 | C4 | El plan de estudio de Figma lista otros 6 temas (con "Buenas Prácticas" y "Privacidad de Datos") | Figma 2017:160 | Resuelta: los 6 temas de las lecciones; el plan de estudio ya implementado no cambia |
 | C5 | Informes "(ERROR)" con título "completado" y 0% | Figma 2404:243, 2370:139, 2400:144 | Resuelta: título "Laboratorio no completado" (P6); es diferencia deliberada (F8) |
-| C6 | El informe de contraseñas muestra un tiempo ("300 Años" / "3 Horas") y los demás un porcentaje; además "3 Horas" no coincide con ninguna salida de la terminal ("menos de 1 segundo", "4 horas", "300 años", Figma 2374:303) | Figma 2374:336, 2400:144, 2374:303 | **Abierta como propuesta** (sección 14, Q2) |
+| C6 | El informe de contraseñas muestra un tiempo ("300 Años" / "3 Horas") y los demás un porcentaje; además "3 Horas" no coincide con ninguna salida de la terminal ("menos de 1 segundo", "4 horas", "300 años", Figma 2374:303) | Figma 2374:336, 2400:144, 2374:303 | Resuelta: se muestra el tiempo de las salidas reales de la terminal, y "—" si no hay ninguna (sección 14, Q2) |
 | C7 | "Examen Final" aparece en Labs y como isla "Prueba Final" | Figma 2271:84, 2266:72 | Resuelta: se abre desde las dos, misma pantalla (P1) |
-| C8 | "MÓDULO N de 6" usa "módulo" para un tema | Figma 2294:112 a 2294:202 | Abierta, solo lenguaje: se conserva el texto de Figma |
+| C8 | "MÓDULO N de 6" usa "módulo" para un tema | Figma 2294:112 a 2294:202 | Se conserva el texto de Figma (solo lenguaje; no es una pregunta abierta) |
 | C9 | Main Menu de Figma (ícono de salida, 3 tarjetas, sin "Mi cuenta") frente al del código (2 botones) | Figma 49:15; `MainMenuScreen.kt` | Resuelta: sección 7 |
 | C10 | "CiberMynd" no aparece en ningún documento | Figma 49:15 | Resuelta: tarjeta atenuada con "Próximamente" (P7) |
 | C11 | `modulo-3` ya existe en remoto y va 2 commits por delante de `b339374`; existe el worktree `worktree-auth-onboarding` | `git branch -vv` | Solo informativo |
-| C12 | La lista del grupo da el orden "Contraseñas, Malware, Phishing…"; Figma ordena Phishing (2.º) y Malware (3.º) en lecciones, islas y examen | Figma 2294:130, 2294:148, 2266:72, 2491:260, 2491:277 | **Se sigue Figma.** El grupo debe avisar si quiere el orden inverso: cambia el desbloqueo en orden y el orden de las preguntas |
+| C12 | La lista del grupo da el orden "Contraseñas, Malware, Phishing…"; Figma ordena Phishing (2.º) y Malware (3.º) en lecciones, islas y examen | Figma 2294:130, 2294:148, 2266:72, 2491:260, 2491:277 | Resuelta: **se sigue el orden de Figma** (Q7, sección 14) |
 | C13 | Los títulos de las tarjetas de Labs ("Detecta el Correo Falso", "Analiza el Archivo Sospechoso") difieren de los de la pantalla del lab ("Correo Sospechoso", "Archivo Sospechoso") | Figma 2271:84, 2383:141, 2374:357 | Se respeta cada uno donde aparece |
 | C14 | El botón "Finalizar laboratorio" se ve **atenuado** incluso con los 3 objetivos cumplidos | Figma 2374:303 | La decisión P6 (siempre habilitado) difiere: diferencia deliberada F9 |
 | C15 | La promesa "subes de nivel y desbloqueas contenido nuevo" no está solo en 2491:357: también en la introducción 2486:249 ("¿Qué gano?") y en las 6 variantes de 1 error (2498:512 a 2498:572) | Figma 2486:249, 2498:512…572 | La decisión P5 obliga a reemplazarla en **esos 8 frames**, no solo en 2491:357 (F7) |
@@ -93,7 +100,7 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | 5 | Laboratorios (lista) | `LABORATORIOS` 2271:84 | `Labs` (pestaña) | 6 tarjetas con dificultad y estado ("✅ Completado" / "Comenzar →" / atenuada si bloqueada); tarjeta "Examen Final" que abre el examen cuando se completaron las 6 islas | `lab_progress` y derivados | Funcional |
 | 6 | Laboratorio, terminal (6 × 2 estados) | 2374:273/303, 2374:357/387, 2383:141/173, 2383:206/238, 2299:118/148, 2383:271/303 | `Lab(lab)` | 3 objetivos con comando (tocar un objetivo coloca su comando); campo + "Enviar"; salida en el cuadro; ✓ por objetivo; **"Finalizar laboratorio" siempre habilitado** (P6) | comandos y salidas de Figma | Simulación local |
 | 7 | Informe del laboratorio (6 × éxito/no completado) | 2273:131/2404:243, 2299:181/2370:139, 2348:156/2404:261, 2348:201/2404:279, 2374:336/2400:144, 2374:420/2404:154 | `LabReport(lab, completedObjectives)` | 3 objetivos cumplidos: informe de éxito y lab completado. Menos: "Laboratorio no completado", sin marcar | `lab_progress` solo si 3/3 | Funcional |
-| 8 | Examen Final: introducción | `EXAMEN FINAL` 2486:249 | `ExamIntro` | Se abre desde la isla "Prueba Final" y desde Labs (P1) solo con las 6 islas completadas (P3); "X"; botón de inicio (**verificar en el diseño**: no sale en los textos exportados) | último intento | Funcional |
+| 8 | Examen Final: introducción | `EXAMEN FINAL` 2486:249 | `ExamIntro` | Se abre desde la isla "Prueba Final" y desde Labs (P1) solo con las 6 islas completadas (P3); "X"; botón **"Comenzar Examen →"** (Figma: instancia `GoToLabButton` 2486:263, texto verificado en la captura de 2486:249) | último intento | Funcional |
 | 9 | Examen: preguntas 1 a 6 | 2491:243…2491:328; variantes `[estado …]` 2498:246…2498:498 | `ExamQuestion(index)` | Una pregunta con 4 opciones; las variantes son estados visuales: opción elegida y barra de progreso (P8). **No se indica si una respuesta es correcta durante el examen** | preguntas fijas | Funcional |
 | 10 | Examen aprobado (0 o 1 error) | 2491:357; 2498:512…2498:572 | `ExamResult` | Con 1 error muestra tema y respuesta correcta (Figma). Texto de felicitación propuesto (F7). **No cambia el nivel** (P5) | `exam_attempts` | Funcional |
 | 11 | Examen no aprobado | `EXAMEN - NO APROBADO` 2491:345 | `ExamResult` | Accesos a "Repasa la Ruta", "Practica en los Laboratorios", "Vuelve a intentar el examen" (sin límite, P11). No dice cuáles falló | `exam_attempts` | Funcional |
@@ -129,14 +136,14 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 - **Perfil** abre la ruta `UserMenu` existente (P15), por encima de la barra.
 - **Lección, laboratorio, informe y examen** se abren a pantalla completa y ocultan la barra (tienen "X": 2294:112, 2374:273, 2491:243).
 
-**Aviso "Próximamente" (PROPUESTA de implementación; el texto es propuesto, no de Figma).** Un solo mecanismo para tres elementos:
+**Aviso "Próximamente" (confirmado por el grupo, Q6; el texto no está en Figma).** Un solo mecanismo para tres elementos:
 - Pestaña **Social**, tarjeta **"Concepto nuevo"** y tarjeta **"Prepárate con CiberMynd"**.
 - Se dibujan **atenuados** (misma opacidad que las islas y labs bloqueados, como en 2271:84) y, al tocarlos, no navegan ni cambian de pestaña: aparece un **Snackbar "Próximamente"**. La pestaña activa no cambia. Un solo mensaje a la vez.
 - Accesibilidad: descripción "…, próximamente" y estado "no disponible"; siguen siendo enfocables para que TalkBack anuncie el aviso.
 - Implementación: el ViewModel emite el aviso por un `Channel` y la pantalla lo muestra con `SnackbarHost`; sin ruta nueva.
 - Cambia respecto a la v1 de la spec: el texto era "Social llegará pronto"; ahora es "Próximamente" para los tres (P7: "igual que Social").
 
-**Atenuado por bloqueo (islas, labs, examen):** al tocar un elemento bloqueado **PROPUESTA:** también un Snackbar corto, **"Completa la isla anterior"** para islas y labs, y **"Completa las 6 islas"** para el examen (textos propuestos; Figma no tiene el estado de toque sobre un bloqueado).
+**Atenuado por bloqueo (islas, labs, examen):** al tocar un elemento bloqueado aparece también un Snackbar corto, **"Completa la isla anterior"** para islas y labs, y **"Completa las 6 islas"** para el examen (textos confirmados por el grupo, Q6; Figma no tiene el estado de toque sobre un bloqueado).
 
 **Dónde encajan "Mi cuenta" y "Cerrar sesión" (decisiones del módulo 2):**
 
@@ -157,7 +164,7 @@ Borrador SQL: `supabase/migrations/0007_progreso_aprendizaje.sql` ("BORRADOR sin
 
 - **Cambios respecto al borrador anterior:**
   - `REDES` pasa a `REDES_SEGURAS` (nombre de la isla, la lección y la etiqueta del examen). Los 6 temas ya eran separados en el borrador.
-  - `lab_progress` **pierde la columna `accuracy` y el permiso y la política de `update`**: como un lab incompleto no se guarda (P6), todo lo guardado sería 100%, un dato sin información. La precisión que ve la persona se calcula en la app (sección 14, Q1). Si el grupo quiere guardar el mejor resultado, es una migración nueva (0008).
+  - `lab_progress` **pierde la columna `accuracy` y el permiso y la política de `update`**: como un lab incompleto no se guarda (P6), todo lo guardado sería 100%, un dato sin información. La precisión que ve la persona se calcula en la app (confirmado, sección 14, Q1 y Q9). Si el grupo quiere guardar el mejor resultado, es una migración nueva (0008).
 - **Nada de `placement`:** aprobar el examen se guarda **solo** en `exam_attempts` (P5). Ninguna tabla de 0007 tiene clave foránea hacia tablas anteriores; todas apuntan solo a `auth.users`, como las de 0001.
 - **Sin límites (P11):** no hay restricción de número ni de frecuencia de intentos en `exam_attempts`.
 - **RLS:** `(select auth.uid()) = user_id` en select e insert. `anon` sin acceso.
@@ -182,7 +189,7 @@ Borrador SQL: `supabase/migrations/0007_progreso_aprendizaje.sql` ("BORRADOR sin
 | D8 | El examen se corrige en el ViewModel y solo se envía `correct_count` | Riesgo R2 |
 | D9 | **Respuestas del examen, verificadas por el grupo contra Figma (P10):** P1 = **C** `k7#mQ!9zRt$2` (Figma 2498:512); P2 = **B** (Un enlace que no coincide con el dominio oficial); P3 = **C** (Analizarlo con un antivirus antes de abrirlo); P4 = **B** (Cuelgas y verificas por un canal oficial); P5 = **B** (Usar una VPN para cifrar tu tráfico); P6 = **B** (Filtrar el tráfico de red no autorizado) | Decisión del grupo P10 |
 | D10 | **Textos (P12, opción A):** los textos nuevos de la UI van en `app/src/main/res/values/strings_aprendizaje.xml` con prefijo `learning_` (`stringResource`). No se tocan los textos de los módulos 1 y 2 (F-09 sigue pendiente para ellos). Contenido (lecciones, labs, preguntas) va en JSON, no en `strings.xml`. Hoy `strings.xml` solo tiene `app_name`; no hay otra infraestructura | Decisión del grupo P12 |
-| D11 | **Versión (P14):** `versionName = "2.1.0"` al cerrar el módulo. **SUPUESTO:** `versionCode = 4` (el actual es 3) | P14 + supuesto |
+| D11 | **Versión (P14):** `versionName = "2.1.0"` al cerrar el módulo. `versionCode`: **verificado en `app/build.gradle.kts` (líneas 33-34): hoy `versionCode = 3` y `versionName = "2.0.0"`**, así que el siguiente real es **`versionCode = 4`**. Propuesta para el cierre (Etapa 6); no se cambia antes | P14 + verificación en el repo |
 
 ## 10. Etapas de implementación (un commit por etapa; cada una valida con `./gradlew assembleDebug testDebugUnitTest lintDebug`, y `compileDebugAndroidTestKotlin` si se tocan pruebas instrumentadas)
 
@@ -191,7 +198,7 @@ Nada se ve en un teléfono desde aquí: la columna "Prueba en el teléfono" la h
 | Etapa | Contenido | Criterios de aceptación | Prueba en el teléfono |
 |---|---|---|---|
 | **0** (usuario) | Revisar y ejecutar `0007`; correr sus consultas de verificación | Todas dan lo esperado; `anon` sin filas; sin claves foráneas hacia tablas anteriores | Ejecutar y pegar los resultados |
-| **1. Datos y contenido** | Modelos (`LearningTopic` con los 6 temas, `ExamQuestion`), JSON de contenido con **solo** lo de Figma y las respuestas de D9, `strings_aprendizaje.xml` base, repositorios con interfaz y *fakes*, `SupabaseLearningProgressRepository`, motor de terminal, `LearningProgress`, `AppContainer` | Pruebas de unidad: motor de terminal (3 objetivos, comando desconocido, orden libre), precisión y tiempo estimado (sección 14), corrección del examen (0 a 6 fallos y el borde 1/2 errores), derivación de progreso (isla completa = lección y lab; desbloqueo en orden; examen con 6 islas; "lección diaria"), mapeo de errores | Ninguna (sin UI) |
+| **1. Datos y contenido** | Modelos (`LearningTopic` con los 6 temas, `ExamQuestion`), JSON de contenido con **solo** lo de Figma y las respuestas de D9, `strings_aprendizaje.xml` base (textos de bloqueo, "Próximamente" y "No tienes lecciones pendientes" incluidos), repositorios con interfaz y *fakes*, `SupabaseLearningProgressRepository`, motor de terminal, `LearningProgress`, `AppContainer` | Pruebas de unidad: motor de terminal (3 objetivos, comando desconocido, orden libre), precisión y tiempo estimado (sección 14), corrección del examen (0 a 6 fallos y el borde 1/2 errores), derivación de progreso (isla completa = lección y lab; desbloqueo en orden; examen con 6 islas; "lección diaria"), mapeo de errores | Ninguna (sin UI) |
 | **2. Contenedor, barra e Inicio** | `Home(tab)`, barra, avisos "Próximamente", ícono de salida, Perfil → `UserMenu`; `PostAuthGate` → `Home(Inicio)` y quiz → `Home(Ruta)` | Pruebas de ViewModel con Turbine: cambiar de pestaña; Social, "Concepto nuevo" y CiberMynd emiten el aviso y no navegan; "Lección diaria" abre la siguiente pendiente; cerrar sesión; navegación existente sigue pasando | Cambiar de pestaña; tocar los 3 elementos atenuados; Perfil abre el menú; cerrar sesión; terminar el quiz y llegar a Ruta |
 | **3. Ruta y lecciones** | `LearningPath`, `Lesson`; leer/escribir `lesson_progress` | Pruebas: estado de islas y desbloqueo, "Tu nivel: …", escribir una vez, fallo de red | Ver el mapa y tu nivel; abrir islas en orden; el bloqueo de las siguientes; cerrar la app y comprobar que persiste |
 | **4. Laboratorios** | `Labs`, `Lab` (terminal) e informe; `lab_progress` | Pruebas: 3/3 = éxito y se guarda; menos = "Laboratorio no completado" y no se guarda; "Finalizar" siempre habilitado; precisión | Hacer los 6 labs; finalizar con 0, 1, 2 y 3 objetivos; ver que el lab no se marca si no se completa |
@@ -202,17 +209,17 @@ Nada se ve en un teléfono desde aquí: la columna "Prueba en el teléfono" la h
 
 ## 11. Riesgos
 
-- **R1 — Reglas por confirmar.** Quedan las propuestas de la sección 14; sin ellas la precisión y el tiempo estimado no son definitivos. Riesgo ya menor que en la v1.
+- **R1 — Reglas de negocio.** Resuelto: las decisiones (sección 13) y las confirmaciones (sección 14) cubren todas las reglas que Figma no definía. Queda solo ejecutar `0007`.
 - **R2 — Examen falseable.** Respuestas en el APK; el cliente envía `correct_count`. Si el módulo 4 añade ranking o XP, revisar (p. ej. corrección en una función SQL).
 - **R3 — Terminal simulada.** Solo reconoce los comandos de Figma; debe quedar claro que es una simulación.
-- **R4 — Datos de Figma inconsistentes** (C6, C12, C13, C14): se resuelven con las decisiones y propuestas; la comparación final con Figma las anota.
+- **R4 — Datos de Figma inconsistentes** (C6, C12, C13, C14): se resuelven con las decisiones del grupo; la comparación final con Figma las anota.
 - **R5 — Muchos estados de Figma** (≈90 frames). Los 30 estados `[estado …]` del examen son visuales (P8).
 - **R6 — Desbloqueo y examen solo en la app.** Un cliente modificado puede abrir el examen sin las 6 islas. Sin impacto mientras no haya datos sociales (R2).
 - **R7 — Sin conexión.** Progreso sin guardar si no hay red; se avisa y se puede reintentar.
 - **R8 — Contenido en el APK.** Cambiar contenido requiere versión nueva.
 - **R9 — Pausa del proyecto Supabase tras 7 días sin uso** (aceptada).
 - **R10 — Nada se ve en un teléfono desde aquí:** cada etapa depende de la prueba manual.
-- **R11 — "Lección diaria" sin lección pendiente:** ver Q3 (sección 14).
+- **R11 — "Lección diaria" sin lección pendiente:** resuelto (Q3): aviso "No tienes lecciones pendientes".
 
 ## 12. Diferencias deliberadas frente a Figma
 
@@ -231,7 +238,7 @@ Nada se ve en un teléfono desde aquí: la columna "Prueba en el teléfono" la h
 | F11 | **Nueva (P3):** los bloqueos se calculan por el progreso (lección y lab, en orden). Los datos de ejemplo de Figma (3 de 7 islas con 2 labs hechos) no se reproducen | P3, C3 |
 | F12 | **Nueva (P8):** durante el examen no hay indicación de acierto; solo la opción elegida y la barra de progreso | P8 |
 | F13 | **Nueva:** los textos nuevos ("Próximamente", "Completa la isla anterior", "Completa las 6 islas", "comando no reconocido", errores de red) no están en Figma | Necesarios para que la UI no quede muda |
-| F14 | **Nueva (P2/P6):** la precisión del informe muestra también 33% y 67% (en Figma solo hay 100% y 0%), y el tiempo estimado del informe de contraseñas sigue la regla de la sección 14, Q2 (el "3 Horas" de 2400:144 no coincide con ninguna salida de la terminal) | PROPUESTA, por confirmar |
+| F14 | **Nueva (P2/P6):** la precisión del informe muestra también 33% y 67% (en Figma solo hay 100% y 0%), y el tiempo estimado del informe de contraseñas sigue la regla de la sección 14, Q2: se muestra el de las salidas reales de la terminal, o "—" (el "3 Horas" de 2400:144 no coincide con ninguna salida) | Confirmado por el grupo (Q1, Q2) |
 
 ## 13. Decisiones del grupo (2026-10-18)
 
@@ -242,28 +249,32 @@ Nada se ve en un teléfono desde aquí: la columna "Prueba en el teléfono" la h
 | P3 | ¿Qué completa una isla, cómo se desbloquea, cuándo se abre el examen, influye el nivel? | Isla completa = lección vista **y** lab completado. Desbloqueo en orden. Examen al completar las 6 islas. El nivel no cambia lo que se desbloquea: todos empiezan en la isla 1 | Secciones 5, 6, 8 (estado derivado), 10; F11; C3 resuelta |
 | P4 | ¿Adónde llevan "COMENZAR" y "Continuar" del quiz? | A Inicio con la pestaña Ruta seleccionada | Sección 5 (conexión), 7 (`Home(tab)`), 9 (D1), 10 (etapa 2); F10 |
 | P5 | ¿Qué hace aprobar el examen? (CERO RIESGOS) | **No cambia el nivel.** No se escribe en `placement` ni en ninguna tabla anterior; "aprobado" solo en `exam_attempts`. Texto de aprobado sin "Subiste de nivel" ni promesa de contenido | Secciones 1, 5 (fila 10), 8, 10 (etapa 5); F7 (texto propuesto) y C15 |
-| P6 | ¿Cómo se finaliza un lab y qué pasa si faltan objetivos? | "Finalizar" siempre habilitado. 3/3: éxito y lab completado. Menos: informe "Laboratorio no completado", sin marcar. Precisión y tiempo: propuesta para confirmar | Secciones 5 (filas 6 y 7), 8 (`lab_progress` sin `accuracy` ni `update`), 10 (etapa 4); F8, F9, F14; propuestas Q1 y Q2 |
-| P7 | ¿Qué hacen las tarjetas de Inicio? | "Lección diaria" abre la siguiente lección pendiente. "Concepto nuevo" y "Prepárate con CiberMynd" atenuadas con "Próximamente", igual que Social | Secciones 5 (fila 2), 7, 12 (F6); propuesta Q3 |
+| P6 | ¿Cómo se finaliza un lab y qué pasa si faltan objetivos? | "Finalizar" siempre habilitado. 3/3: éxito y lab completado. Menos: informe "Laboratorio no completado", sin marcar. Precisión y tiempo: confirmados en la sección 14 (Q1, Q2) | Secciones 5 (filas 6 y 7), 8 (`lab_progress` sin `accuracy` ni `update`), 10 (etapa 4); F8, F9, F14 |
+| P7 | ¿Qué hacen las tarjetas de Inicio? | "Lección diaria" abre la siguiente lección pendiente. "Concepto nuevo" y "Prepárate con CiberMynd" atenuadas con "Próximamente", igual que Social | Secciones 5 (fila 2), 7, 12 (F6); Q3 y Q10 (sección 14) |
 | P8 | ¿Qué significan las variantes `[estado …]` del examen? | Estados visuales (opción elegida y barra de progreso). No se indica si una respuesta es correcta durante el examen | Sección 5 (fila 9), R5; F12 |
 | P9 | ¿Racha e insignias? | Siguen fijas (15 días, 3 de 9). Sus reglas se definen en el módulo 4 | Secciones 3 y 6; F4. `2026-10-18-modulo-4-social-analisis.md` conserva la pregunta de la racha como del módulo 4 |
 | P10 | ¿Respuestas correctas del examen? | Verificadas por el grupo contra Figma: P1 = C (2498:512), P2 = B, P3 = C, P4 = B, P5 = B, P6 = B | Sección 9 (D9) |
 | P11 | ¿Límites del examen? | Sin límite de tiempo, de intentos ni de espera | Secciones 5 (fila 11) y 8 |
 | P12 | ¿Textos? | Opción A: `strings_aprendizaje.xml` con prefijo `learning_` | Sección 9 (D10), etapas 1 y 2 |
 | P13 | ¿Se aprueba `0007` con 3 tablas? | Se mantienen las 3 tablas, sujeto a revisión del SQL | Sección 8; `0007` ajustado (quita `accuracy` y `update` de `lab_progress`, renombra `REDES_SEGURAS`) |
-| P14 | ¿Versión al cerrar el módulo? | 2.1.0 | Sección 9 (D11); `versionCode 4` como SUPUESTO |
+| P14 | ¿Versión al cerrar el módulo? | 2.1.0 | Sección 9 (D11); `versionCode` actual 3 (verificado), siguiente 4 |
 | P15 | ¿Qué abre la pestaña Perfil? | El Menú de usuario | Secciones 5 y 7 |
 
 **Corrección a la sección 1 (del grupo):** los temas son 6 y separados, con las etiquetas de Figma (p. ej. "Redes Seguras"). Verificado contra Figma en la tabla de la sección 1.
 
-## 14. Propuestas por confirmar (no decididas)
+## 14. Decisiones del grupo, segunda ronda: confirmaciones a las propuestas de la v2 (2026-10-18)
 
-| # | Propuesta | Por qué |
+El grupo confirmó todas las propuestas de la v2 (Q1 a Q8) y añadió Q9 y Q10. Quedan registradas como decididas. No queda ninguna propuesta pendiente.
+
+| # | Decisión confirmada | Por qué / fuente |
 |---|---|---|
-| Q1 | **Precisión del lab (P6):** `precisión = round(100 × objetivos cumplidos / 3)`. Todos los labs tienen exactamente 3 objetivos (Figma, 6 terminales). Resultados posibles: 0%, 33%, 67% y 100%. El informe de éxito muestra 100% y el de "no completado" el valor que corresponda. Se calcula en la app y no se guarda. Cada objetivo se marca ✅ si se cumplió y ❌ si no (Figma solo muestra todo ✅ o todo ❌; mezclarlos es extensión). Los textos descriptivos del informe de error ("No confirmaste que…") se conservan | Figma solo muestra 100% y 0% (2273:131, 2404:243) |
-| Q2 | **Tiempo estimado del lab de contraseñas (P6):** el informe muestra el tiempo de **la contraseña más fuerte que la persona probó**, tomado de las salidas de Figma (2374:303): `crack 123456` → "menos de 1 segundo", `crack Nightwatch2024` → "4 horas", `crack N!ghtW4tch#7kQ2` → "300 años". "Más fuerte" sigue el orden de los objetivos (débil < patrón < robusta). Si no probó ninguna: "—". En éxito Figma muestra "300 Años" (2374:336): coincide. En no completado, Figma muestra "3 Horas" (2400:144), que **no coincide** con ninguna salida (el patrón dice "4 horas"): se propone mostrar la salida real. La precisión de este lab sigue Q1; el informe de Figma no muestra porcentaje, así que se muestra el tiempo y se omite el %. Pendiente de confirmar | C6 |
-| Q3 | **"Lección diaria" (P7):** la "siguiente lección pendiente" es la de la primera isla desbloqueada cuya lección **no se ha visto**. Si no hay ninguna (todas vistas, o la lección ya vista pero falta el lab), la tarjeta muestra un Snackbar **"No tienes lecciones pendientes"** (texto propuesto). Pendiente de confirmar | Evita abrir una lección bloqueada |
-| Q4 | **Acceso a un lab (P3):** un lab es accesible cuando su isla está desbloqueada, **sin exigir haber visto antes la lección** (la lección tiene el botón "Ir al laboratorio →" pero la lista de Labs también ofrece "Comenzar →"). La isla se completa solo con ambos | P3 no lo aclara |
-| Q5 | **Contador "N de 7 islas":** cuenta las 6 islas completas más la Prueba Final si hay un intento aprobado | Figma 2266:72 cuenta 7 |
-| Q6 | **Textos propuestos de bloqueo** ("Completa la isla anterior", "Completa las 6 islas") y de la sección 7 | Figma no tiene el estado |
-| Q7 | **Orden de los temas:** Figma (Phishing antes que Malware) frente a la lista del grupo (C12) | Cambiaría el orden de desbloqueo y de preguntas |
-| Q8 | **Botón de inicio del examen y de la pantalla de resultado:** no aparecen en los textos exportados de 2486:249; verificar en el diseño | Detalle visual |
+| Q1 | **Precisión del lab (P6):** `precisión = round(100 × objetivos cumplidos / 3)`. Todos los labs tienen exactamente 3 objetivos (Figma, 6 terminales). Resultados posibles: 0%, 33%, 67% y 100%. El informe de éxito muestra 100% y el de "no completado" el valor que corresponda. Se calcula en la app y no se guarda. Cada objetivo se marca ✅ si se cumplió y ❌ si no (Figma solo muestra todo ✅ o todo ❌; mezclarlos es extensión). Los textos descriptivos del informe de error ("No confirmaste que…") se conservan | **Confirmada.** Figma solo muestra 100% y 0% (2273:131, 2404:243) |
+| Q2 | **Tiempo estimado del lab de contraseñas (P6):** el informe muestra el tiempo de **la contraseña más fuerte que la persona probó**, tomado de las salidas de Figma (2374:303): `crack 123456` → "menos de 1 segundo", `crack Nightwatch2024` → "4 horas", `crack N!ghtW4tch#7kQ2` → "300 años". "Más fuerte" sigue el orden de los objetivos (débil < patrón < robusta). Si no probó ninguna: "—". En éxito Figma muestra "300 Años" (2374:336): coincide. En no completado, Figma muestra "3 Horas" (2400:144), que **no coincide** con ninguna salida (el patrón dice "4 horas"): no se reproduce ese valor: **en el informe de error, un tiempo que no coincida con ninguna salida de la terminal se muestra como "—"**, y se muestra la salida real del comando más fuerte que sí se ejecutó. La precisión de este lab sigue Q1; el informe de Figma no muestra porcentaje, así que se muestra el tiempo y se omite el %. **Confirmada** (interpretación: el tiempo siempre sale de una salida real de la terminal) | C6 |
+| Q3 | **"Lección diaria" (P7):** la "siguiente lección pendiente" es la de la primera isla desbloqueada cuya lección **no se ha visto**. Si no hay ninguna (todas vistas, o la lección ya vista pero falta el lab), la tarjeta muestra un Snackbar **"No tienes lecciones pendientes"** (texto no de Figma). **Confirmada** | Evita abrir una lección bloqueada |
+| Q4 | **Acceso a un lab (P3):** un lab es accesible cuando su isla está desbloqueada, **sin exigir haber visto antes la lección** (la lección tiene el botón "Ir al laboratorio →" pero la lista de Labs también ofrece "Comenzar →"). La isla se completa solo con la lección **Y** el lab. **Confirmada** | P3 no lo aclaraba |
+| Q5 | **Contador "N de 7 islas":** cuenta las 6 islas completas más la Prueba Final si hay un intento aprobado. **Confirmada** | Figma 2266:72 cuenta 7 |
+| Q6 | **Textos de bloqueo** al tocar un elemento bloqueado: "Completa la isla anterior" (islas y labs) y "Completa las 6 islas" (examen). **Confirmados** | Figma no tiene el estado (sección 7) |
+| Q7 | **Orden de los temas según Figma:** Contraseñas, Phishing, Malware, Ingeniería Social, Redes Seguras, Firewall (lecciones 1 a 6, islas y preguntas del examen). **Confirmado** | C12; define el desbloqueo en orden y el orden de las preguntas |
+| Q8 | **Botón de inicio del examen:** **sí existe en Figma**: **"Comenzar Examen →"**, instancia `GoToLabButton` (2486:263) de la pantalla 2486:249; el texto no sale en la exportación de textos pero sí en la captura. No hace falta proponer otro texto, y no hay diferencia con Figma. (El nombre interno `GoToLabButton` sugiere que es un componente reutilizado del botón "Ir al laboratorio →" de las lecciones; solo informativo) | Verificado en Figma por captura de 2486:249 |
+| Q9 | **`lab_progress` sin `accuracy`**: la tabla guarda solo `user_id`, `lab` y `completed_at`; la precisión se calcula en la app. **Confirmado** | Sección 8 y `0007` |
+| Q10 | **"Próximamente" unificado** para Social, "Concepto nuevo" y "Prepárate con CiberMynd" (un solo Snackbar). **Confirmado** | Sección 7, P7 |
