@@ -1,8 +1,9 @@
 # Configuración local de Supabase
 
-Guía corta para cada integrante del equipo. Contexto técnico completo en
-[`reports/supabase-evaluacion.md`](reports/supabase-evaluacion.md). La app usa Firebase por defecto
-(`BACKEND=firebase`); con `BACKEND=supabase` usa Supabase (bloques A y B de esta guía).
+Guía técnica para el equipo: qué hay que configurar en Supabase (y por qué) y cómo funcionan los flujos. La puesta en
+marcha paso a paso de un integrante nuevo está en el [`README.md`](../../README.md); la historia de la migración, en
+[`reports/migracion-supabase.md`](reports/migracion-supabase.md). La app usa **solo Supabase** (bloques A, B, C y D de
+esta guía son las etapas en que se construyó).
 
 ## 1. Crear tu `local.properties`
 
@@ -13,16 +14,14 @@ Guía corta para cada integrante del equipo. Contexto técnico completo en
    ```properties
    SUPABASE_URL=https://TU-PROYECTO.supabase.co
    SUPABASE_PUBLISHABLE_KEY=sb_publishable_TU_CLAVE
-   BACKEND=firebase
+   GOOGLE_WEB_CLIENT_ID=TU_ID.apps.googleusercontent.com
    ```
 
 3. `local.properties` **nunca se sube a git** (está en `.gitignore`). Antes de cada commit, confirma con
    `git status` que no aparece.
 
-Si faltan `SUPABASE_URL` o `SUPABASE_PUBLISHABLE_KEY`, la app compila igual con `BACKEND=firebase`. Con
-`BACKEND=supabase` y alguno de los dos vacío, la app falla al iniciar con un mensaje que dice qué falta.
-Con `BACKEND=supabase` la app usa los repositorios Supabase del [Bloque A](#bloque-a-autenticación-datos-y-foto);
-con `BACKEND=firebase` (el valor por defecto) todo sigue igual que antes.
+La app compila aunque falte alguna de las tres claves, pero **al iniciar falla** con un mensaje que dice cuál falta
+(`appConfigError`, en `di/AppConfig.kt`).
 
 ## 2. Dónde están la URL y la clave
 
@@ -74,12 +73,12 @@ script incluye `GRANT` explícitos al rol `authenticated`.
 
 ## Bloque A: autenticación, datos y foto
 
-Con `BACKEND=supabase` la app usa Supabase para el inicio de sesión con correo y contraseña, los datos en Postgres
-y la foto de perfil en Storage. Con `BACKEND=firebase` nada cambia.
+La app usa Supabase para el inicio de sesión con correo y contraseña, los datos en Postgres y la foto de perfil en
+Storage.
 
 ### Qué funciona y qué no
 
-| Función | Con `BACKEND=supabase` |
+| Función | Estado |
 |---|---|
 | Registro, inicio y cierre de sesión (correo y contraseña) | Funciona |
 | Mantener la sesión al cerrar y reabrir la app | Funciona (la pantalla inicial espera a que cargue la sesión) |
@@ -95,12 +94,8 @@ y la foto de perfil en Storage. Con `BACKEND=firebase` nada cambia.
 
 ### Cómo probar
 
-1. En `local.properties` pon `BACKEND=supabase` (y `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` de tu proyecto).
+1. Completa tu `local.properties` (sección 1) y ejecuta las migraciones pendientes (sección 4).
 2. **Sync** de Gradle y **Run**.
-3. Para volver a Firebase, `BACKEND=firebase` y otro Sync.
-
-Las cuentas y los datos de Firebase y de Supabase son independientes: entre un modo y otro hay que registrarse de
-nuevo.
 
 ### Ajustes del panel de Supabase
 
@@ -115,11 +110,12 @@ nuevo.
   - Debe incluir un carácter especial de este conjunto: `^ $ * . [ ] { } ( ) ? " ! @ # % & / \ , > < ' : ; | _ ~ ` = + -`.
   - En el panel: *Minimum length* **8** y *Password requirements* **Lowercase, uppercase letters, digits and
     symbols**. La app y el servidor piden lo mismo (la lista del registro y de "Cambiar contraseña" muestra los
-    cuatro requisitos, con Firebase y con Supabase). Si el servidor tuviera un conjunto de símbolos más estrecho
+    cuatro requisitos). Si el servidor tuviera un conjunto de símbolos más estrecho
     que el de la app, esa contraseña se rechazaría con el aviso de contraseña débil.
 - **Secure password change** (misma sección): si está activado, el servidor pide una sesión reciente para cambiar la
   contraseña. "Cambiar contraseña" ya vuelve a iniciar sesión antes, así que lo cumple.
-- Con el SMTP integrado de Supabase hay un límite muy bajo de correos por hora; este bloque no envía ninguno.
+- Con el SMTP integrado de Supabase hay un límite muy bajo de correos por hora: por eso desde el Bloque B se usa un SMTP
+  propio (Brevo, ver más abajo).
 
 ### Ejecutar 0004 antes de probar la foto
 
@@ -128,23 +124,23 @@ políticas de `storage.objects`: cada usuario solo ve, sube, reemplaza y borra l
 `<user_id>/`. Se ejecuta a mano en el SQL Editor, como las demás, y una sola vez. Sin él, subir la foto falla y la app
 la deja solo en el teléfono (el mismo aviso de "sin sincronizar" que ya existía). La foto se guarda como
 `avatars/<user_id>/avatar.jpg` y su ruta en `profile.avatar_path`; se descarga con la sesión del usuario, nunca por
-una URL pública. La copia local de la foto se conserva igual que con Firebase.
+una URL pública. La foto también se guarda como copia local en el teléfono.
 
-### Diferencias frente a Firebase
+### Limitaciones propias de esta arquitectura
 
-- **Sin modo offline para escrituras.** Firestore guardaba en una cola lo que se escribía sin red y lo sincronizaba
-  después. Supabase no: sin conexión la escritura falla como "sin conexión" y el dato queda solo en el teléfono
-  (la foto y el género/fecha ya tienen copia local) hasta que se vuelva a guardar. Lo mismo pasa con el resultado del
-  quiz: si falla, hay que repetirlo o guardarlo de nuevo.
+- **Sin modo offline para escrituras.** No hay una cola de escrituras: sin conexión la escritura falla como "sin
+  conexión" y el dato queda solo en el teléfono (la foto y el género/fecha tienen copia local) hasta que se vuelva a
+  guardar. Lo mismo pasa con el resultado del quiz: si falla, hay que repetirlo o guardarlo de nuevo.
 - **Mensajes de error al iniciar sesión y al registrarse.** Supabase responde igual (`invalid_credentials`) para un
-  correo que no existe y para una contraseña incorrecta, a propósito. Para mantener los mismos mensajes que Firebase,
-  la app consulta `public.account_status` (migración `0005`); ver la sección siguiente. Sin ejecutar `0005`, o si la
-  consulta falla, el login vuelve al mensaje genérico "Correo o contraseña incorrectos" y el registro deja que
-  Supabase responda `user_already_exists`.
+  correo que no existe y para una contraseña incorrecta, a propósito. Para dar mensajes individuales, la app consulta
+  `public.account_status` (migración `0005`); ver la sección siguiente. Sin ejecutar `0005`, o si la consulta falla, el
+  login vuelve al mensaje genérico "Correo o contraseña incorrectos" y el registro deja que Supabase responda
+  `user_already_exists`.
 
 ### Errores individualizados y `account_status` (0005)
 
-Requisito del curso: los errores de login y de registro deben ser individuales, como con Firebase.
+Requisito del curso: los errores de login y de registro deben ser individuales ("El correo no está registrado", "La
+contraseña es incorrecta").
 
 | Situación | Mensaje |
 |---|---|
@@ -179,11 +175,9 @@ Requisito del curso: los errores de login y de registro deben ser individuales, 
 
 ## Bloque B: Google, códigos por correo y sesiones
 
-Con `BACKEND=supabase` la app suma el inicio de sesión con Google, la verificación del correo con un código de 6 dígitos
-(registro, cambio de correo y recuperación de contraseña), el reenvío con cuenta regresiva y la revocación real de las
-otras sesiones. Con `BACKEND=firebase` nada de esto cambia: el cambio de correo y la recuperación siguen por enlace, con
-las pantallas de siempre. Cada flujo se elige por una capacidad que expone el repositorio (`usesGoogleNonce`,
-`recoversPasswordWithCode`, `changesEmailWithCode`), no por `BuildConfig` en la interfaz.
+La app suma el inicio de sesión con Google, la verificación del correo con un código de 6 dígitos (registro, cambio de
+correo y recuperación de contraseña), el reenvío con cuenta regresiva y la revocación real de las otras sesiones. No
+hay enlaces en los correos: todo es con códigos.
 
 ### Configuración exacta del panel (lo que el Bloque B espera)
 
@@ -276,12 +270,12 @@ marca nada y el botón puede repetirse. Cerrar un solo dispositivo sigue siendo 
 - **"Cerrar sesión en todos" revoca en el servidor en cada toque** (Parte C, C4), aunque todos los dispositivos ya estén
   marcados. Si no hay otros dispositivos que marcar, igual se revoca y se muestra "No hay otros dispositivos con sesión
   abierta".
-- **Firebase no cambia**, salvo el texto de Dispositivos, que ya no nombra a Firebase ("No revoca de inmediato el acceso
-  de tu cuenta").
+- **Texto de Dispositivos:** el aviso dice que marcar un dispositivo "no revoca de inmediato el acceso de tu cuenta"
+  (la revocación real es la de "Cerrar sesión en todos").
 
 ## Parte C: correcciones de la prueba en dispositivo
 
-- **C1, espaciado del quiz y de los resultados (los dos backends).** Las preguntas siguen Figma `2017:30`: barra de
+- **C1, espaciado del quiz y de los resultados.** Las preguntas siguen Figma `2017:30`: barra de
   progreso, "Pregunta X de 6" y la categoría arriba, bajo la barra de estado; la pregunta y sus 4 opciones centradas en el
   espacio que queda; el botón (SIGUIENTE / FINALIZAR en la última) abajo. Si no cabe, solo la parte del medio se desplaza.
   "¡Resultados listos!" (`2017:126`) respeta la barra de estado y el margen superior del diseño. Es un commit
@@ -306,10 +300,9 @@ marca nada y el botón puede repetirse. Cerrar un solo dispositivo sigue siendo 
 
 ## Parte D: verificar con código el correo de recuperación
 
-**Qué hace.** Con `BACKEND=supabase`, "GUARDAR CORREO" en *Correo de Recuperación* ya no guarda directo: envía un código
-de 6 dígitos al correo alterno, abre la pantalla "Verifica tu Correo" (el mismo componente de los otros flujos, con
-reenvío y cuenta regresiva) y solo con el código correcto se guarda y aparece "¡Correo guardado!" (botón "VOLVER A
-CUENTAS"). Con `BACKEND=firebase` sigue guardando directo (capacidad `ProfileRepository.verifiesRecoveryEmailWithCode`).
+**Qué hace.** "GUARDAR CORREO" en *Correo de Recuperación* no guarda directo: envía un código de 6 dígitos al correo
+alterno, abre la pantalla "Verifica tu Correo" (el mismo componente de los otros flujos, con reenvío y cuenta
+regresiva) y solo con el código correcto se guarda y aparece "¡Correo guardado!" (botón "VOLVER A CUENTAS").
 
 **Por qué hay un envío propio.** Supabase Auth solo envía códigos al correo **principal** del usuario. El del correo
 alterno lo envía la Edge Function `send-recovery-email-code` por la **API transaccional de Brevo**.

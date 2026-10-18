@@ -1,5 +1,9 @@
 # Evaluación de migración a Supabase — Etapa 0 (solo diagnóstico)
 
+> **Informe histórico de la migración (Etapa 0).** Es el diagnóstico previo, cuando Firebase seguía en el código; varias
+> cifras ya cambiaron (por ejemplo `minSdk`, que hoy es 26). El resultado final está en
+> [`migracion-supabase.md`](migracion-supabase.md).
+
 Rama: `experimento/supabase` (creada desde `main`, solo local, sin push). Fecha: 2026-10-17.
 En esta etapa **no se modificó código de producción**: lo único que cambia en el repositorio es este informe.
 

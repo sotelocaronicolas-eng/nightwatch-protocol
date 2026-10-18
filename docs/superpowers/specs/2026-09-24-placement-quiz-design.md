@@ -1,5 +1,8 @@
 # Placement Quiz & Basic Study Plan — Design Spec
 
+> **Documento histórico.** Describe el proyecto cuando usaba Firebase (versión 1.x). La app hoy usa solo Supabase: ver
+> [`migracion-supabase.md`](../reports/migracion-supabase.md).
+
 ## Context
 
 NightWatch Protocol is a gamified cybersecurity-learning Android app being

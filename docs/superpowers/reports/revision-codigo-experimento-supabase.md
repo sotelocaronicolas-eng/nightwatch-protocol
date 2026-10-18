@@ -1,5 +1,10 @@
 # Revisión de código: rama `experimento/supabase`
 
+> **Informe histórico de la migración.** Describe la rama cuando todavía convivían Firebase y Supabase. Lo que hoy
+> sigue abierto y lo que ya se corrigió está en la sección
+> [10. Estado de los hallazgos](#10-estado-de-los-hallazgos-actualizado-tras-las-partes-g-y-h). El resto del texto no se
+> modificó.
+
 Fecha: 2026-10-17. Alcance: `git diff main...HEAD` (53 commits, 107 archivos, +9089 / −374) más el código existente que
 esos cambios tocan. Revisión **solo de lectura**: no se modificó código, pruebas, recursos, migraciones ni funciones; este
 informe es el único archivo nuevo.
@@ -173,3 +178,41 @@ petición). Ninguna es nueva respecto a lo que ya existía, salvo `CredentialMan
 F-10 (rediseño de interfaces y del contenedor), F-08 (controlador de Google), F-09 (migrar a `strings.xml`, tarea del
 proyecto entero), F-12, F-15 (envolver `Auth`), F-16, F-18, F-20 a F-26 y la limpieza de lint (`UnusedResources`,
 `IconXmlAndPng`, versiones).
+
+## 10. Estado de los hallazgos (actualizado tras las partes G y H)
+
+Con la decisión del equipo (la app se queda solo con Supabase, Firebase sale del código) varios hallazgos cambiaron de
+sentido. **Corregido** = hay un commit; **Aceptado** = se decidió no corregirlo, con su razón; **Pendiente** = sigue abierto.
+
+| ID | Estado | Commit o razón |
+|---|---|---|
+| F-01 | Corregido (deja de aplicar) | Ya no hay un segundo backend que tuviera una política de contraseña distinta: la regla de la minúscula coincide con la del servidor (`66aa7ec`, `33f8e33`) |
+| F-02 | Aceptado | `minSdk` 26 lo exige supabase-kt y el equipo eligió solo Supabase. El README ya lo dice (`b67f5bc`) |
+| F-03 | **Pendiente** | Sigue sin haber una prueba que ejecute la Edge Function, el SQL y las llamadas reales; hay que desplegar y probar a mano (lista de pruebas del informe final) |
+| F-04 | Corregido | `07e19f1`: el arranque captura el fallo, registra solo la categoría, cierra la sesión por seguridad y va al login |
+| F-05 | **Pendiente** | Cifrar la sesión pide una dependencia nueva (`androidx.security`); queda como mejora |
+| F-06 | **Pendiente** | Límite global de envíos de la Edge Function; aceptable para el curso, documentado |
+| F-07 | Corregido en lo principal | `66aa7ec`: se quitaron las banderas de capacidad y los métodos que lanzaban `Unknown`; las interfaces siguen siendo anchas (`AuthRepository` mezcla sesión, registro y recuperación) |
+| F-08 | **Pendiente** | El flujo de Google sigue duplicado en Login y Registro |
+| F-09 | **Pendiente** | Migrar los textos a `strings.xml` es una tarea de todo el proyecto |
+| F-10 | Corregido | `66aa7ec`: `AppContainer` ya no elige backend y `FirestoreAccessException` pasó a `DataAccessException` (`data/common`) |
+| F-11 | Corregido | `4a76e74`: cerrar el diálogo con la verificación en curso la cancela, cierra la sesión y borra la marca de recuperación |
+| F-12 | **Pendiente** | El aviso de `EmailUpdated` sigue viajando como texto en la ruta |
+| F-13 | Corregido | README (`b67f5bc`), esta guía y el informe final; los documentos de los módulos 1 y 2 quedaron marcados como históricos |
+| F-14 | Corregido | `e170ea4`: "Agrega una cuenta de Google en tu teléfono para continuar"; el aviso de lint `CredentialManagerMisuse` desapareció |
+| F-15 | **Pendiente** | El `Proxy` sobre `Auth` y la falta de pruebas de UI siguen igual |
+| F-16 | Corregido | `9bd8bb9`: 48 dp táctiles en "Reenviar" y etiqueta de accesibilidad del campo del código |
+| F-17 | Corregido | `9bd8bb9`: "código" y "dígitos" con tilde |
+| F-18 | Corregido | `9bd8bb9`: `collectAsStateWithLifecycle` en Login, Registro, Quiz y Resultados; el diálogo de error sobrevive a la rotación. La pantalla de recuperación por enlace se eliminó en `66aa7ec` |
+| F-19 | Corregido | `9bd8bb9` |
+| F-20 | Corregido | `9bd8bb9`: `currentUser` es `internal` |
+| F-21 | Parcial | `9bd8bb9` renombró las constantes; `composed` sigue (cambiarlo es esfuerzo M) |
+| F-22 | Parcial | `9bd8bb9` unificó el mensaje de espera y el verde de éxito; `PasswordRuleRow` y `PasswordRequirements` siguen duplicados |
+| F-23 | **Pendiente** | Los ViewModels del diálogo de recuperación se acumulan bajo el Login |
+| F-24 | **Pendiente** | Requiere una migración nueva (`0007`) que hay que ejecutar a mano |
+| F-25 | **Pendiente** | Estado del código de 6 dígitos tras la muerte del proceso; `runBlocking` del `Application` (heredado) |
+| F-26 | Corregido (deja de aplicar) | Era una diferencia solo con Firebase |
+| F-27 | **Pendiente** | Probar el teclado en Android 8-10 |
+
+Lint tras la limpieza: **0 errores y 34 advertencias** (antes 38): desaparecieron `CredentialManagerMisuse` y las de
+versiones de las dependencias de Firebase.
