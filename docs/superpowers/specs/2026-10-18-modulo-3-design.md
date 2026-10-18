@@ -31,7 +31,15 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
   - **Inicio:** "Lección diaria" es clicable: abre la lección pendiente, o muestra "No tienes lecciones pendientes" (Q3). Sin lectura o con error, el toque no hace nada.
   - **Módulos 1 y 2:** solo `NightWatchNavHost` y `NightWatchDestinations` (ruta `Lesson` y su pantalla); el resto es código del módulo 3.
   - **Validación:** `assembleDebug testDebugUnitTest lintDebug compileDebugAndroidTestKotlin` en verde: 751 pruebas, 46 nuevas (26 de la Ruta, 16 de la lección y 4 de Inicio), lint con 0 errores. No se tocaron pruebas instrumentadas.
-- **Sigue la Etapa 4** (Labs). Lo que falta verificar a mano en el teléfono: E1-11 (el registro idempotente contra el servidor real, ahora sí en uso) y E3-8.
+- **Etapa 4A hecha (lista de Labs y terminal, sin informes):**
+  - **Labs** (`ui/labs/`): `LabsViewModel` y `LabsTab` (Figma 2271:84). Seis tarjetas (nombre, Fácil/Medio/Difícil y "✅ Completado", "Comenzar →" o atenuada al 60 %) y la tarjeta "Examen Final" ("Prueba"). Un lab está disponible si su isla está desbloqueada, sin exigir la lección (Q4). Bloqueado: Snackbar "Completa la isla anterior". Examen bloqueado: "Completa las 6 islas"; desbloqueado: **"Próximamente" de forma provisional hasta la Etapa 5**. Carga y error de red con "Reintentar", como la Ruta.
+  - **Terminal** (`ui/lab/`): `Lab(topic)` a pantalla completa y sin barra (Figma 2374:273 y 2374:303). Tres objetivos con su comando (tocar lo copia al campo, no lo envía), campo, "Enviar", salida y ✓ en los cumplidos. Usa `LabTerminal` sin cambios. El intento (comandos enviados y texto del campo) vive en `SavedStateHandle` y la terminal se reconstruye de ahí: sobrevive a la rotación. "X" cierra sin guardar y sin diálogo.
+  - **Provisional para la 4B:** "Finalizar laboratorio" está siempre habilitado pero solo muestra el Snackbar "Próximamente"; **la 4B lo conecta al informe** (y a `markLabCompleted`). Hasta entonces ningún lab se marca como completado desde la app.
+  - **Lección:** "Ir al laboratorio →" abre `Lab(tema de la lección)` (antes iba a `Home(Labs)`); el evento pasó de `OpenLabs` a `OpenLab(topic)`.
+  - **Verificación contra Figma:** las otras cinco terminales (2374:357/387, 2383:141/173, 2383:206/238, 2299:118/148, 2383:271/303) tienen la misma estructura que la de Contraseñas y sus títulos, objetivos y comandos coinciden con `learning_labs.json`.
+  - **Módulos 1 y 2:** ninguno tocado. Sí `HomeTopBar` y `HomeScreen` (módulo 3), `NightWatchNavHost` y `NightWatchDestinations` (ruta `Lab`).
+  - **Validación:** `assembleDebug testDebugUnitTest lintDebug` en verde: 791 pruebas, 40 nuevas (21 de Labs, 18 del Lab y 2 más en la lección, que sustituyen a 1), lint con 0 errores. No se tocaron pruebas instrumentadas.
+- **Sigue la Etapa 4B** (informe del lab). Lo que falta verificar a mano en el teléfono: E1-11 (el registro idempotente contra el servidor real, ahora sí en uso), E3-8 y E4-9.
 - Lo que sigue marcado como **SUPUESTO** en el texto (por ejemplo, "Tu nivel: Sin evaluar" si no se puede leer el resultado del quiz, o que los objetivos del lab se cumplan en cualquier orden) y los **textos propuestos de la pantalla de aprobado y de la introducción del examen (F7)** son detalles que no estaban en la lista de confirmaciones del grupo; no bloquean y se anotan en el informe de cierre (Etapa 6) para que el grupo los vea.
 
 **SUPUESTOS y PENDIENTES que dejó la Etapa 1** (no bloquean la Etapa 2):
@@ -68,6 +76,16 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | E3-8 | NO VERIFICADO | Nada se vio en un teléfono (mapa, desplazamiento, etiquetas, TalkBack, rotación) ni se probó contra el servidor real el registro de la lección vista |
 | E3-9 | DETALLE | La escritura de "vista" no se cancela si la persona sale de la lección enseguida (`NonCancellable`); es una sola petición corta |
 | E3-10 | LÍMITE | Abrir una lección bloqueada no se impide en la base de datos ni en el ViewModel de la lección (solo la Ruta y la tarjeta de Inicio lo evitan): sin enlaces profundos no hay otra puerta, y es la misma limitación R6 |
+| E4-1 | SUPUESTO | Figma pone el título "Laboratorios" a 25 dp (una línea) y los de Ruta e Inicio a 14 dp (dos líneas): `HomeTopBar` ganó el parámetro `titleTop` |
+| E4-2 | SUPUESTO | La tarjeta de Figma es de 118 dp fijos; aquí es 118 dp como mínimo y crece si el texto lo pide. Toda la tarjeta es el toque (en Figma solo el botón "Comenzar →" y las completadas). La bloqueada conserva su "Comenzar →" atenuado como en 2271:113 |
+| E4-3 | SUPUESTO | "Examen Final" desbloqueado dibuja "Comenzar →" (Figma solo lo dibuja bloqueado); con un intento aprobado dibuja "✅ Completado" |
+| E4-4 | SUPUESTO | El tema de cada tarjeta es "completado" si su lab está guardado, aunque la isla no esté completa; el siguiente lab sigue bloqueado hasta completar la isla (lección y lab) |
+| E4-5 | SUPUESTO (texto no de Figma) | Avisos de error de lectura de Labs, descripciones de accesibilidad de tarjetas y objetivos ("cumplido"/"pendiente"), "Cerrar laboratorio", "Cargando el laboratorio…", "No pudimos cargar el laboratorio." y la descripción "Comando" del campo |
+| E4-6 | SUPUESTO | La fuente de la terminal es la monoespaciada del sistema: Figma usa IBM Plex Mono, que no está en el proyecto |
+| E4-7 | DIFERENCIA CON FIGMA | El rótulo "OBJETIVOS · TOCA PARA USAR EL COMANDO" queda oculto detrás de la primera tarjeta en Figma (2374:278 en y=122, tarjeta en y=104); aquí se dibuja encima de las tarjetas, así que estas bajan unos 30 dp |
+| E4-8 | SUPUESTO | El campo conserva su texto tras "Enviar" (así lo dibuja el cuadro "Resuelto" 2374:329); teclado sin mayúsculas ni autocorrección y acción "Enviar" del teclado. "Finalizar laboratorio" usa texto oscuro en vez del blanco sobre gris claro de Figma, que casi no se lee |
+| E4-9 | NO VERIFICADO | Nada se vio en un teléfono (teclado sobre el campo y los botones, rotación, desplazamiento de la salida, TalkBack, Snackbar encima de la barra) |
+| E4-10 | SUPUESTO | La lección se reemplaza por el lab al tocar "Ir al laboratorio →" (la "X" del lab vuelve a Home, no a la lección); desde Labs el lab se abre encima de Home y la "X" vuelve a Labs |
 | E1-12 | DETALLE | Las 5 respuestas P2 a P6 del examen, además de verificadas por el grupo, coinciden con las líneas "Correcta:" de las pantallas de 1 error (2498:524 a 2498:572) |
 
 ## 1. Alcance
