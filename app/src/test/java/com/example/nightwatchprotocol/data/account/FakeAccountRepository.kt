@@ -14,14 +14,12 @@ class FakeAccountRepository(
     /** Results returned by successive [updatePassword] calls; the last one repeats. */
     var updatePasswordResults: MutableList<Result<Unit>> = mutableListOf(Result.success(Unit))
     var requestEmailChangeResults: MutableList<Result<Unit>> = mutableListOf(Result.success(Unit))
-    var isEmailChangedResult: Result<Boolean> = Result.success(false)
 
     var updateDisplayNameCalls = mutableListOf<String>()
     var reauthenticateCalls = mutableListOf<String>()
     var updatePasswordCalls = mutableListOf<String>()
     var changePasswordCalls = mutableListOf<Pair<String, String>>()
     var requestEmailChangeCalls = mutableListOf<String>()
-    var isEmailChangedCalls = mutableListOf<String>()
 
     override fun currentProfile(): AccountProfile? = profile
 
@@ -52,9 +50,28 @@ class FakeAccountRepository(
         nextResult(requestEmailChangeResults).getOrThrow()
     }
 
-    override suspend fun isEmailChanged(newEmail: String): Boolean {
-        isEmailChangedCalls += newEmail
-        return isEmailChangedResult.getOrThrow()
+    var verifyEmailChangeCodeResult: Result<Unit> = Result.success(Unit)
+    var resendEmailChangeCodeResult: Result<Unit> = Result.success(Unit)
+    val verifyEmailChangeCodeCalls = mutableListOf<Pair<String, String>>()
+    val resendEmailChangeCodeCalls = mutableListOf<String>()
+
+    override suspend fun verifyEmailChangeCode(newEmail: String, code: String) {
+        verifyEmailChangeCodeCalls += newEmail to code
+        verifyEmailChangeCodeResult.getOrThrow()
+        profile = profile?.copy(email = newEmail)
+    }
+
+    override suspend fun resendEmailChangeCode(newEmail: String) {
+        resendEmailChangeCodeCalls += newEmail
+        resendEmailChangeCodeResult.getOrThrow()
+    }
+
+    var unlinkOutdatedGoogleAccountsResult = true
+    val unlinkOutdatedGoogleAccountsCalls = mutableListOf<String>()
+
+    override suspend fun unlinkOutdatedGoogleAccounts(newEmail: String): Boolean {
+        unlinkOutdatedGoogleAccountsCalls += newEmail
+        return unlinkOutdatedGoogleAccountsResult
     }
 
     private fun nextResult(results: MutableList<Result<Unit>>): Result<Unit> =

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.auth.GoogleSignInAttempt
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +29,8 @@ class LoginViewModel(
 
     private val _events = Channel<LoginEvent>(Channel.BUFFERED)
     val events: Flow<LoginEvent> = _events.receiveAsFlow()
+
+    private val googleAttempt = GoogleSignInAttempt()
 
     fun onUsernameChanged(value: String) {
         _uiState.update { it.copy(usernameOrEmail = value, fieldError = null, showUsernameRequired = false) }
@@ -67,27 +70,66 @@ class LoginViewModel(
                 sessionPreferences.setRememberSession(state.rememberSession)
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(LoginEvent.NavigateToMainMenu)
+            } catch (error: AuthError.EmailNotConfirmed) {
+                continueToVerification(username, state.rememberSession)
             } catch (error: AuthError) {
                 handleSignInError(error)
             }
         }
     }
 
+    /**
+     * A user who never confirmed the email ends up on the same code screen as a new sign-up, with a fresh code. If
+     * the new code cannot be sent because of the connection, say so; any other failure (e.g. a code was sent a
+     * moment ago) still goes on: that code is valid, and the screen can resend.
+     */
+    private suspend fun continueToVerification(email: String, rememberSession: Boolean) {
+        try {
+            authRepository.resendSignUpCode(email)
+        } catch (error: AuthError.NetworkError) {
+            _uiState.update { it.copy(isLoading = false) }
+            _events.send(LoginEvent.ShowErrorDialog(ErrorDialogKind.NETWORK))
+            return
+        } catch (error: AuthError) {
+            // keep going
+        }
+        sessionPreferences.setRememberSession(rememberSession)
+        _uiState.update { it.copy(isLoading = false) }
+        _events.send(LoginEvent.NavigateToVerifyCode(email))
+    }
+
+    /** The screen is about to open Google's account chooser; returns the hashed nonce for its request. */
+    fun onGoogleSignInStarted(): String = googleAttempt.begin()
+
     fun onGoogleIdTokenReceived(idToken: String) {
         val state = _uiState.value
         if (state.isLoading) return
+        val nonce = googleAttempt.finish()
+        if (nonce == null) {
+            // The screen was recreated while the chooser was open: there is no nonce to go with this token.
+            onGoogleSignInFailed()
+            return
+        }
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
-                authRepository.signInWithGoogle(idToken)
+                authRepository.signInWithGoogle(idToken, nonce)
                 sessionPreferences.setRememberSession(state.rememberSession)
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(LoginEvent.NavigateToMainMenu)
             } catch (error: AuthError) {
                 _uiState.update { it.copy(isLoading = false) }
-                _events.send(LoginEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN))
+                _events.send(LoginEvent.ShowErrorDialog(googleErrorKind(error)))
             }
         }
+    }
+
+    /** The user closed the account chooser: that is not an error, so nothing is shown. */
+    fun onGoogleSignInCancelled() = Unit
+
+    /** The phone has no Google account: the dialog says to add one. */
+    fun onGoogleNoAccount() {
+        viewModelScope.launch { _events.send(LoginEvent.ShowErrorDialog(ErrorDialogKind.NO_GOOGLE_ACCOUNT)) }
     }
 
     fun onGoogleSignInFailed() {
@@ -99,7 +141,9 @@ class LoginViewModel(
     }
 
     fun onForgotPasswordClicked() {
-        viewModelScope.launch { _events.send(LoginEvent.NavigateToForgotPassword) }
+        viewModelScope.launch {
+            _events.send(LoginEvent.OpenRecoveryDialog(_uiState.value.usernameOrEmail.trim()))
+        }
     }
 
     private suspend fun handleSignInError(error: AuthError) {

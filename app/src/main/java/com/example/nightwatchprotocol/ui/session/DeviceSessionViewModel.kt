@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-/** Do not ask Firestore on every quick app switch: at most once in this many milliseconds. */
+/** Do not ask the server on every quick app switch: at most once in this many milliseconds. */
 const val MIN_DEVICE_CHECK_INTERVAL_MILLIS = 30_000L
 
 /**

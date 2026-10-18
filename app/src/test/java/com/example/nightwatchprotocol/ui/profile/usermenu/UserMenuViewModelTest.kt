@@ -57,7 +57,7 @@ class UserMenuViewModelTest {
     }
 
     @Test
-    fun avatarFromFirestore_replacesTheInitial() = runTest {
+    fun avatarFromTheServer_replacesTheInitial() = runTest {
         val photo = byteArrayOf(1, 2, 3)
         profile.getProfileResult = Result.success(RemoteProfile(avatarBase64 = Base64.Default.encode(photo)))
         val vm = viewModel()

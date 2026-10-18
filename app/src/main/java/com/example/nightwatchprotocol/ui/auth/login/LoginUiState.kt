@@ -1,5 +1,7 @@
 package com.example.nightwatchprotocol.ui.auth.login
 
+import com.example.nightwatchprotocol.data.auth.AuthError
+
 data class LoginUiState(
     val usernameOrEmail: String = "",
     val password: String = "",
@@ -20,12 +22,34 @@ sealed interface LoginFieldError {
 
 enum class ErrorDialogKind {
     NETWORK,
+
+    /** Google sign-in on a phone that has no Google account. */
+    NO_GOOGLE_ACCOUNT,
     UNKNOWN,
 }
+
+const val MESSAGE_NO_GOOGLE_ACCOUNT = "Agrega una cuenta de Google en tu teléfono para continuar"
+const val MESSAGE_ERROR_DIALOG_NETWORK = "Sin conexión a internet. Verifica tu conexión e intenta de nuevo."
+
+/** The text of the error dialog; [unknown] is the screen's own generic message. */
+fun ErrorDialogKind.message(unknown: String): String = when (this) {
+    ErrorDialogKind.NETWORK -> MESSAGE_ERROR_DIALOG_NETWORK
+    ErrorDialogKind.NO_GOOGLE_ACCOUNT -> MESSAGE_NO_GOOGLE_ACCOUNT
+    ErrorDialogKind.UNKNOWN -> unknown
+}
+
+/** The dialog for a Google sign-in that failed after the ID token arrived: "no connection" or the generic one. */
+fun googleErrorKind(error: AuthError): ErrorDialogKind =
+    if (error == AuthError.NetworkError) ErrorDialogKind.NETWORK else ErrorDialogKind.UNKNOWN
 
 sealed interface LoginEvent {
     data object NavigateToMainMenu : LoginEvent
     data object NavigateToRegister : LoginEvent
-    data object NavigateToForgotPassword : LoginEvent
+
+    /** The recovery runs in a dialog over Login, starting from [prefillEmail]. */
+    data class OpenRecoveryDialog(val prefillEmail: String) : LoginEvent
+
+    /** The password was right but the email was never confirmed: a new code was sent, go and type it. */
+    data class NavigateToVerifyCode(val email: String) : LoginEvent
     data class ShowErrorDialog(val kind: ErrorDialogKind) : LoginEvent
 }

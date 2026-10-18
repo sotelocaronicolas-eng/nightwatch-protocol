@@ -1,0 +1,7 @@
+# Copia este archivo como local.properties y completa tus valores.
+# local.properties NUNCA se sube a git (está en .gitignore).
+# La clave secret o service_role de Supabase NUNCA va en la app: solo la clave publishable.
+SUPABASE_URL=https://TU-PROYECTO.supabase.co
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_TU_CLAVE
+# ID de cliente OAuth de tipo "Web" de Google Cloud (el mismo que está en Supabase > Authentication > Google).
+GOOGLE_WEB_CLIENT_ID=TU_ID.apps.googleusercontent.com

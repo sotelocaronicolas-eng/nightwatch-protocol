@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
+import com.example.nightwatchprotocol.data.auth.GoogleNonce
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -11,6 +12,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -206,10 +208,81 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun forgotPassword_opensTheDialog_startingFromTheTypedEmail() = runTest {
+        val (viewModel, _) = createViewModel()
+        viewModel.onUsernameChanged("  ana@example.com ")
+
+        viewModel.events.test {
+            viewModel.onForgotPasswordClicked()
+            assertEquals(LoginEvent.OpenRecoveryDialog("ana@example.com"), awaitItem())
+        }
+    }
+
+    @Test
+    fun signIn_unconfirmedEmail_sendsANewCode_andGoesToTheCodeScreen() = runTest {
+        val fakeRepo = FakeAuthRepository().apply { signInResult = Result.failure(AuthError.EmailNotConfirmed) }
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+        viewModel.onUsernameChanged(" user@example.com ")
+        viewModel.onPasswordChanged("Sup3r\$ecret")
+
+        viewModel.events.test {
+            viewModel.onSignInClicked()
+            assertEquals(LoginEvent.NavigateToVerifyCode("user@example.com"), awaitItem())
+        }
+        assertEquals(listOf("user@example.com"), fakeRepo.resendSignUpCodeCalls)
+        assertFalse(viewModel.uiState.value.isLoading)
+        assertEquals(null, viewModel.uiState.value.fieldError)
+    }
+
+    @Test
+    fun signIn_unconfirmedEmail_whenTheNewCodeIsRateLimited_stillGoesToTheCodeScreen() = runTest {
+        val fakeRepo = FakeAuthRepository().apply {
+            signInResult = Result.failure(AuthError.EmailNotConfirmed)
+            resendSignUpCodeResult = Result.failure(AuthError.RateLimited(42))
+        }
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+        viewModel.onUsernameChanged("user@example.com")
+        viewModel.onPasswordChanged("Sup3r\$ecret")
+
+        viewModel.events.test {
+            viewModel.onSignInClicked()
+            assertEquals(LoginEvent.NavigateToVerifyCode("user@example.com"), awaitItem())
+        }
+    }
+
+    @Test
+    fun signIn_unconfirmedEmail_withoutConnection_showsTheNetworkDialog() = runTest {
+        val fakeRepo = FakeAuthRepository().apply {
+            signInResult = Result.failure(AuthError.EmailNotConfirmed)
+            resendSignUpCodeResult = Result.failure(AuthError.NetworkError)
+        }
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+        viewModel.onUsernameChanged("user@example.com")
+        viewModel.onPasswordChanged("Sup3r\$ecret")
+
+        viewModel.events.test {
+            viewModel.onSignInClicked()
+            assertEquals(LoginEvent.ShowErrorDialog(ErrorDialogKind.NETWORK), awaitItem())
+        }
+        assertFalse(viewModel.uiState.value.isLoading)
+    }
+
+    @Test
+    fun signInWithGoogle_phoneWithoutAGoogleAccount_showsTheNoAccountDialog() = runTest {
+        val (viewModel, _) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onGoogleNoAccount()
+            assertEquals(LoginEvent.ShowErrorDialog(ErrorDialogKind.NO_GOOGLE_ACCOUNT), awaitItem())
+        }
+    }
+
+    @Test
     fun signInWithGoogle_success_navigatesToMainMenu() = runTest {
         val (viewModel, _) = createViewModel()
 
         viewModel.events.test {
+            viewModel.onGoogleSignInStarted()
             viewModel.onGoogleIdTokenReceived("fake-id-token")
             assertEquals(LoginEvent.NavigateToMainMenu, awaitItem())
         }
@@ -222,8 +295,56 @@ class LoginViewModelTest {
         val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
 
         viewModel.events.test {
+            viewModel.onGoogleSignInStarted()
             viewModel.onGoogleIdTokenReceived("fake-id-token")
             assertEquals(LoginEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN), awaitItem())
+        }
+    }
+
+    @Test
+    fun signInWithGoogle_sendsTheRawNonceOfTheAttempt() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+
+        val hashed = viewModel.onGoogleSignInStarted()
+        viewModel.onGoogleIdTokenReceived("fake-id-token")
+        advanceUntilIdle()
+
+        val raw = fakeRepo.signInWithGoogleNonces.single()
+        assertEquals(GoogleNonce.sha256Hex(raw), hashed)
+    }
+
+    @Test
+    fun signInWithGoogle_aTokenWithoutAnAttempt_isRefusedBeforeReachingTheServer() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onGoogleIdTokenReceived("fake-id-token")
+            assertEquals(LoginEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN), awaitItem())
+        }
+        assertTrue(fakeRepo.signInWithGoogleNonces.isEmpty())
+        assertFalse(viewModel.uiState.value.isLoading)
+    }
+
+    @Test
+    fun googleCancelled_showsNothing() = runTest {
+        val (viewModel, _) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onGoogleSignInCancelled()
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun signInWithGoogle_noConnection_showsTheNetworkDialog() = runTest {
+        val fakeRepo = FakeAuthRepository().apply { signInWithGoogleResult = Result.failure(AuthError.NetworkError) }
+        val viewModel = LoginViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+
+        viewModel.events.test {
+            viewModel.onGoogleSignInStarted()
+            viewModel.onGoogleIdTokenReceived("fake-id-token")
+            assertEquals(LoginEvent.ShowErrorDialog(ErrorDialogKind.NETWORK), awaitItem())
         }
     }
 
@@ -234,6 +355,7 @@ class LoginViewModelTest {
         val viewModel = LoginViewModel(fakeRepo, sessionPreferences, "test-web-client-id")
         viewModel.onRememberSessionChanged(false)
 
+        viewModel.onGoogleSignInStarted()
         viewModel.onGoogleIdTokenReceived("fake-id-token")
         advanceUntilIdle()
 

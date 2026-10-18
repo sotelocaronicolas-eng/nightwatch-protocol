@@ -8,8 +8,10 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.auth.GoogleSignInAttempt
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.ui.auth.login.ErrorDialogKind
+import com.example.nightwatchprotocol.ui.auth.login.googleErrorKind
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +31,8 @@ class RegisterViewModel(
 
     private val _events = Channel<RegisterEvent>(Channel.BUFFERED)
     val events: Flow<RegisterEvent> = _events.receiveAsFlow()
+
+    private val googleAttempt = GoogleSignInAttempt()
 
     fun onFullNameChanged(value: String) = _uiState.update { it.copy(fullName = value, fieldError = null) }
     fun onEmailChanged(value: String) = _uiState.update { it.copy(email = value, fieldError = null) }
@@ -60,6 +64,11 @@ class RegisterViewModel(
                 sessionPreferences.setRememberSession(true)
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(RegisterEvent.NavigateToMainMenu)
+            } catch (error: AuthError.EmailConfirmationRequired) {
+                // Not a failure: with "Confirm email" on, the account waits for the code that was just emailed.
+                sessionPreferences.setRememberSession(true)
+                _uiState.update { it.copy(isLoading = false) }
+                _events.send(RegisterEvent.NavigateToVerifyCode(state.email.trim()))
             } catch (error: AuthError) {
                 handleRegisterError(error)
             }
@@ -70,20 +79,37 @@ class RegisterViewModel(
         viewModelScope.launch { _events.send(RegisterEvent.NavigateBack) }
     }
 
+    /** The screen is about to open Google's account chooser; returns the hashed nonce for its request. */
+    fun onGoogleSignInStarted(): String = googleAttempt.begin()
+
     fun onGoogleIdTokenReceived(idToken: String) {
         if (_uiState.value.isLoading) return
+        val nonce = googleAttempt.finish()
+        if (nonce == null) {
+            // The screen was recreated while the chooser was open: there is no nonce to go with this token.
+            onGoogleSignInFailed()
+            return
+        }
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
-                authRepository.signInWithGoogle(idToken)
+                authRepository.signInWithGoogle(idToken, nonce)
                 sessionPreferences.setRememberSession(true)
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(RegisterEvent.NavigateToMainMenu)
             } catch (error: AuthError) {
                 _uiState.update { it.copy(isLoading = false) }
-                _events.send(RegisterEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN))
+                _events.send(RegisterEvent.ShowErrorDialog(googleErrorKind(error)))
             }
         }
+    }
+
+    /** The user closed the account chooser: that is not an error, so nothing is shown. */
+    fun onGoogleSignInCancelled() = Unit
+
+    /** The phone has no Google account: the dialog says to add one. */
+    fun onGoogleNoAccount() {
+        viewModelScope.launch { _events.send(RegisterEvent.ShowErrorDialog(ErrorDialogKind.NO_GOOGLE_ACCOUNT)) }
     }
 
     fun onGoogleSignInFailed() {
@@ -93,6 +119,7 @@ class RegisterViewModel(
     private suspend fun handleRegisterError(error: AuthError) {
         val fieldError = when (error) {
             AuthError.EmailAlreadyInUse -> RegisterFieldError.EmailAlreadyInUse
+            AuthError.GoogleAccountOnly -> RegisterFieldError.EmailRegisteredWithGoogle
             AuthError.InvalidEmail -> RegisterFieldError.InvalidEmail
             AuthError.WeakPassword -> RegisterFieldError.WeakPassword
             else -> null

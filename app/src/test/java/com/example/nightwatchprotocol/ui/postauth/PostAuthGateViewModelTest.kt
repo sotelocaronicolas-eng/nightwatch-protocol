@@ -41,7 +41,7 @@ class PostAuthGateViewModelTest {
     }
 
     @Test
-    fun firestoreReadFails_failsOpenToPlacementQuiz() = runTest {
+    fun serverReadFails_failsOpenToPlacementQuiz() = runTest {
         val quizResultRepository = FakeQuizResultRepository()
         quizResultRepository.getResultResult = Result.failure(RuntimeException("network down"))
         val viewModel = PostAuthGateViewModel(FakeAuthRepository(), quizResultRepository)
@@ -52,13 +52,13 @@ class PostAuthGateViewModelTest {
     }
 
     @Test
-    fun firestoreReadNeverCompletes_failsOpenToPlacementQuiz_afterTimeout() = runTest {
+    fun serverReadNeverCompletes_failsOpenToPlacementQuiz_afterTimeout() = runTest {
         val quizResultRepository = FakeQuizResultRepository()
         quizResultRepository.getResultNeverCompletes = true
         val viewModel = PostAuthGateViewModel(FakeAuthRepository(), quizResultRepository)
 
         viewModel.events.test {
-            // The read never completes on its own (simulating an offline Firestore read);
+            // The read never completes on its own (simulating an offline server read);
             // advance past the 5s viewmodel-side timeout so the fail-open path fires.
             advanceTimeBy(5_001)
             assertEquals(PostAuthGateEvent.NavigateToPlacementQuiz, awaitItem())

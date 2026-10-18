@@ -1,5 +1,8 @@
 # Auth & Onboarding Implementation Plan
 
+> **Documento histórico.** Describe el proyecto cuando usaba Firebase (versión 1.x). La app hoy usa solo Supabase: ver
+> [`migracion-supabase.md`](../reports/migracion-supabase.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Ship a working, tested Login / Register / Forgot-password flow backed by Firebase Authentication, including Google Sign-In, landing on a placeholder Main Menu.

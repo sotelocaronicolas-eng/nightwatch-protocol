@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.ui.navigation
 
+import com.example.nightwatchprotocol.ui.verifycode.CodePurpose
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -8,8 +9,17 @@ object Login
 @Serializable
 object Register
 
+/** Password recovery by code: the new password, set under the session that the code opened. */
 @Serializable
-object ForgotPassword
+object NewPassword
+
+/** "¡Contraseña actualizada!" at the end of the recovery; it goes back to Login. */
+@Serializable
+object PasswordReset
+
+/** The 6-digit code screen, shared by sign-up, email change and password recovery. */
+@Serializable
+data class VerifyCode(val email: String, val purpose: CodePurpose)
 
 @Serializable
 object MainMenu
@@ -41,11 +51,9 @@ object PasswordUpdated
 @Serializable
 data class ChangeEmail(val newEmail: String)
 
+/** [notice] is a non-blocking warning shown under the confirmation (e.g. the old Google account was not unlinked). */
 @Serializable
-data class VerifyEmailLink(val newEmail: String)
-
-@Serializable
-object EmailUpdated
+data class EmailUpdated(val notice: String? = null)
 
 @Serializable
 object NotificationSettings

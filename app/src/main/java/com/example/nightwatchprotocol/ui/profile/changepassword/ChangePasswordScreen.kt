@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nightwatchprotocol.ui.auth.register.PasswordRules
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.components.TitleTopBar
@@ -41,6 +42,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchSuccess
 import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 
@@ -122,7 +124,7 @@ private fun ChangePasswordContent(
                             supportingText = uiState.newError
                                 ?: if (uiState.sameAsCurrent) MESSAGE_SAME_PASSWORD else null,
                         )
-                        PasswordRequirements(uiState)
+                        PasswordRequirements(uiState.rules)
                         NightWatchTextField(
                             label = "Confirmar nueva contraseña",
                             value = uiState.confirmPassword,
@@ -155,9 +157,9 @@ private fun ChangePasswordContent(
 
 /** One line per sign-up password rule, green when met: the same rules and look as the registration screen. */
 @Composable
-private fun PasswordRequirements(uiState: ChangePasswordUiState) {
+internal fun PasswordRequirements(rules: PasswordRules) {
     Column(modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)) {
-        passwordRequirements(uiState.rules).forEach { (text, satisfied) ->
+        passwordRequirements(rules).forEach { (text, satisfied) ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -166,7 +168,7 @@ private fun PasswordRequirements(uiState: ChangePasswordUiState) {
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = "$text: ${if (satisfied) "cumplido" else "pendiente"}",
-                    tint = if (satisfied) Color(0xFF4CAF50) else NightWatchOnBackground.copy(alpha = 0.4f),
+                    tint = if (satisfied) NightWatchSuccess else NightWatchOnBackground.copy(alpha = 0.4f),
                 )
                 Text(text, color = NightWatchOnBackground, fontFamily = NightWatchBodyFontFamily, fontSize = 14.sp)
             }
@@ -176,7 +178,12 @@ private fun PasswordRequirements(uiState: ChangePasswordUiState) {
 
 /** The wide "Guardar cambios" pill from the Cambiar Contraseña frames (372x48). */
 @Composable
-private fun SaveButton(enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun SaveButton(
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    text: String = "Guardar cambios",
+) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -189,7 +196,7 @@ private fun SaveButton(enabled: Boolean, onClick: () -> Unit, modifier: Modifier
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
     ) {
         Text(
-            text = "Guardar cambios",
+            text = text,
             color = Color(0xFF162523),
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,

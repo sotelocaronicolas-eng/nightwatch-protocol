@@ -6,15 +6,13 @@ class FakeProfileRepository : ProfileRepository {
     var getProfileResult: Result<RemoteProfile> = Result.success(RemoteProfile())
     var saveAvatarResult: Result<Unit> = Result.success(Unit)
     var removeAvatarResult: Result<Unit> = Result.success(Unit)
-    var saveRecoveryEmailResult: Result<Unit> = Result.success(Unit)
 
-    /** Suspends forever, like a Firestore read with no network. */
+    /** Suspends forever, like a server read with no network. */
     var getProfileNeverCompletes: Boolean = false
 
     var getProfileCallCount = 0
     var savedAvatars = mutableListOf<String>()
     var removeAvatarCallCount = 0
-    var savedRecoveryEmails = mutableListOf<String>()
 
     override suspend fun getProfile(uid: String): RemoteProfile {
         getProfileCallCount++
@@ -32,6 +30,15 @@ class FakeProfileRepository : ProfileRepository {
         removeAvatarResult.getOrThrow()
     }
 
+    /** What a backend that keeps the photo as a file returns from [downloadAvatar]. */
+    var downloadAvatarResult: Result<ByteArray?> = Result.success(null)
+    var downloadAvatarCallCount = 0
+
+    override suspend fun downloadAvatar(uid: String, profile: RemoteProfile): ByteArray? {
+        downloadAvatarCallCount++
+        return downloadAvatarResult.getOrThrow()
+    }
+
     var saveExtrasResult: Result<Unit> = Result.success(Unit)
     var savedExtras = mutableListOf<Pair<String?, String?>>()
 
@@ -40,8 +47,18 @@ class FakeProfileRepository : ProfileRepository {
         saveExtrasResult.getOrThrow()
     }
 
-    override suspend fun saveRecoveryEmail(uid: String, recoveryEmail: String) {
-        savedRecoveryEmails += recoveryEmail
-        saveRecoveryEmailResult.getOrThrow()
+    var requestRecoveryEmailCodeResult: Result<Unit> = Result.success(Unit)
+    var verifyRecoveryEmailCodeResult: Result<Unit> = Result.success(Unit)
+    val requestedRecoveryEmailCodes = mutableListOf<String>()
+    val verifiedRecoveryEmailCodes = mutableListOf<String>()
+
+    override suspend fun requestRecoveryEmailCode(email: String) {
+        requestedRecoveryEmailCodes += email
+        requestRecoveryEmailCodeResult.getOrThrow()
+    }
+
+    override suspend fun verifyRecoveryEmailCode(code: String) {
+        verifiedRecoveryEmailCodes += code
+        verifyRecoveryEmailCodeResult.getOrThrow()
     }
 }

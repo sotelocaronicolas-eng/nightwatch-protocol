@@ -7,11 +7,11 @@ class FakeQuizResultRepository : QuizResultRepository {
     var saveResultResult: Result<Unit> = Result.success(Unit)
 
     /** When true, [getResult] never returns or throws -- it suspends forever, like a real
-     * Firestore read with no network. Used to test caller-side timeout handling. */
+     * server read with no network. Used to test caller-side timeout handling. */
     var getResultNeverCompletes: Boolean = false
 
     /** When true, [saveResult] never returns or throws -- it suspends forever, like a real
-     * Firestore write with no network. Used to test caller-side timeout handling. */
+     * server write with no network. Used to test caller-side timeout handling. */
     var saveResultNeverCompletes: Boolean = false
 
     var getResultCallCount = 0

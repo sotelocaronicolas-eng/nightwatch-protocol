@@ -59,6 +59,7 @@ data class ChangePasswordUiState(
 fun passwordRequirements(rules: PasswordRules): List<Pair<String, Boolean>> = listOf(
     "Mínimo 8 caracteres" to rules.hasMinLength,
     "Incluye una mayúscula y un número" to rules.hasUpperCaseAndDigit,
+    "Incluye una minúscula" to rules.hasLowercase,
     "Incluye al menos un carácter especial" to rules.hasSpecialChar,
 )
 
@@ -91,7 +92,7 @@ class ChangePasswordViewModel(
         val state = _uiState.value
         if (state.isLoading || !state.hasPassword) return
 
-        // Local checks first: a mismatch or a weak password never reaches Firebase.
+        // Local checks first: a mismatch or a weak password never reaches the server.
         val currentError = if (state.currentPassword.isEmpty()) MESSAGE_ENTER_CURRENT_PASSWORD else null
         val newError = when {
             !state.rules.allSatisfied -> MESSAGE_PASSWORD_RULES

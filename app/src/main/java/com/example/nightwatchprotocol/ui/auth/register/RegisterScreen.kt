@@ -1,7 +1,6 @@
 package com.example.nightwatchprotocol.ui.auth.register
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,10 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,40 +45,39 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialException
+import com.example.nightwatchprotocol.ui.auth.GoogleCredentialResult
+import com.example.nightwatchprotocol.ui.auth.requestGoogleIdToken
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.auth.login.ErrorDialogKind
+import com.example.nightwatchprotocol.ui.auth.login.message
 import com.example.nightwatchprotocol.ui.components.GoogleSignInButton
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.example.nightwatchprotocol.ui.theme.NightWatchSuccess
 import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
     onRegisterSuccess: () -> Unit,
+    onNavigateToVerifyCode: (email: String) -> Unit,
     onNavigateBack: () -> Unit,
     viewModel: RegisterViewModel = viewModel(factory = RegisterViewModel.Factory),
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var dialogKind by remember { mutableStateOf<ErrorDialogKind?>(null) }
+    var dialogKind by rememberSaveable { mutableStateOf<ErrorDialogKind?>(null) }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
                 RegisterEvent.NavigateToMainMenu -> onRegisterSuccess()
                 RegisterEvent.NavigateBack -> onNavigateBack()
+                is RegisterEvent.NavigateToVerifyCode -> onNavigateToVerifyCode(event.email)
                 is RegisterEvent.ShowErrorDialog -> dialogKind = event.kind
             }
         }
@@ -95,26 +93,12 @@ fun RegisterScreen(
         onCloseClicked = viewModel::onNavigateBackClicked,
         onGoogleSignInClicked = {
             coroutineScope.launch {
-                val credentialManager = CredentialManager.create(context)
-                val option = GetSignInWithGoogleOption.Builder(
-                    serverClientId = viewModel.googleWebClientId,
-                ).build()
-                val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
-                try {
-                    val result = credentialManager.getCredential(context, request)
-                    val credential = result.credential
-                    if (credential is CustomCredential &&
-                        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                    ) {
-                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        viewModel.onGoogleIdTokenReceived(googleIdTokenCredential.idToken)
-                    } else {
-                        viewModel.onGoogleSignInFailed()
-                    }
-                } catch (e: GetCredentialException) {
-                    viewModel.onGoogleSignInFailed()
-                } catch (e: GoogleIdTokenParsingException) {
-                    viewModel.onGoogleSignInFailed()
+                val hashedNonce = viewModel.onGoogleSignInStarted()
+                when (val result = requestGoogleIdToken(context, viewModel.googleWebClientId, hashedNonce)) {
+                    is GoogleCredentialResult.IdToken -> viewModel.onGoogleIdTokenReceived(result.idToken)
+                    GoogleCredentialResult.Cancelled -> viewModel.onGoogleSignInCancelled()
+                    GoogleCredentialResult.NoAccount -> viewModel.onGoogleNoAccount()
+                    GoogleCredentialResult.Failed -> viewModel.onGoogleSignInFailed()
                 }
             }
         },
@@ -124,15 +108,7 @@ fun RegisterScreen(
         AlertDialog(
             onDismissRequest = { dialogKind = null },
             title = { Text("Error de registro") },
-            text = {
-                Text(
-                    if (kind == ErrorDialogKind.NETWORK) {
-                        "Sin conexión a internet. Verifica tu conexión e intenta de nuevo."
-                    } else {
-                        "Se produjo un error inesperado. Intenta registrarte de nuevo."
-                    },
-                )
-            },
+            text = { Text(kind.message(unknown = "Se produjo un error inesperado. Intenta registrarte de nuevo.")) },
             confirmButton = { TextButton(onClick = { dialogKind = null }) { Text("Aceptar") } },
         )
     }
@@ -195,9 +171,12 @@ private fun RegisterScreenContent(
                     value = uiState.email,
                     onValueChange = onEmailChanged,
                     isError = uiState.fieldError == RegisterFieldError.EmailAlreadyInUse ||
+                        uiState.fieldError == RegisterFieldError.EmailRegisteredWithGoogle ||
                         uiState.fieldError == RegisterFieldError.InvalidEmail,
                     supportingText = when (uiState.fieldError) {
                         RegisterFieldError.EmailAlreadyInUse -> "Ya tienes una cuenta con este correo"
+                        RegisterFieldError.EmailRegisteredWithGoogle ->
+                            "Este correo ya está registrado con Google. Usa «Continuar con Google»"
                         RegisterFieldError.InvalidEmail -> "Correo electrónico inválido"
                         else -> null
                     },
@@ -236,6 +215,7 @@ private fun RegisterScreenContent(
                 Column(modifier = Modifier.padding(top = 16.dp)) {
                     PasswordRuleRow("Mínimo 8 caracteres", uiState.passwordRules.hasMinLength)
                     PasswordRuleRow("Incluye una mayúscula y un número", uiState.passwordRules.hasUpperCaseAndDigit)
+                    PasswordRuleRow("Incluye una minúscula", uiState.passwordRules.hasLowercase)
                     PasswordRuleRow("Incluye al menos un carácter especial", uiState.passwordRules.hasSpecialChar)
                 }
                 NightWatchButton(
@@ -268,7 +248,7 @@ private fun PasswordRuleRow(text: String, satisfied: Boolean) {
         Icon(
             imageVector = Icons.Filled.Check,
             contentDescription = "$text: ${if (satisfied) "cumplido" else "pendiente"}",
-            tint = if (satisfied) Color(0xFF4CAF50) else NightWatchOnBackground.copy(alpha = 0.4f),
+            tint = if (satisfied) NightWatchSuccess else NightWatchOnBackground.copy(alpha = 0.4f),
         )
         Text(text, color = NightWatchOnBackground, fontSize = 14.sp)
     }

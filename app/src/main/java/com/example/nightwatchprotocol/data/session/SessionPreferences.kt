@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.preferencesOf
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 val Context.sessionDataStore: DataStore<Preferences> by preferencesDataStore(name = "session_preferences")
@@ -22,6 +23,21 @@ class SessionPreferences(private val dataStore: DataStore<Preferences>) {
 
     suspend fun setRememberSession(remember: Boolean) {
         dataStore.edit { preferences -> preferences[rememberSessionKey] = remember }
+    }
+
+    private val recoveryInProgressKey = booleanPreferencesKey("password_recovery_in_progress")
+
+    /**
+     * True from the moment a password-recovery code is verified (which opens a session without a typed password) until
+     * the new password is saved or the user backs out. If it is still set when the app starts, that session was
+     * abandoned and the startup closes it.
+     */
+    suspend fun isRecoveryInProgress(): Boolean = dataStore.data.first()[recoveryInProgressKey] ?: false
+
+    suspend fun setRecoveryInProgress(inProgress: Boolean) {
+        dataStore.edit { preferences ->
+            if (inProgress) preferences[recoveryInProgressKey] = true else preferences.remove(recoveryInProgressKey)
+        }
     }
 
     companion object {

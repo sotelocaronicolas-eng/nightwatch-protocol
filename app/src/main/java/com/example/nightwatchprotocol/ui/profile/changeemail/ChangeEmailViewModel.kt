@@ -12,6 +12,7 @@ import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.ui.navigation.ChangeEmail
 import com.example.nightwatchprotocol.ui.profile.MESSAGE_GENERIC_ERROR
+import com.example.nightwatchprotocol.ui.verifycode.MESSAGE_WAIT_BEFORE_NEW_CODE
 import com.example.nightwatchprotocol.ui.profile.isPlausibleEmail
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.channels.Channel
@@ -36,8 +37,8 @@ data class ChangeEmailUiState(
 )
 
 sealed interface ChangeEmailEvent {
-    /** The verification link was sent to [newEmail]; the next screen waits for it to be opened. */
-    data class LinkSent(val newEmail: String) : ChangeEmailEvent
+    /** A 6-digit code was sent to [newEmail]; the next screen is where it is typed. */
+    data class CodeSent(val newEmail: String) : ChangeEmailEvent
     data object NavigateToConfirmIdentity : ChangeEmailEvent
 }
 
@@ -56,9 +57,11 @@ class ChangeEmailViewModel(
     private val _events = Channel<ChangeEmailEvent>(Channel.BUFFERED)
     val events: Flow<ChangeEmailEvent> = _events.receiveAsFlow()
 
+    private var identityConfirmed = false
+
     fun onEmailChanged(value: String) = _uiState.update { it.copy(email = value, error = null) }
 
-    fun onSendLinkClicked() {
+    fun onSendCodeClicked() {
         val state = _uiState.value
         if (state.isSending || !state.hasPassword) return
         val email = state.email.trim()
@@ -71,13 +74,20 @@ class ChangeEmailViewModel(
             _uiState.update { it.copy(error = error) }
             return
         }
+        // The server never answers "recent login required" for an email change, so the password is asked for here,
+        // once, before anything is sent.
+        if (!identityConfirmed) {
+            viewModelScope.launch { _events.send(ChangeEmailEvent.NavigateToConfirmIdentity) }
+            return
+        }
         send(email)
     }
 
-    /** The user proved their password on "Confirma tu identidad": send the link again. */
+    /** The user proved their password on "Confirma tu identidad": send the code. */
     fun onIdentityConfirmed() {
         val state = _uiState.value
         if (state.isSending || !state.hasPassword) return
+        identityConfirmed = true
         send(state.email.trim())
     }
 
@@ -87,7 +97,7 @@ class ChangeEmailViewModel(
             try {
                 accountRepository.requestEmailChange(email)
                 _uiState.update { it.copy(isSending = false) }
-                _events.send(ChangeEmailEvent.LinkSent(email))
+                _events.send(ChangeEmailEvent.CodeSent(email))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: AuthError.RecentLoginRequired) {
@@ -104,6 +114,7 @@ class ChangeEmailViewModel(
     private fun messageFor(error: AuthError): String = when (error) {
         AuthError.InvalidEmail -> MESSAGE_EMAIL_INVALID
         AuthError.EmailAlreadyInUse -> MESSAGE_EMAIL_IN_USE
+        is AuthError.RateLimited -> MESSAGE_WAIT_BEFORE_NEW_CODE
         AuthError.NetworkError -> "Sin conexión a internet"
         else -> MESSAGE_GENERIC_ERROR
     }

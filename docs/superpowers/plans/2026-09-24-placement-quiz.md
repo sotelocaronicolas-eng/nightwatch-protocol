@@ -1,5 +1,8 @@
 # Placement Quiz & Basic Study Plan Implementation Plan
 
+> **Documento histórico.** Describe el proyecto cuando usaba Firebase (versión 1.x). La app hoy usa solo Supabase: ver
+> [`migracion-supabase.md`](../reports/migracion-supabase.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** After first login/register, show a scored placement quiz (BAJO/MEDIO/ALTO) with a basic per-level study plan, persisted per-user in Firestore so returning users skip straight to Main Menu.

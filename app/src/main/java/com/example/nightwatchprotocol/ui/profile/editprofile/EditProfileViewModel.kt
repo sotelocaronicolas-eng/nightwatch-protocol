@@ -204,8 +204,8 @@ class EditProfileViewModel(
                     passwordSaved = true
                     _uiState.update { it.copy(newPassword = "", confirmPassword = "") }
                 }
-                // Gender and birth date: local copy first, then Firestore. If only the remote write fails, the
-                // data is kept on this phone and Firestore keeps the write queued, so the flow continues.
+                // Gender and birth date: local copy first, then the server. If only the remote write fails, the
+                // data is kept on this phone (and sent again with the next save), so the flow continues.
                 val newExtras = ProfileExtras(state.gender, state.birthDate)
                 val currentUid = uid
                 if (currentUid != null && newExtras != savedExtras) {

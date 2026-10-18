@@ -6,12 +6,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.AuthRepository
-import com.example.nightwatchprotocol.data.firestore.FailureKind
-import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import com.example.nightwatchprotocol.ui.profile.isPlausibleEmail
+import com.example.nightwatchprotocol.ui.verifycode.MESSAGE_WAIT_BEFORE_NEW_CODE
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,15 +24,6 @@ import kotlinx.coroutines.launch
 const val MESSAGE_RECOVERY_EMAIL_INVALID = "Correo electrónico inválido"
 const val MESSAGE_RECOVERY_EMAIL_NOT_SAVED = "No se pudo guardar el correo. Inténtalo de nuevo."
 const val MESSAGE_RECOVERY_EMAIL_OFFLINE = "Sin conexión a internet. Revisa tu conexión e inténtalo de nuevo."
-const val MESSAGE_RECOVERY_EMAIL_PERMISSION =
-    "No pudimos guardar el correo por un problema de permisos de tu cuenta. Inténtalo más tarde."
-
-/** One short message per kind of failure; the technical cause is never shown to the user. */
-fun recoveryEmailErrorMessage(error: Throwable?): String = when ((error as? FirestoreAccessException)?.kind) {
-    FailureKind.Offline -> MESSAGE_RECOVERY_EMAIL_OFFLINE
-    FailureKind.PermissionDenied -> MESSAGE_RECOVERY_EMAIL_PERMISSION
-    FailureKind.Unknown, null -> MESSAGE_RECOVERY_EMAIL_NOT_SAVED
-}
 
 data class RecoveryEmailUiState(
     val email: String = "",
@@ -40,8 +31,23 @@ data class RecoveryEmailUiState(
     val error: String? = null,
 )
 
+/**
+ * Why asking for the code failed. One short message per kind of failure, the technical cause is never shown. The
+ * seconds, when the server gave them, are in the text.
+ */
+fun recoveryEmailCodeErrorMessage(error: Throwable?): String = when (error) {
+    is AuthError.RateLimited ->
+        error.retryAfterSeconds?.let { "Espera $it s antes de pedir otro código." } ?: MESSAGE_WAIT_BEFORE_NEW_CODE
+    AuthError.SameAsPrimaryEmail -> AuthError.SameAsPrimaryEmail.message.orEmpty()
+    AuthError.EmailSendFailed -> AuthError.EmailSendFailed.message.orEmpty()
+    AuthError.InvalidEmail -> MESSAGE_RECOVERY_EMAIL_INVALID
+    AuthError.NetworkError -> MESSAGE_RECOVERY_EMAIL_OFFLINE
+    else -> MESSAGE_RECOVERY_EMAIL_NOT_SAVED
+}
+
 sealed interface RecoveryEmailEvent {
-    data object Saved : RecoveryEmailEvent
+    /** A 6-digit code was sent to [email]; the next screen is where it is typed, and it saves the email when accepted. */
+    data class CodeSent(val email: String) : RecoveryEmailEvent
 }
 
 class RecoveryEmailViewModel(
@@ -81,19 +87,19 @@ class RecoveryEmailViewModel(
             _uiState.update { it.copy(error = MESSAGE_RECOVERY_EMAIL_INVALID) }
             return
         }
-        val uid = authRepository.currentUserUid
-        if (uid == null) {
+        if (authRepository.currentUserUid == null) {
             _uiState.update { it.copy(error = MESSAGE_RECOVERY_EMAIL_NOT_SAVED) }
             return
         }
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, error = null) }
-            val result = runCatchingKeepCancellation { profileRepository.saveRecoveryEmail(uid, email) }
-            if (result.isSuccess) {
+            // The address is only saved once the code sent to it is confirmed on the next screen.
+            val sent = runCatchingKeepCancellation { profileRepository.requestRecoveryEmailCode(email) }
+            if (sent.isSuccess) {
                 _uiState.update { it.copy(isSaving = false) }
-                _events.send(RecoveryEmailEvent.Saved)
+                _events.send(RecoveryEmailEvent.CodeSent(email))
             } else {
-                _uiState.update { it.copy(isSaving = false, error = recoveryEmailErrorMessage(result.exceptionOrNull())) }
+                _uiState.update { it.copy(isSaving = false, error = recoveryEmailCodeErrorMessage(sent.exceptionOrNull())) }
             }
         }
     }

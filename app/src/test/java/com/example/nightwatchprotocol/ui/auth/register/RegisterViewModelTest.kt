@@ -4,9 +4,11 @@ import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
+import com.example.nightwatchprotocol.data.auth.GoogleNonce
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.ui.auth.login.ErrorDialogKind
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -99,6 +101,18 @@ class RegisterViewModelTest {
     }
 
     @Test
+    fun register_emailRegisteredWithGoogle_showsItsOwnFieldError() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+        fakeRepo.registerResult = Result.failure(AuthError.GoogleAccountOnly)
+        viewModel.fillValidForm()
+
+        viewModel.onRegisterClicked()
+        advanceUntilIdle()
+
+        assertEquals(RegisterFieldError.EmailRegisteredWithGoogle, viewModel.uiState.value.fieldError)
+    }
+
+    @Test
     fun register_invalidEmail_showsInvalidEmailError() = runTest {
         val (viewModel, fakeRepo) = createViewModel()
         fakeRepo.registerResult = Result.failure(AuthError.InvalidEmail)
@@ -161,15 +175,44 @@ class RegisterViewModelTest {
     }
 
     @Test
-    fun passwordRules_everyFirebaseSpecialCharacterCounts() {
-        for (special in PasswordRules.FIREBASE_SPECIAL_CHARACTERS) {
+    fun passwordRules_notSatisfied_whenThereIsNoLowercaseLetter() {
+        val rules = PasswordRules.from("SUP3R\$ECRET!")
+
+        assertFalse(rules.hasLowercase)
+        assertFalse(rules.allSatisfied)
+    }
+
+    @Test
+    fun passwordRules_lowercaseRule_isAsciiOnly_andOneLetterIsEnough() {
+        assertFalse(PasswordRules.from("ÑANDÚ-1Ñ!ñé").hasLowercase) // ñ and é are not a-z
+        assertTrue(PasswordRules.from("SUP3R\$ECRETa").hasLowercase)
+    }
+
+    @Test
+    fun registerButton_staysDisabled_whenThePasswordHasNoLowercaseLetter() {
+        val (viewModel, _) = createViewModel()
+        viewModel.fillValidForm()
+        viewModel.onPasswordChanged("SUP3R\$ECRET!")
+        viewModel.onConfirmPasswordChanged("SUP3R\$ECRET!")
+
+        assertFalse(viewModel.uiState.value.isRegisterEnabled)
+
+        viewModel.onPasswordChanged("Sup3r\$ecret!")
+        viewModel.onConfirmPasswordChanged("Sup3r\$ecret!")
+
+        assertTrue(viewModel.uiState.value.isRegisterEnabled)
+    }
+
+    @Test
+    fun passwordRules_everyServerSpecialCharacterCounts() {
+        for (special in PasswordRules.SPECIAL_CHARACTERS) {
             assertTrue("'$special' should count as special", PasswordRules.from("Passw0rd$special").hasSpecialChar)
         }
     }
 
     @Test
-    fun passwordRules_charactersFirebaseDoesNotCountAsSpecial_areRejectedLocally() {
-        // !isLetterOrDigit() would accept all of these, but Firebase would not.
+    fun passwordRules_charactersTheServerDoesNotCountAsSpecial_areRejectedLocally() {
+        // !isLetterOrDigit() would accept all of these, but the server would not.
         for (notSpecial in listOf(" ", "ñ", "é", "€", "¿", "¡")) {
             assertFalse("'$notSpecial' must not count as special", PasswordRules.from("Passw0rd$notSpecial").hasSpecialChar)
         }
@@ -183,12 +226,87 @@ class RegisterViewModelTest {
     }
 
     @Test
+    fun register_withoutASession_isNotAnError_andGoesToTheCodeScreenWithTheEmail() = runTest {
+        val fakeRepo = FakeAuthRepository().apply {
+            registerResult = Result.failure(AuthError.EmailConfirmationRequired)
+        }
+        val sessionPreferences = SessionPreferences.inMemory()
+        val viewModel = RegisterViewModel(fakeRepo, sessionPreferences, "test-web-client-id")
+        viewModel.fillValidForm()
+
+        viewModel.events.test {
+            viewModel.onRegisterClicked()
+            assertEquals(RegisterEvent.NavigateToVerifyCode("nicolas@example.com"), awaitItem())
+        }
+        assertFalse(viewModel.uiState.value.isLoading)
+        assertEquals(null, viewModel.uiState.value.fieldError)
+        assertTrue(sessionPreferences.rememberSessionFlow.first())
+    }
+
+    @Test
     fun registerWithGoogle_success_navigatesToMainMenu() = runTest {
         val (viewModel, _) = createViewModel()
 
         viewModel.events.test {
+            viewModel.onGoogleSignInStarted()
             viewModel.onGoogleIdTokenReceived("fake-id-token")
             assertEquals(RegisterEvent.NavigateToMainMenu, awaitItem())
+        }
+    }
+
+    @Test
+    fun registerWithGoogle_sendsTheRawNonceOfTheAttempt() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+
+        val hashed = viewModel.onGoogleSignInStarted()
+        viewModel.onGoogleIdTokenReceived("fake-id-token")
+        advanceUntilIdle()
+
+        assertEquals(GoogleNonce.sha256Hex(fakeRepo.signInWithGoogleNonces.single()), hashed)
+    }
+
+    @Test
+    fun registerWithGoogle_aTokenWithoutAnAttempt_isRefusedBeforeReachingTheServer() = runTest {
+        val (viewModel, fakeRepo) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onGoogleIdTokenReceived("fake-id-token")
+            assertEquals(RegisterEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN), awaitItem())
+        }
+        assertTrue(fakeRepo.signInWithGoogleNonces.isEmpty())
+        assertFalse(viewModel.uiState.value.isLoading)
+    }
+
+    @Test
+    fun googleCancelled_showsNothing() = runTest {
+        val (viewModel, _) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onGoogleSignInCancelled()
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun registerWithGoogle_phoneWithoutAGoogleAccount_showsTheNoAccountDialog() = runTest {
+        val (viewModel, _) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onGoogleNoAccount()
+            assertEquals(RegisterEvent.ShowErrorDialog(ErrorDialogKind.NO_GOOGLE_ACCOUNT), awaitItem())
+        }
+    }
+
+    @Test
+    fun registerWithGoogle_noConnection_showsTheNetworkDialog() = runTest {
+        val fakeRepo = FakeAuthRepository().apply { signInWithGoogleResult = Result.failure(AuthError.NetworkError) }
+        val viewModel = RegisterViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
+
+        viewModel.events.test {
+            viewModel.onGoogleSignInStarted()
+            viewModel.onGoogleIdTokenReceived("fake-id-token")
+            assertEquals(RegisterEvent.ShowErrorDialog(ErrorDialogKind.NETWORK), awaitItem())
         }
     }
 
@@ -199,6 +317,7 @@ class RegisterViewModelTest {
         val viewModel = RegisterViewModel(fakeRepo, SessionPreferences.inMemory(), "test-web-client-id")
 
         viewModel.events.test {
+            viewModel.onGoogleSignInStarted()
             viewModel.onGoogleIdTokenReceived("fake-id-token")
             assertEquals(RegisterEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN), awaitItem())
         }

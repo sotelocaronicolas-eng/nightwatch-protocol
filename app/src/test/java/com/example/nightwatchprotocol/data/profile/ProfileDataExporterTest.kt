@@ -64,7 +64,7 @@ class ProfileDataExporterTest {
     }
 
     @Test
-    fun aFailedFirestoreRead_doesNotBlockTheExport() = runTest {
+    fun aFailedServerRead_doesNotBlockTheExport() = runTest {
         profile.getProfileResult = Result.failure(RuntimeException("sin red"))
         quiz.getResultResult = Result.failure(RuntimeException("sin red"))
 
@@ -94,7 +94,7 @@ class ProfileDataExporterTest {
     }
 
     @Test
-    fun theyAreExportedFromTheLocalCopyWhenFirestoreFails() = runTest {
+    fun theyAreExportedFromTheLocalCopyWhenServerFails() = runTest {
         profile.getProfileResult = Result.failure(RuntimeException("sin red"))
         extras.save("uid-1", ProfileExtras(Gender.OTHER, BirthDate(1985, 5, 5)))
         profile.saveExtrasResult = Result.success(Unit)

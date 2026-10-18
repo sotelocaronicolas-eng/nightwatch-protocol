@@ -4,7 +4,7 @@ import com.example.nightwatchprotocol.data.auth.AuthError
 
 private val EMAIL_PATTERN = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
 
-/** A light syntactic check; Firebase has the final say on whether an address is valid. */
+/** A light syntactic check; the server has the final say on whether an address is valid. */
 fun isPlausibleEmail(email: String): Boolean = EMAIL_PATTERN.matches(email.trim())
 
 const val MESSAGE_WRONG_CURRENT_PASSWORD = "La contraseña actual no es correcta"

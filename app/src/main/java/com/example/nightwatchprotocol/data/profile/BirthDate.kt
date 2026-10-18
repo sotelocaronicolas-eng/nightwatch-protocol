@@ -13,7 +13,7 @@ const val MAX_AGE_YEARS = 120
  */
 data class BirthDate(val year: Int, val month: Int, val day: Int) : Comparable<BirthDate> {
 
-    /** `yyyy-MM-dd`, the format saved in Firestore (always 10 characters for a real date). */
+    /** `yyyy-MM-dd`, the format saved in the `birth_date` column (always 10 characters for a real date). */
     fun iso(): String = String.format(Locale.ROOT, "%04d-%02d-%02d", year, month, day)
 
     /** `dd/MM/yyyy`, the format shown to the user. */

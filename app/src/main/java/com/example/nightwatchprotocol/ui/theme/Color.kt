@@ -11,3 +11,6 @@ val NightWatchHeaderPanel = Color(0xFFCAD5D7)
 val NightWatchOnBackground = Color.White
 val NightWatchOnButton = Color.Black
 val NightWatchError = Color(0xFFFF2E16)
+
+/** A met requirement (the password rule lists). */
+val NightWatchSuccess = Color(0xFF4CAF50)

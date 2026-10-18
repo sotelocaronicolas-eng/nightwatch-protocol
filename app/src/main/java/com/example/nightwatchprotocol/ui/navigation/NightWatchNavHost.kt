@@ -7,14 +7,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
-import com.example.nightwatchprotocol.ui.auth.forgotpassword.ForgotPasswordScreen
+import com.example.nightwatchprotocol.ui.auth.forgotpassword.NewPasswordScreen
 import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
 import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
 import com.example.nightwatchprotocol.ui.mainmenu.MainMenuScreen
 import com.example.nightwatchprotocol.ui.postauth.PostAuthGateScreen
 import com.example.nightwatchprotocol.ui.profile.changeemail.ChangeEmailScreen
-import com.example.nightwatchprotocol.ui.profile.changeemail.VerifyEmailLinkScreen
 import com.example.nightwatchprotocol.ui.profile.changepassword.ChangePasswordScreen
 import com.example.nightwatchprotocol.ui.profile.achievements.AchievementsScreen
 import com.example.nightwatchprotocol.ui.profile.appearance.AppearanceScreen
@@ -36,6 +36,8 @@ import com.example.nightwatchprotocol.ui.profile.recoveryemail.RecoveryEmailScre
 import com.example.nightwatchprotocol.ui.profile.usermenu.UserMenuScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementQuizScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementResultScreen
+import com.example.nightwatchprotocol.ui.verifycode.CodePurpose
+import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeScreen
 
 /** Key under which "Confirma tu identidad" tells the screen below it that the password was verified. */
 private const val KEY_IDENTITY_CONFIRMED = "identity_confirmed"
@@ -57,7 +59,25 @@ fun NightWatchNavHost(
                     navController.navigate(PostAuthGate) { popUpTo<Login> { inclusive = true } }
                 },
                 onNavigateToRegister = { navController.navigate(Register) },
-                onNavigateToForgotPassword = { navController.navigate(ForgotPassword) },
+                onNavigateToVerifyCode = { email -> navController.navigate(VerifyCode(email, CodePurpose.SIGN_UP)) },
+                onNavigateToNewPassword = { navController.navigate(NewPassword) },
+            )
+        }
+        composable<NewPassword> {
+            NewPasswordScreen(
+                onPasswordReset = {
+                    navController.navigate(PasswordReset) { popUpTo(0) { inclusive = true } }
+                },
+                onCancelled = {
+                    navController.navigate(Login) { popUpTo(0) { inclusive = true } }
+                },
+            )
+        }
+        composable<PasswordReset> {
+            // The recovery session was closed by the new-password screen: Login is the only way on.
+            PasswordUpdatedScreen(
+                onDone = { navController.navigate(Login) { popUpTo(0) { inclusive = true } } },
+                headerTitle = "Nueva Contraseña",
             )
         }
         composable<Register> {
@@ -65,11 +85,34 @@ fun NightWatchNavHost(
                 onRegisterSuccess = {
                     navController.navigate(PostAuthGate) { popUpTo<Login> { inclusive = true } }
                 },
+                onNavigateToVerifyCode = { email -> navController.navigate(VerifyCode(email, CodePurpose.SIGN_UP)) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
-        composable<ForgotPassword> {
-            ForgotPasswordScreen(onNavigateBack = { navController.popBackStack() })
+        composable<VerifyCode> { entry ->
+            val purpose = entry.toRoute<VerifyCode>().purpose
+            VerifyCodeScreen(
+                onVerified = { notice ->
+                    when (purpose) {
+                        // The session is open now: the same road as a normal sign-up (quiz or main menu).
+                        CodePurpose.SIGN_UP ->
+                            navController.navigate(PostAuthGate) { popUpTo<Login> { inclusive = true } }
+                        // Same exit as the link flow: "¡Correo actualizado!" replaces the email-change screens.
+                        CodePurpose.EMAIL_CHANGE ->
+                            navController.navigate(EmailUpdated(notice)) { popUpTo<ChangeEmail> { inclusive = true } }
+                        // The server saved the recovery email when it accepted the code.
+                        CodePurpose.RECOVERY_EMAIL ->
+                            navController.navigate(RecoveryEmailSaved) { popUpTo<RecoveryEmail> { inclusive = true } }
+                    }
+                },
+                onClose = {
+                    when (purpose) {
+                        CodePurpose.SIGN_UP -> navController.popBackStack<Login>(inclusive = false)
+                        CodePurpose.EMAIL_CHANGE -> navController.popBackStack<EditProfile>(inclusive = false)
+                        CodePurpose.RECOVERY_EMAIL -> navController.popBackStack<RecoveryEmail>(inclusive = false)
+                    }
+                },
+            )
         }
         composable<PostAuthGate> {
             PostAuthGateScreen(
@@ -154,19 +197,12 @@ fun NightWatchNavHost(
                 onIdentityConfirmedHandled = { entry.savedStateHandle[KEY_IDENTITY_CONFIRMED] = false },
                 onClose = { navController.popBackStack() },
                 onNavigateToConfirmIdentity = { navController.navigate(ConfirmIdentity) },
-                onLinkSent = { newEmail -> navController.navigate(VerifyEmailLink(newEmail)) },
+                onCodeSent = { newEmail -> navController.navigate(VerifyCode(newEmail, CodePurpose.EMAIL_CHANGE)) },
             )
         }
-        composable<VerifyEmailLink> {
-            VerifyEmailLinkScreen(
-                onClose = { navController.popBackStack<EditProfile>(inclusive = false) },
-                onEmailUpdated = {
-                    navController.navigate(EmailUpdated) { popUpTo<ChangeEmail> { inclusive = true } }
-                },
-            )
-        }
-        composable<EmailUpdated> {
+        composable<EmailUpdated> { entry ->
             EmailUpdatedScreen(
+                notice = entry.toRoute<EmailUpdated>().notice,
                 onBackToEditProfile = {
                     // A fresh Editar Perfil, so it shows the new email.
                     navController.navigate(EditProfile) { popUpTo<EditProfile> { inclusive = true } }
@@ -201,9 +237,7 @@ fun NightWatchNavHost(
         composable<RecoveryEmail> {
             RecoveryEmailScreen(
                 onClose = { navController.popBackStack() },
-                onSaved = {
-                    navController.navigate(RecoveryEmailSaved) { popUpTo<RecoveryEmail> { inclusive = true } }
-                },
+                onCodeSent = { email -> navController.navigate(VerifyCode(email, CodePurpose.RECOVERY_EMAIL)) },
             )
         }
         composable<RecoveryEmailSaved> {

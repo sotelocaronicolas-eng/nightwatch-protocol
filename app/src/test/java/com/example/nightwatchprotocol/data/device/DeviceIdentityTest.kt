@@ -23,7 +23,7 @@ class DeviceIdentityTest {
     fun theDefaultIdIsAUuid() = runTest {
         val id = DeviceIdStore.inMemory().getOrCreate()
 
-        // The Firestore rules require this exact shape.
+        // The `devices.device_id` column (uuid) requires this exact shape.
         assertTrue(Regex("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$").matches(id))
     }
 

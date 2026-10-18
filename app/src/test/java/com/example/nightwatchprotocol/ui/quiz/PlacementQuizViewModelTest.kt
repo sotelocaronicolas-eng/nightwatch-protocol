@@ -110,7 +110,7 @@ class PlacementQuizViewModelTest {
                 viewModel.onOptionSelected(0)
                 viewModel.onNextClicked()
             }
-            // The save never completes on its own (simulating an offline Firestore write);
+            // The save never completes on its own (simulating an offline server write);
             // advance past the 5s viewmodel-side timeout so the fail-open path fires.
             advanceTimeBy(5_001)
             val event = awaitItem() as PlacementQuizEvent.NavigateToResult

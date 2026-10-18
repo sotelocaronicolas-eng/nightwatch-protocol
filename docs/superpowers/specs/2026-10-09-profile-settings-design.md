@@ -1,5 +1,9 @@
 # Perfil y Ajustes (Módulo 2) — Spec de diseño
 
+> **Documento histórico.** Describe el proyecto cuando usaba Firebase (versión 1.x): el cambio de correo por enlace y el
+> registro de dispositivos en Firestore ya no existen. La app hoy usa solo Supabase: ver
+> [`migracion-supabase.md`](../reports/migracion-supabase.md).
+
 Figma: https://www.figma.com/design/wd3fQTzF5NqsfGfdR4I1lb/NightWatch-Protocol--copia-?node-id=0-1
 (fileKey `wd3fQTzF5NqsfGfdR4I1lb`; pantallas oscuras, nodos `2068:*`, `2087:*`, `2106:*`, `2123:*`, `2287:*`, `2288:*`, `2289:*`, `2290:*`).
 

@@ -18,10 +18,11 @@ fun ProfileUpdatedScreen(onBackToProfile: () -> Unit) {
 }
 
 @Composable
-fun EmailUpdatedScreen(onBackToEditProfile: () -> Unit) {
+fun EmailUpdatedScreen(onBackToEditProfile: () -> Unit, notice: String? = null) {
+    val message = "Tu correo electrónico fue verificado y actualizado con éxito."
     ConfirmationContent(
         title = "¡Correo actualizado!",
-        message = "Tu correo electrónico fue verificado y actualizado con éxito.",
+        message = if (notice == null) message else "$message\n$notice",
         buttonText = "VOLVER A EDITAR PERFIL",
         onButtonClick = onBackToEditProfile,
         onClose = onBackToEditProfile,
@@ -40,14 +41,14 @@ fun RecoveryEmailSavedScreen(onBackToAccounts: () -> Unit) {
 }
 
 @Composable
-fun PasswordUpdatedScreen(onDone: () -> Unit) {
+fun PasswordUpdatedScreen(onDone: () -> Unit, headerTitle: String = "Cambiar Contraseña") {
     ConfirmationContent(
         title = "¡Contraseña actualizada!",
         message = "Usa tu nueva contraseña la próxima vez que inicies sesión.",
         buttonText = "Listo",
         onButtonClick = onDone,
         onClose = onDone,
-        headerTitle = "Cambiar Contraseña",
+        headerTitle = headerTitle,
     )
 }
 
@@ -55,7 +56,7 @@ fun PasswordUpdatedScreen(onDone: () -> Unit) {
 fun DeviceSignedOutScreen(onBackToDevices: () -> Unit) {
     ConfirmationContent(
         title = "¡Sesión cerrada!",
-        message = "Ese dispositivo cerrará su sesión la próxima vez que abra NightWatch. No revoca el acceso de Firebase.",
+        message = "Ese dispositivo cerrará su sesión la próxima vez que abra NightWatch. No revoca de inmediato el acceso de tu cuenta.",
         buttonText = "VOLVER A DISPOSITIVOS",
         onButtonClick = onBackToDevices,
         onClose = onBackToDevices,

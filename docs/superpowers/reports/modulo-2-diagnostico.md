@@ -1,5 +1,8 @@
 # Módulo 2: Perfil y Ajustes — diagnóstico final
 
+> **Documento histórico.** Describe el proyecto cuando usaba Firebase (versión 1.x). La app hoy usa solo Supabase: ver
+> [`migracion-supabase.md`](migracion-supabase.md).
+
 Rama: `modulo-2-perfil-ajustes` (solo local, sin push; `main` sin cambios, sigue en `b17bc53`).
 Spec: `docs/superpowers/specs/2026-10-09-profile-settings-design.md`.
 

@@ -1,33 +1,35 @@
 package com.example.nightwatchprotocol.ui.profile.confirmidentity
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.components.BottomActionScrollLayout
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
-import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
-import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.profile.changeemail.emailActionBottomPadding
+import com.example.nightwatchprotocol.ui.profile.changeemail.emailFieldTopPadding
+import com.example.nightwatchprotocol.ui.profile.changeemail.EmailScreenHeader
+import com.example.nightwatchprotocol.ui.profile.changeemail.illustrationSize
 
-/** Not in Figma: built with the same top bar, text and button styles as the other profile screens. */
+/**
+ * Not in Figma, but laid out exactly like "Confirmar Correo" (2106:50): the same header, illustration slot, field
+ * distance and bottom button position (see `ChangeEmailScreens`), with the "id_card" icon as the illustration.
+ */
 @Composable
 fun ConfirmIdentityScreen(
     onClose: () -> Unit,
@@ -62,33 +64,30 @@ private fun ConfirmIdentityContent(
     NightWatchScreenBackground {
         Column(modifier = Modifier.fillMaxSize()) {
             ProfileTopBar(onClose = onClose)
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 41.dp)
-                    .navigationBarsPadding(),
+            BottomActionScrollLayout(
+                actionBottomPadding = emailActionBottomPadding,
+                modifier = Modifier.weight(1f),
+                action = {
+                    ProfileButton(
+                        text = "CONTINUAR",
+                        onClick = onConfirm,
+                        enabled = !uiState.isLoading,
+                    )
+                },
             ) {
-                Text(
-                    text = "Confirma tu identidad",
-                    color = NightWatchOnBackground,
-                    fontFamily = NightWatchBodyFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 32.dp),
+                EmailScreenHeader(
+                    title = "Confirma tu identidad",
+                    message = "Por seguridad, ingresa tu contraseña actual para continuar.",
                 )
-                Text(
-                    text = "Por seguridad, ingresa tu contraseña actual para continuar.",
-                    color = NightWatchHeaderPanel,
-                    fontFamily = NightWatchBodyFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 12.dp, bottom = 32.dp),
-                )
+                // The slot has the size of the envelope illustration; the icon is drawn a little smaller inside it
+                // so its strokes look as big as the envelope's.
+                Box(modifier = Modifier.size(illustrationSize), contentAlignment = Alignment.Center) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_id_card),
+                        contentDescription = null,
+                        modifier = Modifier.size(190.dp),
+                    )
+                }
                 NightWatchTextField(
                     label = "Contraseña actual",
                     value = uiState.password,
@@ -96,12 +95,7 @@ private fun ConfirmIdentityContent(
                     isPassword = true,
                     isError = uiState.error != null,
                     supportingText = uiState.error,
-                )
-                ProfileButton(
-                    text = "CONTINUAR",
-                    onClick = onConfirm,
-                    enabled = !uiState.isLoading,
-                    modifier = Modifier.padding(top = 32.dp, bottom = 32.dp),
+                    modifier = Modifier.padding(top = emailFieldTopPadding),
                 )
             }
         }

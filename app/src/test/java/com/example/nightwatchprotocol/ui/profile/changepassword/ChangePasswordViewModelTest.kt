@@ -47,7 +47,7 @@ class ChangePasswordViewModelTest {
     }
 
     @Test
-    fun emptyCurrentPassword_showsAnErrorAndDoesNotCallFirebase() = runTest {
+    fun emptyCurrentPassword_showsAnErrorAndDoesNotCallTheServer() = runTest {
         val vm = viewModel()
         vm.fill(current = "")
 
@@ -71,7 +71,7 @@ class ChangePasswordViewModelTest {
     }
 
     @Test
-    fun passwordsThatDoNotMatch_showTheMismatchError_withoutCallingFirebase() = runTest {
+    fun passwordsThatDoNotMatch_showTheMismatchError_withoutCallingTheServer() = runTest {
         val vm = viewModel()
         vm.fill(confirm = "Otra1clave!")
 
@@ -109,7 +109,7 @@ class ChangePasswordViewModelTest {
     }
 
     @Test
-    fun firebaseRejectsTheNewPassword_showsTheRulesErrorOnTheNewField() = runTest {
+    fun theServerRejectsTheNewPassword_showsTheRulesErrorOnTheNewField() = runTest {
         account.updatePasswordResults = mutableListOf(Result.failure(AuthError.WeakPassword))
         val vm = viewModel()
         vm.fill()
@@ -155,7 +155,8 @@ class ChangePasswordViewModelTest {
             "Abcdefgh!", // no digit
             "Abcdefg12", // no special character
             "abcdefgh", // only lowercase
-            "ÁÉÍÓÚ1234!x", // accented capitals do not count as uppercase for Firebase
+            "ABCDEFG1!", // no lowercase
+            "ÁÉÍÓÚ1234!x", // accented capitals do not count as uppercase for the server
         )
         for (password in accepted) {
             val vm = viewModel()
@@ -194,6 +195,7 @@ class ChangePasswordViewModelTest {
             listOf(
                 "Mínimo 8 caracteres" to true,
                 "Incluye una mayúscula y un número" to false,
+                "Incluye una minúscula" to true,
                 "Incluye al menos un carácter especial" to false,
             ),
             partial,
@@ -211,7 +213,7 @@ class ChangePasswordViewModelTest {
     }
 
     @Test
-    fun sameAsCurrent_isAlsoRejectedOnSave_withoutCallingFirebase() = runTest {
+    fun sameAsCurrent_isAlsoRejectedOnSave_withoutCallingTheServer() = runTest {
         val vm = viewModel()
         vm.fill(current = "Misma1clave!", new = "Misma1clave!", confirm = "Misma1clave!")
 
@@ -274,7 +276,7 @@ class ChangePasswordViewModelTest {
     }
 
     @Test
-    fun googleAccount_hasNoFormAndNeverCallsFirebase() = runTest {
+    fun googleAccount_hasNoFormAndNeverCallsTheServer() = runTest {
         account.profile = AccountProfile("Nicolás", "g@example.com", null, hasPassword = false)
         val vm = viewModel()
         vm.fill()

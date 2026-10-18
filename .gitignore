@@ -23,7 +23,7 @@ captures/
 # Carpeta de configuración de Android Studio (cada quien tiene la suya)
 .idea/
 
-# Credenciales: cada integrante descarga su propio google-services.json desde Firebase Console
+# Archivo de una configuración anterior: ya no se usa, pero se ignora por si alguien aún lo tiene en app/
 google-services.json
 
 # Llaves de firma y artefactos de instalación

@@ -18,16 +18,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,12 +36,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialException
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.auth.GoogleCredentialResult
+import com.example.nightwatchprotocol.ui.auth.forgotpassword.PasswordRecoveryDialog
+import com.example.nightwatchprotocol.ui.auth.requestGoogleIdToken
 import com.example.nightwatchprotocol.ui.components.GoogleSignInButton
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
@@ -50,29 +49,34 @@ import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.theme.NightWatchDisplayStyle
 import com.example.nightwatchprotocol.ui.theme.NightWatchLinkAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    onNavigateToForgotPassword: () -> Unit,
+    onNavigateToVerifyCode: (email: String) -> Unit,
+    onNavigateToNewPassword: () -> Unit,
     viewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory),
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var dialogKind by remember { mutableStateOf<ErrorDialogKind?>(null) }
+    var dialogKind by rememberSaveable { mutableStateOf<ErrorDialogKind?>(null) }
+    // The recovery dialog: the email it starts from (null = closed) and a number that is new at every opening.
+    var recoveryPrefill by rememberSaveable { mutableStateOf<String?>(null) }
+    var recoveryOpenId by rememberSaveable { mutableIntStateOf(0) }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
+                is LoginEvent.OpenRecoveryDialog -> {
+                    recoveryOpenId++
+                    recoveryPrefill = event.prefillEmail
+                }
                 LoginEvent.NavigateToMainMenu -> onLoginSuccess()
                 LoginEvent.NavigateToRegister -> onNavigateToRegister()
-                LoginEvent.NavigateToForgotPassword -> onNavigateToForgotPassword()
+                is LoginEvent.NavigateToVerifyCode -> onNavigateToVerifyCode(event.email)
                 is LoginEvent.ShowErrorDialog -> dialogKind = event.kind
             }
         }
@@ -88,44 +92,34 @@ fun LoginScreen(
         onForgotPasswordClicked = viewModel::onForgotPasswordClicked,
         onGoogleSignInClicked = {
             coroutineScope.launch {
-                val credentialManager = CredentialManager.create(context)
-                val option = GetSignInWithGoogleOption.Builder(
-                    serverClientId = viewModel.googleWebClientId,
-                ).build()
-                val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
-                try {
-                    val result = credentialManager.getCredential(context, request)
-                    val credential = result.credential
-                    if (credential is CustomCredential &&
-                        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                    ) {
-                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        viewModel.onGoogleIdTokenReceived(googleIdTokenCredential.idToken)
-                    } else {
-                        viewModel.onGoogleSignInFailed()
-                    }
-                } catch (e: GetCredentialException) {
-                    viewModel.onGoogleSignInFailed()
-                } catch (e: GoogleIdTokenParsingException) {
-                    viewModel.onGoogleSignInFailed()
+                val hashedNonce = viewModel.onGoogleSignInStarted()
+                when (val result = requestGoogleIdToken(context, viewModel.googleWebClientId, hashedNonce)) {
+                    is GoogleCredentialResult.IdToken -> viewModel.onGoogleIdTokenReceived(result.idToken)
+                    GoogleCredentialResult.Cancelled -> viewModel.onGoogleSignInCancelled()
+                    GoogleCredentialResult.NoAccount -> viewModel.onGoogleNoAccount()
+                    GoogleCredentialResult.Failed -> viewModel.onGoogleSignInFailed()
                 }
             }
         },
     )
 
+    recoveryPrefill?.let { prefill ->
+        PasswordRecoveryDialog(
+            openId = recoveryOpenId,
+            prefillEmail = prefill,
+            onDismiss = { recoveryPrefill = null },
+            onVerified = {
+                recoveryPrefill = null
+                onNavigateToNewPassword()
+            },
+        )
+    }
+
     dialogKind?.let { kind ->
         AlertDialog(
             onDismissRequest = { dialogKind = null },
             title = { Text("Error de inicio de sesión") },
-            text = {
-                Text(
-                    if (kind == ErrorDialogKind.NETWORK) {
-                        "Sin conexión a internet. Verifica tu conexión e intenta de nuevo."
-                    } else {
-                        "Se produjo un error inesperado. Intenta iniciar sesión de nuevo."
-                    },
-                )
-            },
+            text = { Text(kind.message(unknown = "Se produjo un error inesperado. Intenta iniciar sesión de nuevo.")) },
             confirmButton = {
                 TextButton(onClick = { dialogKind = null }) { Text("Aceptar") }
             },

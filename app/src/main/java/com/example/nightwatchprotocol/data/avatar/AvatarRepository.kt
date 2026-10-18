@@ -25,7 +25,7 @@ class AvatarRepository(
     private var refreshedUid: String? = null
 
     /**
-     * Shows the local copy first, then refreshes from Firestore. A failed or slow read keeps what is
+     * Shows the local copy first, then refreshes from the server. A failed or slow read keeps what is
      * already on screen. A different uid clears the previous user's photo before anything loads.
      * Once a user has been refreshed in this session, later calls (another screen) do nothing.
      */
@@ -43,8 +43,10 @@ class AvatarRepository(
         val remote = runCatchingKeepCancellation { profileRepository.getProfile(uid) }.getOrNull() ?: return
         if (loadedUid == uid) refreshedUid = uid
 
-        // Not clearing the local copy when Firestore has no avatar: it may be a local photo that has not synced yet.
-        val remoteBytes = remote.avatarBase64?.let(::decodeOrNull) ?: return
+        // Not clearing the local copy when the server has no avatar: it may be a local photo that has not synced yet.
+        val remoteBytes = remote.avatarBase64?.let(::decodeOrNull)
+            ?: runCatchingKeepCancellation { profileRepository.downloadAvatar(uid, remote) }.getOrNull()?.takeIf { it.isNotEmpty() }
+            ?: return
         if (loadedUid != uid || remoteBytes.contentEquals(cached)) return
 
         withContext(ioDispatcher) { cache.write(uid, remoteBytes) }
@@ -52,8 +54,8 @@ class AvatarRepository(
     }
 
     /**
-     * Stores the photo locally first (it shows at once and works offline) and then in Firestore.
-     * A failed or timed-out Firestore write keeps the local photo and reports [AvatarSyncResult.LocalOnly].
+     * Stores the photo locally first (it shows at once and works offline) and then on the server.
+     * A failed or timed-out server write keeps the local photo and reports [AvatarSyncResult.LocalOnly].
      */
     suspend fun save(uid: String, jpegBytes: ByteArray): AvatarSyncResult {
         adopt(uid)
@@ -65,7 +67,7 @@ class AvatarRepository(
         return if (synced) AvatarSyncResult.Synced else AvatarSyncResult.LocalOnly
     }
 
-    /** Removes the photo locally and in Firestore; the avatar goes back to the initial either way. */
+    /** Removes the photo locally and on the server; the avatar goes back to the initial either way. */
     suspend fun remove(uid: String): AvatarSyncResult {
         adopt(uid)
         withContext(ioDispatcher) { cache.delete(uid) }
