@@ -63,6 +63,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.data.learning.LearningTopic
+import com.example.nightwatchprotocol.ui.labs.LabsTab
 import com.example.nightwatchprotocol.ui.path.LearningPathTab
 
 /** Figma 49:15 "MAIN MENU": the colours of the bar line, the panel behind the pill and the sheet border/handle (113:145, 113:150). */
@@ -81,6 +82,7 @@ fun HomeScreen(
     onSignedOut: () -> Unit,
     onOpenUserMenu: () -> Unit,
     onOpenLesson: (LearningTopic) -> Unit,
+    onOpenLab: (LearningTopic) -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -110,6 +112,7 @@ fun HomeScreen(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
         onOpenLesson = onOpenLesson,
+        onOpenLab = onOpenLab,
         onDailyLessonClick = viewModel::onDailyLessonClicked,
         onTabSelected = viewModel::onTabSelected,
         onSocialClick = viewModel::onSocialClicked,
@@ -125,6 +128,7 @@ private fun HomeContent(
     uiState: HomeUiState,
     snackbarHostState: SnackbarHostState,
     onOpenLesson: (LearningTopic) -> Unit,
+    onOpenLab: (LearningTopic) -> Unit,
     onDailyLessonClick: () -> Unit,
     onTabSelected: (HomeTab) -> Unit,
     onSocialClick: () -> Unit,
@@ -161,7 +165,10 @@ private fun HomeContent(
                         snackbarHostState = snackbarHostState,
                         onOpenLesson = onOpenLesson,
                     )
-                    HomeTab.Labs -> LabsTabPlaceholder()
+                    HomeTab.Labs -> LabsTab(
+                        snackbarHostState = snackbarHostState,
+                        onOpenLab = onOpenLab,
+                    )
                 }
             }
         }
@@ -417,26 +424,3 @@ private fun ComingSoonSection(title: String, imageRes: Int, imageSize: Dp, onCli
     Box(modifier = Modifier.height(39.dp))
 }
 
-// ---- Ruta and Labs: provisional ----
-
-// provisional, Etapa 4: the list of labs replaces this.
-@Composable
-private fun LabsTabPlaceholder() {
-    UnderConstruction(stringResource(R.string.learning_labs_under_construction))
-}
-
-@Composable
-private fun UnderConstruction(text: String) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize().statusBarsPadding().padding(horizontal = 32.dp),
-    ) {
-        Text(
-            text = text,
-            color = NightWatchOnBackground,
-            fontFamily = NightWatchBodyFontFamily,
-            fontSize = 16.sp,
-            textAlign = TextAlign.Center,
-        )
-    }
-}

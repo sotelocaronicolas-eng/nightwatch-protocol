@@ -156,6 +156,8 @@ fun NightWatchNavHost(
                 onOpenUserMenu = { navController.navigate(UserMenu) },
                 // From a map island or "Lección diaria": full screen, without the bar.
                 onOpenLesson = { topic -> navController.navigate(Lesson(topic)) },
+                // La pantalla del Lab se conecta en el commit siguiente de la Etapa 4.
+                onOpenLab = {},
             )
         }
         composable<Lesson> {

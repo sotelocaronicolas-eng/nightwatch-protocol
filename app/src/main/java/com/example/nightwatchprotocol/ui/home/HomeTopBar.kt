@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nightwatchprotocol.R
@@ -28,12 +29,13 @@ private val TopBarTextColor = Color(0xFFDDDDDD)
 /**
  * Logo, [title] and the white line of the tabs of Home (Figma 49:15 and 2266:72), below the status bar. The title is
  * 105 dp wide, so "Ruta de Aprendizaje" takes two lines as in the design. [trailing] is the icon on the right, if any
- * (Inicio has the exit icon). Same layout as `ProfileTopBar`, which has an "X" instead.
+ * (Inicio has the exit icon). [titleTop] is 14 dp for two-line titles and 25 dp for the one-line "Laboratorios" (2271:86). Same layout as `ProfileTopBar`, which has an "X" instead.
  */
 @Composable
 internal fun HomeTopBar(
     title: String,
     modifier: Modifier = Modifier,
+    titleTop: Dp = 14.dp,
     trailing: (@Composable BoxScope.() -> Unit)? = null,
 ) {
     Box(modifier = modifier.fillMaxWidth().statusBarsPadding().background(NightWatchBackground)) {
@@ -49,7 +51,7 @@ internal fun HomeTopBar(
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
-                modifier = Modifier.padding(start = 66.dp, top = 14.dp).width(105.dp),
+                modifier = Modifier.padding(start = 66.dp, top = titleTop).width(105.dp),
             )
             trailing?.invoke(this)
         }

@@ -37,8 +37,24 @@
     <string name="learning_home_progress_error">No pudimos cargar tu progreso.</string>
     <string name="learning_home_retry">Reintentar</string>
 
-    <!-- Pestaña Labs provisional (la reemplaza la Etapa 4): propuesto -->
-    <string name="learning_labs_under_construction">Los Laboratorios están en construcción.</string>
+    <!-- Labs. Figma: LABORATORIOS 2271:84 -->
+    <string name="learning_labs_title">Laboratorios</string>
+    <string name="learning_labs_subtitle">Retos prácticos por cada tema de tu ruta. Aprende haciendo, como en un entorno real.</string>
+    <string name="learning_labs_difficulty_easy">Fácil</string>
+    <string name="learning_labs_difficulty_medium">Medio</string>
+    <string name="learning_labs_difficulty_hard">Difícil</string>
+    <string name="learning_labs_difficulty_exam">Prueba</string>
+    <string name="learning_labs_completed">✅ Completado</string>
+    <string name="learning_labs_start">Comenzar →</string>
+    <string name="learning_labs_final_exam">Examen Final</string>
+    <string name="learning_labs_final_exam_emoji">📝</string>
+
+    <!-- Labs: textos propuestos (no están en Figma). Los de bloqueo los confirmó el grupo (Q6) -->
+    <string name="learning_labs_locked_lab">Completa la isla anterior</string>
+    <string name="learning_labs_locked_exam">Completa las 6 islas</string>
+    <string name="learning_labs_error_offline">Sin conexión. No pudimos cargar tu progreso.</string>
+    <string name="learning_labs_error">No pudimos cargar tu progreso.</string>
+    <string name="learning_labs_card_description">%1$s, %2$s, %3$s</string>
 
     <!-- Ruta de Aprendizaje. Figma: RUTA DE APRENDIZAJE (MAPA) 2266:72 -->
     <string name="learning_path_title">Ruta de Aprendizaje</string>
