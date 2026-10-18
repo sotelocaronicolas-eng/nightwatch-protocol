@@ -15,7 +15,15 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
   - **Lógica pura:** `LabTerminal` (terminal simulada), `gradeExam` (corrección del examen) y `deriveLearningProgress` (islas, examen, contador y "siguiente lección pendiente").
   - **Registro idempotente:** lección vista y lab completado se escriben con un `upsert` que **ignora duplicados** (`on_conflict=user_id,topic` o `user_id,lab` y `Prefer: resolution=ignore-duplicates`), que PostgREST ejecuta como `INSERT ... ON CONFLICT DO NOTHING`: solo necesita el permiso `INSERT` de `0007` (no hay `UPDATE`) y repetir no es un error. El intento de examen es un `INSERT` simple. La fila del usuario sale siempre de la sesión.
   - **Validación:** `./gradlew assembleDebug testDebugUnitTest lintDebug` en verde: 677 pruebas, 76 nuevas, lint con 0 errores. No se tocó nada de módulos 1 y 2 salvo `AppContainer` (dos repositorios nuevos).
-- **Sigue la Etapa 2** (contenedor, barra inferior e Inicio). Nada de la UI está programado todavía.
+- **Etapa 2 hecha (contenedor, barra inferior e Inicio):**
+  - **Tarea 0:** el texto del lab de correo quedó "esta es una imitación" (F15, E1-9 resuelto).
+  - **Navegación:** `Home(tab: HomeTab)` reemplaza a `MainMenu` (que se eliminó junto con `MainMenuScreen`). `PostAuthGate` lleva a `Home(Inicio)`; "Continuar" del quiz lleva a `Home(Ruta)` (P4). El Menú de usuario cierra sesión con `popUpTo<Home>`.
+  - **`ui/home/`:** `HomeScreen` (Scaffold + `SnackbarHost`), `HomeViewModel` (pestaña en `SavedStateHandle`, avisos por `Channel`, cerrar sesión, nivel, progreso), `NightWatchBottomBar` (5 pestañas: Inicio, Ruta y Labs son pestañas; Social atenuada con "Próximamente"; Perfil abre `UserMenu` y no se selecciona) e Inicio según Figma 49:15. Ruta y Labs son provisionales ("en construcción").
+  - **"Lección diaria":** lee `learningProgressRepository` y `deriveLearningProgress`. Muestra "Siguiente: <lección>" o "No tienes lecciones pendientes"; carga y error de red (con "Reintentar") solo afectan esa línea. **La tarjeta aún no es clicable**: abrir la lección se conecta en la Etapa 3 (y entonces el toque sin lección pendiente mostrará el Snackbar de Q3).
+  - **Textos:** `res/values/strings_aprendizaje.xml` (prefijo `learning_`), con los propuestos marcados en comentarios.
+  - **Módulos 1 y 2 tocados:** `NightWatchNavHost`, `NightWatchDestinations` y `NightWatchNavHostStartDestinationTest` (pasó de `MainMenu` a `Home`). `PostAuthGate*` y `PlacementResult*` no cambiaron (el destino se decide en el `NavHost`; sus eventos conservan el nombre `NavigateToMainMenu`).
+  - **Validación:** `assembleDebug testDebugUnitTest lintDebug compileDebugAndroidTestKotlin` en verde: 705 pruebas, 28 nuevas (`HomeViewModelTest`), lint con 0 errores. Se agregó `NightWatchBottomBarTest` (instrumentada, solo compilada: no se ejecutó).
+- **Sigue la Etapa 3** (Ruta y lecciones).
 - Lo que sigue marcado como **SUPUESTO** en el texto (por ejemplo, "Tu nivel: Sin evaluar" si no se puede leer el resultado del quiz, o que los objetivos del lab se cumplan en cualquier orden) y los **textos propuestos de la pantalla de aprobado y de la introducción del examen (F7)** son detalles que no estaban en la lista de confirmaciones del grupo; no bloquean y se anotan en el informe de cierre (Etapa 6) para que el grupo los vea.
 
 **SUPUESTOS y PENDIENTES que dejó la Etapa 1** (no bloquean la Etapa 2):
@@ -33,6 +41,15 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | E1-9 | RESUELTO (F15) | El texto de Figma de la salida del lab de correo decía "este es una imitación" (2383:173); el grupo pidió corregirlo y `learning_labs.json` dice ahora **"esta es una imitación"** |
 | E1-10 | PENDIENTE | Los textos de informe de **fallo** ("No confirmaste que…") son los de las variantes "(ERROR)" de Figma; el título común es "Laboratorio no completado" (P6) y se pondrá en la pantalla (Etapa 4) |
 | E1-11 | NO VERIFICADO | El `upsert` que ignora duplicados no se probó contra un servidor real desde aquí (no hay red ni SQL; F-03 de la revisión). Se comprueba a mano en el teléfono en la Etapa 3: ver una lección dos veces no debe dar error ni duplicar filas |
+| E2-1 | SUPUESTO | Social se dibuja a 55 % × 60 % (≈33 %): Figma no tiene pestaña desactivada; 60 % es la opacidad de los labs bloqueados (2271:84) y 55 % la de una pestaña inactiva |
+| E2-2 | SUPUESTO | La barra tiene 54 dp de contenido + 14 dp arriba + la barra de navegación del sistema; Figma mide 92 dp en un marco de 917 dp que incluye esa zona |
+| E2-3 | SUPUESTO | Las tarjetas "Concepto nuevo" y CiberMynd se atenúan al 60 % (solo la tarjeta, no el rótulo) |
+| E2-4 | SUPUESTO (texto no de Figma) | Línea "Nivel actual: BAJO/MEDIO/ALTO/Sin evaluar" dentro de la chapa (F16); misma regla que Mi Perfil (si la lectura falla o tarda más de 5 s: "Sin evaluar"; mientras tanto "…") |
+| E2-5 | SUPUESTO (texto no de Figma) | Línea bajo "Lección diaria": "Siguiente: <título de la lección>", "No tienes lecciones pendientes" (Q3), "Cargando tu progreso…", "Sin conexión. No pudimos cargar tu progreso.", "No pudimos cargar tu progreso." y "Reintentar" |
+| E2-6 | SUPUESTO | La descripción de accesibilidad del ícono de salida es "Cerrar sesión"; el aviso del toque es el Snackbar "Próximamente" (Q6, Q10) |
+| E2-7 | SUPUESTO | Colores de la chapa (#94A6A7) y del borde y asa de la hoja (#204143) tomados de los nodos 108:16, 113:145 y 113:150, no están en el tema; quedan privados en `HomeScreen`. Oro (#E3B54F) y texto sobre claro (#162523) ya existían |
+| E2-8 | DETALLE | Las ilustraciones de Inicio y el ícono de salida son los PNG de Figma (72:31, 72:30, 72:28 y 72:13), en `drawable-nodpi/img_home_*` |
+| E2-9 | NO VERIFICADO | Nada se vio en un teléfono (rotación, TalkBack, Snackbar encima de la barra, lectura del progreso real). Se prueba a mano con la lista de la entrega |
 | E1-12 | DETALLE | Las 5 respuestas P2 a P6 del examen, además de verificadas por el grupo, coinciden con las líneas "Correcta:" de las pantallas de 1 error (2498:524 a 2498:572) |
 
 ## 1. Alcance
@@ -263,6 +280,7 @@ Nada se ve en un teléfono desde aquí: la columna "Prueba en el teléfono" la h
 | F13 | **Nueva:** los textos nuevos ("Próximamente", "Completa la isla anterior", "Completa las 6 islas", "comando no reconocido", errores de red) no están en Figma | Necesarios para que la UI no quede muda |
 | F14 | **Nueva (P2/P6):** la precisión del informe muestra también 33% y 67% (en Figma solo hay 100% y 0%), y el tiempo estimado del informe de contraseñas sigue la regla de la sección 14, Q2: se muestra el de las salidas reales de la terminal, o "—" (el "3 Horas" de 2400:144 no coincide con ninguna salida) | Confirmado por el grupo (Q1, Q2) |
 | F15 | **Nueva (error de gramática de Figma):** la salida del lab de correo dice "este es una imitación" en Figma (2383:173); en la app es **"esta es una imitación"** (`learning_labs.json`). Cierra el pendiente E1-9 | Corrección pedida por el grupo (Etapa 2, tarea 0) |
+| F16 | **Nueva (Etapa 2):** la chapa de Inicio (72:2 a 72:6) agrega una tercera línea "Nivel actual: …" y la tarjeta "Lección diaria" una línea de estado debajo (siguiente lección, "No tienes lecciones pendientes" o error). Figma solo tiene nombre y racha, y la tarjeta sin texto | Pedido de la tarea (nivel con el formato de Mi Perfil; lección diaria o "No tienes lecciones pendientes") |
 
 ## 13. Decisiones del grupo (2026-10-18)
 
