@@ -12,7 +12,8 @@ import com.example.nightwatchprotocol.data.quiz.QuizCategory
 import com.example.nightwatchprotocol.ui.auth.forgotpassword.NewPasswordScreen
 import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
 import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
-import com.example.nightwatchprotocol.ui.mainmenu.MainMenuScreen
+import com.example.nightwatchprotocol.ui.home.HomeScreen
+import com.example.nightwatchprotocol.ui.home.HomeTab
 import com.example.nightwatchprotocol.ui.postauth.PostAuthGateScreen
 import com.example.nightwatchprotocol.ui.profile.changeemail.ChangeEmailScreen
 import com.example.nightwatchprotocol.ui.profile.changepassword.ChangePasswordScreen
@@ -42,7 +43,7 @@ import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeScreen
 /** Key under which "Confirma tu identidad" tells the screen below it that the password was verified. */
 private const val KEY_IDENTITY_CONFIRMED = "identity_confirmed"
 
-/** Returns to a fresh "Mi Perfil" (stack: Main Menu > Menú de usuario > Mi Perfil) so it shows the saved data. */
+/** Returns to a fresh "Mi Perfil" (stack: Home > Menú de usuario > Mi Perfil) so it shows the saved data. */
 private fun NavHostController.backToProfile() {
     navigate(Profile) { popUpTo<UserMenu> { inclusive = false } }
 }
@@ -94,7 +95,7 @@ fun NightWatchNavHost(
             VerifyCodeScreen(
                 onVerified = { notice ->
                     when (purpose) {
-                        // The session is open now: the same road as a normal sign-up (quiz or main menu).
+                        // The session is open now: the same road as a normal sign-up (quiz or Home).
                         CodePurpose.SIGN_UP ->
                             navController.navigate(PostAuthGate) { popUpTo<Login> { inclusive = true } }
                         // Same exit as the link flow: "¡Correo actualizado!" replaces the email-change screens.
@@ -117,7 +118,7 @@ fun NightWatchNavHost(
         composable<PostAuthGate> {
             PostAuthGateScreen(
                 onNavigateToMainMenu = {
-                    navController.navigate(MainMenu) { popUpTo<PostAuthGate> { inclusive = true } }
+                    navController.navigate(Home(HomeTab.Inicio)) { popUpTo<PostAuthGate> { inclusive = true } }
                 },
                 onNavigateToPlacementQuiz = {
                     navController.navigate(PlacementQuiz) { popUpTo<PostAuthGate> { inclusive = true } }
@@ -140,16 +141,18 @@ fun NightWatchNavHost(
         composable<PlacementResultRoute> {
             PlacementResultScreen(
                 onContinue = {
-                    navController.navigate(MainMenu) { popUpTo<PlacementResultRoute> { inclusive = true } }
+                    // Decision P4: after the quiz the person lands on Ruta.
+                    navController.navigate(Home(HomeTab.Ruta)) { popUpTo<PlacementResultRoute> { inclusive = true } }
                 },
             )
         }
-        composable<MainMenu> {
-            MainMenuScreen(
-                onSignOut = {
-                    navController.navigate(Login) { popUpTo<MainMenu> { inclusive = true } }
+        composable<Home> {
+            HomeScreen(
+                onSignedOut = {
+                    navController.navigate(Login) { popUpTo<Home> { inclusive = true } }
                 },
-                onOpenAccount = { navController.navigate(UserMenu) },
+                // "Perfil" of the bar (decision P15): the user menu opens above Home, which keeps its tab.
+                onOpenUserMenu = { navController.navigate(UserMenu) },
             )
         }
         composable<UserMenu> {
@@ -165,7 +168,7 @@ fun NightWatchNavHost(
                 onOpenHelp = { navController.navigate(Help) },
                 onOpenAbout = { navController.navigate(About) },
                 onSignedOut = {
-                    navController.navigate(Login) { popUpTo<MainMenu> { inclusive = true } }
+                    navController.navigate(Login) { popUpTo<Home> { inclusive = true } }
                 },
             )
         }

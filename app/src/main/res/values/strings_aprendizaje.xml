@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Textos de la interfaz del módulo 3 (decisión P12, opción A): prefijo learning_.
+    Los textos de los módulos 1 y 2 siguen en el código (F-09 pendiente). El contenido (lecciones, labs, preguntas) va en JSON.
+    Cada texto dice su fuente: "Figma" con el nodo, o "propuesto" cuando NO está en Figma (diferencia F13 de la spec).
+-->
+<resources>
+    <!-- Barra inferior. Figma: BottomNav (49:15, 2266:72, 2271:84, 2440:163) -->
+    <string name="learning_tab_home">Inicio</string>
+    <string name="learning_tab_path">Ruta</string>
+    <string name="learning_tab_labs">Labs</string>
+    <string name="learning_tab_social">Social</string>
+    <string name="learning_tab_profile">Perfil</string>
+
+    <!-- Aviso "Próximamente" (Q6, Q10): propuesto, no está en Figma -->
+    <string name="learning_coming_soon">Próximamente</string>
+    <!-- Accesibilidad de la pestaña Social atenuada: propuesto -->
+    <string name="learning_social_tab_description">Social, próximamente</string>
+    <string name="learning_state_unavailable">No disponible</string>
+    <!-- Accesibilidad de las tarjetas atenuadas de Inicio: propuesto -->
+    <string name="learning_card_coming_soon_description">%1$s, próximamente</string>
+
+    <!-- Inicio. Figma: MAIN MENU (49:15) -->
+    <string name="learning_home_app_name">Nightwatch Protocol</string>
+    <string name="learning_home_streak">Racha Activa de %1$d días 🔥</string>
+    <string name="learning_home_daily_lesson">Lección diaria</string>
+    <string name="learning_home_new_concept">Concepto nuevo</string>
+    <string name="learning_home_cibermynd">Prepárate con CiberMynd</string>
+
+    <!-- Inicio: textos propuestos (no están en Figma) -->
+    <string name="learning_home_sign_out">Cerrar sesión</string>
+    <string name="learning_home_level">Nivel actual: %1$s</string>
+    <string name="learning_home_next_lesson">Siguiente: %1$s</string>
+    <string name="learning_home_no_pending_lessons">No tienes lecciones pendientes</string>
+    <string name="learning_home_loading_progress">Cargando tu progreso…</string>
+    <string name="learning_home_progress_error_offline">Sin conexión. No pudimos cargar tu progreso.</string>
+    <string name="learning_home_progress_error">No pudimos cargar tu progreso.</string>
+    <string name="learning_home_retry">Reintentar</string>
+
+    <!-- Pestañas provisionales (las reemplazan las etapas 3 y 4): propuesto -->
+    <string name="learning_path_under_construction">La Ruta de Aprendizaje está en construcción.</string>
+    <string name="learning_labs_under_construction">Los Laboratorios están en construcción.</string>
+</resources>
