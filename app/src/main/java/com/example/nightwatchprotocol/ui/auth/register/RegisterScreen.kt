@@ -51,6 +51,7 @@ import com.example.nightwatchprotocol.ui.auth.requestGoogleIdToken
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.auth.login.ErrorDialogKind
+import com.example.nightwatchprotocol.ui.auth.login.message
 import com.example.nightwatchprotocol.ui.components.GoogleSignInButton
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
@@ -96,6 +97,7 @@ fun RegisterScreen(
                 when (val result = requestGoogleIdToken(context, viewModel.googleWebClientId, hashedNonce)) {
                     is GoogleCredentialResult.IdToken -> viewModel.onGoogleIdTokenReceived(result.idToken)
                     GoogleCredentialResult.Cancelled -> viewModel.onGoogleSignInCancelled()
+                    GoogleCredentialResult.NoAccount -> viewModel.onGoogleNoAccount()
                     GoogleCredentialResult.Failed -> viewModel.onGoogleSignInFailed()
                 }
             }
@@ -106,15 +108,7 @@ fun RegisterScreen(
         AlertDialog(
             onDismissRequest = { dialogKind = null },
             title = { Text("Error de registro") },
-            text = {
-                Text(
-                    if (kind == ErrorDialogKind.NETWORK) {
-                        "Sin conexión a internet. Verifica tu conexión e intenta de nuevo."
-                    } else {
-                        "Se produjo un error inesperado. Intenta registrarte de nuevo."
-                    },
-                )
-            },
+            text = { Text(kind.message(unknown = "Se produjo un error inesperado. Intenta registrarte de nuevo.")) },
             confirmButton = { TextButton(onClick = { dialogKind = null }) { Text("Aceptar") } },
         )
     }

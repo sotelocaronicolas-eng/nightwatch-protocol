@@ -6,6 +6,7 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -17,12 +18,21 @@ sealed interface GoogleCredentialResult {
     /** The user closed the account chooser. Not an error. */
     data object Cancelled : GoogleCredentialResult
 
+    /** The phone has no Google account to choose from. */
+    data object NoAccount : GoogleCredentialResult
+
     data object Failed : GoogleCredentialResult
 }
 
-/** Only a user cancellation is told apart; every other Credential Manager failure is [GoogleCredentialResult.Failed]. */
-fun classifyGoogleFailure(error: Throwable): GoogleCredentialResult =
-    if (error is GetCredentialCancellationException) GoogleCredentialResult.Cancelled else GoogleCredentialResult.Failed
+/**
+ * A user cancellation and a phone without a Google account are told apart; every other Credential Manager failure is
+ * [GoogleCredentialResult.Failed].
+ */
+fun classifyGoogleFailure(error: Throwable): GoogleCredentialResult = when (error) {
+    is GetCredentialCancellationException -> GoogleCredentialResult.Cancelled
+    is NoCredentialException -> GoogleCredentialResult.NoAccount
+    else -> GoogleCredentialResult.Failed
+}
 
 /**
  * Opens the Google account chooser and returns its ID token. [hashedNonce] (SHA-256 in hex) is set on the request

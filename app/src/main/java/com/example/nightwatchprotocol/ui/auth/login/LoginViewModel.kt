@@ -124,6 +124,11 @@ class LoginViewModel(
         if (!authRepository.usesGoogleNonce) onGoogleSignInFailed()
     }
 
+    /** The phone has no Google account: the dialog says to add one. */
+    fun onGoogleNoAccount() {
+        viewModelScope.launch { _events.send(LoginEvent.ShowErrorDialog(ErrorDialogKind.NO_GOOGLE_ACCOUNT)) }
+    }
+
     fun onGoogleSignInFailed() {
         viewModelScope.launch { _events.send(LoginEvent.ShowErrorDialog(ErrorDialogKind.UNKNOWN)) }
     }

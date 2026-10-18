@@ -23,7 +23,20 @@ sealed interface LoginFieldError {
 
 enum class ErrorDialogKind {
     NETWORK,
+
+    /** Google sign-in on a phone that has no Google account. */
+    NO_GOOGLE_ACCOUNT,
     UNKNOWN,
+}
+
+const val MESSAGE_NO_GOOGLE_ACCOUNT = "Agrega una cuenta de Google en tu teléfono para continuar"
+const val MESSAGE_ERROR_DIALOG_NETWORK = "Sin conexión a internet. Verifica tu conexión e intenta de nuevo."
+
+/** The text of the error dialog; [unknown] is the screen's own generic message. */
+fun ErrorDialogKind.message(unknown: String): String = when (this) {
+    ErrorDialogKind.NETWORK -> MESSAGE_ERROR_DIALOG_NETWORK
+    ErrorDialogKind.NO_GOOGLE_ACCOUNT -> MESSAGE_NO_GOOGLE_ACCOUNT
+    ErrorDialogKind.UNKNOWN -> unknown
 }
 
 /**

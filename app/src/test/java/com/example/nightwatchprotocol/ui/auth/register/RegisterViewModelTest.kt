@@ -283,6 +283,16 @@ class RegisterViewModelTest {
     }
 
     @Test
+    fun registerWithGoogle_phoneWithoutAGoogleAccount_showsTheNoAccountDialog() = runTest {
+        val (viewModel, _) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onGoogleNoAccount()
+            assertEquals(RegisterEvent.ShowErrorDialog(ErrorDialogKind.NO_GOOGLE_ACCOUNT), awaitItem())
+        }
+    }
+
+    @Test
     fun registerWithGoogle_noConnection_withANonceBackend_showsTheNetworkDialog() = runTest {
         val fakeRepo = FakeAuthRepository().apply {
             googleUsesNonce = true

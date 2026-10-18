@@ -100,6 +100,7 @@ fun LoginScreen(
                 when (val result = requestGoogleIdToken(context, viewModel.googleWebClientId, hashedNonce)) {
                     is GoogleCredentialResult.IdToken -> viewModel.onGoogleIdTokenReceived(result.idToken)
                     GoogleCredentialResult.Cancelled -> viewModel.onGoogleSignInCancelled()
+                    GoogleCredentialResult.NoAccount -> viewModel.onGoogleNoAccount()
                     GoogleCredentialResult.Failed -> viewModel.onGoogleSignInFailed()
                 }
             }
@@ -122,15 +123,7 @@ fun LoginScreen(
         AlertDialog(
             onDismissRequest = { dialogKind = null },
             title = { Text("Error de inicio de sesión") },
-            text = {
-                Text(
-                    if (kind == ErrorDialogKind.NETWORK) {
-                        "Sin conexión a internet. Verifica tu conexión e intenta de nuevo."
-                    } else {
-                        "Se produjo un error inesperado. Intenta iniciar sesión de nuevo."
-                    },
-                )
-            },
+            text = { Text(kind.message(unknown = "Se produjo un error inesperado. Intenta iniciar sesión de nuevo.")) },
             confirmButton = {
                 TextButton(onClick = { dialogKind = null }) { Text("Aceptar") }
             },

@@ -279,6 +279,16 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun signInWithGoogle_phoneWithoutAGoogleAccount_showsTheNoAccountDialog() = runTest {
+        val (viewModel, _) = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onGoogleNoAccount()
+            assertEquals(LoginEvent.ShowErrorDialog(ErrorDialogKind.NO_GOOGLE_ACCOUNT), awaitItem())
+        }
+    }
+
+    @Test
     fun signInWithGoogle_success_navigatesToMainMenu() = runTest {
         val (viewModel, _) = createViewModel()
 
