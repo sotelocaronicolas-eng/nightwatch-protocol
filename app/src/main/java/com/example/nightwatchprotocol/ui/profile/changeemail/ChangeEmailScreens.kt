@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.components.BottomActionScrollLayout
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.components.ProfileButton
@@ -75,62 +76,61 @@ fun ChangeEmailScreen(
     NightWatchScreenBackground {
         Column(modifier = Modifier.fillMaxSize()) {
             ProfileTopBar(onClose = onClose)
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        // The scrollable area ends above the bottom button, so a focused field is brought into view
-                        // above it, not under it.
-                        .padding(bottom = 140.dp)
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 41.dp),
-                ) {
-                    EmailScreenHeader(
-                        title = "Confirmar Correo",
-                        message = if (uiState.usesCode) {
-                            "Escribe tu nuevo correo. Te enviaremos un código de verificación para confirmarlo."
-                        } else {
-                            "Escribe tu nuevo correo. Te enviaremos un enlace de verificación para confirmarlo."
-                        },
-                    )
-                    EnvelopeImage()
+            BottomActionScrollLayout(
+                actionBottomPadding = EMAIL_ACTION_BOTTOM_PADDING,
+                modifier = Modifier.weight(1f),
+                action = {
                     if (uiState.hasPassword) {
-                        NightWatchTextField(
-                            label = "Nuevo correo electrónico",
-                            value = uiState.email,
-                            onValueChange = viewModel::onEmailChanged,
-                            isError = uiState.error != null,
-                            supportingText = uiState.error,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                            modifier = Modifier.padding(top = 40.dp),
-                        )
-                    } else {
-                        Text(
-                            text = GOOGLE_ACCOUNT_NOTICE,
-                            color = NightWatchHeaderPanel,
-                            fontFamily = NightWatchBodyFontFamily,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(top = 40.dp),
+                        ProfileButton(
+                            text = if (uiState.usesCode) "ENVIAR CÓDIGO" else "ENVIAR ENLACE",
+                            onClick = viewModel::onSendLinkClicked,
+                            enabled = !uiState.isSending,
                         )
                     }
-                }
+                },
+            ) {
+                EmailScreenHeader(
+                    title = "Confirmar Correo",
+                    message = if (uiState.usesCode) {
+                        "Escribe tu nuevo correo. Te enviaremos un código de verificación para confirmarlo."
+                    } else {
+                        "Escribe tu nuevo correo. Te enviaremos un enlace de verificación para confirmarlo."
+                    },
+                )
+                EnvelopeImage()
                 if (uiState.hasPassword) {
-                    ProfileButton(
-                        text = if (uiState.usesCode) "ENVIAR CÓDIGO" else "ENVIAR ENLACE",
-                        onClick = viewModel::onSendLinkClicked,
-                        enabled = !uiState.isSending,
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .navigationBarsPadding()
-                            .padding(bottom = 70.dp),
+                    NightWatchTextField(
+                        label = "Nuevo correo electrónico",
+                        value = uiState.email,
+                        onValueChange = viewModel::onEmailChanged,
+                        isError = uiState.error != null,
+                        supportingText = uiState.error,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        modifier = Modifier.padding(top = EMAIL_FIELD_TOP_PADDING),
+                    )
+                } else {
+                    Text(
+                        text = GOOGLE_ACCOUNT_NOTICE,
+                        color = NightWatchHeaderPanel,
+                        fontFamily = NightWatchBodyFontFamily,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = EMAIL_FIELD_TOP_PADDING),
                     )
                 }
             }
         }
     }
 }
+
+/*
+ * Layout of "Confirmar Correo" (Figma 2106:50), shared by the screens built the same way: "Verifica tu Correo",
+ * "Correo de Recuperación" and "Confirma tu identidad". The header, the 207 dp illustration slot and these two
+ * distances are the Figma positions: the field 40 dp under the illustration, the button 70 dp above the bottom.
+ */
+internal val EMAIL_FIELD_TOP_PADDING = 40.dp
+internal val EMAIL_ACTION_BOTTOM_PADDING = 70.dp
+internal val ILLUSTRATION_SIZE = 207.dp
 
 @Composable
 fun VerifyEmailLinkScreen(
@@ -234,6 +234,6 @@ internal fun EnvelopeImage() {
     Image(
         painter = painterResource(R.drawable.img_envelope),
         contentDescription = null,
-        modifier = Modifier.size(207.dp),
+        modifier = Modifier.size(ILLUSTRATION_SIZE),
     )
 }

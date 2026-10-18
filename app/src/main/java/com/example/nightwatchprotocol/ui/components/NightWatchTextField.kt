@@ -50,7 +50,7 @@ fun NightWatchTextField(
             KeyboardOptions.Default
         }
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth().keepVisibleWithKeyboard()) {
         Text(
             text = label,
             color = NightWatchOnBackground,

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -49,7 +48,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.components.BottomActionScrollLayout
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
+import com.example.nightwatchprotocol.ui.components.keepVisibleWithKeyboard
 import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
 import com.example.nightwatchprotocol.ui.profile.changeemail.EmailScreenHeader
@@ -189,45 +190,31 @@ private fun VerifyCodeScreenLayout(
     NightWatchScreenBackground {
         Column(modifier = Modifier.fillMaxSize()) {
             ProfileTopBar(onClose = onClose)
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        // The scrollable area ends above the bottom buttons, so the focused field is brought into
-                        // view above them, not under them.
-                        .padding(bottom = 180.dp)
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 41.dp),
-                ) {
-                    EmailScreenHeader(
-                        title = title,
-                        message = "Enviamos un código de $CODE_LENGTH dígitos a $recipient",
-                    )
-                    EnvelopeImage()
-                    CodeInput(
-                        code = uiState.code,
-                        onCodeChange = onCodeChange,
-                        style = CodeInputStyle.Bar,
-                        isError = uiState.error != null,
-                        modifier = Modifier.padding(top = 28.dp),
-                    )
-                    CodeHint(uiState, modifier = Modifier.padding(top = 8.dp))
-                }
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .navigationBarsPadding()
-                        .padding(bottom = 36.dp),
-                ) {
+            BottomActionScrollLayout(
+                actionBottomPadding = 36.dp,
+                modifier = Modifier.weight(1f),
+                action = {
                     ProfileButton(
                         text = if (uiState.error != null) "REINTENTAR" else "CONFIRMAR CÓDIGO",
                         onClick = onConfirm,
                         enabled = uiState.error != null || uiState.canConfirm,
                     )
                     ResendLink(uiState, onResend, modifier = Modifier.padding(top = 14.dp))
-                }
+                },
+            ) {
+                EmailScreenHeader(
+                    title = title,
+                    message = "Enviamos un código de $CODE_LENGTH dígitos a $recipient",
+                )
+                EnvelopeImage()
+                CodeInput(
+                    code = uiState.code,
+                    onCodeChange = onCodeChange,
+                    style = CodeInputStyle.Bar,
+                    isError = uiState.error != null,
+                    modifier = Modifier.padding(top = 28.dp),
+                )
+                CodeHint(uiState, modifier = Modifier.padding(top = 8.dp))
             }
         }
     }
@@ -305,7 +292,7 @@ fun CodeInput(
             textAlign = TextAlign.Center,
         ),
         cursorBrush = SolidColor(Color.Black),
-        modifier = modifier.focusRequester(focusRequester).testTag(CODE_FIELD_TAG),
+        modifier = modifier.keepVisibleWithKeyboard().focusRequester(focusRequester).testTag(CODE_FIELD_TAG),
         decorationBox = { innerTextField ->
             when (style) {
                 CodeInputStyle.Bar -> Box(
