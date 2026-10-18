@@ -441,4 +441,71 @@ class HomeViewModelTest {
             )
         }
     }
+
+    // ---- tapping "Lección diaria" ----
+
+    @Test
+    fun tappingTheDailyLesson_withAPendingLesson_opensIt() = runTest {
+        completeIslands(2)
+        val vm = viewModel()
+        vm.refreshProgress()
+        advanceUntilIdle()
+
+        vm.events.test {
+            vm.onDailyLessonClicked()
+            assertEquals(HomeEvent.OpenLesson(LearningTopic.MALWARE), awaitItem())
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun tappingTheDailyLesson_withNothingPending_showsTheNotice_andOpensNothing() = runTest {
+        completeIslands(6)
+        val vm = viewModel()
+        vm.refreshProgress()
+        advanceUntilIdle()
+
+        vm.events.test {
+            vm.onDailyLessonClicked()
+            assertEquals(HomeEvent.ShowNoPendingLessons, awaitItem())
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun tappingTheDailyLesson_withTheLessonSeenButTheLabMissing_showsTheNotice() = runTest {
+        progress.viewedLessons += LearningTopic.CONTRASENAS
+        val vm = viewModel()
+        vm.refreshProgress()
+        advanceUntilIdle()
+
+        vm.events.test {
+            vm.onDailyLessonClicked()
+            assertEquals(HomeEvent.ShowNoPendingLessons, awaitItem())
+        }
+    }
+
+    @Test
+    fun tappingTheDailyLesson_whileLoadingOrAfterAnError_doesNothing() = runTest {
+        val loading = viewModel()
+        loading.refreshProgress()
+        progress.readFailure = FailureKind.Offline
+        val failed = viewModel()
+        failed.refreshProgress()
+        advanceUntilIdle()
+
+        loading.events.test {
+            // This one finished loading with the failure set before it ran, so it is a failure too.
+            loading.onDailyLessonClicked()
+            failed.onDailyLessonClicked()
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+        failed.events.test {
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+    }
 }

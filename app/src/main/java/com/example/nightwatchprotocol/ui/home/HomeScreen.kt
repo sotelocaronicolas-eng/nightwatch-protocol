@@ -62,12 +62,11 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
-import kotlinx.coroutines.launch
+import com.example.nightwatchprotocol.data.learning.LearningTopic
+import com.example.nightwatchprotocol.ui.path.LearningPathTab
 
 /** Figma 49:15 "MAIN MENU": the colours of the bar line, the panel behind the pill and the sheet border/handle (113:145, 113:150). */
-private val TopBarTextColor = Color(0xFFDDDDDD)
 private val SheetBorderColor = Color(0xFF204143)
-private val PillColor = Color(0xFF94A6A7)
 
 /** The opacity of what is not available yet, as the locked labs of Figma 2271:84 (opacity 60%). */
 private const val DIMMED_ALPHA = 0.6f
@@ -81,11 +80,13 @@ private const val DIMMED_ALPHA = 0.6f
 fun HomeScreen(
     onSignedOut: () -> Unit,
     onOpenUserMenu: () -> Unit,
+    onOpenLesson: (LearningTopic) -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val comingSoon = stringResource(R.string.learning_coming_soon)
+    val noPendingLessons = stringResource(R.string.learning_home_no_pending_lessons)
 
     // Name and progress are re-read each time Home comes back (after Editar Perfil, or after a lesson in a later stage).
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
@@ -98,11 +99,9 @@ fun HomeScreen(
             when (event) {
                 HomeEvent.SignedOut -> onSignedOut()
                 HomeEvent.OpenUserMenu -> onOpenUserMenu()
-                HomeEvent.ShowComingSoon -> {
-                    // One message at a time: a new tap replaces the one on screen instead of queueing behind it.
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    launch { snackbarHostState.showSnackbar(comingSoon) }
-                }
+                HomeEvent.ShowComingSoon -> showNotice(snackbarHostState, comingSoon)
+                HomeEvent.ShowNoPendingLessons -> showNotice(snackbarHostState, noPendingLessons)
+                is HomeEvent.OpenLesson -> onOpenLesson(event.topic)
             }
         }
     }
@@ -110,6 +109,8 @@ fun HomeScreen(
     HomeContent(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
+        onOpenLesson = onOpenLesson,
+        onDailyLessonClick = viewModel::onDailyLessonClicked,
         onTabSelected = viewModel::onTabSelected,
         onSocialClick = viewModel::onSocialClicked,
         onProfileClick = viewModel::onProfileClicked,
@@ -123,6 +124,8 @@ fun HomeScreen(
 private fun HomeContent(
     uiState: HomeUiState,
     snackbarHostState: SnackbarHostState,
+    onOpenLesson: (LearningTopic) -> Unit,
+    onDailyLessonClick: () -> Unit,
     onTabSelected: (HomeTab) -> Unit,
     onSocialClick: () -> Unit,
     onProfileClick: () -> Unit,
@@ -150,10 +153,14 @@ private fun HomeContent(
                     HomeTab.Inicio -> InicioTab(
                         uiState = uiState,
                         onSignOut = onSignOut,
+                        onDailyLessonClick = onDailyLessonClick,
                         onComingSoonCardClick = onComingSoonCardClick,
                         onRetryProgress = onRetryProgress,
                     )
-                    HomeTab.Ruta -> PathTabPlaceholder()
+                    HomeTab.Ruta -> LearningPathTab(
+                        snackbarHostState = snackbarHostState,
+                        onOpenLesson = onOpenLesson,
+                    )
                     HomeTab.Labs -> LabsTabPlaceholder()
                 }
             }
@@ -167,11 +174,23 @@ private fun HomeContent(
 private fun InicioTab(
     uiState: HomeUiState,
     onSignOut: () -> Unit,
+    onDailyLessonClick: () -> Unit,
     onComingSoonCardClick: () -> Unit,
     onRetryProgress: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        HomeTopBar(onSignOut = onSignOut)
+        HomeTopBar(title = stringResource(R.string.learning_home_app_name)) {
+            // The exit icon (49:15, 72:13).
+            Image(
+                painter = painterResource(id = R.drawable.img_home_exit),
+                contentDescription = stringResource(R.string.learning_home_sign_out),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 8.dp, end = 12.dp)
+                    .size(50.dp)
+                    .clickable(role = Role.Button, onClick = onSignOut),
+            )
+        }
         // The light panel under the pill (113:148) with the dark rounded sheet over it (113:145).
         BoxWithConstraints(
             modifier = Modifier
@@ -204,7 +223,7 @@ private fun InicioTab(
                         .verticalScroll(rememberScrollState())
                         .padding(start = 61.dp, end = 61.dp, top = 72.dp, bottom = 24.dp),
                 ) {
-                    DailyLessonSection(uiState.dailyLesson, onRetryProgress)
+                    DailyLessonSection(uiState.dailyLesson, onDailyLessonClick, onRetryProgress)
                     ComingSoonSection(
                         title = stringResource(R.string.learning_home_new_concept),
                         imageRes = R.drawable.img_home_concept,
@@ -226,44 +245,6 @@ private fun InicioTab(
 private val SheetShape = RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)
 private val CardShape = RoundedCornerShape(16.dp)
 
-
-/** Logo, name, the exit icon (49:15, 72:13) and the white line, below the status bar. Same layout as [com.example.nightwatchprotocol.ui.components.ProfileTopBar]. */
-@Composable
-private fun HomeTopBar(onSignOut: () -> Unit) {
-    Box(modifier = Modifier.fillMaxWidth().statusBarsPadding().background(NightWatchBackground)) {
-        Box(modifier = Modifier.fillMaxWidth().height(72.dp)) {
-            Image(
-                painter = painterResource(id = R.drawable.img_logo_nightwatch),
-                contentDescription = null,
-                modifier = Modifier.padding(start = 11.dp, top = 9.dp).size(50.dp),
-            )
-            Text(
-                text = stringResource(R.string.learning_home_app_name),
-                color = TopBarTextColor,
-                fontFamily = NightWatchBodyFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp,
-                modifier = Modifier.padding(start = 66.dp, top = 14.dp).width(105.dp),
-            )
-            Image(
-                painter = painterResource(id = R.drawable.img_home_exit),
-                contentDescription = stringResource(R.string.learning_home_sign_out),
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 8.dp, end = 12.dp)
-                    .size(50.dp)
-                    .clickable(role = Role.Button, onClick = onSignOut),
-            )
-        }
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .fillMaxWidth()
-                .height(4.dp)
-                .background(Color.White),
-        )
-    }
-}
 
 /** The badge with the photo or initial, the name, the level and the fixed streak (72:2 to 72:6, pill 108:16). */
 @Composable
@@ -347,13 +328,22 @@ private fun IllustratedCard(
 }
 
 /**
- * "Lección diaria": the next pending lesson, or "No tienes lecciones pendientes" (decision Q3). The card is not clickable
- * yet: opening the lesson is connected when the lessons exist. Loading and errors only touch the line under the card.
+ * "Lección diaria": the next pending lesson, or "No tienes lecciones pendientes" (decision Q3). Tapping the card opens the
+ * pending lesson, or says there is none; while loading or after an error the tap does nothing. Loading and errors only
+ * touch the line under the card.
  */
 @Composable
-private fun DailyLessonSection(state: DailyLessonState, onRetry: () -> Unit) {
+private fun DailyLessonSection(state: DailyLessonState, onClick: () -> Unit, onRetry: () -> Unit) {
     SectionTitle(stringResource(R.string.learning_home_daily_lesson))
-    IllustratedCard(imageRes = R.drawable.img_home_lesson, imageSize = 70.dp)
+    IllustratedCard(
+        imageRes = R.drawable.img_home_lesson,
+        imageSize = 70.dp,
+        modifier = if (state is DailyLessonState.Pending || state == DailyLessonState.NoneLeft) {
+            Modifier.clickable(role = Role.Button, onClick = onClick)
+        } else {
+            Modifier
+        },
+    )
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth().heightIn(min = 39.dp).padding(top = 6.dp, bottom = 6.dp),
@@ -428,12 +418,6 @@ private fun ComingSoonSection(title: String, imageRes: Int, imageSize: Dp, onCli
 }
 
 // ---- Ruta and Labs: provisional ----
-
-// provisional, Etapa 3: the map of the learning path replaces this.
-@Composable
-private fun PathTabPlaceholder() {
-    UnderConstruction(stringResource(R.string.learning_path_under_construction))
-}
 
 // provisional, Etapa 4: the list of labs replaces this.
 @Composable

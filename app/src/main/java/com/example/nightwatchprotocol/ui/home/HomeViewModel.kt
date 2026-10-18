@@ -21,7 +21,6 @@ import com.example.nightwatchprotocol.data.learning.LearningContentRepository
 import com.example.nightwatchprotocol.data.learning.LearningProgressRepository
 import com.example.nightwatchprotocol.data.learning.deriveLearningProgress
 import com.example.nightwatchprotocol.data.profile.LEVEL_NOT_ASSESSED
-import com.example.nightwatchprotocol.data.profile.levelLabel
 import com.example.nightwatchprotocol.data.profile.profileDisplayName
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import com.example.nightwatchprotocol.data.quiz.QuizResultRepository
@@ -35,9 +34,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
 
-private const val READ_TIMEOUT_MILLIS = 5_000L
 
 /** The tab survives a rotation (and the process dying) because it is kept in the saved state. */
 private const val KEY_SELECTED_TAB = "selected_tab"
@@ -104,6 +101,18 @@ class HomeViewModel(
         viewModelScope.launch { _events.send(HomeEvent.ShowComingSoon) }
     }
 
+    /**
+     * "Lección diaria": opens the next pending lesson; with none, a Snackbar says so (decision Q3). While the progress is
+     * loading or failed there is nothing to open, so the tap does nothing (the card offers "Reintentar").
+     */
+    fun onDailyLessonClicked() {
+        when (val daily = _uiState.value.dailyLesson) {
+            is DailyLessonState.Pending -> viewModelScope.launch { _events.send(HomeEvent.OpenLesson(daily.topic)) }
+            DailyLessonState.NoneLeft -> viewModelScope.launch { _events.send(HomeEvent.ShowNoPendingLessons) }
+            DailyLessonState.Loading, is DailyLessonState.Failed -> Unit
+        }
+    }
+
     /** "Perfil" is not content of Home: it opens the user menu, and Home (with its tab) stays below it. */
     fun onProfileClicked() {
         viewModelScope.launch { _events.send(HomeEvent.OpenUserMenu) }
@@ -152,12 +161,9 @@ class HomeViewModel(
         }
     }
 
-    // A failed or slow read is shown as "not assessed", like Mi Perfil: the level is informational here.
     private suspend fun loadLevel(uid: String) {
-        val result = withTimeoutOrNull(READ_TIMEOUT_MILLIS) {
-            runCatchingKeepCancellation { quizResultRepository.getResult(uid) }.getOrNull()
-        }
-        _uiState.update { it.copy(level = levelLabel(result)) }
+        val level = readLevelLabel(quizResultRepository, uid)
+        _uiState.update { it.copy(level = level) }
     }
 
     companion object {

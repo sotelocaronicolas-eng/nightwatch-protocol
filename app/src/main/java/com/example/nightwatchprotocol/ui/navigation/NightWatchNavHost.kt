@@ -14,6 +14,7 @@ import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
 import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
 import com.example.nightwatchprotocol.ui.home.HomeScreen
 import com.example.nightwatchprotocol.ui.home.HomeTab
+import com.example.nightwatchprotocol.ui.lesson.LessonScreen
 import com.example.nightwatchprotocol.ui.postauth.PostAuthGateScreen
 import com.example.nightwatchprotocol.ui.profile.changeemail.ChangeEmailScreen
 import com.example.nightwatchprotocol.ui.profile.changepassword.ChangePasswordScreen
@@ -153,6 +154,17 @@ fun NightWatchNavHost(
                 },
                 // "Perfil" of the bar (decision P15): the user menu opens above Home, which keeps its tab.
                 onOpenUserMenu = { navController.navigate(UserMenu) },
+                // From a map island or "Lección diaria": full screen, without the bar.
+                onOpenLesson = { topic -> navController.navigate(Lesson(topic)) },
+            )
+        }
+        composable<Lesson> {
+            LessonScreen(
+                onClose = { navController.popBackStack() },
+                // Provisional until the labs exist (stage 4): Home with the Labs tab, replacing the Home below the lesson.
+                onOpenLabs = {
+                    navController.navigate(Home(HomeTab.Labs)) { popUpTo<Home> { inclusive = true } }
+                },
             )
         }
         composable<UserMenu> {

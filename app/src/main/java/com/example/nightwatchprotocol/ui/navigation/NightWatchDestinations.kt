@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.ui.navigation
 
+import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.ui.home.HomeTab
 import com.example.nightwatchprotocol.ui.verifycode.CodePurpose
 import kotlinx.serialization.Serializable
@@ -25,6 +26,10 @@ data class VerifyCode(val email: String, val purpose: CodePurpose)
 /** The container with the bottom bar (Inicio, Ruta, Labs). [tab] is the one shown first: Inicio by default, Ruta after the quiz. */
 @Serializable
 data class Home(val tab: HomeTab = HomeTab.Inicio)
+
+/** A lesson, full screen and without the bottom bar. */
+@Serializable
+data class Lesson(val topic: LearningTopic)
 
 @Serializable
 object UserMenu

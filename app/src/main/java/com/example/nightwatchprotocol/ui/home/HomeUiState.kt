@@ -50,4 +50,10 @@ sealed interface HomeEvent {
 
     /** Social and the two cards that are not built yet: one Snackbar "Próximamente". */
     data object ShowComingSoon : HomeEvent
+
+    /** "Lección diaria" with a pending lesson: opens it. */
+    data class OpenLesson(val topic: LearningTopic) : HomeEvent
+
+    /** "Lección diaria" with nothing pending: Snackbar "No tienes lecciones pendientes" (decision Q3). */
+    data object ShowNoPendingLessons : HomeEvent
 }

@@ -37,7 +37,37 @@
     <string name="learning_home_progress_error">No pudimos cargar tu progreso.</string>
     <string name="learning_home_retry">Reintentar</string>
 
-    <!-- Pestañas provisionales (las reemplazan las etapas 3 y 4): propuesto -->
-    <string name="learning_path_under_construction">La Ruta de Aprendizaje está en construcción.</string>
+    <!-- Pestaña Labs provisional (la reemplaza la Etapa 4): propuesto -->
     <string name="learning_labs_under_construction">Los Laboratorios están en construcción.</string>
+
+    <!-- Ruta de Aprendizaje. Figma: RUTA DE APRENDIZAJE (MAPA) 2266:72 -->
+    <string name="learning_path_title">Ruta de Aprendizaje</string>
+    <!-- Figma dice "Tu nivel: Aprendiz"; aquí BAJO/MEDIO/ALTO o Sin evaluar (P2, F1) -->
+    <string name="learning_path_level">🧭 Tu nivel: %1$s</string>
+    <string name="learning_path_progress">%1$d de %2$d islas completadas</string>
+    <string name="learning_path_final_test">Prueba Final</string>
+
+    <!-- Ruta: textos propuestos (no están en Figma) -->
+    <string name="learning_path_error_offline">Sin conexión. No pudimos cargar tu progreso.</string>
+    <string name="learning_path_error">No pudimos cargar tu progreso.</string>
+    <!-- Textos de bloqueo confirmados por el grupo (Q6) -->
+    <string name="learning_path_locked_island">Completa la isla anterior</string>
+    <string name="learning_path_locked_final_test">Completa las 6 islas</string>
+    <!-- Accesibilidad de las islas: propuesto -->
+    <string name="learning_island_state_completed">Completada</string>
+    <string name="learning_island_state_available">Disponible</string>
+    <string name="learning_island_state_locked">Bloqueada</string>
+
+    <!-- Lección. Figma: LECCION 2294:112 a 2294:202 -->
+    <string name="learning_lesson_module">MÓDULO %1$d de %2$d</string>
+    <string name="learning_lesson_go_to_lab">🧪 Ir al laboratorio →</string>
+    <string name="learning_lesson_close">X</string>
+
+    <!-- Lección: textos propuestos (no están en Figma) -->
+    <string name="learning_lesson_close_description">Cerrar lección</string>
+    <string name="learning_lesson_loading">Cargando la lección…</string>
+    <string name="learning_lesson_error">No pudimos cargar la lección.</string>
+    <string name="learning_lesson_save_failed_offline">Sin conexión: no se guardó tu avance, pero puedes seguir leyendo.</string>
+    <string name="learning_lesson_save_failed">No se pudo guardar tu avance, pero puedes seguir leyendo.</string>
+    <string name="learning_retry">Reintentar</string>
 </resources>
