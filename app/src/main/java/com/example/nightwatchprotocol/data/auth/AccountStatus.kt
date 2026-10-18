@@ -1,7 +1,7 @@
 package com.example.nightwatchprotocol.data.auth
 
-import com.example.nightwatchprotocol.data.firestore.FailureKind
-import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
+import com.example.nightwatchprotocol.data.common.FailureKind
+import com.example.nightwatchprotocol.data.common.DataAccessException
 import com.example.nightwatchprotocol.data.supabase.supabaseCall
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.serialization.json.buildJsonObject
@@ -56,6 +56,6 @@ class SupabaseAccountStatusLookup(private val postgrest: Postgrest) : AccountSta
     override suspend fun statusOf(email: String): AccountStatus {
         val body = buildJsonObject { put("p_email", email.trim()) }
         val raw = supabaseCall { postgrest.rpc("account_status", body).data }
-        return parseAccountStatus(raw) ?: throw FirestoreAccessException(FailureKind.Unknown)
+        return parseAccountStatus(raw) ?: throw DataAccessException(FailureKind.Unknown)
     }
 }

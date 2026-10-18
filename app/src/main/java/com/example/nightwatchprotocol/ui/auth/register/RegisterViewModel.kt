@@ -32,7 +32,7 @@ class RegisterViewModel(
     private val _events = Channel<RegisterEvent>(Channel.BUFFERED)
     val events: Flow<RegisterEvent> = _events.receiveAsFlow()
 
-    private val googleAttempt = GoogleSignInAttempt(authRepository)
+    private val googleAttempt = GoogleSignInAttempt()
 
     fun onFullNameChanged(value: String) = _uiState.update { it.copy(fullName = value, fieldError = null) }
     fun onEmailChanged(value: String) = _uiState.update { it.copy(email = value, fieldError = null) }
@@ -79,13 +79,18 @@ class RegisterViewModel(
         viewModelScope.launch { _events.send(RegisterEvent.NavigateBack) }
     }
 
-    /** The screen is about to open Google's account chooser; returns the hashed nonce for its request, or null. */
-    fun onGoogleSignInStarted(): String? = googleAttempt.begin()
+    /** The screen is about to open Google's account chooser; returns the hashed nonce for its request. */
+    fun onGoogleSignInStarted(): String = googleAttempt.begin()
 
     fun onGoogleIdTokenReceived(idToken: String) {
         if (_uiState.value.isLoading) return
-        _uiState.update { it.copy(isLoading = true) }
         val nonce = googleAttempt.finish()
+        if (nonce == null) {
+            // The screen was recreated while the chooser was open: there is no nonce to go with this token.
+            onGoogleSignInFailed()
+            return
+        }
+        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
                 authRepository.signInWithGoogle(idToken, nonce)
@@ -94,15 +99,13 @@ class RegisterViewModel(
                 _events.send(RegisterEvent.NavigateToMainMenu)
             } catch (error: AuthError) {
                 _uiState.update { it.copy(isLoading = false) }
-                _events.send(RegisterEvent.ShowErrorDialog(googleErrorKind(authRepository, error)))
+                _events.send(RegisterEvent.ShowErrorDialog(googleErrorKind(error)))
             }
         }
     }
 
-    /** The user closed the account chooser: no message, except on Firebase, which keeps its generic dialog. */
-    fun onGoogleSignInCancelled() {
-        if (!authRepository.usesGoogleNonce) onGoogleSignInFailed()
-    }
+    /** The user closed the account chooser: that is not an error, so nothing is shown. */
+    fun onGoogleSignInCancelled() = Unit
 
     /** The phone has no Google account: the dialog says to add one. */
     fun onGoogleNoAccount() {

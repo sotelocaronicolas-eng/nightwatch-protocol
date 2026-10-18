@@ -14,14 +14,12 @@ class FakeAccountRepository(
     /** Results returned by successive [updatePassword] calls; the last one repeats. */
     var updatePasswordResults: MutableList<Result<Unit>> = mutableListOf(Result.success(Unit))
     var requestEmailChangeResults: MutableList<Result<Unit>> = mutableListOf(Result.success(Unit))
-    var isEmailChangedResult: Result<Boolean> = Result.success(false)
 
     var updateDisplayNameCalls = mutableListOf<String>()
     var reauthenticateCalls = mutableListOf<String>()
     var updatePasswordCalls = mutableListOf<String>()
     var changePasswordCalls = mutableListOf<Pair<String, String>>()
     var requestEmailChangeCalls = mutableListOf<String>()
-    var isEmailChangedCalls = mutableListOf<String>()
 
     override fun currentProfile(): AccountProfile? = profile
 
@@ -52,15 +50,6 @@ class FakeAccountRepository(
         nextResult(requestEmailChangeResults).getOrThrow()
     }
 
-    override suspend fun isEmailChanged(newEmail: String): Boolean {
-        isEmailChangedCalls += newEmail
-        return isEmailChangedResult.getOrThrow()
-    }
-
-    override val changesEmailWithCode: Boolean get() = usesCode
-
-    /** Set to true to make this fake behave like the backend that confirms the email change with a code. */
-    var usesCode = false
     var verifyEmailChangeCodeResult: Result<Unit> = Result.success(Unit)
     var resendEmailChangeCodeResult: Result<Unit> = Result.success(Unit)
     val verifyEmailChangeCodeCalls = mutableListOf<Pair<String, String>>()

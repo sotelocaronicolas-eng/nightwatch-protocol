@@ -4,8 +4,6 @@ import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
-import com.example.nightwatchprotocol.data.firestore.FailureKind
-import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
 import com.example.nightwatchprotocol.data.profile.FakeProfileRepository
 import com.example.nightwatchprotocol.data.profile.RemoteProfile
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,22 +45,7 @@ class RecoveryEmailViewModelTest {
     }
 
     @Test
-    fun validEmail_isSavedTrimmedAndEmitsSaved() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
-        vm.onEmailChanged("  respaldo@example.com ")
-
-        vm.events.test {
-            vm.onSaveClicked()
-            assertEquals(RecoveryEmailEvent.Saved, awaitItem())
-        }
-
-        assertEquals(listOf("respaldo@example.com"), profile.savedRecoveryEmails)
-        assertFalse(vm.uiState.value.isSaving)
-    }
-
-    @Test
-    fun invalidEmail_showsAnErrorAndSavesNothing() = runTest {
+    fun invalidEmail_showsAnErrorAndAsksForNoCode() = runTest {
         val vm = viewModel()
         advanceUntilIdle()
         vm.onEmailChanged("no-es-un-correo")
@@ -71,7 +54,7 @@ class RecoveryEmailViewModelTest {
         advanceUntilIdle()
 
         assertEquals("Correo electrónico inválido", vm.uiState.value.error)
-        assertTrue(profile.savedRecoveryEmails.isEmpty())
+        assertTrue(profile.requestedRecoveryEmailCodes.isEmpty())
     }
 
     @Test
@@ -83,20 +66,6 @@ class RecoveryEmailViewModelTest {
         advanceUntilIdle()
 
         assertEquals("Correo electrónico inválido", vm.uiState.value.error)
-    }
-
-    @Test
-    fun permissionDeniedOrNoConnection_showsASaveErrorAndStaysOnTheScreen() = runTest {
-        profile.saveRecoveryEmailResult = Result.failure(RuntimeException("PERMISSION_DENIED"))
-        val vm = viewModel()
-        advanceUntilIdle()
-        vm.onEmailChanged("respaldo@example.com")
-
-        vm.onSaveClicked()
-        advanceUntilIdle()
-
-        assertEquals("No se pudo guardar el correo. Inténtalo de nuevo.", vm.uiState.value.error)
-        assertFalse(vm.uiState.value.isSaving)
     }
 
     @Test
@@ -113,73 +82,8 @@ class RecoveryEmailViewModelTest {
     }
 
     @Test
-    fun noConnection_showsTheOfflineMessage() = runTest {
-        profile.saveRecoveryEmailResult = Result.failure(FirestoreAccessException(FailureKind.Offline))
+    fun saving_asksForACode_andTheCodeScreenFollows() = runTest {
         val vm = viewModel()
-        advanceUntilIdle()
-        vm.onEmailChanged("respaldo@example.com")
-
-        vm.onSaveClicked()
-        advanceUntilIdle()
-
-        assertEquals(MESSAGE_RECOVERY_EMAIL_OFFLINE, vm.uiState.value.error)
-        assertEquals("Sin conexión a internet. Revisa tu conexión e inténtalo de nuevo.", vm.uiState.value.error)
-    }
-
-    @Test
-    fun deniedPermission_showsTheDifferentPermissionMessage() = runTest {
-        profile.saveRecoveryEmailResult = Result.failure(FirestoreAccessException(FailureKind.PermissionDenied))
-        val vm = viewModel()
-        advanceUntilIdle()
-        vm.onEmailChanged("respaldo@example.com")
-
-        vm.onSaveClicked()
-        advanceUntilIdle()
-
-        assertEquals(MESSAGE_RECOVERY_EMAIL_PERMISSION, vm.uiState.value.error)
-        assertFalse(vm.uiState.value.error == MESSAGE_RECOVERY_EMAIL_OFFLINE)
-    }
-
-    @Test
-    fun anUnknownFailure_showsTheGenericMessage_withoutTechnicalDetails() = runTest {
-        profile.saveRecoveryEmailResult =
-            Result.failure(FirestoreAccessException(FailureKind.Unknown, IllegalStateException("detalle interno")))
-        val vm = viewModel()
-        advanceUntilIdle()
-        vm.onEmailChanged("respaldo@example.com")
-
-        vm.onSaveClicked()
-        advanceUntilIdle()
-
-        assertEquals(MESSAGE_RECOVERY_EMAIL_NOT_SAVED, vm.uiState.value.error)
-        assertFalse(vm.uiState.value.error.orEmpty().contains("detalle interno"))
-    }
-
-    @Test
-    fun aSuccessfulSave_leavesNoErrorAndStopsTheSpinner() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
-        vm.onEmailChanged("respaldo@example.com")
-
-        vm.events.test {
-            vm.onSaveClicked()
-            assertEquals(RecoveryEmailEvent.Saved, awaitItem())
-        }
-
-        assertNull(vm.uiState.value.error)
-        assertFalse(vm.uiState.value.isSaving)
-    }
-
-    // ---- the backend that verifies the address with a code ----
-
-    private fun codeViewModel(): RecoveryEmailViewModel {
-        profile.usesCode = true
-        return viewModel()
-    }
-
-    @Test
-    fun withCodes_savingAsksForACode_andNeverSavesDirectly() = runTest {
-        val vm = codeViewModel()
         advanceUntilIdle()
         vm.onEmailChanged("  respaldo@example.com ")
 
@@ -189,27 +93,13 @@ class RecoveryEmailViewModelTest {
         }
 
         assertEquals(listOf("respaldo@example.com"), profile.requestedRecoveryEmailCodes)
-        assertTrue(profile.savedRecoveryEmails.isEmpty())
         assertFalse(vm.uiState.value.isSaving)
         assertNull(vm.uiState.value.error)
     }
 
-    @Test
-    fun withCodes_anInvalidEmail_asksForNothing() = runTest {
-        val vm = codeViewModel()
-        advanceUntilIdle()
-        vm.onEmailChanged("no-es-un-correo")
-
-        vm.onSaveClicked()
-        advanceUntilIdle()
-
-        assertEquals(MESSAGE_RECOVERY_EMAIL_INVALID, vm.uiState.value.error)
-        assertTrue(profile.requestedRecoveryEmailCodes.isEmpty())
-    }
-
     private fun failingWith(error: Throwable): RecoveryEmailViewModel {
         profile.requestRecoveryEmailCodeResult = Result.failure(error)
-        return codeViewModel()
+        return viewModel()
     }
 
     private fun RecoveryEmailViewModel.saveAndGetError(): String? {
@@ -219,7 +109,7 @@ class RecoveryEmailViewModelTest {
     }
 
     @Test
-    fun withCodes_theSameAddressAsTheMainOne_isTold() = runTest {
+    fun theSameAddressAsTheMainOne_isTold() = runTest {
         val vm = failingWith(AuthError.SameAsPrimaryEmail)
         advanceUntilIdle()
 
@@ -231,7 +121,7 @@ class RecoveryEmailViewModelTest {
     }
 
     @Test
-    fun withCodes_aRateLimit_saysHowLongToWait() = runTest {
+    fun aRateLimit_saysHowLongToWait() = runTest {
         val vm = failingWith(AuthError.RateLimited(37))
         advanceUntilIdle()
 
@@ -242,7 +132,7 @@ class RecoveryEmailViewModelTest {
     }
 
     @Test
-    fun withCodes_aRateLimitWithoutSeconds_saysToWaitAMoment() = runTest {
+    fun aRateLimitWithoutSeconds_saysToWaitAMoment() = runTest {
         val vm = failingWith(AuthError.RateLimited(null))
         advanceUntilIdle()
 
@@ -253,7 +143,7 @@ class RecoveryEmailViewModelTest {
     }
 
     @Test
-    fun withCodes_aSendFailure_isTold() = runTest {
+    fun aSendFailure_isTold() = runTest {
         val vm = failingWith(AuthError.EmailSendFailed)
         advanceUntilIdle()
 
@@ -264,7 +154,7 @@ class RecoveryEmailViewModelTest {
     }
 
     @Test
-    fun withCodes_noConnection_showsTheOfflineMessage() = runTest {
+    fun noConnection_showsTheOfflineMessage() = runTest {
         val vm = failingWith(AuthError.NetworkError)
         advanceUntilIdle()
 
@@ -275,32 +165,19 @@ class RecoveryEmailViewModelTest {
     }
 
     @Test
-    fun withCodes_anUnknownFailure_showsTheGenericMessage() = runTest {
-        val vm = failingWith(AuthError.Unknown)
+    fun anUnknownFailure_showsTheGenericMessage_withoutTechnicalDetails() = runTest {
+        val vm = failingWith(IllegalStateException("detalle interno"))
         advanceUntilIdle()
 
         vm.saveAndGetError()
         advanceUntilIdle()
 
         assertEquals(MESSAGE_RECOVERY_EMAIL_NOT_SAVED, vm.uiState.value.error)
+        assertFalse(vm.uiState.value.error.orEmpty().contains("detalle interno"))
     }
 
     @Test
-    fun withoutCodes_theFlowIsTheDirectSaveOfAlways() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
-        vm.onEmailChanged("respaldo@example.com")
-
-        vm.events.test {
-            vm.onSaveClicked()
-            assertEquals(RecoveryEmailEvent.Saved, awaitItem())
-        }
-
-        assertTrue(profile.requestedRecoveryEmailCodes.isEmpty())
-    }
-
-    @Test
-    fun withoutASession_itCannotSave() = runTest {
+    fun withoutASession_itCannotAskForACode() = runTest {
         auth.currentUserUid = null
         val vm = viewModel()
         advanceUntilIdle()
@@ -310,6 +187,6 @@ class RecoveryEmailViewModelTest {
         advanceUntilIdle()
 
         assertEquals("No se pudo guardar el correo. Inténtalo de nuevo.", vm.uiState.value.error)
-        assertTrue(profile.savedRecoveryEmails.isEmpty())
+        assertTrue(profile.requestedRecoveryEmailCodes.isEmpty())
     }
 }

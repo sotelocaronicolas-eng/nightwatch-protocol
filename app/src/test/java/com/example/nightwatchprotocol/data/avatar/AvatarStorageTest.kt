@@ -1,7 +1,7 @@
 package com.example.nightwatchprotocol.data.avatar
 
-import com.example.nightwatchprotocol.data.firestore.FailureKind
-import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
+import com.example.nightwatchprotocol.data.common.FailureKind
+import com.example.nightwatchprotocol.data.common.DataAccessException
 import com.example.nightwatchprotocol.data.profile.RemoteProfile
 import com.example.nightwatchprotocol.data.profile.SupabaseProfileRepository
 import com.example.nightwatchprotocol.data.supabase.unusedPostgrest
@@ -98,7 +98,7 @@ class AvatarStorageTest {
         try {
             call()
             fail("debía lanzar")
-        } catch (e: FirestoreAccessException) {
+        } catch (e: DataAccessException) {
             assertEquals(kind, e.kind)
         }
     }

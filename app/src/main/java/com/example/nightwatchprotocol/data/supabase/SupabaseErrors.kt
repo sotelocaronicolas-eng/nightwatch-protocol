@@ -1,9 +1,9 @@
 package com.example.nightwatchprotocol.data.supabase
 
 import com.example.nightwatchprotocol.data.auth.AuthError
-import com.example.nightwatchprotocol.data.firestore.FIRESTORE_TIMEOUT_MILLIS
-import com.example.nightwatchprotocol.data.firestore.FailureKind
-import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
+import com.example.nightwatchprotocol.data.common.DATA_TIMEOUT_MILLIS
+import com.example.nightwatchprotocol.data.common.FailureKind
+import com.example.nightwatchprotocol.data.common.DataAccessException
 import io.github.jan.supabase.auth.exception.AuthErrorCode
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.exception.AuthWeakPasswordException
@@ -17,7 +17,7 @@ import kotlin.coroutines.cancellation.CancellationException
 /*
  * Mapping of supabase-kt failures to the error categories the app already has:
  *   - AuthError             for the auth flows (login, register, password).
- *   - FailureKind           for data and storage calls (reported through FirestoreAccessException).
+ *   - FailureKind           for data and storage calls (reported through DataAccessException).
  *
  * Network failures need no special case: supabase-kt's HttpRequestException, Ktor's HttpRequestTimeoutException /
  * ConnectTimeoutException / SocketTimeoutException and java.net's UnknownHostException / ConnectException are all
@@ -118,21 +118,21 @@ private fun safeCause(error: Throwable): Throwable {
 }
 
 /**
- * Runs a Supabase call with a time limit and reports every failure as a [FirestoreAccessException] (the data-access
+ * Runs a Supabase call with a time limit and reports every failure as a [DataAccessException] (the data-access
  * exception the view models already understand). Cancellation of the caller is never swallowed.
  *
  * There is no offline write queue: without a connection the call fails with [FailureKind.Offline].
  */
-suspend fun <T> supabaseCall(timeoutMillis: Long = FIRESTORE_TIMEOUT_MILLIS, block: suspend () -> T): T {
+suspend fun <T> supabaseCall(timeoutMillis: Long = DATA_TIMEOUT_MILLIS, block: suspend () -> T): T {
     try {
         return withTimeout(timeoutMillis) { block() }
     } catch (e: TimeoutCancellationException) {
-        throw FirestoreAccessException(FailureKind.Offline, e)
+        throw DataAccessException(FailureKind.Offline, e)
     } catch (e: CancellationException) {
         throw e
-    } catch (e: FirestoreAccessException) {
+    } catch (e: DataAccessException) {
         throw e
     } catch (e: Exception) {
-        throw FirestoreAccessException(classifySupabaseFailure(e), safeCause(e))
+        throw DataAccessException(classifySupabaseFailure(e), safeCause(e))
     }
 }

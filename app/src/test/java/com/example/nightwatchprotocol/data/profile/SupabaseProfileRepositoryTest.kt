@@ -2,8 +2,8 @@ package com.example.nightwatchprotocol.data.profile
 
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.avatar.FakeAvatarStorage
-import com.example.nightwatchprotocol.data.firestore.FailureKind
-import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
+import com.example.nightwatchprotocol.data.common.FailureKind
+import com.example.nightwatchprotocol.data.common.DataAccessException
 import com.example.nightwatchprotocol.data.supabase.RecoveryEmailCodeApi
 import com.example.nightwatchprotocol.data.supabase.unusedPostgrest
 import kotlinx.coroutines.test.runTest
@@ -102,11 +102,6 @@ class SupabaseProfileRepositoryTest {
         SupabaseProfileRepository(unusedPostgrest(), FakeAvatarStorage(), currentUserId = { userId }, codes)
 
     @Test
-    fun theRecoveryEmailIsVerifiedWithACode() {
-        assertTrue(newRepository(FakeRecoveryCodes()).verifiesRecoveryEmailWithCode)
-    }
-
-    @Test
     fun requestAndVerify_goToTheServerApi() = runTest {
         val codes = FakeRecoveryCodes()
         val repository = newRepository(codes)
@@ -156,18 +151,6 @@ class SupabaseProfileRepositoryTest {
     }
 
     @Test
-    fun saveRecoveryEmail_neverWritesTheColumnFromTheClient() = runTest {
-        val codes = FakeRecoveryCodes()
-        try {
-            newRepository(codes).saveRecoveryEmail("u", "respaldo@example.com")
-            fail("debía lanzar")
-        } catch (e: FirestoreAccessException) {
-            assertEquals(FailureKind.PermissionDenied, e.kind)
-        }
-        assertTrue(codes.sent.isEmpty())
-    }
-
-    @Test
     fun avatarPathPayload_canClearThePath() {
         assertEquals(JsonNull, avatarPathPayload("u", null).getValue("avatar_path"))
         assertEquals(JsonPrimitive("u/avatar.jpg"), avatarPathPayload("u", "u/avatar.jpg").getValue("avatar_path"))
@@ -180,12 +163,11 @@ class SupabaseProfileRepositoryTest {
         listOf<suspend () -> Unit>(
             { repository.getProfile("x") },
             { repository.saveExtras("x", "male", null) },
-            { repository.saveRecoveryEmail("x", "a@b.c") },
         ).forEach { call ->
             try {
                 call()
                 fail("debía lanzar")
-            } catch (e: FirestoreAccessException) {
+            } catch (e: DataAccessException) {
                 assertEquals(FailureKind.PermissionDenied, e.kind)
             }
         }

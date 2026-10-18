@@ -1,7 +1,7 @@
 package com.example.nightwatchprotocol.data.supabase
 
-import com.example.nightwatchprotocol.data.firestore.FailureKind
-import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
+import com.example.nightwatchprotocol.data.common.FailureKind
+import com.example.nightwatchprotocol.data.common.DataAccessException
 
 /**
  * The id of the signed-in user, read from the Supabase session at the moment of each call. The `uid` that the
@@ -11,4 +11,4 @@ import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
  * No session is reported as [FailureKind.PermissionDenied] (the same as Firestore's UNAUTHENTICATED), before any request.
  */
 fun requireSessionUserId(currentUserId: () -> String?): String =
-    currentUserId() ?: throw FirestoreAccessException(FailureKind.PermissionDenied)
+    currentUserId() ?: throw DataAccessException(FailureKind.PermissionDenied)

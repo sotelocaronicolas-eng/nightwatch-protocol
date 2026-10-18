@@ -9,9 +9,6 @@ object Login
 @Serializable
 object Register
 
-@Serializable
-object ForgotPassword
-
 /** Password recovery by code: the new password, set under the session that the code opened. */
 @Serializable
 object NewPassword
@@ -53,9 +50,6 @@ object PasswordUpdated
 
 @Serializable
 data class ChangeEmail(val newEmail: String)
-
-@Serializable
-data class VerifyEmailLink(val newEmail: String)
 
 /** [notice] is a non-blocking warning shown under the confirmation (e.g. the old Google account was not unlinked). */
 @Serializable

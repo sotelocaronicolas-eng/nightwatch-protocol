@@ -55,7 +55,6 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    onNavigateToForgotPassword: () -> Unit,
     onNavigateToVerifyCode: (email: String) -> Unit,
     onNavigateToNewPassword: () -> Unit,
     viewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory),
@@ -77,7 +76,6 @@ fun LoginScreen(
                 }
                 LoginEvent.NavigateToMainMenu -> onLoginSuccess()
                 LoginEvent.NavigateToRegister -> onNavigateToRegister()
-                LoginEvent.NavigateToForgotPassword -> onNavigateToForgotPassword()
                 is LoginEvent.NavigateToVerifyCode -> onNavigateToVerifyCode(event.email)
                 is LoginEvent.ShowErrorDialog -> dialogKind = event.kind
             }

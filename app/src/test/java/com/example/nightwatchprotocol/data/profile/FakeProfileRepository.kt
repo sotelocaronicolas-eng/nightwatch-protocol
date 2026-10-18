@@ -6,7 +6,6 @@ class FakeProfileRepository : ProfileRepository {
     var getProfileResult: Result<RemoteProfile> = Result.success(RemoteProfile())
     var saveAvatarResult: Result<Unit> = Result.success(Unit)
     var removeAvatarResult: Result<Unit> = Result.success(Unit)
-    var saveRecoveryEmailResult: Result<Unit> = Result.success(Unit)
 
     /** Suspends forever, like a Firestore read with no network. */
     var getProfileNeverCompletes: Boolean = false
@@ -14,7 +13,6 @@ class FakeProfileRepository : ProfileRepository {
     var getProfileCallCount = 0
     var savedAvatars = mutableListOf<String>()
     var removeAvatarCallCount = 0
-    var savedRecoveryEmails = mutableListOf<String>()
 
     override suspend fun getProfile(uid: String): RemoteProfile {
         getProfileCallCount++
@@ -49,19 +47,10 @@ class FakeProfileRepository : ProfileRepository {
         saveExtrasResult.getOrThrow()
     }
 
-    override suspend fun saveRecoveryEmail(uid: String, recoveryEmail: String) {
-        savedRecoveryEmails += recoveryEmail
-        saveRecoveryEmailResult.getOrThrow()
-    }
-
-    /** Set to true to behave like the backend that saves the recovery email only after a code is confirmed. */
-    var usesCode = false
     var requestRecoveryEmailCodeResult: Result<Unit> = Result.success(Unit)
     var verifyRecoveryEmailCodeResult: Result<Unit> = Result.success(Unit)
     val requestedRecoveryEmailCodes = mutableListOf<String>()
     val verifiedRecoveryEmailCodes = mutableListOf<String>()
-
-    override val verifiesRecoveryEmailWithCode: Boolean get() = usesCode
 
     override suspend fun requestRecoveryEmailCode(email: String) {
         requestedRecoveryEmailCodes += email

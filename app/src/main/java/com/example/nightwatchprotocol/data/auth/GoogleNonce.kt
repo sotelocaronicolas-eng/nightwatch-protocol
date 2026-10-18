@@ -31,20 +31,22 @@ class GoogleNonce(val raw: String) {
 
 /**
  * Keeps the nonce of the Google sign-in in progress between "open Credential Manager" and "got the ID token".
- * Backends that do not use a nonce (Firebase) never get one, so their request is the same as before.
  */
 class GoogleSignInAttempt(
-    private val authRepository: AuthRepository,
     private val newNonce: () -> GoogleNonce = { GoogleNonce.generate() },
 ) {
     private var pending: GoogleNonce? = null
 
-    /** The hashed nonce for Credential Manager's request, or null when the backend does not use one. */
-    fun begin(): String? {
-        pending = if (authRepository.usesGoogleNonce) newNonce() else null
-        return pending?.hashed
+    /** A new nonce for this attempt: its hash goes into Credential Manager's request. */
+    fun begin(): String {
+        val nonce = newNonce()
+        pending = nonce
+        return nonce.hashed
     }
 
-    /** The raw nonce that goes with the ID token of the attempt started by [begin]; consumed on read. */
+    /**
+     * The raw nonce that goes with the ID token of the attempt started by [begin]; consumed on read. Null if no attempt
+     * is pending (the screen was recreated while the account chooser was open).
+     */
     fun finish(): String? = pending?.raw.also { pending = null }
 }

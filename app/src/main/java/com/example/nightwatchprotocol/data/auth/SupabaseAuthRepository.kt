@@ -56,7 +56,7 @@ class SupabaseAuthRepository(
     @Volatile
     private var lastKnownUser: UserInfo? = null
 
-    // Set by signOut() so the user reads as signed out at once, like Firebase; the real clean-up runs in pendingSignOut.
+    // Set by signOut() so the user reads as signed out at once; the real clean-up runs in pendingSignOut.
     @Volatile
     private var signedOutLocally = false
 
@@ -99,7 +99,7 @@ class SupabaseAuthRepository(
 
     /**
      * Supabase answers `invalid_credentials` for an unknown email and for a wrong password alike. Only then, the
-     * email is looked up (see [AccountStatusLookup]) to tell them apart with the same errors Firebase used. If the
+     * email is looked up (see [AccountStatusLookup]) to tell them apart with individual errors. If the
      * lookup fails for any reason, the generic [AuthError.InvalidCredentials] stands: it never throws by itself.
      */
     override suspend fun signIn(email: String, password: String) {
@@ -154,8 +154,6 @@ class SupabaseAuthRepository(
         auth.resendEmail(OtpType.Email.SIGNUP, email)
     }
 
-    override val recoversPasswordWithCode: Boolean get() = true
-
     /**
      * Supabase would answer the same whether or not the email exists, so [AccountStatusLookup] is asked first, to give
      * the same individual errors as login: [AuthError.UserNotFound] and [AuthError.GoogleAccountOnly]. If the lookup
@@ -179,8 +177,6 @@ class SupabaseAuthRepository(
         auth.verifyEmailOtp(OtpType.Email.RECOVERY, email, code)
     }
 
-    override val usesGoogleNonce: Boolean get() = true
-
     /**
      * Native Google sign-in: Credential Manager's ID token goes straight to Supabase (no browser, no client secret).
      * [nonce] is the RAW nonce; Google got its SHA-256. The provider has "Skip nonce checks" off, so a missing or
@@ -189,7 +185,7 @@ class SupabaseAuthRepository(
      * If an account with the same email and a password already exists, Supabase links the Google identity to that
      * same user (same uid, same data) instead of creating a second one.
      */
-    override suspend fun signInWithGoogle(idToken: String, nonce: String?) = authCall {
+    override suspend fun signInWithGoogle(idToken: String, nonce: String) = authCall {
         beginNewSession()
         auth.signInWith(IDToken, redirectUrl = null) {
             this.idToken = idToken

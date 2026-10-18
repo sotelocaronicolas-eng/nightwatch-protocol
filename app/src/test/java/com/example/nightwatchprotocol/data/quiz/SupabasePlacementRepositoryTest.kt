@@ -1,7 +1,7 @@
 package com.example.nightwatchprotocol.data.quiz
 
-import com.example.nightwatchprotocol.data.firestore.FailureKind
-import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
+import com.example.nightwatchprotocol.data.common.FailureKind
+import com.example.nightwatchprotocol.data.common.DataAccessException
 import com.example.nightwatchprotocol.data.supabase.unusedPostgrest
 import java.time.Instant
 import kotlinx.coroutines.test.runTest
@@ -73,13 +73,13 @@ class SupabasePlacementRepositoryTest {
         try {
             repository.getResult("whatever")
             fail("debía lanzar")
-        } catch (e: FirestoreAccessException) {
+        } catch (e: DataAccessException) {
             assertEquals(FailureKind.PermissionDenied, e.kind)
         }
         try {
             repository.saveResult("whatever", PlacementResult(PlacementLevel.BAJO, emptySet()))
             fail("debía lanzar")
-        } catch (e: FirestoreAccessException) {
+        } catch (e: DataAccessException) {
             assertEquals(FailureKind.PermissionDenied, e.kind)
         }
     }

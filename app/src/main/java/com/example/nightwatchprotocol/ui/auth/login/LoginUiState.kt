@@ -1,7 +1,6 @@
 package com.example.nightwatchprotocol.ui.auth.login
 
 import com.example.nightwatchprotocol.data.auth.AuthError
-import com.example.nightwatchprotocol.data.auth.AuthRepository
 
 data class LoginUiState(
     val usernameOrEmail: String = "",
@@ -39,23 +38,15 @@ fun ErrorDialogKind.message(unknown: String): String = when (this) {
     ErrorDialogKind.UNKNOWN -> unknown
 }
 
-/**
- * The dialog for a Google sign-in that failed after the ID token arrived. Only the backend that checks nonces
- * (Supabase) tells "no connection" apart; Firebase keeps its single generic message.
- */
-fun googleErrorKind(authRepository: AuthRepository, error: AuthError): ErrorDialogKind =
-    if (authRepository.usesGoogleNonce && error == AuthError.NetworkError) {
-        ErrorDialogKind.NETWORK
-    } else {
-        ErrorDialogKind.UNKNOWN
-    }
+/** The dialog for a Google sign-in that failed after the ID token arrived: "no connection" or the generic one. */
+fun googleErrorKind(error: AuthError): ErrorDialogKind =
+    if (error == AuthError.NetworkError) ErrorDialogKind.NETWORK else ErrorDialogKind.UNKNOWN
 
 sealed interface LoginEvent {
     data object NavigateToMainMenu : LoginEvent
     data object NavigateToRegister : LoginEvent
-    data object NavigateToForgotPassword : LoginEvent
 
-    /** The recovery runs in a dialog over Login (backends that recover with a code), starting from [prefillEmail]. */
+    /** The recovery runs in a dialog over Login, starting from [prefillEmail]. */
     data class OpenRecoveryDialog(val prefillEmail: String) : LoginEvent
 
     /** The password was right but the email was never confirmed: a new code was sent, go and type it. */

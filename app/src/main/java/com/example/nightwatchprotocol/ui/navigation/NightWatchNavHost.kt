@@ -9,14 +9,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
-import com.example.nightwatchprotocol.ui.auth.forgotpassword.ForgotPasswordScreen
 import com.example.nightwatchprotocol.ui.auth.forgotpassword.NewPasswordScreen
 import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
 import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
 import com.example.nightwatchprotocol.ui.mainmenu.MainMenuScreen
 import com.example.nightwatchprotocol.ui.postauth.PostAuthGateScreen
 import com.example.nightwatchprotocol.ui.profile.changeemail.ChangeEmailScreen
-import com.example.nightwatchprotocol.ui.profile.changeemail.VerifyEmailLinkScreen
 import com.example.nightwatchprotocol.ui.profile.changepassword.ChangePasswordScreen
 import com.example.nightwatchprotocol.ui.profile.achievements.AchievementsScreen
 import com.example.nightwatchprotocol.ui.profile.appearance.AppearanceScreen
@@ -61,7 +59,6 @@ fun NightWatchNavHost(
                     navController.navigate(PostAuthGate) { popUpTo<Login> { inclusive = true } }
                 },
                 onNavigateToRegister = { navController.navigate(Register) },
-                onNavigateToForgotPassword = { navController.navigate(ForgotPassword) },
                 onNavigateToVerifyCode = { email -> navController.navigate(VerifyCode(email, CodePurpose.SIGN_UP)) },
                 onNavigateToNewPassword = { navController.navigate(NewPassword) },
             )
@@ -116,9 +113,6 @@ fun NightWatchNavHost(
                     }
                 },
             )
-        }
-        composable<ForgotPassword> {
-            ForgotPasswordScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable<PostAuthGate> {
             PostAuthGateScreen(
@@ -203,16 +197,7 @@ fun NightWatchNavHost(
                 onIdentityConfirmedHandled = { entry.savedStateHandle[KEY_IDENTITY_CONFIRMED] = false },
                 onClose = { navController.popBackStack() },
                 onNavigateToConfirmIdentity = { navController.navigate(ConfirmIdentity) },
-                onLinkSent = { newEmail -> navController.navigate(VerifyEmailLink(newEmail)) },
                 onCodeSent = { newEmail -> navController.navigate(VerifyCode(newEmail, CodePurpose.EMAIL_CHANGE)) },
-            )
-        }
-        composable<VerifyEmailLink> {
-            VerifyEmailLinkScreen(
-                onClose = { navController.popBackStack<EditProfile>(inclusive = false) },
-                onEmailUpdated = {
-                    navController.navigate(EmailUpdated()) { popUpTo<ChangeEmail> { inclusive = true } }
-                },
             )
         }
         composable<EmailUpdated> { entry ->
@@ -252,9 +237,6 @@ fun NightWatchNavHost(
         composable<RecoveryEmail> {
             RecoveryEmailScreen(
                 onClose = { navController.popBackStack() },
-                onSaved = {
-                    navController.navigate(RecoveryEmailSaved) { popUpTo<RecoveryEmail> { inclusive = true } }
-                },
                 onCodeSent = { email -> navController.navigate(VerifyCode(email, CodePurpose.RECOVERY_EMAIL)) },
             )
         }

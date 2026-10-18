@@ -45,12 +45,9 @@ class FakeAuthRepository : AuthRepository {
         sendPasswordResetEmailResult.getOrThrow()
     }
 
-    override val usesGoogleNonce: Boolean get() = googleUsesNonce
+    val signInWithGoogleNonces = mutableListOf<String>()
 
-    var googleUsesNonce = false
-    val signInWithGoogleNonces = mutableListOf<String?>()
-
-    override suspend fun signInWithGoogle(idToken: String, nonce: String?) {
+    override suspend fun signInWithGoogle(idToken: String, nonce: String) {
         signInWithGoogleNonces += nonce
         signInWithGoogleResult.getOrThrow()
     }
@@ -59,10 +56,6 @@ class FakeAuthRepository : AuthRepository {
         signOutCallCount++
     }
 
-    override val recoversPasswordWithCode: Boolean get() = recoversWithCode
-
-    /** Set to true to make this fake behave like the backend that recovers the password with a code. */
-    var recoversWithCode = false
     var verifyRecoveryCodeResult: Result<Unit> = Result.success(Unit)
     val verifyRecoveryCodeCalls = mutableListOf<Pair<String, String>>()
 

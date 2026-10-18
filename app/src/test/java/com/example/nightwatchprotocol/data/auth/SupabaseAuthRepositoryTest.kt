@@ -544,11 +544,6 @@ class SupabaseAuthRepositoryTest {
     }
 
     @Test
-    fun google_usesNonces() = runTest {
-        assertTrue(repository(AuthStub(SessionStatus.NotAuthenticated())).usesGoogleNonce)
-    }
-
-    @Test
     fun google_noConnection_isNetworkError() = runTest {
         val stub = AuthStub(SessionStatus.NotAuthenticated()).apply { signInError = java.io.IOException("sin red") }
         try {
@@ -613,11 +608,6 @@ class SupabaseAuthRepositoryTest {
         } catch (e: AuthError) {
             e
         }
-
-    @Test
-    fun recovery_isDoneWithACode() = runTest {
-        assertTrue(repository(AuthStub(SessionStatus.NotAuthenticated())).recoversPasswordWithCode)
-    }
 
     @Test
     fun recovery_unknownEmail_isUserNotFound_andNothingIsSent() = runTest {

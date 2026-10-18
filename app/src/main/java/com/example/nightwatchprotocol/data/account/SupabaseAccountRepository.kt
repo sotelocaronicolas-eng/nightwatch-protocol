@@ -64,8 +64,6 @@ class SupabaseAccountRepository(
         updatePassword(newPassword)
     }
 
-    override val changesEmailWithCode: Boolean get() = true
-
     /**
      * With "Secure email change" OFF in the panel, Supabase sends ONE code, to the new address (the "Change email
      * address" template prints `{{ .Token }}`). The account email stays the old one until the code is verified.
@@ -120,9 +118,6 @@ class SupabaseAccountRepository(
             false
         }
     }
-
-    // The link flow is Firebase's. Here the change is confirmed by verifyEmailChangeCode, never by polling.
-    override suspend fun isEmailChanged(newEmail: String): Boolean = false
 
     private fun requireUser(): UserInfo = authRepository.currentUser ?: throw AuthError.Unknown
 

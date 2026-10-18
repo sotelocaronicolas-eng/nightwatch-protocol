@@ -18,7 +18,7 @@ class PasswordRecoveryViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val auth = FakeAuthRepository().apply { recoversWithCode = true }
+    private val auth = FakeAuthRepository()
 
     private fun viewModel(prefill: String = "ana@example.com") = PasswordRecoveryViewModel(auth, SessionPreferences.inMemory(), prefill)
 

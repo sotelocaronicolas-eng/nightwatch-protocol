@@ -109,11 +109,6 @@ class SupabaseAccountRepositoryTest {
     private fun restError(code: String, status: Int = 422) = AuthRestException(code, "x", fakeHttpResponse(status))
 
     @Test
-    fun theEmailChangeIsDoneWithACode() = runTest {
-        assertTrue(repository(AuthStub(ana)).changesEmailWithCode)
-    }
-
-    @Test
     fun requestEmailChange_asksTheServerToChangeTheEmail() = runTest {
         val stub = AuthStub(ana)
 

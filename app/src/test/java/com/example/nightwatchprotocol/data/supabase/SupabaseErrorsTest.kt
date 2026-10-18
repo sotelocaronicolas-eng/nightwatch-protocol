@@ -1,8 +1,8 @@
 package com.example.nightwatchprotocol.data.supabase
 
 import com.example.nightwatchprotocol.data.auth.AuthError
-import com.example.nightwatchprotocol.data.firestore.FailureKind
-import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
+import com.example.nightwatchprotocol.data.common.FailureKind
+import com.example.nightwatchprotocol.data.common.DataAccessException
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.exception.AuthWeakPasswordException
 import io.github.jan.supabase.exceptions.BadRequestRestException
@@ -213,13 +213,13 @@ class SupabaseErrorsTest {
         try {
             supabaseCall<Unit> { throw postgrest("42501", 403) }
             fail("debía lanzar")
-        } catch (e: FirestoreAccessException) {
+        } catch (e: DataAccessException) {
             assertEquals(FailureKind.PermissionDenied, e.kind)
         }
         try {
             supabaseCall<Unit> { throw UnknownHostException() }
             fail("debía lanzar")
-        } catch (e: FirestoreAccessException) {
+        } catch (e: DataAccessException) {
             assertEquals(FailureKind.Offline, e.kind)
         }
     }
@@ -229,7 +229,7 @@ class SupabaseErrorsTest {
         try {
             supabaseCall<Unit> { throw postgrest("42501", 403) }
             fail("debía lanzar")
-        } catch (e: FirestoreAccessException) {
+        } catch (e: DataAccessException) {
             val everything = generateSequence<Throwable>(e) { it.cause }.joinToString { it.message.orEmpty() }
             assertFalse(everything.contains("secret-token"))
             assertTrue(e.cause != null)
@@ -241,7 +241,7 @@ class SupabaseErrorsTest {
         try {
             supabaseCall(timeoutMillis = 100) { delay(10_000) }
             fail("debía lanzar")
-        } catch (e: FirestoreAccessException) {
+        } catch (e: DataAccessException) {
             assertEquals(FailureKind.Offline, e.kind)
         }
     }

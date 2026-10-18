@@ -34,14 +34,9 @@ data class ChangeEmailUiState(
     val hasPassword: Boolean = true,
     val isSending: Boolean = false,
     val error: String? = null,
-    /** The backend sends a 6-digit code instead of a link; only the texts of the screen change. */
-    val usesCode: Boolean = false,
 )
 
 sealed interface ChangeEmailEvent {
-    /** The verification link was sent to [newEmail]; the next screen waits for it to be opened. */
-    data class LinkSent(val newEmail: String) : ChangeEmailEvent
-
     /** A 6-digit code was sent to [newEmail]; the next screen is where it is typed. */
     data class CodeSent(val newEmail: String) : ChangeEmailEvent
     data object NavigateToConfirmIdentity : ChangeEmailEvent
@@ -55,11 +50,7 @@ class ChangeEmailViewModel(
     private val account = accountRepository.currentProfile()
 
     private val _uiState = MutableStateFlow(
-        ChangeEmailUiState(
-            email = initialEmail,
-            hasPassword = account?.hasPassword ?: true,
-            usesCode = accountRepository.changesEmailWithCode,
-        ),
+        ChangeEmailUiState(email = initialEmail, hasPassword = account?.hasPassword ?: true),
     )
     val uiState: StateFlow<ChangeEmailUiState> = _uiState.asStateFlow()
 
@@ -70,7 +61,7 @@ class ChangeEmailViewModel(
 
     fun onEmailChanged(value: String) = _uiState.update { it.copy(email = value, error = null) }
 
-    fun onSendLinkClicked() {
+    fun onSendCodeClicked() {
         val state = _uiState.value
         if (state.isSending || !state.hasPassword) return
         val email = state.email.trim()
@@ -83,16 +74,16 @@ class ChangeEmailViewModel(
             _uiState.update { it.copy(error = error) }
             return
         }
-        // Supabase never answers "recent login required" for an email change, so with the code flow the password is
-        // asked for here, once, before anything is sent. Firebase asks only when its server says so.
-        if (state.usesCode && !identityConfirmed) {
+        // The server never answers "recent login required" for an email change, so the password is asked for here,
+        // once, before anything is sent.
+        if (!identityConfirmed) {
             viewModelScope.launch { _events.send(ChangeEmailEvent.NavigateToConfirmIdentity) }
             return
         }
         send(email)
     }
 
-    /** The user proved their password on "Confirma tu identidad": send the link (or the code) again. */
+    /** The user proved their password on "Confirma tu identidad": send the code. */
     fun onIdentityConfirmed() {
         val state = _uiState.value
         if (state.isSending || !state.hasPassword) return
@@ -106,13 +97,7 @@ class ChangeEmailViewModel(
             try {
                 accountRepository.requestEmailChange(email)
                 _uiState.update { it.copy(isSending = false) }
-                _events.send(
-                    if (accountRepository.changesEmailWithCode) {
-                        ChangeEmailEvent.CodeSent(email)
-                    } else {
-                        ChangeEmailEvent.LinkSent(email)
-                    },
-                )
+                _events.send(ChangeEmailEvent.CodeSent(email))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: AuthError.RecentLoginRequired) {

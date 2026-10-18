@@ -35,17 +35,17 @@ fun classifyGoogleFailure(error: Throwable): GoogleCredentialResult = when (erro
 }
 
 /**
- * Opens the Google account chooser and returns its ID token. [hashedNonce] (SHA-256 in hex) is set on the request
- * only when the backend checks nonces; with null the request is exactly the one Firebase has always used.
- * Nothing about the token or the nonce is logged.
+ * Opens the Google account chooser and returns its ID token. [hashedNonce] (SHA-256 in hex) is set on the request so
+ * Google writes it into the token; the server checks it against the raw nonce. Nothing about the token or the nonce
+ * is logged.
  */
 suspend fun requestGoogleIdToken(
     context: Context,
     serverClientId: String,
-    hashedNonce: String?,
+    hashedNonce: String,
 ): GoogleCredentialResult {
     val option = GetSignInWithGoogleOption.Builder(serverClientId = serverClientId)
-        .apply { hashedNonce?.let(::setNonce) }
+        .setNonce(hashedNonce)
         .build()
     val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
     return try {

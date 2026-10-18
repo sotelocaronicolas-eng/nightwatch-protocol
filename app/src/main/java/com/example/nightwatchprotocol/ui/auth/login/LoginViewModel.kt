@@ -30,7 +30,7 @@ class LoginViewModel(
     private val _events = Channel<LoginEvent>(Channel.BUFFERED)
     val events: Flow<LoginEvent> = _events.receiveAsFlow()
 
-    private val googleAttempt = GoogleSignInAttempt(authRepository)
+    private val googleAttempt = GoogleSignInAttempt()
 
     fun onUsernameChanged(value: String) {
         _uiState.update { it.copy(usernameOrEmail = value, fieldError = null, showUsernameRequired = false) }
@@ -98,14 +98,19 @@ class LoginViewModel(
         _events.send(LoginEvent.NavigateToVerifyCode(email))
     }
 
-    /** The screen is about to open Google's account chooser; returns the hashed nonce for its request, or null. */
-    fun onGoogleSignInStarted(): String? = googleAttempt.begin()
+    /** The screen is about to open Google's account chooser; returns the hashed nonce for its request. */
+    fun onGoogleSignInStarted(): String = googleAttempt.begin()
 
     fun onGoogleIdTokenReceived(idToken: String) {
         val state = _uiState.value
         if (state.isLoading) return
-        _uiState.update { it.copy(isLoading = true) }
         val nonce = googleAttempt.finish()
+        if (nonce == null) {
+            // The screen was recreated while the chooser was open: there is no nonce to go with this token.
+            onGoogleSignInFailed()
+            return
+        }
+        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
                 authRepository.signInWithGoogle(idToken, nonce)
@@ -114,15 +119,13 @@ class LoginViewModel(
                 _events.send(LoginEvent.NavigateToMainMenu)
             } catch (error: AuthError) {
                 _uiState.update { it.copy(isLoading = false) }
-                _events.send(LoginEvent.ShowErrorDialog(googleErrorKind(authRepository, error)))
+                _events.send(LoginEvent.ShowErrorDialog(googleErrorKind(error)))
             }
         }
     }
 
-    /** The user closed the account chooser: no message, except on Firebase, which keeps its generic dialog. */
-    fun onGoogleSignInCancelled() {
-        if (!authRepository.usesGoogleNonce) onGoogleSignInFailed()
-    }
+    /** The user closed the account chooser: that is not an error, so nothing is shown. */
+    fun onGoogleSignInCancelled() = Unit
 
     /** The phone has no Google account: the dialog says to add one. */
     fun onGoogleNoAccount() {
@@ -139,13 +142,7 @@ class LoginViewModel(
 
     fun onForgotPasswordClicked() {
         viewModelScope.launch {
-            _events.send(
-                if (authRepository.recoversPasswordWithCode) {
-                    LoginEvent.OpenRecoveryDialog(_uiState.value.usernameOrEmail.trim())
-                } else {
-                    LoginEvent.NavigateToForgotPassword
-                },
-            )
+            _events.send(LoginEvent.OpenRecoveryDialog(_uiState.value.usernameOrEmail.trim()))
         }
     }
 

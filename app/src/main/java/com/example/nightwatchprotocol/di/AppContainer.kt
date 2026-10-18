@@ -4,10 +4,8 @@ import android.content.Context
 import com.example.nightwatchprotocol.BuildConfig
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.account.AccountRepository
-import com.example.nightwatchprotocol.data.account.FirebaseAccountRepository
 import com.example.nightwatchprotocol.data.account.SupabaseAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
-import com.example.nightwatchprotocol.data.auth.FirebaseAuthRepository
 import com.example.nightwatchprotocol.data.auth.SupabaseAccountStatusLookup
 import com.example.nightwatchprotocol.data.auth.SupabaseAuthRepository
 import com.example.nightwatchprotocol.data.avatar.AVATAR_BUCKET
@@ -23,7 +21,6 @@ import com.example.nightwatchprotocol.data.device.DeviceIdStore
 import com.example.nightwatchprotocol.data.device.DeviceInfoProvider
 import com.example.nightwatchprotocol.data.device.DeviceRepository
 import com.example.nightwatchprotocol.data.device.DeviceSessionManager
-import com.example.nightwatchprotocol.data.device.FirestoreDeviceRepository
 import com.example.nightwatchprotocol.data.device.SupabaseDeviceRepository
 import com.example.nightwatchprotocol.data.notifications.AndroidNotificationPermission
 import com.example.nightwatchprotocol.data.notifications.NotificationPermission
@@ -34,22 +31,18 @@ import com.example.nightwatchprotocol.data.preferences.UserPreferences
 import com.example.nightwatchprotocol.data.preferences.userDataStore
 import com.example.nightwatchprotocol.data.profile.ContentResolverDataExportWriter
 import com.example.nightwatchprotocol.data.profile.DataExportWriter
-import com.example.nightwatchprotocol.data.profile.FirestoreProfileRepository
 import com.example.nightwatchprotocol.data.profile.DataStoreProfileExtrasCache
 import com.example.nightwatchprotocol.data.profile.ProfileDataExporter
 import com.example.nightwatchprotocol.data.profile.ProfileExtrasRepository
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.profile.SupabaseProfileRepository
-import com.example.nightwatchprotocol.data.quiz.FirestoreQuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.LocalQuizContentRepository
 import com.example.nightwatchprotocol.data.quiz.QuizContentRepository
 import com.example.nightwatchprotocol.data.quiz.QuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.SupabasePlacementRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
-import com.example.nightwatchprotocol.data.supabase.SupabaseRecoveryEmailCodeApi
 import com.example.nightwatchprotocol.data.session.sessionDataStore
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.nightwatchprotocol.data.supabase.SupabaseRecoveryEmailCodeApi
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.auth
@@ -85,79 +78,51 @@ interface AppContainer {
     val deviceSessionManager: DeviceSessionManager
 }
 
+/**
+ * The one place that knows Supabase: it builds the client (Auth, Postgrest, Storage and Functions) and the repositories
+ * on top of it. Everything above (view models, screens) only sees the repository interfaces.
+ *
+ * The Supabase settings come from `local.properties` (see `local.properties.example`); if one is missing the app stops
+ * at startup with a message that says which.
+ */
 class DefaultAppContainer(context: Context) : AppContainer {
-    private val backend: Backend = parseBackend(BuildConfig.BACKEND)
 
     init {
-        if (backend == Backend.SUPABASE) {
-            supabaseConfigError(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_PUBLISHABLE_KEY)?.let {
-                throw IllegalStateException(it)
-            }
+        supabaseConfigError(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_PUBLISHABLE_KEY)?.let {
+            throw IllegalStateException(it)
         }
     }
 
-    // Only built when BACKEND=supabase and something asks for it; in firebase mode it is never created.
-    val supabaseClient: SupabaseClient by lazy {
-        check(backend == Backend.SUPABASE) { "El cliente de Supabase solo existe con BACKEND=supabase." }
+    private val supabaseClient: SupabaseClient =
         createSupabaseClient(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_PUBLISHABLE_KEY) {
             install(Auth)
             install(Postgrest)
             install(Storage)
             install(Functions)
         }
-    }
 
-    /*
-     * Block A of the Supabase migration. With BACKEND=supabase these are the Supabase repositories: email and
-     * password sign-in, account (name, identity check, password), quiz result, profile (+ photo in Storage) and
-     * devices. With BACKEND=firebase nothing below changes, and nothing from Supabase or the Firebase-free paths
-     * is created.
-     *
-     * Block B adds Google sign-in (ID token + nonce), the 6-digit codes (sign-up, email change, password recovery)
-     * and "sign out all other sessions" (signOut(SignOutScope.OTHERS)), all inside those repositories.
-     * Part D adds the Functions plugin: the recovery email is verified with a code sent by the Edge Function
-     * send-recovery-email-code and checked by the SQL function verify_recovery_email_code (migration 0006).
-     * Still pending: an observer of sessionStatus that sends the user to Login when the session dies.
-     */
-    private val supabaseAuthRepository: SupabaseAuthRepository? =
-        if (backend == Backend.SUPABASE) {
-            SupabaseAuthRepository(supabaseClient.auth, SupabaseAccountStatusLookup(supabaseClient.postgrest))
-        } else {
-            null
-        }
+    private val supabaseAuthRepository =
+        SupabaseAuthRepository(supabaseClient.auth, SupabaseAccountStatusLookup(supabaseClient.postgrest))
 
-    // The row owner always comes from the session, never from a screen. Read lazily: only built in supabase mode.
-    private val sessionUserId: () -> String? = { supabaseAuthRepository?.currentUserUid }
+    // The row owner always comes from the session, never from a screen.
+    private val sessionUserId: () -> String? = { supabaseAuthRepository.currentUserUid }
 
     // Generated by the google-services plugin from google-services.json.
     override val googleWebClientId: String = context.getString(R.string.default_web_client_id)
-    override val authRepository: AuthRepository =
-        supabaseAuthRepository ?: FirebaseAuthRepository(FirebaseAuth.getInstance())
+    override val authRepository: AuthRepository = supabaseAuthRepository
     override val sessionPreferences: SessionPreferences = SessionPreferences(context.sessionDataStore)
     override val quizContentRepository: QuizContentRepository = LocalQuizContentRepository(context)
     override val quizResultRepository: QuizResultRepository =
-        if (supabaseAuthRepository != null) {
-            SupabasePlacementRepository(supabaseClient.postgrest, sessionUserId)
-        } else {
-            FirestoreQuizResultRepository(FirebaseFirestore.getInstance())
-        }
+        SupabasePlacementRepository(supabaseClient.postgrest, sessionUserId)
     override val accountRepository: AccountRepository =
-        if (supabaseAuthRepository != null) {
-            SupabaseAccountRepository(supabaseClient.auth, supabaseAuthRepository)
-        } else {
-            FirebaseAccountRepository(FirebaseAuth.getInstance())
-        }
+        SupabaseAccountRepository(supabaseClient.auth, supabaseAuthRepository)
     override val profileRepository: ProfileRepository =
-        if (supabaseAuthRepository != null) {
-            SupabaseProfileRepository(
-                supabaseClient.postgrest,
-                SupabaseAvatarStorage(supabaseClient.storage[AVATAR_BUCKET]),
-                sessionUserId,
-                SupabaseRecoveryEmailCodeApi(supabaseClient.functions, supabaseClient.postgrest),
-            )
-        } else {
-            FirestoreProfileRepository(FirebaseFirestore.getInstance())
-        }
+        SupabaseProfileRepository(
+            supabaseClient.postgrest,
+            SupabaseAvatarStorage(supabaseClient.storage[AVATAR_BUCKET]),
+            sessionUserId,
+            SupabaseRecoveryEmailCodeApi(supabaseClient.functions, supabaseClient.postgrest),
+        )
     override val avatarRepository: AvatarRepository =
         AvatarRepository(profileRepository, FileAvatarCache(context.filesDir))
     override val avatarImageProcessor: AvatarImageProcessor = BitmapAvatarImageProcessor(context.contentResolver)
@@ -173,11 +138,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val reminderCoordinator: ReminderCoordinator =
         ReminderCoordinator(reminderScheduler, notificationPermission, userPreferences)
     override val deviceRepository: DeviceRepository =
-        if (supabaseAuthRepository != null) {
-            SupabaseDeviceRepository(supabaseClient.postgrest, sessionUserId)
-        } else {
-            FirestoreDeviceRepository(FirebaseFirestore.getInstance())
-        }
+        SupabaseDeviceRepository(supabaseClient.postgrest, sessionUserId)
     override val deviceIdStore: DeviceIdStore = DeviceIdStore(context.userDataStore)
     override val deviceInfoProvider: DeviceInfoProvider = AndroidDeviceInfoProvider()
     override val deviceSessionManager: DeviceSessionManager =

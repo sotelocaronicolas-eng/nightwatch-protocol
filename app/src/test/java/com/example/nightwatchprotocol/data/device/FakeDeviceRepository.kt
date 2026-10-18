@@ -1,7 +1,7 @@
 package com.example.nightwatchprotocol.data.device
 
-import com.example.nightwatchprotocol.data.firestore.FailureKind
-import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
+import com.example.nightwatchprotocol.data.common.FailureKind
+import com.example.nightwatchprotocol.data.common.DataAccessException
 
 class FakeDeviceRepository : DeviceRepository {
     /** uid -> (deviceId -> record). */
@@ -26,17 +26,17 @@ class FakeDeviceRepository : DeviceRepository {
     fun record(uid: String, deviceId: String): DeviceRecord? = store[uid]?.get(deviceId)
 
     override suspend fun getDevice(uid: String, deviceId: String): DeviceRecord? {
-        if (getFails) throw FirestoreAccessException(FailureKind.Unknown)
+        if (getFails) throw DataAccessException(FailureKind.Unknown)
         return record(uid, deviceId)
     }
 
     override suspend fun listDevices(uid: String): List<DeviceRecord> {
-        if (listFails) throw FirestoreAccessException(FailureKind.Unknown)
+        if (listFails) throw DataAccessException(FailureKind.Unknown)
         return store[uid]?.values?.toList().orEmpty()
     }
 
     override suspend fun saveDevice(uid: String, deviceId: String, name: String, revoked: Boolean?) {
-        if (saveFails) throw FirestoreAccessException(FailureKind.Unknown)
+        if (saveFails) throw DataAccessException(FailureKind.Unknown)
         saveCalls += SaveCall(deviceId, name, revoked)
         val existing = record(uid, deviceId)
         put(
@@ -51,14 +51,14 @@ class FakeDeviceRepository : DeviceRepository {
     }
 
     override suspend fun setRevoked(uid: String, deviceId: String, revoked: Boolean) {
-        if (setRevokedFails) throw FirestoreAccessException(FailureKind.Unknown)
+        if (setRevokedFails) throw DataAccessException(FailureKind.Unknown)
         revokeCalls += deviceId
-        val existing = record(uid, deviceId) ?: throw FirestoreAccessException(FailureKind.Unknown)
+        val existing = record(uid, deviceId) ?: throw DataAccessException(FailureKind.Unknown)
         put(uid, existing.copy(revoked = revoked))
     }
 
     override suspend fun deleteDevice(uid: String, deviceId: String) {
-        if (deleteFails) throw FirestoreAccessException(FailureKind.Unknown)
+        if (deleteFails) throw DataAccessException(FailureKind.Unknown)
         deleteCalls += deviceId
         store[uid]?.remove(deviceId)
     }

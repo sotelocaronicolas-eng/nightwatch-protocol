@@ -52,9 +52,8 @@ class GoogleNonceTest {
     }
 
     @Test
-    fun attempt_withANonceBackend_givesTheHashedNonceFirstAndTheRawOneOnce() {
-        val repo = FakeAuthRepository().apply { googleUsesNonce = true }
-        val attempt = GoogleSignInAttempt(repo) { GoogleNonce("crudo") }
+    fun attempt_givesTheHashedNonceFirstAndTheRawOneOnce() {
+        val attempt = GoogleSignInAttempt { GoogleNonce("crudo") }
 
         assertEquals(GoogleNonce.sha256Hex("crudo"), attempt.begin())
         assertEquals("crudo", attempt.finish())
@@ -63,8 +62,7 @@ class GoogleNonceTest {
 
     @Test
     fun attempt_everyBeginMakesAFreshNonce() {
-        val repo = FakeAuthRepository().apply { googleUsesNonce = true }
-        val attempt = GoogleSignInAttempt(repo)
+        val attempt = GoogleSignInAttempt()
 
         val first = attempt.begin()
         val second = attempt.begin()
@@ -73,10 +71,7 @@ class GoogleNonceTest {
     }
 
     @Test
-    fun attempt_withoutNonceBackend_givesNothing() {
-        val attempt = GoogleSignInAttempt(FakeAuthRepository())
-
-        assertNull(attempt.begin())
-        assertNull(attempt.finish())
+    fun attempt_withoutBegin_hasNoRawNonce() {
+        assertNull(GoogleSignInAttempt().finish())
     }
 }

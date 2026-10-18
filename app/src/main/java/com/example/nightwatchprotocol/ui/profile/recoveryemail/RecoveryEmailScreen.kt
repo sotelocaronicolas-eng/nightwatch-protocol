@@ -28,7 +28,6 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 @Composable
 fun RecoveryEmailScreen(
     onClose: () -> Unit,
-    onSaved: () -> Unit,
     onCodeSent: (email: String) -> Unit,
     viewModel: RecoveryEmailViewModel = viewModel(factory = RecoveryEmailViewModel.Factory),
 ) {
@@ -37,7 +36,6 @@ fun RecoveryEmailScreen(
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                RecoveryEmailEvent.Saved -> onSaved()
                 is RecoveryEmailEvent.CodeSent -> onCodeSent(event.email)
             }
         }
