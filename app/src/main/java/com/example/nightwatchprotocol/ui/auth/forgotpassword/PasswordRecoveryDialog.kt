@@ -84,7 +84,11 @@ fun PasswordRecoveryDialog(
                 onCodeChange = codeViewModel::onCodeChanged,
                 onConfirm = codeViewModel::onConfirmClicked,
                 onResend = codeViewModel::onResendClicked,
-                onClose = onDismiss,
+                onClose = {
+                    // Closing while the code is being checked must not leave a session open over Login.
+                    codeViewModel.onDismissed()
+                    onDismiss()
+                },
                 layout = VerifyCodeLayout.Dialog,
             )
         }

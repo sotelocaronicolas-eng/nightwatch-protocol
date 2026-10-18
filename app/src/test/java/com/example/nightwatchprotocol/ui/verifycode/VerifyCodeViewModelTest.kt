@@ -3,6 +3,7 @@ package com.example.nightwatchprotocol.ui.verifycode
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.auth.AuthError
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -24,9 +25,18 @@ class FakeCodeFlow : CodeFlow {
     var resendCalls = 0
     override var completionNotice: String? = null
 
+    /** When set, [confirm] suspends until it is completed (a check that is still in flight). */
+    var confirmGate: CompletableDeferred<Unit>? = null
+    var abandonCalls = 0
+
     override suspend fun confirm(code: String) {
         confirmed += code
+        confirmGate?.await()
         confirmResult.getOrThrow()
+    }
+
+    override suspend fun abandon() {
+        abandonCalls++
     }
 
     override suspend fun resend() {
@@ -113,6 +123,52 @@ class VerifyCodeViewModelTest {
             vm.onConfirmClicked()
             assertEquals(VerifyCodeEvent.VerifiedWithNotice("aviso"), awaitItem())
         }
+    }
+
+    @Test
+    fun closingWhileTheCodeIsBeingChecked_cancelsTheCheck_andAbandonsIt() = runTest {
+        flow.confirmGate = CompletableDeferred()
+        val vm = viewModel()
+        vm.onCodeChanged("123456")
+
+        vm.events.test {
+            vm.onConfirmClicked()
+            runCurrent()
+            assertTrue(vm.uiState.value.isConfirming)
+
+            vm.onDismissed()
+            runCurrent()
+            flow.confirmGate!!.complete(Unit) // too late: the check was cancelled
+            advanceUntilIdle()
+
+            assertEquals(1, flow.abandonCalls)
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun closingWithNothingRunning_abandonsNothing() = runTest {
+        val vm = viewModel()
+        vm.onCodeChanged("123456")
+
+        vm.onDismissed()
+        advanceUntilIdle()
+
+        assertEquals(0, flow.abandonCalls)
+    }
+
+    @Test
+    fun closingAfterTheCheckFinished_abandonsNothing() = runTest {
+        flow.confirmResult = Result.failure(AuthError.InvalidCode)
+        val vm = viewModel()
+        vm.onCodeChanged("111111")
+        vm.onConfirmClicked()
+        advanceUntilIdle()
+
+        vm.onDismissed()
+        advanceUntilIdle()
+
+        assertEquals(0, flow.abandonCalls)
     }
 
     @Test

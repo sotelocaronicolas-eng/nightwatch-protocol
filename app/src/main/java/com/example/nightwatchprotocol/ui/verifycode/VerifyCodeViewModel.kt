@@ -12,6 +12,7 @@ import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.ui.navigation.VerifyCode
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -104,6 +105,7 @@ class VerifyCodeViewModel(
     // once CODE_VALIDITY_MILLIS passed since it was sent. A code was sent just before this screen opened.
     private var codeSentAtMillis = clock()
     private var countdownJob: Job? = null
+    private var confirmJob: Job? = null
 
     init {
         startCountdown(RESEND_COOLDOWN_SECONDS)
@@ -139,7 +141,7 @@ class VerifyCodeViewModel(
             return
         }
         if (!state.canConfirm) return
-        viewModelScope.launch {
+        confirmJob = viewModelScope.launch {
             _uiState.update { it.copy(isConfirming = true, error = null, notice = null) }
             try {
                 flow.confirm(state.code)
@@ -153,6 +155,19 @@ class VerifyCodeViewModel(
             } catch (e: Exception) {
                 _uiState.update { it.copy(isConfirming = false, error = VerifyCodeError.Generic) }
             }
+        }
+    }
+
+    /**
+     * The screen (the recovery dialog) was closed. If a confirmation is still running it is cancelled and awaited, and
+     * [CodeFlow.abandon] undoes what it may already have done (e.g. an opened session). Closing with nothing running
+     * leaves nothing to undo.
+     */
+    fun onDismissed() {
+        val running = confirmJob?.takeIf { it.isActive } ?: return
+        viewModelScope.launch {
+            running.cancelAndJoin()
+            flow.abandon()
         }
     }
 

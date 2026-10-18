@@ -30,6 +30,12 @@ interface CodeFlow {
 
     /** A non-blocking warning for the screen that follows a successful [confirm]; null when everything went well. */
     val completionNotice: String? get() = null
+
+    /**
+     * The code screen was closed while [confirm] was running (it has been cancelled and awaited). Undoes whatever a
+     * confirmation that went through may have left behind. Nothing by default.
+     */
+    suspend fun abandon() {}
 }
 
 class SignUpCodeFlow(private val authRepository: AuthRepository, private val email: String) : CodeFlow {
@@ -79,6 +85,15 @@ class RecoveryCodeFlow(
     }
 
     override suspend fun resend() = authRepository.sendPasswordResetEmail(email)
+
+    /**
+     * The dialog was closed while the code was being checked: a recovery session may have opened with nobody to set the
+     * new password, so it is closed and the "recovery in progress" mark removed (which is also what the next start does).
+     */
+    override suspend fun abandon() {
+        authRepository.signOut()
+        withContext(NonCancellable) { sessionPreferences.setRecoveryInProgress(false) }
+    }
 }
 
 /** [email] is the recovery address the code was sent to; the server keeps the pending address, only the code is sent. */

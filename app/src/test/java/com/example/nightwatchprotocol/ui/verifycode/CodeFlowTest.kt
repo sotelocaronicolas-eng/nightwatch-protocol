@@ -53,6 +53,19 @@ class CodeFlowTest {
     }
 
     @Test
+    fun recovery_abandoning_closesTheSession_andRemovesTheMark() = runTest {
+        val auth = FakeAuthRepository()
+        val preferences = SessionPreferences.inMemory()
+        val flow = RecoveryCodeFlow(auth, preferences, "ana@example.com")
+        flow.confirm("111222") // the session opened and the mark is set
+
+        flow.abandon()
+
+        assertEquals(1, auth.signOutCallCount)
+        assertFalse(preferences.isRecoveryInProgress())
+    }
+
+    @Test
     fun recovery_aRefusedCode_doesNotLeaveTheRecoveryMark() = runTest {
         val auth = FakeAuthRepository().apply { verifyRecoveryCodeResult = Result.failure(AuthError.InvalidCode) }
         val preferences = SessionPreferences.inMemory()
