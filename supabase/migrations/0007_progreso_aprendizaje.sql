@@ -108,11 +108,23 @@ alter table public.exam_attempts   enable row level security;
 --    * exam_attempts: solo se leen e insertan; un intento no se edita ni se borra (historial).
 --      No se concede permiso sobre id, passed ni taken_at (el servidor los calcula).
 --    Los INSERT por columna omiten completed_at: lo fija el default now() del servidor.
+--
+--    Por qué hay revoke para anon Y para authenticated antes de los grant: se parte de cero y se concede
+--    solo lo mínimo, columna por columna. Si el proyecto tuviera privilegios por defecto sobre tablas nuevas
+--    (por ejemplo ALTER DEFAULT PRIVILEGES o una exposición automática distinta de la documentada), esas
+--    tablas nacerían con más permisos de los que esta migración quiere dar. El revoke de authenticated los
+--    quita todos (incluidos update, delete, truncate, references y trigger) y los grant de abajo vuelven a
+--    dar únicamente select e insert por columna. El orden importa: los revoke van ANTES de los grant, porque
+--    un revoke posterior los anularía.
 -- -----------------------------------------------------------------------------------------------------
 
 revoke all on public.lesson_progress from anon;
 revoke all on public.lab_progress    from anon;
 revoke all on public.exam_attempts   from anon;
+
+revoke all on public.lesson_progress from authenticated;
+revoke all on public.lab_progress    from authenticated;
+revoke all on public.exam_attempts   from authenticated;
 
 grant select on public.lesson_progress to authenticated;
 grant insert (user_id, topic) on public.lesson_progress to authenticated;
