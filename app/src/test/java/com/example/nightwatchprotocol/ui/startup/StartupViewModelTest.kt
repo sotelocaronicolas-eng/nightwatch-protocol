@@ -1,11 +1,16 @@
 package com.example.nightwatchprotocol.ui.startup
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.CompletableDeferred
+import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -99,6 +104,41 @@ class StartupViewModelTest {
         runCurrent()
         assertEquals(1, auth.signOutCallCount)
         assertEquals(StartRoute.Login, viewModel.startRoute.value)
+    }
+
+    // ---- failures never leave the splash up ----
+
+    /** A local store whose reads and writes fail, like a corrupted or unreadable DataStore file. */
+    private class BrokenDataStore : DataStore<Preferences> {
+        override val data: Flow<Preferences> = flow { throw IOException("disco") }
+        override suspend fun updateData(transform: suspend (Preferences) -> Preferences): Preferences =
+            throw IOException("disco")
+    }
+
+    @Test
+    fun ifTheLocalPreferencesCannotBeRead_itGoesToLogin_closesTheSession_andReportsOnlyTheKind() = runTest {
+        val auth = FakeAuthRepository()
+        val reported = mutableListOf<String>()
+        val viewModel = StartupViewModel(auth, SessionPreferences(BrokenDataStore()), reported::add)
+
+        runCurrent()
+
+        assertEquals(StartRoute.Login, viewModel.startRoute.value)
+        assertEquals(1, auth.signOutCallCount)
+        assertEquals(listOf("IOException"), reported)
+    }
+
+    @Test
+    fun ifTheStoredSessionCannotBeRead_itGoesToLogin() = runTest {
+        val auth = FakeAuthRepository().apply { awaitSessionReadyFailure = IllegalStateException("datos privados") }
+        val reported = mutableListOf<String>()
+        val viewModel = StartupViewModel(auth, SessionPreferences.inMemory(), reported::add)
+
+        runCurrent()
+
+        assertEquals(StartRoute.Login, viewModel.startRoute.value)
+        assertEquals(listOf("IllegalStateException"), reported)
+        assertFalse(reported.any { it.contains("privados") })
     }
 
     @Test

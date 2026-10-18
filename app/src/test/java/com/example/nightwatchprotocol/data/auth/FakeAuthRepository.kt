@@ -21,9 +21,13 @@ class FakeAuthRepository : AuthRepository {
     var sessionReadyGate: CompletableDeferred<Unit>? = null
     var awaitSessionReadyCallCount = 0
 
+    /** When set, [awaitSessionReady] throws it (a stored session that cannot be read). */
+    var awaitSessionReadyFailure: Throwable? = null
+
     override suspend fun awaitSessionReady() {
         awaitSessionReadyCallCount++
         sessionReadyGate?.await()
+        awaitSessionReadyFailure?.let { throw it }
     }
 
     override suspend fun signIn(email: String, password: String) {
