@@ -60,7 +60,7 @@
       {
         "title": "Comparar con el dominio oficial",
         "command": "diff nightwatch-verify.io nw.app",
-        "output": "El dominio real es nightwatch.app — este es una imitación.",
+        "output": "El dominio real es nightwatch.app — esta es una imitación.",
         "reportLabel": "Comparación con el dominio oficial hecha"
       }
     ],
@@ -70,7 +70,7 @@
       "failureSummary": "No confirmaste que el correo no viene de un dominio real de NightWatch.",
       "metricLabel": "Precisión de análisis"
     },
-    "source": "Figma LABORATORIOS (2271:84); LAB - CORREO SOSPECHOSO (Terminal) (2383:141) y (Resuelto) (2383:173); informes LAB - INFORME DE LA MISIÓN (2273:131) y (ERROR) (2404:243). El texto 'este es una imitación' es literal de Figma (la concordancia 'esta es' queda como PENDIENTE de corrección por el grupo)"
+    "source": "Figma LABORATORIOS (2271:84); LAB - CORREO SOSPECHOSO (Terminal) (2383:141) y (Resuelto) (2383:173); informes LAB - INFORME DE LA MISIÓN (2273:131) y (ERROR) (2404:243). Figma dice 'este es una imitación'; se corrigió a 'esta es una imitación' (diferencia F15 de la spec)"
   },
   {
     "topic": "MALWARE",

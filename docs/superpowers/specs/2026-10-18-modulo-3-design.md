@@ -30,7 +30,7 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | E1-6 | SUPUESTO | `estimatedTime` del lab de contraseñas ("menos de 1 segundo", "4 horas", "300 años") sale del texto de cada salida; en el informe de éxito Figma lo escribe "300 Años" y la capitalización la decide la pantalla (Etapa 4) |
 | E1-7 | SUPUESTO | Solo `cat access.log` (Redes) tiene una salida de 2 líneas; el resto es de una línea. La separación con línea en blanco entre comandos aparece en la terminal de Redes pero no en las otras (2299:148 frente a las demás): se trata como presentación y no se guarda |
 | E1-8 | SUPUESTO | El rótulo "MÓDULO N de 6" de las lecciones se calcula por el orden del tema y no se guarda |
-| E1-9 | PENDIENTE | El texto de Figma de la salida del lab de correo dice **"este es una imitación"** (2383:173); está copiado literal. Si el grupo quiere "esta es una imitación", se corrige en `learning_labs.json` |
+| E1-9 | RESUELTO (F15) | El texto de Figma de la salida del lab de correo decía "este es una imitación" (2383:173); el grupo pidió corregirlo y `learning_labs.json` dice ahora **"esta es una imitación"** |
 | E1-10 | PENDIENTE | Los textos de informe de **fallo** ("No confirmaste que…") son los de las variantes "(ERROR)" de Figma; el título común es "Laboratorio no completado" (P6) y se pondrá en la pantalla (Etapa 4) |
 | E1-11 | NO VERIFICADO | El `upsert` que ignora duplicados no se probó contra un servidor real desde aquí (no hay red ni SQL; F-03 de la revisión). Se comprueba a mano en el teléfono en la Etapa 3: ver una lección dos veces no debe dar error ni duplicar filas |
 | E1-12 | DETALLE | Las 5 respuestas P2 a P6 del examen, además de verificadas por el grupo, coinciden con las líneas "Correcta:" de las pantallas de 1 error (2498:524 a 2498:572) |
@@ -262,6 +262,7 @@ Nada se ve en un teléfono desde aquí: la columna "Prueba en el teléfono" la h
 | F12 | **Nueva (P8):** durante el examen no hay indicación de acierto; solo la opción elegida y la barra de progreso | P8 |
 | F13 | **Nueva:** los textos nuevos ("Próximamente", "Completa la isla anterior", "Completa las 6 islas", "comando no reconocido", errores de red) no están en Figma | Necesarios para que la UI no quede muda |
 | F14 | **Nueva (P2/P6):** la precisión del informe muestra también 33% y 67% (en Figma solo hay 100% y 0%), y el tiempo estimado del informe de contraseñas sigue la regla de la sección 14, Q2: se muestra el de las salidas reales de la terminal, o "—" (el "3 Horas" de 2400:144 no coincide con ninguna salida) | Confirmado por el grupo (Q1, Q2) |
+| F15 | **Nueva (error de gramática de Figma):** la salida del lab de correo dice "este es una imitación" en Figma (2383:173); en la app es **"esta es una imitación"** (`learning_labs.json`). Cierra el pendiente E1-9 | Corrección pedida por el grupo (Etapa 2, tarea 0) |
 
 ## 13. Decisiones del grupo (2026-10-18)
 
