@@ -200,15 +200,28 @@ class LessonViewModelTest {
     }
 
     @Test
-    fun goToLab_opensTheLabsTab() = runTest {
-        val vm = viewModel()
+    fun goToLab_opensTheLabOfThatTopic() = runTest {
+        val vm = viewModel(LearningTopic.FIREWALL)
         advanceUntilIdle()
 
         vm.events.test {
             vm.onGoToLabClicked()
-            assertEquals(LessonEvent.OpenLabs, awaitItem())
+            assertEquals(LessonEvent.OpenLab(LearningTopic.FIREWALL), awaitItem())
             advanceUntilIdle()
             expectNoEvents()
+        }
+    }
+
+    @Test
+    fun goToLab_opensTheRightLab_forEveryTopic() = runTest {
+        LearningTopic.entries.forEach { topic ->
+            val vm = viewModel(topic)
+            advanceUntilIdle()
+
+            vm.events.test {
+                vm.onGoToLabClicked()
+                assertEquals(LessonEvent.OpenLab(topic), awaitItem())
+            }
         }
     }
 
@@ -221,7 +234,7 @@ class LessonViewModelTest {
             advanceUntilIdle()
             assertEquals(LessonEvent.SaveFailed(offline = true), awaitItem())
             vm.onGoToLabClicked()
-            assertEquals(LessonEvent.OpenLabs, awaitItem())
+            assertEquals(LessonEvent.OpenLab(LearningTopic.PHISHING), awaitItem())
         }
     }
 }

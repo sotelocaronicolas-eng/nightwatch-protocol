@@ -86,4 +86,23 @@
     <string name="learning_lesson_save_failed_offline">Sin conexión: no se guardó tu avance, pero puedes seguir leyendo.</string>
     <string name="learning_lesson_save_failed">No se pudo guardar tu avance, pero puedes seguir leyendo.</string>
     <string name="learning_retry">Reintentar</string>
+
+    <!-- Lab (terminal). Figma: LAB - FUERZA DE CONTRASEÑAS 2374:273 y las otras cinco terminales -->
+    <string name="learning_lab_terminal">Terminal</string>
+    <string name="learning_lab_objectives">OBJETIVOS · TOCA PARA USAR EL COMANDO</string>
+    <string name="learning_lab_input_prompt">&gt;</string>
+    <string name="learning_lab_input_placeholder">escribe un comando…</string>
+    <string name="learning_lab_send">Enviar</string>
+    <string name="learning_lab_finish">Finalizar laboratorio</string>
+    <!-- Prefijo de cada línea escrita en la salida (2374:328) -->
+    <string name="learning_lab_transcript_command">$ %1$s</string>
+
+    <!-- Lab: textos propuestos (no están en Figma) -->
+    <string name="learning_lab_close_description">Cerrar laboratorio</string>
+    <string name="learning_lab_loading">Cargando el laboratorio…</string>
+    <string name="learning_lab_error">No pudimos cargar el laboratorio.</string>
+    <string name="learning_lab_input_description">Comando</string>
+    <string name="learning_lab_objective_description">%1$s, comando %2$s, %3$s</string>
+    <string name="learning_lab_objective_done">cumplido</string>
+    <string name="learning_lab_objective_pending">pendiente</string>
 </resources>

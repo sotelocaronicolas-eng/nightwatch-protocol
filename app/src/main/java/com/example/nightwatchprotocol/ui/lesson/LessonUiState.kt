@@ -1,6 +1,7 @@
 package com.example.nightwatchprotocol.ui.lesson
 
 import com.example.nightwatchprotocol.data.learning.Lesson
+import com.example.nightwatchprotocol.data.learning.LearningTopic
 
 sealed interface LessonStatus {
     data object Loading : LessonStatus
@@ -22,8 +23,8 @@ sealed interface LessonEvent {
     /** The "X": back to where the person was. */
     data object Close : LessonEvent
 
-    /** "Ir al laboratorio →": Home with the Labs tab selected (provisional until the labs exist, stage 4). */
-    data object OpenLabs : LessonEvent
+    /** "Ir al laboratorio →": the lab of this lesson's topic. */
+    data class OpenLab(val topic: LearningTopic) : LessonEvent
 
     /** Saving that the lesson was seen failed. The lesson stays readable; the screen shows a short notice. */
     data class SaveFailed(val offline: Boolean) : LessonEvent

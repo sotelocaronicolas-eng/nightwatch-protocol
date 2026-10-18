@@ -31,6 +31,10 @@ data class Home(val tab: HomeTab = HomeTab.Inicio)
 @Serializable
 data class Lesson(val topic: LearningTopic)
 
+/** The terminal of one lab, full screen and without the bottom bar. */
+@Serializable
+data class Lab(val topic: LearningTopic)
+
 @Serializable
 object UserMenu
 

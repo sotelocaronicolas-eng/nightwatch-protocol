@@ -14,6 +14,7 @@ import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
 import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
 import com.example.nightwatchprotocol.ui.home.HomeScreen
 import com.example.nightwatchprotocol.ui.home.HomeTab
+import com.example.nightwatchprotocol.ui.lab.LabScreen
 import com.example.nightwatchprotocol.ui.lesson.LessonScreen
 import com.example.nightwatchprotocol.ui.postauth.PostAuthGateScreen
 import com.example.nightwatchprotocol.ui.profile.changeemail.ChangeEmailScreen
@@ -156,18 +157,20 @@ fun NightWatchNavHost(
                 onOpenUserMenu = { navController.navigate(UserMenu) },
                 // From a map island or "Lección diaria": full screen, without the bar.
                 onOpenLesson = { topic -> navController.navigate(Lesson(topic)) },
-                // La pantalla del Lab se conecta en el commit siguiente de la Etapa 4.
-                onOpenLab = {},
+                onOpenLab = { topic -> navController.navigate(Lab(topic)) },
             )
         }
         composable<Lesson> {
             LessonScreen(
                 onClose = { navController.popBackStack() },
-                // Provisional until the labs exist (stage 4): Home with the Labs tab, replacing the Home below the lesson.
-                onOpenLabs = {
-                    navController.navigate(Home(HomeTab.Labs)) { popUpTo<Home> { inclusive = true } }
+                // The lab replaces the lesson (SUPUESTO): closing the lab goes back to Home, not to the lesson just read.
+                onOpenLab = { topic ->
+                    navController.navigate(Lab(topic)) { popUpTo<Lesson> { inclusive = true } }
                 },
             )
+        }
+        composable<Lab> {
+            LabScreen(onClose = { navController.popBackStack() })
         }
         composable<UserMenu> {
             UserMenuScreen(

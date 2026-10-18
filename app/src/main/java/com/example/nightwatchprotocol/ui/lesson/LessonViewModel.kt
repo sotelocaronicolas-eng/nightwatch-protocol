@@ -90,7 +90,7 @@ class LessonViewModel(
     }
 
     fun onGoToLabClicked() {
-        viewModelScope.launch { _events.send(LessonEvent.OpenLabs) }
+        viewModelScope.launch { _events.send(LessonEvent.OpenLab(topic)) }
     }
 
     companion object {

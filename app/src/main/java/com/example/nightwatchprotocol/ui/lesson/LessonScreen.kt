@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.Lesson
 import com.example.nightwatchprotocol.ui.components.NightWatchGold
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
@@ -61,12 +62,12 @@ private val TextOnLight = Color(0xFF162523)
 
 /**
  * A lesson, full screen and without the bottom bar (Figma 2294:112 to 2294:202). [onClose] goes back to where the person
- * was; [onOpenLabs] goes to Home with the Labs tab selected.
+ * was; [onOpenLab] opens the lab of the lesson's topic.
  */
 @Composable
 fun LessonScreen(
     onClose: () -> Unit,
-    onOpenLabs: () -> Unit,
+    onOpenLab: (LearningTopic) -> Unit,
     viewModel: LessonViewModel = viewModel(factory = LessonViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -78,7 +79,7 @@ fun LessonScreen(
         viewModel.events.collect { event ->
             when (event) {
                 LessonEvent.Close -> onClose()
-                LessonEvent.OpenLabs -> onOpenLabs()
+                is LessonEvent.OpenLab -> onOpenLab(event.topic)
                 is LessonEvent.SaveFailed -> showNotice(snackbarHostState, if (event.offline) saveFailedOffline else saveFailed)
             }
         }
