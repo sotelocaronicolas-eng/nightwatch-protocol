@@ -10,6 +10,7 @@ import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.ui.profile.isPlausibleEmail
+import com.example.nightwatchprotocol.ui.verifycode.MESSAGE_WAIT_BEFORE_NEW_CODE
 import com.example.nightwatchprotocol.ui.verifycode.RecoveryCodeFlow
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeViewModel
 import kotlin.coroutines.cancellation.CancellationException
@@ -32,7 +33,7 @@ enum class RecoveryEmailError(val message: String) {
     InvalidEmail("Correo electrónico inválido"),
     NotFound("Correo no encontrado"),
     GoogleAccountOnly("Esta cuenta se creó con Google. Usa «Continuar con Google»"),
-    TooSoon("Espera un momento antes de pedir otro código."),
+    TooSoon(MESSAGE_WAIT_BEFORE_NEW_CODE),
     Offline("Sin conexión a internet"),
     Generic("Se produjo un error inesperado. Intenta de nuevo."),
 }

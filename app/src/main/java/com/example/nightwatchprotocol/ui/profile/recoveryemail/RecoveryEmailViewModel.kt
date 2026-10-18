@@ -13,6 +13,7 @@ import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import com.example.nightwatchprotocol.ui.profile.isPlausibleEmail
+import com.example.nightwatchprotocol.ui.verifycode.MESSAGE_WAIT_BEFORE_NEW_CODE
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +45,7 @@ data class RecoveryEmailUiState(
 /** Why asking for the code failed (Supabase). The seconds, when the server gave them, are in the text. */
 fun recoveryEmailCodeErrorMessage(error: Throwable?): String = when (error) {
     is AuthError.RateLimited ->
-        error.retryAfterSeconds?.let { "Espera $it s antes de pedir otro código." } ?: "Espera un momento antes de pedir otro código."
+        error.retryAfterSeconds?.let { "Espera $it s antes de pedir otro código." } ?: MESSAGE_WAIT_BEFORE_NEW_CODE
     AuthError.SameAsPrimaryEmail -> AuthError.SameAsPrimaryEmail.message.orEmpty()
     AuthError.EmailSendFailed -> AuthError.EmailSendFailed.message.orEmpty()
     AuthError.InvalidEmail -> MESSAGE_RECOVERY_EMAIL_INVALID

@@ -21,10 +21,10 @@ import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
-import com.example.nightwatchprotocol.ui.profile.changeemail.EMAIL_ACTION_BOTTOM_PADDING
-import com.example.nightwatchprotocol.ui.profile.changeemail.EMAIL_FIELD_TOP_PADDING
+import com.example.nightwatchprotocol.ui.profile.changeemail.emailActionBottomPadding
+import com.example.nightwatchprotocol.ui.profile.changeemail.emailFieldTopPadding
 import com.example.nightwatchprotocol.ui.profile.changeemail.EmailScreenHeader
-import com.example.nightwatchprotocol.ui.profile.changeemail.ILLUSTRATION_SIZE
+import com.example.nightwatchprotocol.ui.profile.changeemail.illustrationSize
 
 /**
  * Not in Figma, but laid out exactly like "Confirmar Correo" (2106:50): the same header, illustration slot, field
@@ -65,7 +65,7 @@ private fun ConfirmIdentityContent(
         Column(modifier = Modifier.fillMaxSize()) {
             ProfileTopBar(onClose = onClose)
             BottomActionScrollLayout(
-                actionBottomPadding = EMAIL_ACTION_BOTTOM_PADDING,
+                actionBottomPadding = emailActionBottomPadding,
                 modifier = Modifier.weight(1f),
                 action = {
                     ProfileButton(
@@ -81,7 +81,7 @@ private fun ConfirmIdentityContent(
                 )
                 // The slot has the size of the envelope illustration; the icon is drawn a little smaller inside it
                 // so its strokes look as big as the envelope's.
-                Box(modifier = Modifier.size(ILLUSTRATION_SIZE), contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier.size(illustrationSize), contentAlignment = Alignment.Center) {
                     Image(
                         painter = painterResource(R.drawable.ic_id_card),
                         contentDescription = null,
@@ -95,7 +95,7 @@ private fun ConfirmIdentityContent(
                     isPassword = true,
                     isError = uiState.error != null,
                     supportingText = uiState.error,
-                    modifier = Modifier.padding(top = EMAIL_FIELD_TOP_PADDING),
+                    modifier = Modifier.padding(top = emailFieldTopPadding),
                 )
             }
         }

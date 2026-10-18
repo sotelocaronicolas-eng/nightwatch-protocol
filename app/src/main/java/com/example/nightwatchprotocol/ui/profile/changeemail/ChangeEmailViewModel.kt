@@ -12,6 +12,7 @@ import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.ui.navigation.ChangeEmail
 import com.example.nightwatchprotocol.ui.profile.MESSAGE_GENERIC_ERROR
+import com.example.nightwatchprotocol.ui.verifycode.MESSAGE_WAIT_BEFORE_NEW_CODE
 import com.example.nightwatchprotocol.ui.profile.isPlausibleEmail
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.channels.Channel
@@ -128,7 +129,7 @@ class ChangeEmailViewModel(
     private fun messageFor(error: AuthError): String = when (error) {
         AuthError.InvalidEmail -> MESSAGE_EMAIL_INVALID
         AuthError.EmailAlreadyInUse -> MESSAGE_EMAIL_IN_USE
-        is AuthError.RateLimited -> "Espera un momento antes de pedir otro código."
+        is AuthError.RateLimited -> MESSAGE_WAIT_BEFORE_NEW_CODE
         AuthError.NetworkError -> "Sin conexión a internet"
         else -> MESSAGE_GENERIC_ERROR
     }

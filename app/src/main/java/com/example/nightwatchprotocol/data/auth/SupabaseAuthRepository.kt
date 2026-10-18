@@ -69,8 +69,8 @@ class SupabaseAuthRepository(
         }
     }
 
-    /** The signed-in user, or null. Also used by [SupabaseAccountRepository]. */
-    val currentUser: UserInfo?
+    /** The signed-in user, or null. Library type: only for [SupabaseAccountRepository], never part of the interface. */
+    internal val currentUser: UserInfo?
         get() = if (signedOutLocally) null else resolveCurrentUser(auth.sessionStatus.value, lastKnownUser)
 
     override val currentUserEmail: String?

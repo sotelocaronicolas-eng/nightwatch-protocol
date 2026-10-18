@@ -1,7 +1,6 @@
 package com.example.nightwatchprotocol.ui.auth.register
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,10 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,8 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nightwatchprotocol.ui.auth.GoogleCredentialResult
 import com.example.nightwatchprotocol.ui.auth.requestGoogleIdToken
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.auth.login.ErrorDialogKind
 import com.example.nightwatchprotocol.ui.auth.login.message
 import com.example.nightwatchprotocol.ui.components.GoogleSignInButton
@@ -58,6 +57,7 @@ import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchSuccess
 import kotlinx.coroutines.launch
 
 @Composable
@@ -67,10 +67,10 @@ fun RegisterScreen(
     onNavigateBack: () -> Unit,
     viewModel: RegisterViewModel = viewModel(factory = RegisterViewModel.Factory),
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var dialogKind by remember { mutableStateOf<ErrorDialogKind?>(null) }
+    var dialogKind by rememberSaveable { mutableStateOf<ErrorDialogKind?>(null) }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
@@ -248,7 +248,7 @@ private fun PasswordRuleRow(text: String, satisfied: Boolean) {
         Icon(
             imageVector = Icons.Filled.Check,
             contentDescription = "$text: ${if (satisfied) "cumplido" else "pendiente"}",
-            tint = if (satisfied) Color(0xFF4CAF50) else NightWatchOnBackground.copy(alpha = 0.4f),
+            tint = if (satisfied) NightWatchSuccess else NightWatchOnBackground.copy(alpha = 0.4f),
         )
         Text(text, color = NightWatchOnBackground, fontSize = 14.sp)
     }

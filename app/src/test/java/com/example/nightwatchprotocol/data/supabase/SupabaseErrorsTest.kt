@@ -3,7 +3,6 @@ package com.example.nightwatchprotocol.data.supabase
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.firestore.FailureKind
 import com.example.nightwatchprotocol.data.firestore.FirestoreAccessException
-import io.github.jan.supabase.auth.exception.AuthErrorCode
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.exception.AuthWeakPasswordException
 import io.github.jan.supabase.exceptions.BadRequestRestException

@@ -42,6 +42,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchSuccess
 import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 
@@ -167,7 +168,7 @@ internal fun PasswordRequirements(rules: PasswordRules) {
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = "$text: ${if (satisfied) "cumplido" else "pendiente"}",
-                    tint = if (satisfied) Color(0xFF4CAF50) else NightWatchOnBackground.copy(alpha = 0.4f),
+                    tint = if (satisfied) NightWatchSuccess else NightWatchOnBackground.copy(alpha = 0.4f),
                 )
                 Text(text, color = NightWatchOnBackground, fontFamily = NightWatchBodyFontFamily, fontSize = 14.sp)
             }

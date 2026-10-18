@@ -26,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +40,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -229,7 +232,7 @@ internal fun CodeHint(
 ) {
     val error = uiState.error
     Text(
-        text = error?.message ?: uiState.notice ?: "Ingrese el codigo de $CODE_LENGTH digitos",
+        text = error?.message ?: uiState.notice ?: "Ingrese el código de $CODE_LENGTH dígitos",
         color = if (error != null) NightWatchError else onSurfaceColor,
         fontFamily = NightWatchBodyFontFamily,
         fontWeight = FontWeight.Medium,
@@ -241,7 +244,7 @@ internal fun CodeHint(
 
 @Composable
 internal fun ResendLink(uiState: VerifyCodeUiState, onResend: () -> Unit, modifier: Modifier = Modifier) {
-    // "Reenviar el código de 6 digitos", or "Reenviar en 45 s" (dimmed, not clickable) while the countdown runs.
+    // "Reenviar el código de 6 dígitos", or "Reenviar en 45 s" (dimmed, not clickable) while the countdown runs.
     Text(
         text = uiState.resendLabel,
         color = if (uiState.canResend) NightWatchHeaderPanel else NightWatchHeaderPanel.copy(alpha = 0.5f),
@@ -249,6 +252,8 @@ internal fun ResendLink(uiState: VerifyCodeUiState, onResend: () -> Unit, modifi
         fontWeight = FontWeight.Medium,
         fontSize = 13.sp,
         modifier = modifier
+            // 48 dp touch target; the text stays centred and looks the same.
+            .minimumInteractiveComponentSize()
             .clickable(enabled = uiState.canResend, role = Role.Button, onClick = onResend)
             .padding(8.dp),
     )
@@ -292,7 +297,11 @@ fun CodeInput(
             textAlign = TextAlign.Center,
         ),
         cursorBrush = SolidColor(Color.Black),
-        modifier = modifier.keepVisibleWithKeyboard().focusRequester(focusRequester).testTag(CODE_FIELD_TAG),
+        modifier = modifier
+            .keepVisibleWithKeyboard()
+            .focusRequester(focusRequester)
+            .semantics { contentDescription = "Código de $CODE_LENGTH dígitos" }
+            .testTag(CODE_FIELD_TAG),
         decorationBox = { innerTextField ->
             when (style) {
                 CodeInputStyle.Bar -> Box(

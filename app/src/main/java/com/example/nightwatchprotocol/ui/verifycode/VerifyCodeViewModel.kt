@@ -31,6 +31,9 @@ const val MESSAGE_CODE_RESENT = "Te enviamos un código nuevo."
 const val MESSAGE_OFFLINE = "Sin conexión a internet"
 const val MESSAGE_CODE_GENERIC_ERROR = "Se produjo un error inesperado. Intenta de nuevo."
 
+/** Shown wherever a new code is asked for too soon and the server did not say how long to wait. */
+const val MESSAGE_WAIT_BEFORE_NEW_CODE = "Espera un momento antes de pedir otro código."
+
 const val MESSAGE_CODE_EXPIRED = "El código expiró. Solicita uno nuevo."
 const val MESSAGE_TOO_MANY_ATTEMPTS = "Demasiados intentos. Espera unos minutos y vuelve a intentarlo."
 
@@ -73,7 +76,7 @@ data class VerifyCodeUiState(
         get() = if (resendSecondsLeft > 0) {
             "Reenviar en $resendSecondsLeft s"
         } else {
-            "Reenviar el código de $CODE_LENGTH digitos"
+            "Reenviar el código de $CODE_LENGTH dígitos"
         }
 }
 

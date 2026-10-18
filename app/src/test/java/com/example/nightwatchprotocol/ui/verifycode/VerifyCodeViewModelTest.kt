@@ -280,7 +280,7 @@ class VerifyCodeViewModelTest {
 
         assertEquals(0, vm.uiState.value.resendSecondsLeft)
         assertTrue(vm.uiState.value.canResend)
-        assertEquals("Reenviar el código de 6 digitos", vm.uiState.value.resendLabel)
+        assertEquals("Reenviar el código de 6 dígitos", vm.uiState.value.resendLabel)
     }
 
     @Test

@@ -77,7 +77,7 @@ fun ChangeEmailScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             ProfileTopBar(onClose = onClose)
             BottomActionScrollLayout(
-                actionBottomPadding = EMAIL_ACTION_BOTTOM_PADDING,
+                actionBottomPadding = emailActionBottomPadding,
                 modifier = Modifier.weight(1f),
                 action = {
                     if (uiState.hasPassword) {
@@ -106,7 +106,7 @@ fun ChangeEmailScreen(
                         isError = uiState.error != null,
                         supportingText = uiState.error,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        modifier = Modifier.padding(top = EMAIL_FIELD_TOP_PADDING),
+                        modifier = Modifier.padding(top = emailFieldTopPadding),
                     )
                 } else {
                     Text(
@@ -115,7 +115,7 @@ fun ChangeEmailScreen(
                         fontFamily = NightWatchBodyFontFamily,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = EMAIL_FIELD_TOP_PADDING),
+                        modifier = Modifier.padding(top = emailFieldTopPadding),
                     )
                 }
             }
@@ -128,9 +128,9 @@ fun ChangeEmailScreen(
  * "Correo de Recuperación" and "Confirma tu identidad". The header, the 207 dp illustration slot and these two
  * distances are the Figma positions: the field 40 dp under the illustration, the button 70 dp above the bottom.
  */
-internal val EMAIL_FIELD_TOP_PADDING = 40.dp
-internal val EMAIL_ACTION_BOTTOM_PADDING = 70.dp
-internal val ILLUSTRATION_SIZE = 207.dp
+internal val emailFieldTopPadding = 40.dp
+internal val emailActionBottomPadding = 70.dp
+internal val illustrationSize = 207.dp
 
 @Composable
 fun VerifyEmailLinkScreen(
@@ -234,6 +234,6 @@ internal fun EnvelopeImage() {
     Image(
         painter = painterResource(R.drawable.img_envelope),
         contentDescription = null,
-        modifier = Modifier.size(ILLUSTRATION_SIZE),
+        modifier = Modifier.size(illustrationSize),
     )
 }
