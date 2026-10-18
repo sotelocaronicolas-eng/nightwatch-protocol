@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -109,7 +111,8 @@ private fun RecoveryEmailDialog(
             }
         },
         text = {
-            Column {
+            // Scrolls if the keyboard leaves the dialog too little room for the field.
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(
                     "Para recuperar su contraseña, ingrese su correo electrónico. Recibirá un código de " +
                         "verificación de 6 dígitos para continuar con el proceso.",

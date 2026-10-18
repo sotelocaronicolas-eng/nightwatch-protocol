@@ -56,6 +56,9 @@ fun RecoveryEmailScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .fillMaxSize()
+                        // The scrollable area ends above the bottom button, so a focused field is brought into view
+                        // above it, not under it.
+                        .padding(bottom = 140.dp)
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = 41.dp),
                 ) {
@@ -85,7 +88,6 @@ fun RecoveryEmailScreen(
                         supportingText = uiState.error,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     )
-                    Box(modifier = Modifier.padding(bottom = 140.dp))
                 }
                 ProfileButton(
                     text = "GUARDAR CORREO",

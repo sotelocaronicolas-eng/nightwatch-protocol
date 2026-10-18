@@ -145,7 +145,8 @@ private fun VerifyCodeDialogLayout(
             }
         },
         text = {
-            Column {
+            // Scrolls if the keyboard leaves the dialog too little room for the code boxes.
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(
                     "Hemos enviado un código a $recipient. Ingresa el código recibido para verificar tu identidad " +
                         "y continuar con el proceso de restablecimiento de tu contraseña.",
@@ -193,6 +194,9 @@ private fun VerifyCodeScreenLayout(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .fillMaxSize()
+                        // The scrollable area ends above the bottom buttons, so the focused field is brought into
+                        // view above them, not under them.
+                        .padding(bottom = 180.dp)
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = 41.dp),
                 ) {
@@ -209,7 +213,6 @@ private fun VerifyCodeScreenLayout(
                         modifier = Modifier.padding(top = 28.dp),
                     )
                     CodeHint(uiState, modifier = Modifier.padding(top = 8.dp))
-                    Box(modifier = Modifier.padding(bottom = 180.dp))
                 }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
