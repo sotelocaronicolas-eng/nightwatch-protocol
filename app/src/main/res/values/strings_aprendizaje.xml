@@ -121,4 +121,9 @@
     <string name="learning_report_loading">Cargando el informe…</string>
     <string name="learning_report_error">No pudimos cargar el informe.</string>
     <string name="learning_report_trophy_broken_description">Trofeo roto</string>
+    <string name="learning_report_saving">Guardando tu avance…</string>
+    <string name="learning_report_saved">Avance guardado</string>
+    <string name="learning_report_save_failed_offline">Sin conexión: el laboratorio aún no se guardó.</string>
+    <string name="learning_report_save_failed">No se pudo guardar el laboratorio.</string>
+    <string name="learning_report_retry_save">Reintentar guardado</string>
 </resources>

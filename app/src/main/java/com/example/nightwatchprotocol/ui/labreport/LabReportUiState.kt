@@ -37,8 +37,22 @@ sealed interface LabReportStatus {
     data object Failed : LabReportStatus
 }
 
+/** Saving a completed lab (the only case that saves: an incomplete lab is never registered, decision P6). */
+sealed interface LabSaveStatus {
+    /** Nothing to save: the attempt is incomplete, or the report is not ready. */
+    data object NotNeeded : LabSaveStatus
+
+    data object Saving : LabSaveStatus
+
+    data object Saved : LabSaveStatus
+
+    /** Only the kind of failure reaches the screen, never the exception. The lab is NOT completed until it is saved. */
+    data class Failed(val offline: Boolean) : LabSaveStatus
+}
+
 data class LabReportUiState(
     val status: LabReportStatus = LabReportStatus.Loading,
+    val save: LabSaveStatus = LabSaveStatus.NotNeeded,
 )
 
 sealed interface LabReportEvent {

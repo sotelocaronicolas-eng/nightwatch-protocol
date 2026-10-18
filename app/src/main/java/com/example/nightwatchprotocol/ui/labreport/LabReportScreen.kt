@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -107,10 +109,17 @@ fun LabReportScreen(
                     ReportButtons(onRetryLab = viewModel::onRetryLabClicked, onBackToPath = viewModel::onBackToPathClicked)
                 }
                 is LabReportStatus.Ready -> {
-                    ReportBody(status.content, modifier = Modifier.weight(1f))
+                    ReportBody(
+                        content = status.content,
+                        save = uiState.save,
+                        onRetrySave = viewModel::onRetrySaveClicked,
+                        modifier = Modifier.weight(1f),
+                    )
                     ReportButtons(
                         onRetryLab = viewModel::onRetryLabClicked,
                         onBackToPath = viewModel::onBackToPathClicked,
+                        // The buttons wait for the save, so the map that opens next already shows the completed lab.
+                        enabled = uiState.save !is LabSaveStatus.Saving,
                         modifier = Modifier.padding(bottom = 20.dp),
                     )
                 }
@@ -130,7 +139,12 @@ private fun Centered(content: @Composable () -> Unit) {
 
 /** Trophy, title, sentence, StatBox and the list of objectives (2273:132 to 2273:140). */
 @Composable
-private fun ReportBody(content: LabReportContent, modifier: Modifier = Modifier) {
+private fun ReportBody(
+    content: LabReportContent,
+    save: LabSaveStatus,
+    onRetrySave: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -193,7 +207,49 @@ private fun ReportBody(content: LabReportContent, modifier: Modifier = Modifier)
                 )
             }
         }
+        SaveNotice(save, onRetrySave, modifier = Modifier.padding(bottom = 16.dp))
     }
+}
+
+/** SUPUESTO (texts not in Figma): says that the lab is being saved, was saved, or could not be, with "Reintentar guardado". */
+@Composable
+private fun SaveNotice(save: LabSaveStatus, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    when (save) {
+        LabSaveStatus.NotNeeded -> Unit
+        LabSaveStatus.Saving -> Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.fillMaxWidth()) {
+            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = NightWatchOnBackground)
+            SaveText(stringResource(R.string.learning_report_saving), modifier = Modifier.padding(start = 8.dp))
+        }
+        LabSaveStatus.Saved -> SaveText(stringResource(R.string.learning_report_saved), modifier = modifier.fillMaxWidth())
+        is LabSaveStatus.Failed -> Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.fillMaxWidth()) {
+            SaveText(
+                text = stringResource(
+                    if (save.offline) R.string.learning_report_save_failed_offline else R.string.learning_report_save_failed,
+                ),
+                modifier = Modifier.weight(1f),
+            )
+            TextButton(onClick = onRetry) {
+                Text(
+                    text = stringResource(R.string.learning_report_retry_save),
+                    color = NightWatchGold,
+                    fontFamily = NightWatchBodyFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 13.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SaveText(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        color = NightWatchOnBackground,
+        fontFamily = NightWatchBodyFontFamily,
+        fontSize = 13.sp,
+        modifier = modifier,
+    )
 }
 
 /** The StatBox (2404:190): the big gold number and its label. */
@@ -233,11 +289,20 @@ private fun StatBox(content: LabReportContent, modifier: Modifier = Modifier) {
 
 /** "Reintentar" (outline, 2273:141) and "Volver a la ruta" (light, 2273:143), 48 dp pills pinned to the bottom. */
 @Composable
-private fun ReportButtons(onRetryLab: () -> Unit, onBackToPath: () -> Unit, modifier: Modifier = Modifier) {
+private fun ReportButtons(
+    onRetryLab: () -> Unit,
+    onBackToPath: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
     val shape = RoundedCornerShape(100.dp)
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier.fillMaxWidth().padding(horizontal = 20.dp).navigationBarsPadding(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .navigationBarsPadding()
+            .alpha(if (enabled) 1f else 0.5f),
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -245,7 +310,7 @@ private fun ReportButtons(onRetryLab: () -> Unit, onBackToPath: () -> Unit, modi
                 .fillMaxWidth()
                 .height(48.dp)
                 .border(2.dp, NightWatchBorderAccent, shape)
-                .clickable(role = Role.Button, onClick = onRetryLab),
+                .clickable(enabled = enabled, role = Role.Button, onClick = onRetryLab),
         ) {
             Text(
                 text = stringResource(R.string.learning_report_retry),
@@ -263,7 +328,7 @@ private fun ReportButtons(onRetryLab: () -> Unit, onBackToPath: () -> Unit, modi
                 .height(48.dp)
                 .shadow(4.dp, shape)
                 .background(NightWatchSurfaceButton, shape)
-                .clickable(role = Role.Button, onClick = onBackToPath),
+                .clickable(enabled = enabled, role = Role.Button, onClick = onBackToPath),
         ) {
             Text(
                 text = stringResource(R.string.learning_report_back_to_path),

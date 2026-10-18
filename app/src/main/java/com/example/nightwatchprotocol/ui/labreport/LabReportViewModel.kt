@@ -8,14 +8,18 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.toRoute
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.data.common.DataAccessException
+import com.example.nightwatchprotocol.data.common.FailureKind
 import com.example.nightwatchprotocol.data.learning.Lab
 import com.example.nightwatchprotocol.data.learning.LabTerminal
 import com.example.nightwatchprotocol.data.learning.LearningContentRepository
+import com.example.nightwatchprotocol.data.learning.LearningProgressRepository
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import com.example.nightwatchprotocol.ui.navigation.LabReport as LabReportRoute
 import java.util.Locale
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +28,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * The report of a finished attempt. It receives the topic and the objectives done (from the terminal) and builds
@@ -35,9 +40,11 @@ class LabReportViewModel(
     private val topic: LearningTopic,
     private val completedObjectives: Set<Int>,
     private val learningContentRepository: LearningContentRepository,
+    private val learningProgressRepository: LearningProgressRepository,
 ) : ViewModel() {
 
     private var loadJob: Job? = null
+    private var saveJob: Job? = null
 
     private val _uiState = MutableStateFlow(LabReportUiState())
     val uiState: StateFlow<LabReportUiState> = _uiState.asStateFlow()
@@ -59,16 +66,50 @@ class LabReportViewModel(
                 _uiState.update { it.copy(status = LabReportStatus.Failed) }
                 return@launch
             }
-            _uiState.update { it.copy(status = LabReportStatus.Ready(buildContent(lab))) }
+            val content = buildContent(lab)
+            _uiState.update { it.copy(status = LabReportStatus.Ready(content)) }
+            // Only a completed lab is registered (decision P6).
+            if (content.success) save()
         }
     }
 
+    /** "Reintentar guardado": only after a failed save; a tap while saving (or after saving) does nothing. */
+    fun onRetrySaveClicked() {
+        if (_uiState.value.save is LabSaveStatus.Failed) save()
+    }
+
+    /** The buttons wait for the save, so the map that opens next already reads the completed lab. */
     fun onBackToPathClicked() {
+        if (_uiState.value.save is LabSaveStatus.Saving) return
         viewModelScope.launch { _events.send(LabReportEvent.BackToPath) }
     }
 
     fun onRetryLabClicked() {
+        if (_uiState.value.save is LabSaveStatus.Saving) return
         viewModelScope.launch { _events.send(LabReportEvent.RetryLab(topic)) }
+    }
+
+    /**
+     * Registers the lab with [LearningProgressRepository.markLabCompleted] (idempotent: repeating a completed lab is not an
+     * error and adds no row; the row's owner is the session's). A second call while one is running does nothing, so a
+     * double tap never saves twice. NonCancellable: leaving the report right away must not lose the (short) write.
+     */
+    private fun save() {
+        if (saveJob?.isActive == true || _uiState.value.save is LabSaveStatus.Saved) return
+        _uiState.update { it.copy(save = LabSaveStatus.Saving) }
+        saveJob = viewModelScope.launch {
+            val result = withContext(NonCancellable) {
+                runCatchingKeepCancellation { learningProgressRepository.markLabCompleted(topic) }
+            }
+            val failure = result.exceptionOrNull()
+            val status = if (failure == null) {
+                LabSaveStatus.Saved
+            } else {
+                // Only a kind of failure reaches the screen, never the exception itself.
+                LabSaveStatus.Failed(offline = (failure as? DataAccessException)?.kind == FailureKind.Offline)
+            }
+            _uiState.update { it.copy(save = status) }
+        }
     }
 
     private fun buildContent(lab: Lab): LabReportContent {
@@ -101,6 +142,7 @@ class LabReportViewModel(
                     topic = route.topic,
                     completedObjectives = route.completedObjectives.toSet(),
                     learningContentRepository = application.container.learningContentRepository,
+                    learningProgressRepository = application.container.learningProgressRepository,
                 )
             }
         }

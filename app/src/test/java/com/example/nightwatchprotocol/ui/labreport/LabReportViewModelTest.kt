@@ -5,8 +5,12 @@ import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.common.DataAccessException
 import com.example.nightwatchprotocol.data.common.FailureKind
 import com.example.nightwatchprotocol.data.learning.FakeLearningContentRepository
+import com.example.nightwatchprotocol.data.learning.FakeLearningProgressRepository
+import com.example.nightwatchprotocol.data.learning.LearningProgressRepository
+import com.example.nightwatchprotocol.data.learning.LearningSnapshot
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.realLearningContent
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -22,7 +26,13 @@ class LabReportViewModelTest {
     // The real JSON, so the texts and the passwords outputs are the ones that ship.
     private val content = FakeLearningContentRepository(realLearningContent())
 
-    private fun viewModel(topic: LearningTopic, completed: Set<Int>) = LabReportViewModel(topic, completed, content)
+    private val progress = FakeLearningProgressRepository()
+
+    private fun viewModel(
+        topic: LearningTopic,
+        completed: Set<Int>,
+        repository: LearningProgressRepository = progress,
+    ) = LabReportViewModel(topic, completed, content, repository)
 
     private fun LabReportViewModel.report(): LabReportContent =
         (uiState.value.status as LabReportStatus.Ready).content
@@ -219,4 +229,215 @@ class LabReportViewModelTest {
 
         assertTrue(vm.uiState.value.status is LabReportStatus.Ready)
     }
+
+    // ---- saving: only a completed lab, with the session's row ----
+
+    @Test
+    fun success_registersTheLabAsCompleted() = runTest {
+        val vm = viewModel(LearningTopic.PHISHING, setOf(0, 1, 2))
+        advanceUntilIdle()
+
+        assertEquals(setOf(LearningTopic.PHISHING), progress.completedLabs)
+        assertEquals(1, progress.writeCallCount)
+        assertEquals(LabSaveStatus.Saved, vm.uiState.value.save)
+    }
+
+    @Test
+    fun failure_doesNotRegisterAnything() = runTest {
+        listOf(emptySet(), setOf(0), setOf(0, 2)).forEach { done ->
+            val vm = viewModel(LearningTopic.PHISHING, done)
+            advanceUntilIdle()
+
+            assertEquals(LabSaveStatus.NotNeeded, vm.uiState.value.save)
+        }
+        assertTrue(progress.completedLabs.isEmpty())
+        assertEquals(0, progress.writeCallCount)
+    }
+
+    @Test
+    fun failure_neverOffersToRetryTheSave() = runTest {
+        val vm = viewModel(LearningTopic.PHISHING, setOf(0, 1))
+        advanceUntilIdle()
+
+        vm.onRetrySaveClicked()
+        advanceUntilIdle()
+
+        assertEquals(0, progress.writeCallCount)
+        assertEquals(LabSaveStatus.NotNeeded, vm.uiState.value.save)
+    }
+
+    @Test
+    fun aFailedSave_stillShowsTheSuccessReport_andTheLabIsNotCompleted() = runTest {
+        mapOf(
+            FailureKind.Offline to true,
+            FailureKind.PermissionDenied to false,
+            FailureKind.Unknown to false,
+        ).forEach { (kind, offline) ->
+            progress.completedLabs.clear()
+            progress.writeFailure = kind
+            val vm = viewModel(LearningTopic.PHISHING, setOf(0, 1, 2))
+            advanceUntilIdle()
+
+            assertEquals(LabSaveStatus.Failed(offline), vm.uiState.value.save)
+            assertTrue(vm.report().success)
+            assertTrue(progress.completedLabs.isEmpty())
+        }
+    }
+
+    @Test
+    fun aFailedSave_keepsNoTraceOfTheException() = runTest {
+        progress.writeFailure = FailureKind.Offline
+        val vm = viewModel(LearningTopic.PHISHING, setOf(0, 1, 2))
+        advanceUntilIdle()
+
+        assertFalse(vm.uiState.value.toString().contains("servidor", ignoreCase = true))
+    }
+
+    @Test
+    fun retrySave_afterAFailure_registersTheLab() = runTest {
+        progress.writeFailure = FailureKind.Offline
+        val vm = viewModel(LearningTopic.PHISHING, setOf(0, 1, 2))
+        advanceUntilIdle()
+
+        progress.writeFailure = null
+        vm.onRetrySaveClicked()
+        advanceUntilIdle()
+
+        assertEquals(LabSaveStatus.Saved, vm.uiState.value.save)
+        assertEquals(setOf(LearningTopic.PHISHING), progress.completedLabs)
+        assertEquals(2, progress.writeCallCount)
+    }
+
+    @Test
+    fun retrySave_thatFailsAgain_staysFailed_andCanBeTriedOnceMore() = runTest {
+        progress.writeFailure = FailureKind.Offline
+        val vm = viewModel(LearningTopic.PHISHING, setOf(0, 1, 2))
+        advanceUntilIdle()
+
+        vm.onRetrySaveClicked()
+        advanceUntilIdle()
+        assertEquals(LabSaveStatus.Failed(offline = true), vm.uiState.value.save)
+
+        progress.writeFailure = null
+        vm.onRetrySaveClicked()
+        advanceUntilIdle()
+        assertEquals(LabSaveStatus.Saved, vm.uiState.value.save)
+    }
+
+    @Test
+    fun retrySave_afterItWasSaved_doesNothing() = runTest {
+        val vm = viewModel(LearningTopic.PHISHING, setOf(0, 1, 2))
+        advanceUntilIdle()
+
+        vm.onRetrySaveClicked()
+        advanceUntilIdle()
+
+        assertEquals(1, progress.writeCallCount)
+    }
+
+    @Test
+    fun repeatingAnAlreadyCompletedLab_isNotAnError_andAddsNoSecondEntry() = runTest {
+        progress.completedLabs += LearningTopic.PHISHING
+        val vm = viewModel(LearningTopic.PHISHING, setOf(0, 1, 2))
+        advanceUntilIdle()
+
+        assertEquals(LabSaveStatus.Saved, vm.uiState.value.save)
+        assertEquals(setOf(LearningTopic.PHISHING), progress.completedLabs)
+    }
+
+    @Test
+    fun aFailedAttempt_overACompletedLab_doesNotUndoIt() = runTest {
+        progress.completedLabs += LearningTopic.PHISHING
+        viewModel(LearningTopic.PHISHING, setOf(0))
+        advanceUntilIdle()
+
+        assertEquals(setOf(LearningTopic.PHISHING), progress.completedLabs)
+        assertEquals(0, progress.writeCallCount)
+    }
+
+    // ---- double tap ----
+
+    @Test
+    fun whileSaving_aRetryTap_doesNotSaveAgain() = runTest {
+        val gated = GatedProgress().apply { gate = CompletableDeferred() }
+        val vm = viewModel(LearningTopic.PHISHING, setOf(0, 1, 2), gated)
+        advanceUntilIdle()
+        assertEquals(LabSaveStatus.Saving, vm.uiState.value.save)
+
+        vm.onRetrySaveClicked()
+        vm.onRetrySaveClicked()
+        advanceUntilIdle()
+        gated.gate!!.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(1, gated.writes)
+        assertEquals(LabSaveStatus.Saved, vm.uiState.value.save)
+    }
+
+    @Test
+    fun aDoubleTapOnRetrySave_afterAFailure_savesOnlyOnce() = runTest {
+        val gated = GatedProgress().apply { failure = FailureKind.Offline }
+        val vm = viewModel(LearningTopic.PHISHING, setOf(0, 1, 2), gated)
+        advanceUntilIdle()
+        assertEquals(LabSaveStatus.Failed(offline = true), vm.uiState.value.save)
+
+        gated.failure = null
+        gated.gate = CompletableDeferred()
+        vm.onRetrySaveClicked()
+        vm.onRetrySaveClicked()
+        advanceUntilIdle()
+        gated.gate!!.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(2, gated.writes)
+        assertEquals(setOf(LearningTopic.PHISHING), gated.completed)
+        assertEquals(LabSaveStatus.Saved, vm.uiState.value.save)
+    }
+
+    @Test
+    fun theButtons_waitForTheSave_andWorkAfterSavedOrFailed() = runTest {
+        val gated = GatedProgress().apply { gate = CompletableDeferred() }
+        val vm = viewModel(LearningTopic.PHISHING, setOf(0, 1, 2), gated)
+        advanceUntilIdle()
+
+        vm.events.test {
+            vm.onBackToPathClicked()
+            vm.onRetryLabClicked()
+            expectNoEvents()
+
+            gated.gate!!.complete(Unit)
+            advanceUntilIdle()
+            vm.onBackToPathClicked()
+            assertEquals(LabReportEvent.BackToPath, awaitItem())
+        }
+
+        progress.writeFailure = FailureKind.Offline
+        val failed = viewModel(LearningTopic.MALWARE, setOf(0, 1, 2))
+        advanceUntilIdle()
+        failed.events.test {
+            failed.onRetryLabClicked()
+            assertEquals(LabReportEvent.RetryLab(LearningTopic.MALWARE), awaitItem())
+        }
+    }
+}
+
+/** A repository whose write can wait on a gate and fail on demand, to test taps while saving. */
+private class GatedProgress : LearningProgressRepository {
+    val completed = mutableSetOf<LearningTopic>()
+    var writes = 0
+    var failure: FailureKind? = null
+    var gate: CompletableDeferred<Unit>? = null
+
+    override suspend fun getSnapshot() = LearningSnapshot.Empty
+
+    override suspend fun markLessonViewed(topic: LearningTopic) = Unit
+
+    override suspend fun markLabCompleted(lab: LearningTopic) {
+        writes++
+        gate?.await()
+        failure?.let { throw DataAccessException(it) }
+        completed += lab
+    }
+
+    override suspend fun recordExamAttempt(correctCount: Int) = Unit
 }
