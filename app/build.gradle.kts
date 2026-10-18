@@ -42,7 +42,8 @@ android {
             "SUPABASE_PUBLISHABLE_KEY",
             buildConfigString(localProp("SUPABASE_PUBLISHABLE_KEY")),
         )
-        buildConfigField("String", "BACKEND", buildConfigString(localProp("BACKEND", "firebase")))
+        // ID de cliente web de Google (OAuth, tipo "Web"): lo usa el login con Google. No es un secreto.
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", buildConfigString(localProp("GOOGLE_WEB_CLIENT_ID")))
     }
 
     buildTypes {
