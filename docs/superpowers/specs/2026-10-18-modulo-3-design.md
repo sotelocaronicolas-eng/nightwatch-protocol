@@ -8,9 +8,32 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 ## Estado
 
 - **No queda ninguna pregunta abierta.** Las 15 preguntas de la v1 están resueltas en la sección 13 y las 8 propuestas de la v2 (Q1 a Q8) están confirmadas por el grupo en la sección 14.
-- **Lo único que falta antes de programar es ejecutar `0007`** (Etapa 0, sección 10): el usuario revisa `supabase/migrations/0007_progreso_aprendizaje.sql`, lo ejecuta a mano en el SQL Editor y corre sus consultas de verificación comentadas. Hasta entonces el archivo sigue como "BORRADOR sin aplicar".
-- Cuando la Etapa 0 esté hecha, se puede empezar la Etapa 1. Nada de la app está programado todavía.
+- **Etapa 0 hecha:** `supabase/migrations/0007_progreso_aprendizaje.sql` ya está aplicada en Supabase y verificada (la ejecutó y verificó el usuario a mano). El archivo del repo conserva el encabezado "BORRADOR sin aplicar" tal como se aplicó y **no se edita más**: cualquier cambio va en `0008`.
+- **Etapa 1 hecha (datos y contenido), sin pantallas ni UI:**
+  - **Contenido** (JSON en `app/src/main/assets/`, solo lo de Figma, con el nodo de origen en el campo `source` de cada elemento): `learning_lessons.json` (6 lecciones, 2294:112 a 2294:202), `learning_labs.json` (6 laboratorios con 3 objetivos, comando y salida exacta, y los textos de sus informes) y `learning_exam.json` (6 preguntas, 2491:243 a 2491:328, con las respuestas verificadas por el grupo).
+  - **Datos** (`data/learning/`): `LearningTopic`, `Lesson`, `Lab`, `ExamQuestion`; `LearningContentRepository` (+ `LocalLearningContentRepository`, que lee los JSON); `LearningProgressRepository`; `SupabaseLearningProgressRepository` en `data/supabase`; fakes y pruebas en `src/test`.
+  - **Lógica pura:** `LabTerminal` (terminal simulada), `gradeExam` (corrección del examen) y `deriveLearningProgress` (islas, examen, contador y "siguiente lección pendiente").
+  - **Registro idempotente:** lección vista y lab completado se escriben con un `upsert` que **ignora duplicados** (`on_conflict=user_id,topic` o `user_id,lab` y `Prefer: resolution=ignore-duplicates`), que PostgREST ejecuta como `INSERT ... ON CONFLICT DO NOTHING`: solo necesita el permiso `INSERT` de `0007` (no hay `UPDATE`) y repetir no es un error. El intento de examen es un `INSERT` simple. La fila del usuario sale siempre de la sesión.
+  - **Validación:** `./gradlew assembleDebug testDebugUnitTest lintDebug` en verde: 677 pruebas, 76 nuevas, lint con 0 errores. No se tocó nada de módulos 1 y 2 salvo `AppContainer` (dos repositorios nuevos).
+- **Sigue la Etapa 2** (contenedor, barra inferior e Inicio). Nada de la UI está programado todavía.
 - Lo que sigue marcado como **SUPUESTO** en el texto (por ejemplo, "Tu nivel: Sin evaluar" si no se puede leer el resultado del quiz, o que los objetivos del lab se cumplan en cualquier orden) y los **textos propuestos de la pantalla de aprobado y de la introducción del examen (F7)** son detalles que no estaban en la lista de confirmaciones del grupo; no bloquean y se anotan en el informe de cierre (Etapa 6) para que el grupo los vea.
+
+**SUPUESTOS y PENDIENTES que dejó la Etapa 1** (no bloquean la Etapa 2):
+
+| # | Tipo | Detalle |
+|---|---|---|
+| E1-1 | SUPUESTO | **Normalización de la terminal:** se ignoran los espacios de los extremos y se juntan los espacios repetidos; la **primera palabra** (el nombre del comando) ignora mayúsculas y minúsculas, porque los teclados de teléfono capitalizan la primera letra; los **argumentos** distinguen mayúsculas (en el lab de contraseñas `Nightwatch2024` y `nightwatch2024` son contraseñas distintas). Figma no dice nada |
+| E1-2 | SUPUESTO | Los 3 objetivos de un lab se pueden cumplir **en cualquier orden** |
+| E1-3 | SUPUESTO | Repetir un comando ya cumplido **vuelve a mostrar su salida** y no suma al conteo |
+| E1-4 | SUPUESTO (texto no de Figma) | Comando desconocido: **"Comando no reconocido. Toca un objetivo para usar su comando."** (también se agrega a la terminal) |
+| E1-5 | SUPUESTO | El mapa de Figma muestra 🔒 (bloqueada) en vez del ícono de las islas "Islas de Redes Seguras" y "Fortaleza del Firewall"; se usan los de sus lecciones (📡 y 🧱) |
+| E1-6 | SUPUESTO | `estimatedTime` del lab de contraseñas ("menos de 1 segundo", "4 horas", "300 años") sale del texto de cada salida; en el informe de éxito Figma lo escribe "300 Años" y la capitalización la decide la pantalla (Etapa 4) |
+| E1-7 | SUPUESTO | Solo `cat access.log` (Redes) tiene una salida de 2 líneas; el resto es de una línea. La separación con línea en blanco entre comandos aparece en la terminal de Redes pero no en las otras (2299:148 frente a las demás): se trata como presentación y no se guarda |
+| E1-8 | SUPUESTO | El rótulo "MÓDULO N de 6" de las lecciones se calcula por el orden del tema y no se guarda |
+| E1-9 | PENDIENTE | El texto de Figma de la salida del lab de correo dice **"este es una imitación"** (2383:173); está copiado literal. Si el grupo quiere "esta es una imitación", se corrige en `learning_labs.json` |
+| E1-10 | PENDIENTE | Los textos de informe de **fallo** ("No confirmaste que…") son los de las variantes "(ERROR)" de Figma; el título común es "Laboratorio no completado" (P6) y se pondrá en la pantalla (Etapa 4) |
+| E1-11 | NO VERIFICADO | El `upsert` que ignora duplicados no se probó contra un servidor real desde aquí (no hay red ni SQL; F-03 de la revisión). Se comprueba a mano en el teléfono en la Etapa 3: ver una lección dos veces no debe dar error ni duplicar filas |
+| E1-12 | DETALLE | Las 5 respuestas P2 a P6 del examen, además de verificadas por el grupo, coinciden con las líneas "Correcta:" de las pantallas de 1 error (2498:524 a 2498:572) |
 
 ## 1. Alcance
 
