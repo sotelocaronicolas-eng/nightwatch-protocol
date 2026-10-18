@@ -25,14 +25,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -56,10 +53,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.learning.LabObjective
 import com.example.nightwatchprotocol.data.learning.LabTerminal
+import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.ui.components.NightWatchGold
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.keepVisibleWithKeyboard
-import com.example.nightwatchprotocol.ui.home.showNotice
 import com.example.nightwatchprotocol.ui.theme.NightWatchBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
@@ -82,24 +79,22 @@ private val MonoFamily = FontFamily.Monospace
 @Composable
 fun LabScreen(
     onClose: () -> Unit,
+    onOpenReport: (LearningTopic, List<Int>) -> Unit,
     viewModel: LabViewModel = viewModel(factory = LabViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val comingSoon = stringResource(R.string.learning_coming_soon)
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
                 LabEvent.Close -> onClose()
-                LabEvent.ShowComingSoon -> showNotice(snackbarHostState, comingSoon)
+                is LabEvent.OpenReport -> onOpenReport(event.topic, event.completedObjectives)
             }
         }
     }
 
     LabContent(
         uiState = uiState,
-        snackbarHostState = snackbarHostState,
         onClose = viewModel::onCloseClicked,
         onObjectiveClick = viewModel::onObjectiveClicked,
         onInputChange = viewModel::onInputChanged,
@@ -112,7 +107,6 @@ fun LabScreen(
 @Composable
 private fun LabContent(
     uiState: LabUiState,
-    snackbarHostState: SnackbarHostState,
     onClose: () -> Unit,
     onObjectiveClick: (Int) -> Unit,
     onInputChange: (String) -> Unit,
@@ -124,7 +118,6 @@ private fun LabContent(
         Scaffold(
             containerColor = Color.Transparent,
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
-            snackbarHost = { SnackbarHost(snackbarHostState, modifier = Modifier.navigationBarsPadding()) },
         ) { padding ->
             Column(modifier = Modifier.padding(padding).fillMaxSize()) {
                 val terminal = (uiState.status as? LabStatus.Ready)?.terminal

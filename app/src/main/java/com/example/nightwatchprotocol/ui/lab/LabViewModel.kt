@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
  * The terminal of one lab. The simulated terminal is [LabTerminal] (stage 1), used as it is. The attempt is kept in the
  * [SavedStateHandle] as the list of commands sent (plus the text of the field), and the terminal is rebuilt from it, so a
  * rotation (or the system recreating the screen) shows the same objectives, output and text. Nothing is saved to the
- * server here: "Finalizar laboratorio" is provisional in this stage.
+ * server here: "Finalizar laboratorio" opens the report, which saves a completed lab.
  */
 class LabViewModel(
     private val topic: LearningTopic,
@@ -86,8 +86,11 @@ class LabViewModel(
         _uiState.update { it.copy(status = LabStatus.Ready(submission.terminal)) }
     }
 
+    /** Always allowed once the lab is on screen: with fewer than three objectives the report is the failure one. */
     fun onFinishClicked() {
-        viewModelScope.launch { _events.send(LabEvent.ShowComingSoon) }
+        val terminal = (_uiState.value.status as? LabStatus.Ready)?.terminal ?: return
+        val event = LabEvent.OpenReport(topic, terminal.completedObjectives.sorted())
+        viewModelScope.launch { _events.send(event) }
     }
 
     fun onCloseClicked() {

@@ -226,26 +226,51 @@ class LabViewModelTest {
     }
 
     @Test
-    fun finish_isProvisional_itOnlySaysComingSoon_evenWithNothingDone() = runTest {
+    fun finish_isAlwaysEnabled_opensTheReport_evenWithNothingDone() = runTest {
         val vm = viewModel()
         advanceUntilIdle()
 
         vm.events.test {
             vm.onFinishClicked()
-            assertEquals(LabEvent.ShowComingSoon, awaitItem())
+            assertEquals(LabEvent.OpenReport(topic, emptyList()), awaitItem())
         }
         assertEquals(0, vm.terminal().completedCount)
     }
 
     @Test
-    fun finish_isProvisional_itOnlySaysComingSoon_withTheThreeDone() = runTest {
+    fun finish_opensTheReport_withTheObjectivesDone_sorted() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+        vm.send(command(2))
+        vm.send(command(0))
+
+        vm.events.test {
+            vm.onFinishClicked()
+            assertEquals(LabEvent.OpenReport(topic, listOf(0, 2)), awaitItem())
+        }
+    }
+
+    @Test
+    fun finish_withTheThreeDone_opensTheReportWithAllOfThem() = runTest {
         val vm = viewModel()
         advanceUntilIdle()
         (0..2).forEach { vm.send(command(it)) }
 
         vm.events.test {
             vm.onFinishClicked()
-            assertEquals(LabEvent.ShowComingSoon, awaitItem())
+            assertEquals(LabEvent.OpenReport(topic, listOf(0, 1, 2)), awaitItem())
+        }
+    }
+
+    @Test
+    fun finish_beforeTheLabIsReady_doesNothing() = runTest {
+        content.failure = DataAccessException(FailureKind.Unknown)
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.events.test {
+            vm.onFinishClicked()
+            expectNoEvents()
         }
     }
 

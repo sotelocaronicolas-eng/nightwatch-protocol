@@ -1,6 +1,7 @@
 package com.example.nightwatchprotocol.ui.lab
 
 import com.example.nightwatchprotocol.data.learning.LabTerminal
+import com.example.nightwatchprotocol.data.learning.LearningTopic
 
 sealed interface LabStatus {
     data object Loading : LabStatus
@@ -22,6 +23,6 @@ sealed interface LabEvent {
     /** The "X": back to where the person was, without saving and without a dialog (SUPUESTO). */
     data object Close : LabEvent
 
-    /** "Finalizar laboratorio" is provisional in stage 4A: it only says "Próximamente" (stage 4B opens the report). */
-    data object ShowComingSoon : LabEvent
+    /** "Finalizar laboratorio": the report, with the objectives done so far (always enabled, decision P6). */
+    data class OpenReport(val topic: LearningTopic, val completedObjectives: List<Int>) : LabEvent
 }

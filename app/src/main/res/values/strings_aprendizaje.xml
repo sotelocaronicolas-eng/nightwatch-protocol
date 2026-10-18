@@ -105,4 +105,20 @@
     <string name="learning_lab_objective_description">%1$s, comando %2$s, %3$s</string>
     <string name="learning_lab_objective_done">cumplido</string>
     <string name="learning_lab_objective_pending">pendiente</string>
+
+    <!-- Informe del lab. Figma: LAB - INFORME DE ... (2273:131, 2404:243, 2374:336, 2400:144 y los otros cuatro) -->
+    <string name="learning_report_trophy">🏆</string>
+    <string name="learning_report_percent">%1$d%%</string>
+    <string name="learning_report_item_done">✅  %1$s</string>
+    <string name="learning_report_item_missed">❌  %1$s</string>
+    <string name="learning_report_retry">Reintentar</string>
+    <string name="learning_report_back_to_path">Volver a la ruta</string>
+    <!-- Título común del informe de fallo: decisión del grupo P6 (Figma repite el de éxito en las variantes ERROR) -->
+    <string name="learning_report_failure_title">Laboratorio no completado</string>
+
+    <!-- Informe: textos propuestos (no están en Figma) -->
+    <string name="learning_report_no_time">—</string>
+    <string name="learning_report_loading">Cargando el informe…</string>
+    <string name="learning_report_error">No pudimos cargar el informe.</string>
+    <string name="learning_report_trophy_broken_description">Trofeo roto</string>
 </resources>

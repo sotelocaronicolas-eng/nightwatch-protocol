@@ -15,6 +15,7 @@ import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
 import com.example.nightwatchprotocol.ui.home.HomeScreen
 import com.example.nightwatchprotocol.ui.home.HomeTab
 import com.example.nightwatchprotocol.ui.lab.LabScreen
+import com.example.nightwatchprotocol.ui.labreport.LabReportScreen
 import com.example.nightwatchprotocol.ui.lesson.LessonScreen
 import com.example.nightwatchprotocol.ui.postauth.PostAuthGateScreen
 import com.example.nightwatchprotocol.ui.profile.changeemail.ChangeEmailScreen
@@ -170,7 +171,22 @@ fun NightWatchNavHost(
             )
         }
         composable<Lab> {
-            LabScreen(onClose = { navController.popBackStack() })
+            LabScreen(
+                onClose = { navController.popBackStack() },
+                onOpenReport = { topic, completed -> navController.navigate(LabReport(topic, completed)) },
+            )
+        }
+        composable<LabReport> {
+            LabReportScreen(
+                // The map shows the new progress: Home is created again and reads it.
+                onBackToPath = {
+                    navController.navigate(Home(HomeTab.Ruta)) { popUpTo<Home> { inclusive = true } }
+                },
+                // The same lab from scratch: the terminal and the report leave the stack and a new terminal opens.
+                onRetryLab = { topic ->
+                    navController.navigate(Lab(topic)) { popUpTo<Lab> { inclusive = true } }
+                },
+            )
         }
         composable<UserMenu> {
             UserMenuScreen(

@@ -35,6 +35,10 @@ data class Lesson(val topic: LearningTopic)
 @Serializable
 data class Lab(val topic: LearningTopic)
 
+/** The report of a finished attempt: the objectives done decide success or failure. Full screen, without the bottom bar. */
+@Serializable
+data class LabReport(val topic: LearningTopic, val completedObjectives: List<Int>)
+
 @Serializable
 object UserMenu
 
