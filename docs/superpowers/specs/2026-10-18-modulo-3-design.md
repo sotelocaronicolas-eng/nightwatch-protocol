@@ -23,7 +23,15 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
   - **Textos:** `res/values/strings_aprendizaje.xml` (prefijo `learning_`), con los propuestos marcados en comentarios.
   - **Módulos 1 y 2 tocados:** `NightWatchNavHost`, `NightWatchDestinations` y `NightWatchNavHostStartDestinationTest` (pasó de `MainMenu` a `Home`). `PostAuthGate*` y `PlacementResult*` no cambiaron (el destino se decide en el `NavHost`; sus eventos conservan el nombre `NavigateToMainMenu`).
   - **Validación:** `assembleDebug testDebugUnitTest lintDebug compileDebugAndroidTestKotlin` en verde: 705 pruebas, 28 nuevas (`HomeViewModelTest`), lint con 0 errores. Se agregó `NightWatchBottomBarTest` (instrumentada, solo compilada: no se ejecutó).
-- **Sigue la Etapa 3** (Ruta y lecciones).
+- **Etapa 3 hecha (Ruta y lecciones):**
+  - **Decisión nueva Q11 (sección 14):** la lección se marca como **vista al abrirse**, no al terminarla ni al tocar "Ir al laboratorio".
+  - **Ruta** (`ui/path/`): `LearningPathViewModel` y `LearningPathTab` (Figma 2266:72). Encabezado "🧭 Tu nivel: …" y "N de 7 islas completadas" con barra; 6 islas en orden más la "Prueba Final", con estado completada, disponible o bloqueada derivado de `deriveLearningProgress`. Tocar una isla abierta o completada abre `Lesson(topic)`; una bloqueada muestra "Completa la isla anterior"; la Prueba Final bloqueada muestra "Completa las 6 islas" y la desbloqueada muestra **"Próximamente" de forma provisional hasta la Etapa 5**. Si el progreso no se lee, el mapa se muestra con la isla 1 abierta y un aviso con "Reintentar".
+  - **Lección** (`ui/lesson/`): `Lesson(topic)` a pantalla completa y sin barra, con título, "MÓDULO N de 6", las 3 tarjetas del JSON, "X" y "Ir al laboratorio →". Guarda con `markLessonViewed` (idempotente) una sola vez por apertura; si falla, se puede leer igual y sale un aviso.
+  - **"Ir al laboratorio →" es provisional:** lleva a `Home(Labs)` (que aún muestra "en construcción") hasta la Etapa 4.
+  - **Inicio:** "Lección diaria" es clicable: abre la lección pendiente, o muestra "No tienes lecciones pendientes" (Q3). Sin lectura o con error, el toque no hace nada.
+  - **Módulos 1 y 2:** solo `NightWatchNavHost` y `NightWatchDestinations` (ruta `Lesson` y su pantalla); el resto es código del módulo 3.
+  - **Validación:** `assembleDebug testDebugUnitTest lintDebug compileDebugAndroidTestKotlin` en verde: 751 pruebas, 46 nuevas (26 de la Ruta, 16 de la lección y 4 de Inicio), lint con 0 errores. No se tocaron pruebas instrumentadas.
+- **Sigue la Etapa 4** (Labs). Lo que falta verificar a mano en el teléfono: E1-11 (el registro idempotente contra el servidor real, ahora sí en uso) y E3-8.
 - Lo que sigue marcado como **SUPUESTO** en el texto (por ejemplo, "Tu nivel: Sin evaluar" si no se puede leer el resultado del quiz, o que los objetivos del lab se cumplan en cualquier orden) y los **textos propuestos de la pantalla de aprobado y de la introducción del examen (F7)** son detalles que no estaban en la lista de confirmaciones del grupo; no bloquean y se anotan en el informe de cierre (Etapa 6) para que el grupo los vea.
 
 **SUPUESTOS y PENDIENTES que dejó la Etapa 1** (no bloquean la Etapa 2):
@@ -50,6 +58,16 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | E2-7 | SUPUESTO | Colores de la chapa (#94A6A7) y del borde y asa de la hoja (#204143) tomados de los nodos 108:16, 113:145 y 113:150, no están en el tema; quedan privados en `HomeScreen`. Oro (#E3B54F) y texto sobre claro (#162523) ya existían |
 | E2-8 | DETALLE | Las ilustraciones de Inicio y el ícono de salida son los PNG de Figma (72:31, 72:30, 72:28 y 72:13), en `drawable-nodpi/img_home_*` |
 | E2-9 | NO VERIFICADO | Nada se vio en un teléfono (rotación, TalkBack, Snackbar encima de la barra, lectura del progreso real). Se prueba a mano con la lista de la entrega |
+| E3-1 | SUPUESTO | Las etiquetas de las islas se parten por ancho (98 dp) para dar las dos líneas de Figma ("Isla de las / Contraseñas", "Islas de Redes / Seguras"); no se guarda el salto. Hay que mirar que las seis salgan igual que en Figma |
+| E3-2 | SUPUESTO | Figma solo dibuja una isla abierta con el aro dorado y el halo punteado (2266:109), una completada dorada (2266:98) y las bloqueadas grises con 🔒 (2266:114). La Prueba Final solo se dibuja bloqueada y con 📝; desbloqueada usa el aspecto de "abierta" y con un intento aprobado, el de "completada" |
+| E3-3 | SUPUESTO | Una isla bloqueada muestra 🔒 y, al desbloquearse, su emoji de la lección (cierra E1-5: ya no se usan 📡 y 🧱 para las bloqueadas) |
+| E3-4 | SUPUESTO | El mapa de 412 × 1440 dp se escala al ancho del teléfono (toques y texto incluidos); la línea punteada es el `RoutePath` de Figma convertido a `img_route_path.xml` |
+| E3-5 | SUPUESTO | Mientras se hace la primera lectura el mapa no se dibuja (solo un indicador) y los toques se ignoran, para no mostrar candados falsos |
+| E3-6 | SUPUESTO | Si falla una lectura posterior, el mapa conserva el último progreso conocido y muestra el aviso; si falla la primera, muestra la isla 1 abierta y las demás bloqueadas |
+| E3-7 | SUPUESTO (textos no de Figma) | Avisos de error de lectura, "Reintentar", "Cargar la lección…", "No pudimos cargar la lección." y los dos avisos de guardado fallido ("Sin conexión: no se guardó tu avance, pero puedes seguir leyendo." / "No se pudo guardar tu avance, pero puedes seguir leyendo.") |
+| E3-8 | NO VERIFICADO | Nada se vio en un teléfono (mapa, desplazamiento, etiquetas, TalkBack, rotación) ni se probó contra el servidor real el registro de la lección vista |
+| E3-9 | DETALLE | La escritura de "vista" no se cancela si la persona sale de la lección enseguida (`NonCancellable`); es una sola petición corta |
+| E3-10 | LÍMITE | Abrir una lección bloqueada no se impide en la base de datos ni en el ViewModel de la lección (solo la Ruta y la tarjeta de Inicio lo evitan): sin enlaces profundos no hay otra puerta, y es la misma limitación R6 |
 | E1-12 | DETALLE | Las 5 respuestas P2 a P6 del examen, además de verificadas por el grupo, coinciden con las líneas "Correcta:" de las pantallas de 1 error (2498:524 a 2498:572) |
 
 ## 1. Alcance
@@ -281,6 +299,9 @@ Nada se ve en un teléfono desde aquí: la columna "Prueba en el teléfono" la h
 | F14 | **Nueva (P2/P6):** la precisión del informe muestra también 33% y 67% (en Figma solo hay 100% y 0%), y el tiempo estimado del informe de contraseñas sigue la regla de la sección 14, Q2: se muestra el de las salidas reales de la terminal, o "—" (el "3 Horas" de 2400:144 no coincide con ninguna salida) | Confirmado por el grupo (Q1, Q2) |
 | F15 | **Nueva (error de gramática de Figma):** la salida del lab de correo dice "este es una imitación" en Figma (2383:173); en la app es **"esta es una imitación"** (`learning_labs.json`). Cierra el pendiente E1-9 | Corrección pedida por el grupo (Etapa 2, tarea 0) |
 | F16 | **Nueva (Etapa 2):** la chapa de Inicio (72:2 a 72:6) agrega una tercera línea "Nivel actual: …" y la tarjeta "Lección diaria" una línea de estado debajo (siguiente lección, "No tienes lecciones pendientes" o error). Figma solo tiene nombre y racha, y la tarjeta sin texto | Pedido de la tarea (nivel con el formato de Mi Perfil; lección diaria o "No tienes lecciones pendientes") |
+| F17 | **Nueva (Etapa 3):** "Tu nivel: Aprendiz" (2266:72) se muestra con BAJO/MEDIO/ALTO o "Sin evaluar" (ya era F1) y el contador sale del progreso real, no de los "3 de 7" de Figma | P2, Q5 |
+| F18 | **Nueva (Etapa 3):** la lección se marca como vista al abrirse (Figma no dice cuándo) | Q11 |
+| F19 | **Nueva (Etapa 3):** en la lección, el botón "Ir al laboratorio →" lleva por ahora a la pestaña Labs ("en construcción") hasta la Etapa 4; las tarjetas tienen alto mínimo de 128 dp y crecen si el texto lo necesita (en Figma son fijas) | Etapa 4 pendiente |
 
 ## 13. Decisiones del grupo (2026-10-18)
 
@@ -320,3 +341,4 @@ El grupo confirmó todas las propuestas de la v2 (Q1 a Q8) y añadió Q9 y Q10. 
 | Q8 | **Botón de inicio del examen:** **sí existe en Figma**: **"Comenzar Examen →"**, instancia `GoToLabButton` (2486:263) de la pantalla 2486:249; el texto no sale en la exportación de textos pero sí en la captura. No hace falta proponer otro texto, y no hay diferencia con Figma. (El nombre interno `GoToLabButton` sugiere que es un componente reutilizado del botón "Ir al laboratorio →" de las lecciones; solo informativo) | Verificado en Figma por captura de 2486:249 |
 | Q9 | **`lab_progress` sin `accuracy`**: la tabla guarda solo `user_id`, `lab` y `completed_at`; la precisión se calcula en la app. **Confirmado** | Sección 8 y `0007` |
 | Q10 | **"Próximamente" unificado** para Social, "Concepto nuevo" y "Prepárate con CiberMynd" (un solo Snackbar). **Confirmado** | Sección 7, P7 |
+| Q11 | **Lección vista al abrirse (Etapa 3):** la lección se registra en `lesson_progress` en el momento en que se abre y se muestra (no al terminarla ni al tocar "Ir al laboratorio →"), con el registro idempotente (abrirla otra vez no da error ni duplica). Si guardar falla, se puede leer igual, sale un aviso breve y no se reintenta hasta la próxima vez que se abra | **Decisión del grupo, confirmada por el usuario** al pedir la Etapa 3. Cambia la fila 4 de la sección 5 ("Lección") |
