@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "id_card" icon, Material Symbols (outlined, weight 400, 24px) by Google.
+    Source: https://github.com/google/material-design-icons, symbols/web/id_card/materialsymbolsoutlined/id_card_24px.svg
+    License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0).
+    The path is the official one, unchanged; the original viewBox is "0 -960 960 960", hence the translateY group.
+    Colour #EAF9FA is the light tone of the envelope illustration (img_envelope) used by "Confirmar Correo".
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="190dp"
+    android:height="190dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+    <group android:translateY="960">
+        <path
+            android:fillColor="#EAF9FA"
+            android:pathData="M560-440h200v-80H560v80Zm0-120h200v-80H560v80ZM200-320h320v-22q0-45-44-71.5T360-440q-72 0-116 26.5T200-342v22Zm160-160q33 0 56.5-23.5T440-560q0-33-23.5-56.5T360-640q-33 0-56.5 23.5T280-560q0 33 23.5 56.5T360-480ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-480H160v480Zm0 0v-480 480Z" />
+    </group>
+</vector>

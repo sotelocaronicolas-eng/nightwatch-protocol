@@ -1,10 +1,15 @@
 package com.example.nightwatchprotocol.ui.profile.confirmidentity
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -13,12 +18,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.components.ProfileButton
@@ -62,47 +69,58 @@ private fun ConfirmIdentityContent(
     NightWatchScreenBackground {
         Column(modifier = Modifier.fillMaxSize()) {
             ProfileTopBar(onClose = onClose)
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 41.dp)
-                    .navigationBarsPadding(),
-            ) {
-                Text(
-                    text = "Confirma tu identidad",
-                    color = NightWatchOnBackground,
-                    fontFamily = NightWatchBodyFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 32.dp),
-                )
-                Text(
-                    text = "Por seguridad, ingresa tu contraseña actual para continuar.",
-                    color = NightWatchHeaderPanel,
-                    fontFamily = NightWatchBodyFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 12.dp, bottom = 32.dp),
-                )
-                NightWatchTextField(
-                    label = "Contraseña actual",
-                    value = uiState.password,
-                    onValueChange = onPasswordChange,
-                    isPassword = true,
-                    isError = uiState.error != null,
-                    supportingText = uiState.error,
-                )
-                ProfileButton(
-                    text = "CONTINUAR",
-                    onClick = onConfirm,
-                    enabled = !uiState.isLoading,
-                    modifier = Modifier.padding(top = 32.dp, bottom = 32.dp),
-                )
+            // Same composition as "Confirmar Correo" (text, illustration, field, button), centred as a group. It
+            // scrolls when the keyboard (or a small screen) leaves too little room.
+            BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = maxHeight)
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 41.dp)
+                        .navigationBarsPadding(),
+                ) {
+                    Text(
+                        text = "Confirma tu identidad",
+                        color = NightWatchOnBackground,
+                        fontFamily = NightWatchBodyFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 16.dp),
+                    )
+                    Text(
+                        text = "Por seguridad, ingresa tu contraseña actual para continuar.",
+                        color = NightWatchHeaderPanel,
+                        fontFamily = NightWatchBodyFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 12.dp, bottom = 16.dp),
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.ic_id_card),
+                        contentDescription = null,
+                        modifier = Modifier.size(190.dp),
+                    )
+                    NightWatchTextField(
+                        label = "Contraseña actual",
+                        value = uiState.password,
+                        onValueChange = onPasswordChange,
+                        isPassword = true,
+                        isError = uiState.error != null,
+                        supportingText = uiState.error,
+                        modifier = Modifier.padding(top = 24.dp),
+                    )
+                    ProfileButton(
+                        text = "CONTINUAR",
+                        onClick = onConfirm,
+                        enabled = !uiState.isLoading,
+                        modifier = Modifier.padding(top = 32.dp, bottom = 16.dp),
+                    )
+                }
             }
         }
     }
