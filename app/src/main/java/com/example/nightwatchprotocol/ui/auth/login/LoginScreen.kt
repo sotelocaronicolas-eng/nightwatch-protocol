@@ -90,7 +90,7 @@ fun LoginScreen(
             coroutineScope.launch {
                 val credentialManager = CredentialManager.create(context)
                 val option = GetSignInWithGoogleOption.Builder(
-                    serverClientId = context.getString(R.string.default_web_client_id),
+                    serverClientId = viewModel.googleWebClientId,
                 ).build()
                 val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
                 try {
