@@ -66,14 +66,14 @@ Menores de edad: la app guarda fecha de nacimiento. Un servicio social entre des
 - **Partida rápida y Arena** (2448:223, 2449:189) son duelos por turnos en tiempo casi real. Eso exige **Realtime** (canales de Supabase) o consultas periódicas, más un **emparejamiento** (cola, rival "de tu nivel") y reglas de turno, HP, tiempo límite y abandono. **Ninguno está definido** en ningún documento.
 - El emparejamiento y la validación de turnos con la **clave publishable** y solo RLS son difíciles de hacer a prueba de trampas: un cliente modificado podría declararse ganador. Hacerlo bien requiere funciones SQL o Edge Functions con reglas del servidor.
 - **Plan gratuito:** Realtime y las Edge Functions tienen cuotas de conexiones y mensajes. **No se verificaron aquí (no hay conexión a Supabase ni consulta a la documentación actual); hay que revisarlas en la página de precios vigente antes de decidir.** Además, el proyecto se pausa tras 7 días sin actividad (`CLAUDE.md` sección 8), lo que encaja mal con una función que depende de que haya otras personas conectadas.
-- **Racha grupal:** solo es útil con racha real, que hoy está fija (P9 del módulo 3).
+- **Racha grupal:** solo es útil con racha real. Hoy la racha está fija (15 días); el grupo decidió en el módulo 3 (P9) que **la racha real y sus reglas se definen en el módulo 4**, así que esa definición forma parte de este módulo.
 
 ## 6. Qué sería funcional y qué visual
 
 | Parte | Posibilidad realista | Condición |
 |---|---|---|
 | Amigos con solicitudes (sin tiempo real) | **Funcional** | Alias público, tabla pública, función de búsqueda; ver sección 3 |
-| Perfil de amigo y racha grupal | **Funcional** | Racha y contadores reales (P9 del módulo 3) y "ocultar progreso" real |
+| Perfil de amigo y racha grupal | **Funcional** | Racha y contadores reales (sus reglas se definen en este módulo 4, según P9 del módulo 3) y "ocultar progreso" real |
 | Batallas por turnos contra un **amigo** (turno cada cierto tiempo, no en vivo) | Posible | Reglas del servidor |
 | Partida rápida con emparejamiento y arena en vivo | **Difícil en plan gratuito** | Realtime, cola y anti-trampas |
 | Ulti con terminal | Posible tras las batallas | Reutiliza el motor de terminal del módulo 3 |
@@ -92,7 +92,7 @@ PREGUNTAS ABIERTAS para el grupo:
 5. ¿Avatares visibles para amigos (Storage)?
 6. ¿Batallas en vivo, asíncronas o solo visuales?
 7. ¿Qué es la XP y qué hace?
-8. ¿Racha real y reglas de "día entrenado" (P9 del módulo 3)?
+8. ¿Qué cuenta como "día entrenado" para la racha real y qué desbloquea cada insignia? (Pasaron del módulo 3 a este módulo 4 por decisión P9 del módulo 3.)
 9. ¿Hace falta revisar normas por menores de edad o de tiendas de apps?
 10. ¿Cuotas reales de Realtime y Edge Functions del plan gratuito vigente?
 11. ¿Qué pasa con las notificaciones de lo social (retos, solicitudes)? En el módulo 2 solo existen recordatorios locales.
