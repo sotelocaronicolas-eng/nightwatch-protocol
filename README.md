@@ -1,8 +1,9 @@
 # NightWatch Protocol
 
-Aplicación Android para aprender ciberseguridad. La persona se registra (con un código de 6 dígitos que llega a su
-correo) o inicia sesión (también con Google), hace un cuestionario de nivelación (BAJO, MEDIO o ALTO) y administra su
-perfil y sus ajustes. Está hecha en Kotlin con Jetpack Compose y **Supabase**, siguiendo los patrones del curso
+Aplicación Android para aprender ciberseguridad (**versión 2.1.0**). La persona se registra (con un código de 6 dígitos
+que llega a su correo) o inicia sesión (también con Google), hace un cuestionario de nivelación (BAJO, MEDIO o ALTO),
+recorre una ruta de aprendizaje con lecciones, laboratorios y un examen final, y administra su perfil y sus ajustes. Está
+hecha en Kotlin con Jetpack Compose y **Supabase**, siguiendo los patrones del curso
 *Android Basics with Compose* (MVVM, `UiState`, `ViewModel`, inyección de dependencias manual) y el diseño de Figma del
 proyecto.
 
@@ -36,8 +37,11 @@ Pantalla (Compose)  →  ViewModel (UiState + eventos)  →  Repositorio (interf
 ```
 
 - Las pantallas y los ViewModels **solo conocen interfaces** (`AuthRepository`, `AccountRepository`,
-  `ProfileRepository`, `DeviceRepository`, `QuizResultRepository`). Solo `di/AppContainer` y las clases `Supabase*`
-  conocen la librería de Supabase; en las pruebas se usan *fakes*.
+  `ProfileRepository`, `DeviceRepository`, `QuizResultRepository`, `LearningContentRepository`,
+  `LearningProgressRepository`). Solo `di/AppContainer` y las clases `Supabase*` conocen la librería de Supabase; en las
+  pruebas se usan *fakes*.
+- El progreso de la ruta de aprendizaje se guarda en tres tablas pequeñas y **todo lo demás se deriva de él** (islas,
+  desbloqueo, "lección diaria", racha e insignias): son funciones puras en `data/learning`, con pruebas.
 - Un solo flujo de **código de 6 dígitos** (`ui/verifycode`) sirve para el registro, el cambio de correo, la
   recuperación de contraseña y la verificación del correo de recuperación.
 - La sesión vive en supabase-kt; la fila de cada usuario se identifica siempre por la sesión, nunca por un dato de la
@@ -53,7 +57,18 @@ Pantalla (Compose)  →  ViewModel (UiState + eventos)  →  Repositorio (interf
 - **Seguridad:** bloqueo biométrico de la app, dispositivos con cierre de sesión (marca cooperativa + revocación real de
   las demás sesiones).
 - **Recordatorios** locales (lección diaria y racha en riesgo).
-- Solo visuales o con datos fijos: Apariencia, Idioma, Logros e insignias, Ayuda, Acerca de.
+- **Ruta de aprendizaje (módulo 3):**
+  - **Inicio y barra inferior** (Inicio, Ruta, Labs, Social, Perfil): chapa con nombre, nivel y **racha real**; "Lección diaria".
+  - **Ruta:** mapa de 6 islas y la Prueba Final; una isla se completa con la lección vista y el laboratorio completado, y se
+    desbloquean en orden.
+  - **6 lecciones** y **6 laboratorios** con una terminal simulada (solo reconoce los comandos del diseño), informe de éxito o
+    de "Laboratorio no completado" y precisión.
+  - **Examen Final** de 6 preguntas (se aprueba con 5 o más aciertos, sin límite de intentos), con el resultado guardado; no
+    cambia el nivel del quiz.
+  - **Logros e insignias reales** (9) y racha actual, calculadas del progreso guardado.
+  - **Social** (pestaña atenuada con "Próximamente"), "Concepto nuevo" y "Prepárate con CiberMynd" quedan para el módulo 4.
+- Solo visuales o con datos fijos: Apariencia, Idioma, Ayuda, Acerca de; los interruptores de notificaciones de "Logros" y
+  "Nuevos laboratorios" no tienen efecto (necesitan notificaciones push).
 
 La migración desde Firebase, las decisiones y los problemas encontrados están en
 [`docs/superpowers/reports/migracion-supabase.md`](docs/superpowers/reports/migracion-supabase.md) y la guía técnica de
@@ -100,7 +115,8 @@ Desde la terminal:
 
 Todo el servidor está en `supabase/` y **se despliega a mano** desde el panel (no se usa la CLI de Supabase):
 
-- **Migraciones** (`supabase/migrations/0001` a `0006`): se ejecutan **en orden numérico, una sola vez por proyecto**, a
+- **Migraciones** (`supabase/migrations/0001` a `0007`; `0007` crea las tablas de progreso `lesson_progress`, `lab_progress`
+  y `exam_attempts`): se ejecutan **en orden numérico, una sola vez por proyecto**, a
   mano en el **SQL Editor** del panel. **Una migración ya aplicada no se edita**: cualquier cambio va en una migración
   nueva con el siguiente número. Cada archivo explica qué hace y trae consultas de verificación comentadas al final.
 - **Edge Function** `send-recovery-email-code` (`supabase/functions/`): envía el código del correo de recuperación por la
@@ -159,30 +175,31 @@ NightWatchProtocol/
 │   └── src/
 │       ├── main/
 │       │   ├── AndroidManifest.xml
-│       │   ├── assets/quiz_questions.json    # banco de 20 preguntas del quiz
+│       │   ├── assets/                       # quiz_questions.json (20 preguntas) y learning_*.json (lecciones, labs, examen)
 │       │   ├── res/                          # íconos, fuentes (Iceland, Inter), imágenes, textos
 │       │   └── java/com/example/nightwatchprotocol/
 │       │       ├── MainActivity.kt           # FragmentActivity: navegación, bloqueo y sesión del dispositivo
 │       │       ├── NightWatchApplication.kt  # contenedor de dependencias, canales y recordatorios
 │       │       ├── di/                       # AppContainer (DI manual) y validación de local.properties
 │       │       ├── data/                     # repositorios e interfaces
-│       │       │   ├── auth/  account/  session/  quiz/  profile/  avatar/  device/
+│       │       │   ├── auth/  account/  session/  quiz/  profile/  avatar/  device/  learning/
 │       │       │   ├── supabase/             # errores y llamadas comunes a Supabase
 │       │       │   ├── common/  preferences/  biometric/  notifications/
 │       │       └── ui/                       # pantallas (Compose) y ViewModels
-│       │           ├── auth/  verifycode/  quiz/  postauth/  mainmenu/  navigation/  startup/  theme/
+│       │           ├── auth/  verifycode/  quiz/  postauth/  navigation/  startup/  theme/
+│       │           ├── home/  path/  lesson/  labs/  lab/  labreport/  exam/  examresult/   # módulo 3
 │       │           ├── components/           # componentes compartidos
 │       │           ├── profile/              # las pantallas de perfil y ajustes
 │       │           └── applock/  biometric/  session/
 │       ├── test/                             # pruebas unitarias (JVM)
 │       └── androidTest/                      # pruebas instrumentadas (dispositivo)
 ├── supabase/
-│   ├── migrations/                   # 0001 a 0006: SQL que se ejecuta a mano, en orden y una sola vez
+│   ├── migrations/                   # 0001 a 0007: SQL que se ejecuta a mano, en orden y una sola vez
 │   └── functions/send-recovery-email-code/   # Edge Function (Deno/TypeScript) y su README
 ├── docs/superpowers/
 │   ├── supabase-configuracion.md     # guía técnica: ajustes del panel, flujos, limitaciones
-│   ├── specs/  plans/                # diseños y planes de los módulos 1 y 2 (históricos)
-│   └── reports/                      # informes: migración a Supabase, revisión de código y cierres de módulo
+│   ├── specs/  plans/                # diseños y planes (los módulos 1 y 2 son históricos; la spec del módulo 3 está vigente)
+│   └── reports/                      # informes: migración a Supabase, revisión de código y cierres de módulo (incluye el del módulo 3)
 ├── local.properties.example          # plantilla de tu local.properties
 ├── gradle/libs.versions.toml         # catálogo de versiones
 ├── build.gradle.kts  settings.gradle.kts  gradle.properties
