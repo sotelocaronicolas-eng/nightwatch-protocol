@@ -17,7 +17,7 @@ fun activeStreakText(streak: StreakState): String = when (streak) {
 /** "N días 🔥" (the "Racha activa" row of Mi Perfil). */
 @Composable
 fun streakValueText(streak: StreakState): String = when (streak) {
-    StreakState.Loading -> "…"
+    StreakState.Loading -> stringResource(R.string.learning_loading_dots)
     StreakState.Unavailable -> stringResource(R.string.learning_streak_value_unavailable)
     is StreakState.Days -> pluralStringResource(R.plurals.learning_streak_value, streak.current, streak.current)
 }

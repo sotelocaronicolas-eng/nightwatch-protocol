@@ -170,7 +170,7 @@ private fun ProgressCard(uiState: LearningPathUiState, modifier: Modifier = Modi
             .padding(horizontal = 16.dp),
     ) {
         Text(
-            text = stringResource(R.string.learning_path_level, uiState.level ?: "…"),
+            text = stringResource(R.string.learning_path_level, uiState.level ?: stringResource(R.string.learning_loading_dots)),
             color = NightWatchOnBackground,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,
@@ -260,7 +260,7 @@ private fun RouteMap(
             val (left, top) = IslandPositions[index]
             IslandNode(
                 name = island.name,
-                emoji = if (island.state == IslandState.Locked) "🔒" else island.emoji,
+                emoji = if (island.state == IslandState.Locked) stringResource(R.string.learning_icon_lock) else island.emoji,
                 state = island.state,
                 size = IslandSize,
                 emojiSize = 28.sp,
@@ -272,7 +272,7 @@ private fun RouteMap(
         IslandNode(
             name = stringResource(R.string.learning_path_final_test),
             // Figma keeps 📝 on the Prueba Final even when it is locked (2266:124).
-            emoji = "📝",
+            emoji = stringResource(R.string.learning_labs_final_exam_emoji),
             state = uiState.finalTest,
             size = FinalTestSize,
             emojiSize = 34.sp,

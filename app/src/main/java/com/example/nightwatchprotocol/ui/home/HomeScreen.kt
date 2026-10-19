@@ -74,7 +74,7 @@ private val SheetBorderColor = Color(0xFF204143)
 private const val DIMMED_ALPHA = 0.6f
 
 /**
- * Home: the container of Inicio, Ruta and Labs with the bottom bar (module 3). It replaces the provisional Main Menu.
+ * Home: the container of Inicio, Ruta and Labs with the bottom bar (module 3). It replaced the old Main Menu.
  * "Perfil" does not show content here: it asks for the user menu, which opens above Home so the tab is still selected
  * when it closes.
  */
@@ -294,7 +294,7 @@ private fun UserPill(uiState: HomeUiState) {
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = stringResource(R.string.learning_home_level, uiState.level ?: "…"),
+                text = stringResource(R.string.learning_home_level, uiState.level ?: stringResource(R.string.learning_loading_dots)),
                 color = NightWatchOnBackground,
                 fontFamily = NightWatchBodyFontFamily,
                 fontSize = 13.sp,

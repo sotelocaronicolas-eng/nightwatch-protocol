@@ -47,8 +47,6 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 private val LockedCircle = Color(0xFF3E6E71)
 private val BadgeTextColor = Color(0xFF162523)
 
-/** What a locked badge shows in place of its emoji (Figma 2287:119). */
-private const val LOCK_EMOJI = "🔒"
 
 /**
  * "Logros e Insignias" (Figma 2287:100): the real state of the nine badges. Read again each time the screen comes back,
@@ -148,7 +146,7 @@ private fun BadgeCard(state: BadgeState, modifier: Modifier = Modifier) {
                 .background(if (unlocked) NightWatchGold else LockedCircle, CircleShape),
         ) {
             Text(
-                text = if (unlocked) state.definition.emoji else LOCK_EMOJI,
+                text = if (unlocked) state.definition.emoji else stringResource(R.string.learning_icon_lock),
                 color = Color.Black,
                 fontSize = 24.sp,
                 modifier = Modifier.clearAndSetSemantics {},

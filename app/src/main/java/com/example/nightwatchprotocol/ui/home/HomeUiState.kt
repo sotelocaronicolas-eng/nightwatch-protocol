@@ -1,11 +1,13 @@
 package com.example.nightwatchprotocol.ui.home
 
+import androidx.annotation.Keep
 import com.example.nightwatchprotocol.data.avatar.AvatarDisplay
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.StreakState
 import kotlinx.serialization.Serializable
 
 /** The three tabs that live inside Home. "Social" and "Perfil" of the bar are not tabs: one is "Próximamente", the other opens the user menu. */
+@Keep
 @Serializable
 enum class HomeTab {
     Inicio,

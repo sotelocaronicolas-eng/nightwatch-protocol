@@ -71,7 +71,7 @@ fun ExamIntroScreen(onClose: () -> Unit, onStart: () -> Unit) {
                         .background(NightWatchGold, CircleShape)
                         .border(4.dp, IconRing, CircleShape),
                 ) {
-                    Text(text = "📝", fontSize = 42.sp, color = Color.Black, modifier = Modifier.clearAndSetSemantics {})
+                    Text(text = stringResource(R.string.learning_labs_final_exam_emoji), fontSize = 42.sp, color = Color.Black, modifier = Modifier.clearAndSetSemantics {})
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 22.dp, bottom = 16.dp)) {
                     InfoCard(R.string.learning_exam_intro_what_title, R.string.learning_exam_intro_what_text)

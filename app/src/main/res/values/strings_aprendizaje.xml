@@ -12,6 +12,15 @@
     <string name="learning_tab_social">Social</string>
     <string name="learning_tab_profile">Perfil</string>
 
+    <!-- Íconos de emoji de la barra (Figma BottomNav 2264:87 y siguientes), el candado de lo bloqueado y el "…" de lo que se está leyendo -->
+    <string name="learning_icon_home">🏠</string>
+    <string name="learning_icon_path">🗺️</string>
+    <string name="learning_icon_labs">🧪</string>
+    <string name="learning_icon_social">👥</string>
+    <string name="learning_icon_profile">👤</string>
+    <string name="learning_icon_lock">🔒</string>
+    <string name="learning_loading_dots">…</string>
+
     <!-- Aviso "Próximamente" (Q6, Q10): propuesto, no está en Figma -->
     <string name="learning_coming_soon">Próximamente</string>
     <!-- Accesibilidad de la pestaña Social atenuada: propuesto -->
@@ -115,7 +124,7 @@
     <string name="learning_lab_terminal">Terminal</string>
     <string name="learning_lab_objectives">OBJETIVOS · TOCA PARA USAR EL COMANDO</string>
     <string name="learning_lab_input_prompt">&gt;</string>
-    <string name="learning_lab_input_placeholder">escribe un comando…</string>
+    <string name="learning_lab_input_placeholder" tools:ignore="Typos">escribe un comando…</string>
     <string name="learning_lab_send">Enviar</string>
     <string name="learning_lab_finish">Finalizar laboratorio</string>
     <!-- Prefijo de cada línea escrita en la salida (2374:328) -->
@@ -125,8 +134,8 @@
     <string name="learning_lab_close_description">Cerrar laboratorio</string>
     <string name="learning_lab_loading">Cargando el laboratorio…</string>
     <string name="learning_lab_error">No pudimos cargar el laboratorio.</string>
-    <string name="learning_lab_input_description">Comando</string>
-    <string name="learning_lab_objective_description">%1$s, comando %2$s, %3$s</string>
+    <string name="learning_lab_input_description" tools:ignore="Typos">Comando</string>
+    <string name="learning_lab_objective_description" tools:ignore="Typos">%1$s, comando %2$s, %3$s</string>
     <string name="learning_lab_objective_done">cumplido</string>
     <string name="learning_lab_objective_pending">pendiente</string>
 

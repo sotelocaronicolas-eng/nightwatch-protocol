@@ -224,16 +224,21 @@ private fun ResultBody(
 
 @Composable
 private fun Line(text: String, enabled: Boolean = true, onClick: (() -> Unit)? = null) {
-    Text(
-        text = text,
-        color = NightWatchOnBackground,
-        fontFamily = NightWatchBodyFontFamily,
-        fontSize = 14.sp,
+    // A line that is a tap target is at least 48 dp tall (touch size); a plain line keeps the 24 dp of the design.
+    Box(
+        contentAlignment = Alignment.CenterStart,
         modifier = Modifier
             .fillMaxWidth()
             .then(if (onClick != null) Modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick) else Modifier)
-            .heightIn(min = 24.dp),
-    )
+            .heightIn(min = if (onClick != null) 48.dp else 24.dp),
+    ) {
+        Text(
+            text = text,
+            color = NightWatchOnBackground,
+            fontFamily = NightWatchBodyFontFamily,
+            fontSize = 14.sp,
+        )
+    }
 }
 
 /**

@@ -73,32 +73,32 @@ fun NightWatchBottomBar(
             .height(54.dp),
     ) {
         TabItem(
-            emoji = "🏠",
+            emoji = stringResource(R.string.learning_icon_home),
             label = stringResource(R.string.learning_tab_home),
             isSelected = selected == HomeTab.Inicio,
             onClick = { onTabSelected(HomeTab.Inicio) },
         )
         TabItem(
-            emoji = "🗺️",
+            emoji = stringResource(R.string.learning_icon_path),
             label = stringResource(R.string.learning_tab_path),
             isSelected = selected == HomeTab.Ruta,
             onClick = { onTabSelected(HomeTab.Ruta) },
         )
         TabItem(
-            emoji = "🧪",
+            emoji = stringResource(R.string.learning_icon_labs),
             label = stringResource(R.string.learning_tab_labs),
             isSelected = selected == HomeTab.Labs,
             onClick = { onTabSelected(HomeTab.Labs) },
         )
         ComingSoonTabItem(
-            emoji = "👥",
+            emoji = stringResource(R.string.learning_icon_social),
             label = stringResource(R.string.learning_tab_social),
             description = stringResource(R.string.learning_social_tab_description),
             state = stringResource(R.string.learning_state_unavailable),
             onClick = onSocialClick,
         )
         ActionItem(
-            emoji = "👤",
+            emoji = stringResource(R.string.learning_icon_profile),
             label = stringResource(R.string.learning_tab_profile),
             onClick = onProfileClick,
         )

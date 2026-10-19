@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.data.learning
 
+import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
 
 /**
@@ -7,6 +8,7 @@ import kotlinx.serialization.Serializable
  * one lesson, one lab and one exam question. Stored with `.name`, like `QuizCategory`; `lesson_progress.topic` and
  * `lab_progress.lab` (migration 0007) accept exactly these names.
  */
+@Keep
 @Serializable
 enum class LearningTopic {
     CONTRASENAS,
