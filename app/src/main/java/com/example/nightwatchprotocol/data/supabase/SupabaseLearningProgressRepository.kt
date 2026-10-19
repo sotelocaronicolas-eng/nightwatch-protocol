@@ -8,6 +8,7 @@ import com.example.nightwatchprotocol.data.learning.LearningSnapshot
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Order
+import java.time.Instant
 import java.time.OffsetDateTime
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -64,11 +65,31 @@ fun List<LabProgressRow>.toCompletedLabs(): Set<LearningTopic> =
     mapNotNull { LearningTopic.fromName(it.lab) }.toSet()
 
 /** The server answers a timestamptz such as `2026-10-18T15:30:00.123456+00:00`; null if it cannot be read. */
+fun parseServerInstant(text: String?): Instant? =
+    text?.let { runCatching { OffsetDateTime.parse(it).toInstant() }.getOrNull() }
+
 fun ExamAttemptRow.toDomain(): ExamAttempt = ExamAttempt(
     correctCount = correctCount,
     passed = passed,
-    takenAt = takenAt?.let { runCatching { OffsetDateTime.parse(it).toInstant() }.getOrNull() },
+    takenAt = parseServerInstant(takenAt),
 )
+
+/** `completed_at` of each saved lesson, as an instant. A row with an unknown topic or an unreadable date is dropped. */
+fun List<LessonProgressRow>.toLessonDates(): Map<LearningTopic, Instant> =
+    mapNotNull { row ->
+        val topic = LearningTopic.fromName(row.topic) ?: return@mapNotNull null
+        parseServerInstant(row.completedAt)?.let { topic to it }
+    }.toMap()
+
+fun List<LabProgressRow>.toLabDates(): Map<LearningTopic, Instant> =
+    mapNotNull { row ->
+        val topic = LearningTopic.fromName(row.lab) ?: return@mapNotNull null
+        parseServerInstant(row.completedAt)?.let { topic to it }
+    }.toMap()
+
+/** The whole exam history of the person from its rows (newest first, as asked of the server). */
+fun List<ExamAttemptRow>.toExamStatus(): ExamStatus =
+    ExamStatus(hasPassed = any { it.passed }, lastAttempt = firstOrNull()?.toDomain())
 
 /**
  * Progress in Supabase (tables of migration 0007).
@@ -106,33 +127,25 @@ class SupabaseLearningProgressRepository(
                     postgrest.from(LABS).select { filter { eq("user_id", userId) } }.decodeList<LabProgressRow>()
                 }
             }
-            val lastAttempt = async {
+            // Every attempt, newest first: it gives the last one, whether one passed, and the dates of the streak.
+            val attempts = async {
                 supabaseCall {
                     postgrest.from(EXAMS).select {
                         filter { eq("user_id", userId) }
                         order("taken_at", Order.DESCENDING)
-                        limit(1)
                     }.decodeList<ExamAttemptRow>()
                 }
             }
-            val passedAttempt = async {
-                supabaseCall {
-                    postgrest.from(EXAMS).select {
-                        filter {
-                            eq("user_id", userId)
-                            eq("passed", true)
-                        }
-                        limit(1)
-                    }.decodeList<ExamAttemptRow>()
-                }
-            }
+            val lessonRows = lessons.await()
+            val labRows = labs.await()
+            val attemptRows = attempts.await()
             LearningSnapshot(
-                viewedLessons = lessons.await().toViewedLessons(),
-                completedLabs = labs.await().toCompletedLabs(),
-                exam = ExamStatus(
-                    hasPassed = passedAttempt.await().isNotEmpty(),
-                    lastAttempt = lastAttempt.await().firstOrNull()?.toDomain(),
-                ),
+                viewedLessons = lessonRows.toViewedLessons(),
+                completedLabs = labRows.toCompletedLabs(),
+                exam = attemptRows.toExamStatus(),
+                lessonDates = lessonRows.toLessonDates(),
+                labDates = labRows.toLabDates(),
+                examAttempts = attemptRows.map { it.toDomain() },
             )
         }
     }

@@ -12,11 +12,18 @@ data class ExamStatus(val hasPassed: Boolean, val lastAttempt: ExamAttempt?) {
     }
 }
 
-/** Everything saved about the signed-in person's progress. */
+/**
+ * Everything saved about the signed-in person's progress. [lessonDates] and [labDates] are the server's `completed_at` of
+ * each saved row and [examAttempts] is every attempt (newest first) with `taken_at` and `correct_count`: they feed the
+ * streak and the badges. An entry without a readable date is simply missing from the maps / has a null `takenAt`.
+ */
 data class LearningSnapshot(
     val viewedLessons: Set<LearningTopic>,
     val completedLabs: Set<LearningTopic>,
     val exam: ExamStatus,
+    val lessonDates: Map<LearningTopic, Instant> = emptyMap(),
+    val labDates: Map<LearningTopic, Instant> = emptyMap(),
+    val examAttempts: List<ExamAttempt> = emptyList(),
 ) {
     companion object {
         val Empty = LearningSnapshot(emptySet(), emptySet(), ExamStatus.NotTaken)

@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.data.learning
 
 import com.example.nightwatchprotocol.data.common.DataAccessException
 import com.example.nightwatchprotocol.data.common.FailureKind
+import java.time.Instant
 
 class FakeLearningContentRepository(
     var content: LearningContent = sampleLearningContent(),
@@ -27,6 +28,16 @@ class FakeLearningProgressRepository : LearningProgressRepository {
     val completedLabs = mutableSetOf<LearningTopic>()
     val examAttempts = mutableListOf<Int>()
 
+    /**
+     * The server's clock, to date what is written through the repository (`completed_at`, `taken_at`). Entries added to the
+     * sets above directly have no date, and with no clock set (the default) nothing is dated. Tests that need a history for the
+     * streak set a clock and move it.
+     */
+    var clock: (() -> Instant)? = null
+    val lessonTimes = mutableMapOf<LearningTopic, Instant>()
+    val labTimes = mutableMapOf<LearningTopic, Instant>()
+    private val attemptTimesByIndex = mutableMapOf<Int, Instant>()
+
     /** When not null, [getSnapshot] fails with this kind. */
     var readFailure: FailureKind? = null
 
@@ -40,13 +51,20 @@ class FakeLearningProgressRepository : LearningProgressRepository {
         getSnapshotCallCount++
         readFailure?.let { throw DataAccessException(it) }
         val last = examAttempts.lastOrNull()
+        val attempts = examAttempts.mapIndexed { index, count ->
+            ExamAttempt(count, count >= EXAM_QUESTION_COUNT - EXAM_MAX_ERRORS, takenAt = attemptTimesByIndex[index])
+        }
         return LearningSnapshot(
             viewedLessons = viewedLessons.toSet(),
             completedLabs = completedLabs.toSet(),
             exam = ExamStatus(
                 hasPassed = examAttempts.any { it >= EXAM_QUESTION_COUNT - EXAM_MAX_ERRORS },
-                lastAttempt = last?.let { ExamAttempt(it, it >= EXAM_QUESTION_COUNT - EXAM_MAX_ERRORS, takenAt = null) },
+                lastAttempt = last?.let { ExamAttempt(it, it >= EXAM_QUESTION_COUNT - EXAM_MAX_ERRORS, takenAt = attemptTimesByIndex[examAttempts.lastIndex]) },
             ),
+            lessonDates = lessonTimes.toMap(),
+            labDates = labTimes.toMap(),
+            // Newest first, as the real repository returns them.
+            examAttempts = attempts.asReversed(),
         )
     }
 
@@ -54,12 +72,14 @@ class FakeLearningProgressRepository : LearningProgressRepository {
         writeCallCount++
         writeFailure?.let { throw DataAccessException(it) }
         viewedLessons += topic
+        clock?.invoke()?.let { lessonTimes.putIfAbsent(topic, it) }
     }
 
     override suspend fun markLabCompleted(lab: LearningTopic) {
         writeCallCount++
         writeFailure?.let { throw DataAccessException(it) }
         completedLabs += lab
+        clock?.invoke()?.let { labTimes.putIfAbsent(lab, it) }
     }
 
     override suspend fun recordExamAttempt(correctCount: Int) {
@@ -67,5 +87,6 @@ class FakeLearningProgressRepository : LearningProgressRepository {
         require(correctCount in 0..EXAM_QUESTION_COUNT)
         writeFailure?.let { throw DataAccessException(it) }
         examAttempts += correctCount
+        clock?.invoke()?.let { attemptTimesByIndex[examAttempts.lastIndex] = it }
     }
 }

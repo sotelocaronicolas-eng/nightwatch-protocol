@@ -24,6 +24,7 @@ import com.example.nightwatchprotocol.data.device.SupabaseDeviceRepository
 import com.example.nightwatchprotocol.data.learning.LearningContentRepository
 import com.example.nightwatchprotocol.data.learning.LearningProgressRepository
 import com.example.nightwatchprotocol.data.learning.LocalLearningContentRepository
+import com.example.nightwatchprotocol.data.learning.ProgressSummaryProvider
 import com.example.nightwatchprotocol.data.notifications.AndroidNotificationPermission
 import com.example.nightwatchprotocol.data.notifications.NotificationPermission
 import com.example.nightwatchprotocol.data.notifications.ReminderCoordinator
@@ -81,6 +82,9 @@ interface AppContainer {
     val deviceSessionManager: DeviceSessionManager
     val learningContentRepository: LearningContentRepository
     val learningProgressRepository: LearningProgressRepository
+
+    /** The streak and the badges, derived from the progress (nothing of them is stored). */
+    val progressSummaryProvider: ProgressSummaryProvider
 }
 
 /**
@@ -151,4 +155,5 @@ class DefaultAppContainer(context: Context) : AppContainer {
         LocalLearningContentRepository { name -> context.assets.open(name).bufferedReader().use { it.readText() } }
     override val learningProgressRepository: LearningProgressRepository =
         SupabaseLearningProgressRepository(supabaseClient.postgrest, sessionUserId)
+    override val progressSummaryProvider: ProgressSummaryProvider = ProgressSummaryProvider(learningProgressRepository)
 }
