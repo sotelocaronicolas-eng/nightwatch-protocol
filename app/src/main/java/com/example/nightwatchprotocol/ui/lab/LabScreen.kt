@@ -23,7 +23,10 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -270,7 +273,7 @@ private fun LabBody(
     }
 }
 
-/** An objective (2374:279): title, its command in a chip, and a checkbox that turns gold with "✓" once done (2374:309). */
+/** An objective (2374:279): title, its command in a chip, and a checkbox that turns gold with a check mark once done (2374:309). */
 @Composable
 private fun ObjectiveCard(objective: LabObjective, done: Boolean, onClick: () -> Unit) {
     val state = stringResource(if (done) R.string.learning_lab_objective_done else R.string.learning_lab_objective_pending)
@@ -297,13 +300,12 @@ private fun ObjectiveCard(objective: LabObjective, done: Boolean, onClick: () ->
                 ),
         ) {
             if (done) {
-                Text(
-                    text = "✓",
-                    color = NightWatchBackground,
-                    fontFamily = NightWatchBodyFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp,
-                    modifier = Modifier.clearAndSetSemantics {},
+                // A vector icon, not the "✓" glyph: the glyph sits low in its line box and cannot be centred by the Box.
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    tint = NightWatchBackground,
+                    modifier = Modifier.size(12.dp),
                 )
             }
         }
