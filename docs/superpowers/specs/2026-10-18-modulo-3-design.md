@@ -57,7 +57,13 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
   - **Progreso al día:** el mismo mecanismo de la 4B (lectura en `ON_RESUME`; los botones abren `Home` de nuevo). Tras un intento aprobado la Prueba Final cuenta como completada ("7 de 7 islas") en Ruta, Labs e Inicio; uno no aprobado no cambia nada.
   - **Módulos 1 y 2:** ninguno tocado. Sí `NightWatchNavHost` y `NightWatchDestinations` (rutas `ExamIntro`, `Exam` y `ExamResult`), `HomeScreen`, Ruta y Labs (módulo 3). También se hizo perezosa la creación de los ViewModels de `LabCompletionFlowTest` (4B): dependía de que JUnit aplicara la regla del dispatcher antes de construir los campos y fallaba según el orden de las clases.
   - **Validación:** `assembleDebug testDebugUnitTest lintDebug` en verde: 878 pruebas, 49 nuevas (18 de las preguntas, 23 del resultado y el guardado y 8 de integración; las pruebas de Ruta y Labs cambiaron de "Próximamente" a abrir el examen), lint con 0 errores. No se tocaron pruebas instrumentadas.
-- **Sigue la Etapa 6** (cierre del módulo). Lo que falta verificar a mano en el teléfono: E1-11, E3-8, E4-9, E4B-8 y E5-9.
+- **Etapa 5.5 hecha (insignias y racha reales, y arreglo visual):** ver la sección 15 (condiciones, definición de racha, límite conocido y la decisión Q13 que reemplaza a P9).
+  - **Arreglo visual:** la ✓ de los objetivos del Lab ya no queda pegada abajo: es el ícono vectorial `Check` centrado por el `Box` (el glifo de texto no se podía centrar). El mismo patrón no se repite en informes, Inicio ni Labs (allí son emojis en `Text`); la "✓" de Apariencia e Idioma está en una fila, no en un cuadro fijo, y no se tocó. Sin prueba: es solo dibujo y las pruebas de Compose son instrumentadas.
+  - **Datos:** `LearningSnapshot` trae `lessonDates`, `labDates` y `examAttempts` (todas, con `taken_at` y `correct_count`); `SupabaseLearningProgressRepository` los lee de las mismas tablas de `0007` (sin migraciones; una consulta de intentos en lugar de dos). `ProgressSummaryProvider` (reloj y zona inyectables) devuelve la racha y las 9 insignias.
+  - **Interfaz:** Inicio, el menú de usuario y Mi Perfil muestran la racha actual; "Logros e Insignias" el estado real y "N de 9". Se releen al volver (`ON_RESUME`). Se quitaron `FixedProfileData` y `FixedBadges`.
+  - **Módulo 2 tocado (lo mínimo):** `MyProfileScreen/ViewModel/UiState`, `UserMenuScreen/ViewModel/UiState`, `AchievementsScreen` y sus pruebas, más `AppContainer` (un proveedor). Lo demás de datos fijos no se tocó.
+  - **Validación:** `assembleDebug testDebugUnitTest lintDebug` en verde: 946 pruebas, lint con 0 errores y sin avisos `PluralsCandidate`. No se tocaron pruebas instrumentales.
+- **Sigue la Etapa 6** (cierre del módulo). Lo que falta verificar a mano en el teléfono: E1-11, E3-8, E4-9, E4B-8, E5-9 y E55-10.
 - Lo que sigue marcado como **SUPUESTO** en el texto (por ejemplo, "Tu nivel: Sin evaluar" si no se puede leer el resultado del quiz, o que los objetivos del lab se cumplan en cualquier orden) y los **textos propuestos de la pantalla de aprobado y de la introducción del examen (F7)** son detalles que no estaban en la lista de confirmaciones del grupo; no bloquean y se anotan en el informe de cierre (Etapa 6) para que el grupo los vea.
 
 **SUPUESTOS y PENDIENTES que dejó la Etapa 1** (no bloquean la Etapa 2):
@@ -369,7 +375,7 @@ Nada se ve en un teléfono desde aquí: la columna "Prueba en el teléfono" la h
 | P6 | ¿Cómo se finaliza un lab y qué pasa si faltan objetivos? | "Finalizar" siempre habilitado. 3/3: éxito y lab completado. Menos: informe "Laboratorio no completado", sin marcar. Precisión y tiempo: confirmados en la sección 14 (Q1, Q2) | Secciones 5 (filas 6 y 7), 8 (`lab_progress` sin `accuracy` ni `update`), 10 (etapa 4); F8, F9, F14 |
 | P7 | ¿Qué hacen las tarjetas de Inicio? | "Lección diaria" abre la siguiente lección pendiente. "Concepto nuevo" y "Prepárate con CiberMynd" atenuadas con "Próximamente", igual que Social | Secciones 5 (fila 2), 7, 12 (F6); Q3 y Q10 (sección 14) |
 | P8 | ¿Qué significan las variantes `[estado …]` del examen? | **Corregida en la Etapa 5:** son rutas del prototipo (conteo de errores: "1_1", "F"…), no estados visuales; la pantalla de pregunta es la misma. No se indica si una respuesta es correcta durante el examen y la corrección la hace la app. (Decía "estados visuales: opción elegida y barra de progreso": Figma no dibuja ninguno de los dos) | Sección 5 (fila 9), R5; F12 |
-| P9 | ¿Racha e insignias? | Siguen fijas (15 días, 3 de 9). Sus reglas se definen en el módulo 4 | Secciones 3 y 6; F4. `2026-10-18-modulo-4-social-analisis.md` conserva la pregunta de la racha como del módulo 4 |
+| P9 | ¿Racha e insignias? | **REEMPLAZADA en la Etapa 5.5 (ver sección 15, Q13):** la racha y las 9 insignias son reales y se derivan del progreso guardado. (Decía: siguen fijas, 15 días y 3 de 9, con sus reglas en el módulo 4) | Secciones 3 y 6; F4. `2026-10-18-modulo-4-social-analisis.md` conserva la pregunta de la racha como del módulo 4 |
 | P10 | ¿Respuestas correctas del examen? | Verificadas por el grupo contra Figma: P1 = C (2498:512), P2 = B, P3 = C, P4 = B, P5 = B, P6 = B | Sección 9 (D9) |
 | P11 | ¿Límites del examen? | Sin límite de tiempo, de intentos ni de espera | Secciones 5 (fila 11) y 8 |
 | P12 | ¿Textos? | Opción A: `strings_aprendizaje.xml` con prefijo `learning_` | Sección 9 (D10), etapas 1 y 2 |
@@ -397,3 +403,56 @@ El grupo confirmó todas las propuestas de la v2 (Q1 a Q8) y añadió Q9 y Q10. 
 | Q10 | **"Próximamente" unificado** para Social, "Concepto nuevo" y "Prepárate con CiberMynd" (un solo Snackbar). **Confirmado** | Sección 7, P7 |
 | Q11 | **Lección vista al abrirse (Etapa 3):** la lección se registra en `lesson_progress` en el momento en que se abre y se muestra (no al terminarla ni al tocar "Ir al laboratorio →"), con el registro idempotente (abrirla otra vez no da error ni duplica). Si guardar falla, se puede leer igual, sale un aviso breve y no se reintenta hasta la próxima vez que se abra | **Decisión del grupo, confirmada por el usuario** al pedir la Etapa 3. Cambia la fila 4 de la sección 5 ("Lección") |
 | Q12 | **Cómo se responde el examen (Etapa 5):** tocar una opción la registra y avanza a la siguiente pregunta; la sexta lleva al resultado. Sin botón "Siguiente", sin resaltar la opción y sin poder cambiarla o volver. Un doble toque no responde dos preguntas. Las variantes `[estado …]` de Figma son rutas del prototipo (conteo de errores), no estados visuales (corrige P8) | **Decisión del grupo, respondida por el usuario** al preguntar en la Etapa 5: Figma no dibuja "Siguiente", opción elegida ni barra de progreso |
+
+## 15. Insignias y racha reales (Etapa 5.5, 2026-10-18)
+
+Sin SQL ni tablas nuevas: todo se deriva de lo ya guardado (`lesson_progress`, `lab_progress` y `exam_attempts`, de `0007`). Nada se almacena: el desbloqueo y la racha se calculan cada vez que se abre una pantalla.
+
+| # | Decisión | Detalle |
+|---|---|---|
+| Q13 | **Reemplaza a P9.** La racha y las 9 insignias son reales | El catálogo y las condiciones viven en `data/learning/Badges.kt` (`BadgeCatalog`); la racha en `data/learning/Streak.kt` |
+
+### Las 9 insignias (Figma 2287:100: solo trae nombres, sin descripciones)
+
+Las condiciones salen de las reglas del encargo de la Etapa 5.5, aplicadas al nombre. Una condición cumplida no se vuelve a bloquear: se usan datos históricos y la **mejor** racha.
+
+| Insignia (Figma) | Condición elegida | Regla | Marca |
+|---|---|---|---|
+| 🥇 Primeros pasos | Al menos 1 lección vista | 1 | |
+| 🔥 Racha de 7 días | Mejor racha histórica ≥ 7 | 6 | N = 7 sale del nombre |
+| 🔑 Maestro de Contraseñas | Isla de Contraseñas completada (lección vista Y lab completado) | 5 | |
+| 🎣 Cazador de Phishing | Isla de Phishing completada | 5 | Emoji desbloqueado: SUPUESTO (Figma solo dibuja 🔒) |
+| 🌐 Guardián de Redes | Isla de Redes Seguras completada | 5 | Emoji desbloqueado: SUPUESTO |
+| 🌟 Leyenda NightWatch | **Ninguna: siempre bloqueada** | 9 | **SUPUESTO**: el nombre no encaja con ninguna regla y no hay dato que verifique una "leyenda". No se inventó una condición. Emoji desbloqueado: SUPUESTO |
+| 📞 Detective de Ingeniería Social | Isla de Ingeniería Social completada | 5 | Emoji desbloqueado: SUPUESTO |
+| 🔥 Racha de 30 días | Mejor racha histórica ≥ 30 | 6 | N = 30 sale del nombre |
+| 🎓 Graduado NightWatch | Al menos un intento con `passed = true` | 4 | Emoji desbloqueado: SUPUESTO |
+
+Ninguna insignia quedó "disponible desde el módulo 4" (ninguna depende de lo social); ese tipo de condición (`AvailableFromModule4`) existe y nunca se cumple, por si el grupo la necesita. También existen `LabsCompletedAtLeast`, `ExamPerfect` y `LessonsViewedAtLeast(n)` para cambiar una condición editando una línea del catálogo. La regla 7 (placement) no se usó: ningún nombre la pide, así que no se lee `placement`. Figma no trae Malware ni Firewall entre las insignias de tema: no se inventaron.
+
+### Racha
+
+- Un **día de práctica** es un día (en la zona horaria del dispositivo, `ZoneId.systemDefault()`) con al menos un `completed_at` de lección, un `completed_at` de lab o un `taken_at` de intento de examen. Cada instante UTC se convierte a fecha local antes de contar (23:30 local cuenta para ese día aunque en UTC sea el siguiente).
+- **Racha actual:** los días consecutivos que terminan en el último día con actividad, mientras ese día sea **hoy o ayer** (si hoy aún no hay actividad pero ayer sí, sigue viva y cuenta hasta ayer). Si el último día es anterior a ayer, es 0.
+- **Mejor racha:** la secuencia consecutiva más larga de todo el historial. Es la que miden las insignias de racha.
+- Varios eventos el mismo día son un día. Un instante posterior a hoy (reloj mal puesto) se toma como último día y no rompe la cuenta.
+- Inicio, el menú de usuario y Mi Perfil muestran la racha **actual** con `plurals` ("Racha Activa de 1 día 🔥", "…de N días 🔥"). Se conserva el texto de Figma ("Racha Activa de N días"), no el "Racha de N días" abreviado del encargo.
+
+### Límite conocido (propuesta de `0008`, NO creada)
+
+Repetir una lección o un lab que ya está registrado **no genera un registro nuevo** (el registro ignora duplicados), así que **no suma un día** a la racha: una persona que repasa lo mismo cada día verá la racha en 0 pasados dos días. Resolverlo exige una tabla de actividad (borrador: `0008_actividad.sql` con `user_id`, `day` y una fila por día con actividad, `INSERT` por la sesión). Hoy los únicos días contados son el de la primera vez que se ve cada lección, se completa cada lab y cada intento de examen (estos sí son una fila nueva siempre).
+
+### Supuestos de la etapa
+
+| # | Tipo | Detalle |
+|---|---|---|
+| E55-1 | SUPUESTO | "Leyenda NightWatch" queda bloqueada para siempre hasta que el grupo defina su condición (regla 9) |
+| E55-2 | SUPUESTO | Los emojis de las insignias desbloqueadas distintas de 🥇, 🔥 y 🔑 (🎣, 🌐, 🌟, 📞, 🎓) no están en Figma, que solo dibuja el 🔒 |
+| E55-3 | SUPUESTO | Con racha 0 se muestra "Racha Activa de 0 días 🔥" (en Mi Perfil, "0 días 🔥"); mientras se lee, "Racha Activa de … días 🔥"; si nunca se pudo leer, "Racha no disponible" (menú e Inicio) o "No disponible" (Mi Perfil) |
+| E55-4 | DIFERENCIA CON FIGMA | El contador "N de 9 insignias desbloqueadas" solo existe en Logros e Insignias (2287:104). Perfil e Inicio no lo traen en Figma y no se añadió, para no inventar diseño; sí muestran la racha real |
+| E55-5 | SUPUESTO (textos no de Figma) | "Cargando tus insignias…", "Sin conexión. No pudimos cargar tus insignias.", "No pudimos cargar tus insignias.", "Puede estar desactualizado" y las descripciones de accesibilidad "…, desbloqueada/bloqueada" |
+| E55-6 | SUPUESTO | Sin conexión, Logros conserva el último estado conocido y el contador con el aviso "Puede estar desactualizado" y "Reintentar"; si nunca se leyó, dibuja las 9 bloqueadas y el aviso en lugar del contador (no se muestra un "0 de 9" falso) |
+| E55-7 | SUPUESTO | Los interruptores de notificaciones de "Logros e insignias" y "Nuevos laboratorios" no se tocaron: siguen sin efecto (necesitan push) |
+| E55-8 | DETALLE | Fecha de desbloqueo y avisos de "nueva insignia" quedan fuera de alcance |
+| E55-9 | DETALLE | Los avisos `PluralsCandidate` de "N de 9 insignias" y "N de 7 islas": el plural va con el total, que siempre es plural; se marcaron con `tools:ignore` |
+| E55-10 | NO VERIFICADO | Nada se vio en un teléfono ni se probó contra el servidor real la lectura de `completed_at` y `taken_at` (F-03); el formato `timestamptz` se probó solo con textos de ejemplo |
