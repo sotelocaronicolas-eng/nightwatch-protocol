@@ -11,7 +11,10 @@ import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
 import com.example.nightwatchprotocol.data.device.DeviceSessionManager
 import com.example.nightwatchprotocol.data.avatar.avatarDisplay
+import com.example.nightwatchprotocol.data.learning.ProgressSummaryProvider
+import com.example.nightwatchprotocol.data.learning.readStreak
 import com.example.nightwatchprotocol.data.profile.profileDisplayName
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,9 +29,11 @@ class UserMenuViewModel(
     private val accountRepository: AccountRepository,
     private val avatarRepository: AvatarRepository,
     private val sessionManager: DeviceSessionManager,
+    private val progressSummaryProvider: ProgressSummaryProvider,
 ) : ViewModel() {
 
     private var account = accountRepository.currentProfile()
+    private var streakJob: Job? = null
 
     private val _uiState = MutableStateFlow(
         UserMenuUiState(
@@ -48,12 +53,22 @@ class UserMenuViewModel(
             }
         }
         authRepository.currentUserUid?.let { uid -> viewModelScope.launch { avatarRepository.load(uid) } }
+        refreshStreak()
     }
 
     /** Re-reads the name, which may have changed on Editar Perfil while this screen stayed in the back stack. */
     fun refreshAccount() {
         account = accountRepository.currentProfile()
         _uiState.update { it.copy(displayName = profileDisplayName(account?.displayName, account?.email)) }
+    }
+
+    /** Reads the real streak; a read already running is not duplicated, and a failed one keeps the last known value. */
+    fun refreshStreak() {
+        if (streakJob?.isActive == true) return
+        streakJob = viewModelScope.launch {
+            val next = progressSummaryProvider.readStreak(_uiState.value.streak)
+            _uiState.update { it.copy(streak = next) }
+        }
     }
 
     fun onSignOutClicked() {
@@ -74,6 +89,7 @@ class UserMenuViewModel(
                     container.accountRepository,
                     container.avatarRepository,
                     container.deviceSessionManager,
+                    container.progressSummaryProvider,
                 )
             }
         }

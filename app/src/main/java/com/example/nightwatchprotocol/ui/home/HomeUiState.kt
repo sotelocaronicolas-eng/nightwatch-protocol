@@ -2,7 +2,7 @@ package com.example.nightwatchprotocol.ui.home
 
 import com.example.nightwatchprotocol.data.avatar.AvatarDisplay
 import com.example.nightwatchprotocol.data.learning.LearningTopic
-import com.example.nightwatchprotocol.data.profile.FixedProfileData
+import com.example.nightwatchprotocol.data.learning.StreakState
 import kotlinx.serialization.Serializable
 
 /** The three tabs that live inside Home. "Social" and "Perfil" of the bar are not tabs: one is "Próximamente", the other opens the user menu. */
@@ -37,7 +37,8 @@ data class HomeUiState(
     val avatar: AvatarDisplay = AvatarDisplay.Initial("?"),
     /** BAJO / MEDIO / ALTO, "Sin evaluar", or null while it is being read. */
     val level: String? = null,
-    val streakDays: Int = FixedProfileData.STREAK_DAYS,
+    /** The real current streak (decision that replaces P9); read together with the progress of "Lección diaria". */
+    val streak: StreakState = StreakState.Loading,
     val dailyLesson: DailyLessonState = DailyLessonState.Loading,
 )
 

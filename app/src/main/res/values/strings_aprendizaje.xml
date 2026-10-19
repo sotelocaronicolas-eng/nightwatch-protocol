@@ -4,7 +4,7 @@
     Los textos de los módulos 1 y 2 siguen en el código (F-09 pendiente). El contenido (lecciones, labs, preguntas) va en JSON.
     Cada texto dice su fuente: "Figma" con el nodo, o "propuesto" cuando NO está en Figma (diferencia F13 de la spec).
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Barra inferior. Figma: BottomNav (49:15, 2266:72, 2271:84, 2440:163) -->
     <string name="learning_tab_home">Inicio</string>
     <string name="learning_tab_path">Ruta</string>
@@ -22,7 +22,31 @@
 
     <!-- Inicio. Figma: MAIN MENU (49:15) -->
     <string name="learning_home_app_name">Nightwatch Protocol</string>
-    <string name="learning_home_streak">Racha Activa de %1$d días 🔥</string>
+    <!-- Racha real (Inicio, menú de usuario y Mi Perfil). El texto es el de Figma ("Racha Activa de N días"); "día" con 1 -->
+    <plurals name="learning_streak_active">
+        <item quantity="one">Racha Activa de %1$d día 🔥</item>
+        <item quantity="other">Racha Activa de %1$d días 🔥</item>
+    </plurals>
+    <plurals name="learning_streak_value">
+        <item quantity="one">%1$d día 🔥</item>
+        <item quantity="other">%1$d días 🔥</item>
+    </plurals>
+    <!-- Logros e insignias. Figma: LOGROS E INSIGNIAS 2287:100 -->
+    <string name="learning_badges_title">Logros e Insignias</string>
+    <!-- "insignias" va con el total (9), que siempre es plural: no es un plural del número de desbloqueadas -->
+    <string name="learning_badges_counter" tools:ignore="PluralsCandidate">%1$d de %2$d insignias desbloqueadas</string>
+    <!-- Logros: textos propuestos (no están en Figma) -->
+    <string name="learning_badges_loading">Cargando tus insignias…</string>
+    <string name="learning_badges_error_offline">Sin conexión. No pudimos cargar tus insignias.</string>
+    <string name="learning_badges_error">No pudimos cargar tus insignias.</string>
+    <string name="learning_badges_stale">Puede estar desactualizado</string>
+    <string name="learning_badges_card_unlocked">%1$s, desbloqueada</string>
+    <string name="learning_badges_card_locked">%1$s, bloqueada</string>
+
+    <!-- Racha: estados propuestos (no están en Figma) -->
+    <string name="learning_streak_loading">Racha Activa de … días 🔥</string>
+    <string name="learning_streak_unavailable">Racha no disponible</string>
+    <string name="learning_streak_value_unavailable">No disponible</string>
     <string name="learning_home_daily_lesson">Lección diaria</string>
     <string name="learning_home_new_concept">Concepto nuevo</string>
     <string name="learning_home_cibermynd">Prepárate con CiberMynd</string>
@@ -60,7 +84,7 @@
     <string name="learning_path_title">Ruta de Aprendizaje</string>
     <!-- Figma dice "Tu nivel: Aprendiz"; aquí BAJO/MEDIO/ALTO o Sin evaluar (P2, F1) -->
     <string name="learning_path_level">🧭 Tu nivel: %1$s</string>
-    <string name="learning_path_progress">%1$d de %2$d islas completadas</string>
+    <string name="learning_path_progress" tools:ignore="PluralsCandidate">%1$d de %2$d islas completadas</string>
     <string name="learning_path_final_test">Prueba Final</string>
 
     <!-- Ruta: textos propuestos (no están en Figma) -->

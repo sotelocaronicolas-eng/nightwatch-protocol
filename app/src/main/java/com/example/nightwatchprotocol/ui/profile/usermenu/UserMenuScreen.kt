@@ -42,6 +42,7 @@ import com.example.nightwatchprotocol.ui.components.ProfileTopBar
 import com.example.nightwatchprotocol.ui.components.SectionLabel
 import com.example.nightwatchprotocol.ui.components.SettingsRow
 import com.example.nightwatchprotocol.ui.components.UserAvatar
+import com.example.nightwatchprotocol.ui.components.activeStreakText
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
@@ -68,7 +69,10 @@ fun UserMenuScreen(
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: ""
     }
 
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshAccount() }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.refreshAccount()
+        viewModel.refreshStreak()
+    }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
@@ -184,7 +188,7 @@ private fun UserSummaryPill(uiState: UserMenuUiState) {
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = "Racha Activa de ${uiState.streakDays} días 🔥",
+                text = activeStreakText(uiState.streak),
                 color = NightWatchOnBackground,
                 fontFamily = NightWatchBodyFontFamily,
                 fontSize = 15.sp,

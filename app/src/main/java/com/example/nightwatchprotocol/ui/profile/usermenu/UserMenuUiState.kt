@@ -1,11 +1,11 @@
 package com.example.nightwatchprotocol.ui.profile.usermenu
 
 import com.example.nightwatchprotocol.data.avatar.AvatarDisplay
-import com.example.nightwatchprotocol.data.profile.FixedProfileData
+import com.example.nightwatchprotocol.data.learning.StreakState
 
 data class UserMenuUiState(
     val displayName: String = "",
-    val streakDays: Int = FixedProfileData.STREAK_DAYS,
+    val streak: StreakState = StreakState.Loading,
     val avatar: AvatarDisplay = AvatarDisplay.Initial("?"),
 )
 

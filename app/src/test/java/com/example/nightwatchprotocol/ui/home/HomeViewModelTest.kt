@@ -18,10 +18,15 @@ import com.example.nightwatchprotocol.data.device.FakeDeviceRepository
 import com.example.nightwatchprotocol.data.learning.FakeLearningContentRepository
 import com.example.nightwatchprotocol.data.learning.FakeLearningProgressRepository
 import com.example.nightwatchprotocol.data.learning.LearningTopic
+import com.example.nightwatchprotocol.data.learning.StreakState
 import com.example.nightwatchprotocol.data.profile.FakeProfileRepository
 import com.example.nightwatchprotocol.data.quiz.FakeQuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.PlacementLevel
 import com.example.nightwatchprotocol.data.quiz.PlacementResult
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -66,7 +71,12 @@ class HomeViewModelTest {
         learningProgressRepository = progress,
         learningContentRepository = content,
         sessionManager = sessionManager,
+        clock = clock,
     )
+
+    // 2026-10-18 15:00 UTC, in UTC: "today" is the 18th.
+    private val now = Instant.parse("2026-10-18T15:00:00Z")
+    private var clock: Clock = Clock.fixed(now, ZoneOffset.UTC)
 
     private fun completeIslands(count: Int) {
         LearningTopic.entries.take(count).forEach {
@@ -78,7 +88,7 @@ class HomeViewModelTest {
     // ---- the chapa: name, avatar, level, streak ----
 
     @Test
-    fun showsNameInitialAndTheFixedStreak() = runTest {
+    fun showsNameAndInitial_andTheStreakIsLoadingUntilTheProgressIsRead() = runTest {
         account.profile = AccountProfile("Nicolás Sotelo", "n@example.com", null, hasPassword = true)
         val vm = viewModel()
         advanceUntilIdle()
@@ -86,7 +96,91 @@ class HomeViewModelTest {
         val state = vm.uiState.value
         assertEquals("Nicolás Sotelo", state.displayName)
         assertEquals(AvatarDisplay.Initial("N"), state.avatar)
-        assertEquals(15, state.streakDays)
+        assertEquals(StreakState.Loading, state.streak)
+    }
+
+    // ---- the real streak, read with the progress ----
+
+    @Test
+    fun theStreak_isZeroForANewAccount() = runTest {
+        val vm = viewModel()
+        vm.refreshProgress()
+        advanceUntilIdle()
+
+        assertEquals(StreakState.Days(0), vm.uiState.value.streak)
+    }
+
+    @Test
+    fun theStreak_countsTheConsecutiveDaysEndingToday() = runTest {
+        progress.lessonTimes[LearningTopic.CONTRASENAS] = now.minusSeconds(86_400L * 2)
+        progress.labTimes[LearningTopic.CONTRASENAS] = now.minusSeconds(86_400L)
+        progress.clock = { now }
+        progress.recordExamAttempt(4)
+        val vm = viewModel()
+        vm.refreshProgress()
+        advanceUntilIdle()
+
+        assertEquals(StreakState.Days(3), vm.uiState.value.streak)
+    }
+
+    @Test
+    fun theStreak_staysAliveWhenOnlyYesterdayHasActivity_andIsZeroBeforeThat() = runTest {
+        progress.lessonTimes[LearningTopic.CONTRASENAS] = now.minusSeconds(86_400L)
+        val alive = viewModel()
+        alive.refreshProgress()
+        advanceUntilIdle()
+        assertEquals(StreakState.Days(1), alive.uiState.value.streak)
+
+        progress.lessonTimes[LearningTopic.CONTRASENAS] = now.minusSeconds(86_400L * 2)
+        val dead = viewModel()
+        dead.refreshProgress()
+        advanceUntilIdle()
+        assertEquals(StreakState.Days(0), dead.uiState.value.streak)
+    }
+
+    @Test
+    fun theStreak_usesTheZoneOfTheDevice() = runTest {
+        // 23:30 local (UTC-5) on the 17th is 04:30 UTC on the 18th; today in Bogotá is still the 18th at 10:00 local.
+        val bogota = ZoneId.of("America/Bogota")
+        progress.lessonTimes[LearningTopic.CONTRASENAS] = Instant.parse("2026-10-18T04:30:00Z")
+        progress.labTimes[LearningTopic.CONTRASENAS] = Instant.parse("2026-10-18T15:00:00Z")
+        clock = Clock.fixed(Instant.parse("2026-10-18T15:30:00Z"), bogota)
+        val vm = viewModel()
+        vm.refreshProgress()
+        advanceUntilIdle()
+
+        // Local days: the 17th and the 18th.
+        assertEquals(StreakState.Days(2), vm.uiState.value.streak)
+    }
+
+    @Test
+    fun aFailedProgressRead_saysTheStreakIsNotAvailable_andRetryRecovers() = runTest {
+        progress.readFailure = FailureKind.Offline
+        val vm = viewModel()
+        vm.refreshProgress()
+        advanceUntilIdle()
+        assertEquals(StreakState.Unavailable, vm.uiState.value.streak)
+
+        progress.readFailure = null
+        progress.lessonTimes[LearningTopic.CONTRASENAS] = now
+        vm.refreshProgress()
+        advanceUntilIdle()
+        assertEquals(StreakState.Days(1), vm.uiState.value.streak)
+    }
+
+    @Test
+    fun aFailedLaterRead_keepsTheLastKnownStreak() = runTest {
+        progress.lessonTimes[LearningTopic.CONTRASENAS] = now
+        val vm = viewModel()
+        vm.refreshProgress()
+        advanceUntilIdle()
+
+        progress.readFailure = FailureKind.Offline
+        vm.refreshProgress()
+        advanceUntilIdle()
+
+        assertEquals(StreakState.Days(1), vm.uiState.value.streak)
+        assertTrue(vm.uiState.value.dailyLesson is DailyLessonState.Failed)
     }
 
     @Test

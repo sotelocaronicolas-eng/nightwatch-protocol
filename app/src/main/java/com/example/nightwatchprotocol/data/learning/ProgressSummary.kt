@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.data.learning
 
+import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -46,3 +47,13 @@ class ProgressSummaryProvider(
 ) {
     suspend fun get(): ProgressSummary = summarizeProgress(learningProgressRepository.getSnapshot(), clock.instant(), clock.zone)
 }
+
+/**
+ * The current streak for a screen that only shows that: the new value, or, when the read fails, the last known one
+ * ([previous]) or "not available" if there was none yet.
+ */
+suspend fun ProgressSummaryProvider.readStreak(previous: StreakState): StreakState =
+    runCatchingKeepCancellation { get() }.fold(
+        onSuccess = { StreakState.Days(it.streak.current) },
+        onFailure = { if (previous is StreakState.Days) previous else StreakState.Unavailable },
+    )

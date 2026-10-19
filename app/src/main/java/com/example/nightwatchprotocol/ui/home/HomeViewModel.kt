@@ -19,7 +19,11 @@ import com.example.nightwatchprotocol.data.device.DeviceSessionManager
 import com.example.nightwatchprotocol.data.device.SessionCheck
 import com.example.nightwatchprotocol.data.learning.LearningContentRepository
 import com.example.nightwatchprotocol.data.learning.LearningProgressRepository
+import com.example.nightwatchprotocol.data.learning.StreakState
+import com.example.nightwatchprotocol.data.learning.computeStreak
 import com.example.nightwatchprotocol.data.learning.deriveLearningProgress
+import com.example.nightwatchprotocol.data.learning.practiceMoments
+import java.time.Clock
 import com.example.nightwatchprotocol.data.profile.LEVEL_NOT_ASSESSED
 import com.example.nightwatchprotocol.data.profile.profileDisplayName
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
@@ -49,6 +53,7 @@ class HomeViewModel(
     private val learningProgressRepository: LearningProgressRepository,
     private val learningContentRepository: LearningContentRepository,
     private val sessionManager: DeviceSessionManager,
+    private val clock: Clock = Clock.systemDefaultZone(),
 ) : ViewModel() {
 
     private var account = accountRepository.currentProfile()
@@ -146,18 +151,30 @@ class HomeViewModel(
         }
         progressJob = viewModelScope.launch {
             val result = runCatchingKeepCancellation {
-                val progress = deriveLearningProgress(learningProgressRepository.getSnapshot())
+                val snapshot = learningProgressRepository.getSnapshot()
+                val progress = deriveLearningProgress(snapshot)
                 val topic = progress.nextPendingLesson
-                if (topic == null) {
+                val daily = if (topic == null) {
                     DailyLessonState.NoneLeft
                 } else {
                     DailyLessonState.Pending(topic, learningContentRepository.getContent().lesson(topic).title)
                 }
+                // The streak comes from the same read: the dates of what is saved, in the zone of the device.
+                daily to computeStreak(practiceMoments(snapshot), clock.instant(), clock.zone)
             }
-            val next = result.getOrElse { error ->
-                DailyLessonState.Failed(offline = (error as? DataAccessException)?.kind == FailureKind.Offline)
+            result.onSuccess { (daily, streak) ->
+                _uiState.update { it.copy(dailyLesson = daily, streak = StreakState.Days(streak.current)) }
             }
-            _uiState.update { it.copy(dailyLesson = next) }
+            result.onFailure { error ->
+                val failed = DailyLessonState.Failed(offline = (error as? DataAccessException)?.kind == FailureKind.Offline)
+                // Offline keeps the last known streak; with none yet it says it is not available.
+                _uiState.update {
+                    it.copy(
+                        dailyLesson = failed,
+                        streak = if (it.streak is StreakState.Days) it.streak else StreakState.Unavailable,
+                    )
+                }
+            }
         }
     }
 

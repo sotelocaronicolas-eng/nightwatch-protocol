@@ -55,6 +55,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
+import com.example.nightwatchprotocol.ui.components.activeStreakText
 import com.example.nightwatchprotocol.ui.components.UserAvatar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
@@ -285,7 +286,7 @@ private fun UserPill(uiState: HomeUiState) {
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = stringResource(R.string.learning_home_streak, uiState.streakDays),
+                text = activeStreakText(uiState.streak),
                 color = NightWatchOnBackground,
                 fontFamily = NightWatchBodyFontFamily,
                 fontSize = 15.sp,

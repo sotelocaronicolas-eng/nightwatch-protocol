@@ -7,6 +7,11 @@ import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.avatar.AvatarDisplay
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
 import com.example.nightwatchprotocol.data.avatar.FakeAvatarCache
+import com.example.nightwatchprotocol.data.common.FailureKind
+import com.example.nightwatchprotocol.data.learning.FakeLearningProgressRepository
+import com.example.nightwatchprotocol.data.learning.LearningTopic
+import com.example.nightwatchprotocol.data.learning.ProgressSummaryProvider
+import com.example.nightwatchprotocol.data.learning.StreakState
 import com.example.nightwatchprotocol.data.profile.BirthDate
 import com.example.nightwatchprotocol.data.profile.DataStoreProfileExtrasCache
 import com.example.nightwatchprotocol.data.profile.FakeProfileRepository
@@ -17,6 +22,9 @@ import com.example.nightwatchprotocol.data.profile.RemoteProfile
 import com.example.nightwatchprotocol.data.quiz.FakeQuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.PlacementLevel
 import com.example.nightwatchprotocol.data.quiz.PlacementResult
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneOffset
 import kotlin.io.encoding.Base64
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -43,7 +51,76 @@ class MyProfileViewModelTest {
     private val extrasCache = DataStoreProfileExtrasCache.inMemory()
     private val extras = ProfileExtrasRepository(profile, extrasCache)
 
-    private fun viewModel() = MyProfileViewModel(auth, account, quiz, profile, avatars, extras)
+    private val progress = FakeLearningProgressRepository()
+    private val now = Instant.parse("2026-10-18T15:00:00Z")
+    private val clock = Clock.fixed(now, ZoneOffset.UTC)
+
+    private fun viewModel() = MyProfileViewModel(
+        auth, account, quiz, profile, avatars, extras, ProgressSummaryProvider(progress, clock),
+    )
+
+    // ---- the real streak (no longer the fixed 15) ----
+
+    @Test
+    fun theStreak_isLoadingAtFirst_andZeroForANewAccount() = runTest {
+        val vm = viewModel()
+        assertEquals(StreakState.Loading, vm.uiState.value.streak)
+
+        advanceUntilIdle()
+
+        assertEquals(StreakState.Days(0), vm.uiState.value.streak)
+    }
+
+    @Test
+    fun theStreak_isTheRealCurrentOne() = runTest {
+        progress.lessonTimes[LearningTopic.CONTRASENAS] = now.minusSeconds(86_400L * 2)
+        progress.labTimes[LearningTopic.CONTRASENAS] = now.minusSeconds(86_400L)
+        // Today: an exam attempt written through the repository is dated with the clock.
+        progress.clock = { now }
+        progress.recordExamAttempt(3)
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        assertEquals(StreakState.Days(3), vm.uiState.value.streak)
+    }
+
+    @Test
+    fun aFailedRead_saysNotAvailable_andALaterOneRecovers() = runTest {
+        progress.readFailure = FailureKind.Offline
+        val vm = viewModel()
+        advanceUntilIdle()
+        assertEquals(StreakState.Unavailable, vm.uiState.value.streak)
+
+        progress.readFailure = null
+        vm.refreshStreak()
+        advanceUntilIdle()
+
+        assertEquals(StreakState.Days(0), vm.uiState.value.streak)
+    }
+
+    @Test
+    fun aFailedLaterRead_keepsTheLastKnownStreak() = runTest {
+        progress.lessonTimes[LearningTopic.CONTRASENAS] = now
+        val vm = viewModel()
+        advanceUntilIdle()
+        assertEquals(StreakState.Days(1), vm.uiState.value.streak)
+
+        progress.readFailure = FailureKind.Offline
+        vm.refreshStreak()
+        advanceUntilIdle()
+
+        assertEquals(StreakState.Days(1), vm.uiState.value.streak)
+    }
+
+    @Test
+    fun refreshingWhileOneReadRuns_doesNotReadTwice() = runTest {
+        val vm = viewModel()
+        vm.refreshStreak()
+        vm.refreshStreak()
+        advanceUntilIdle()
+
+        assertEquals(1, progress.getSnapshotCallCount)
+    }
 
     @Test
     fun showsTheRealAccountData() = runTest {
@@ -54,7 +131,6 @@ class MyProfileViewModelTest {
         val state = vm.uiState.value
         assertEquals("Nicolás Sotelo", state.displayName)
         assertEquals("n@example.com", state.email)
-        assertEquals(15, state.streakDays)
         assertEquals(AvatarDisplay.Initial("N"), state.avatar)
         assertTrue(state.memberSince != "—")
     }
