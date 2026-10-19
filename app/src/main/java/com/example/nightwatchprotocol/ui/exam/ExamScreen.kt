@@ -184,7 +184,7 @@ internal fun ExamHeader(title: String, tag: String?, onClose: () -> Unit) {
 }
 
 /**
- * The question and its four options (2492:253 to 2492:264). The text starts 196 dp under the line, as in the design
+ * The question and its four options (2492:253 to 2492:264). The text starts 200 dp under the line, as in the design
  * (272 dp from the top). The grey arc at the bottom of Figma (2506:252) is drawn at the end.
  */
 @Composable
@@ -203,7 +203,8 @@ private fun QuestionBody(question: ExamQuestionUi, onOptionClick: (questionIndex
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp,
-                modifier = Modifier.padding(start = 8.dp, top = 196.dp, bottom = 10.dp),
+                // 272 dp from the top in Figma (2492:253); its box is 60 dp tall, so the options start at 332 (2492:254).
+                modifier = Modifier.padding(start = 8.dp, top = 200.dp).heightIn(min = 60.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = 90.dp)) {
                 question.options.forEachIndexed { optionIndex, label ->

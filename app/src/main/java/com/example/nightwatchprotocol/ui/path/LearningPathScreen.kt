@@ -187,7 +187,7 @@ private fun ProgressCard(uiState: LearningPathUiState, modifier: Modifier = Modi
         // The bar: a muted track and a gold fill of completed / total (146 of 340 for 3 of 7).
         Box(
             modifier = Modifier
-                .padding(top = 12.dp)
+                .padding(top = 9.dp)
                 .fillMaxWidth()
                 .height(8.dp)
                 .background(NightWatchSurfaceButtonMuted, RoundedCornerShape(4.dp)),

@@ -62,11 +62,11 @@ fun ExamIntroScreen(onClose: () -> Unit, onStart: () -> Unit) {
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 20.dp),
             ) {
-                // The icon circle (2486:252): gold with a teal ring, 96 dp, 28 dp under the line.
+                // The icon circle (2486:252): gold with a teal ring, 96 dp, 32 dp under the line (104 dp from the top).
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .padding(top = 28.dp)
+                        .padding(top = 32.dp)
                         .size(96.dp)
                         .background(NightWatchGold, CircleShape)
                         .border(4.dp, IconRing, CircleShape),
