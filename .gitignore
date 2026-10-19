@@ -31,3 +31,6 @@ google-services.json
 *.keystore
 *.apk
 *.aab
+
+# Notas locales de Claude Code: lo específico de cada computadora (no se sube)
+CLAUDE.local.md

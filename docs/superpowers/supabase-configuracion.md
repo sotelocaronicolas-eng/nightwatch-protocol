@@ -52,21 +52,23 @@ El esquema está en `supabase/migrations/0001_esquema_inicial.sql`. **Nada lo ej
 
 Los archivos de `supabase/migrations/` se ejecutan **en orden numérico** (`0001`, `0002`, ...) y **una sola vez
 por proyecto**. Una migración que ya se aplicó **no se edita**: cualquier cambio posterior va en una migración
-nueva con el siguiente número. Hoy hay seis:
+nueva con el siguiente número. Hoy hay siete, **todas ya aplicadas** en el proyecto del equipo (un proyecto nuevo las necesita
+todas, en orden):
 
 1. `0001_esquema_inicial.sql`: tablas, RLS, políticas y grants.
 2. `0002_minimo_privilegio.sql`: quita a `authenticated` los privilegios `TRUNCATE`, `REFERENCES` y `TRIGGER`,
    que Supabase concede por defecto y la app no necesita.
 3. `0003_revoca_rls_auto_enable.sql`: revoca `EXECUTE` de `public.rls_auto_enable()` (función que crea Supabase
    con "Enable automatic RLS" y que el Security Advisor marcaba como llamable por `anon` y `authenticated`).
-4. `0004_storage_avatares.sql`: bucket privado `avatars` y sus 4 políticas en `storage.objects` (**pendiente de
-   ejecutar**; ver el Bloque A).
+4. `0004_storage_avatares.sql`: bucket privado `avatars` y sus 4 políticas en `storage.objects` (aplicada; ver el
+   Bloque A).
 5. `0005_estado_de_cuenta.sql`: función `public.account_status(p_email)`, que devuelve `not_found`, `password` u
-   `other_provider` para que el login y el registro muestren errores individualizados (**pendiente de ejecutar**;
-   ver "Errores individualizados").
+   `other_provider` para que el login y el registro muestren errores individualizados (aplicada; ver "Errores
+   individualizados").
 6. `0006_verificacion_correo_recuperacion.sql`: tabla `recovery_email_codes`, cierra la columna
-   `profile.recovery_email` al cliente y crea `verify_recovery_email_code(p_code)` (**pendiente de ejecutar**; ver
-   "Parte D").
+   `profile.recovery_email` al cliente y crea `verify_recovery_email_code(p_code)` (aplicada; ver "Parte D").
+7. `0007_progreso_aprendizaje.sql`: tablas `lesson_progress`, `lab_progress` y `exam_attempts` del módulo 3, con RLS del
+   dueño y `GRANT` por columna (aplicada; ver "Parte E"). No toca ninguna tabla anterior.
 
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
@@ -117,9 +119,9 @@ Storage.
 - Con el SMTP integrado de Supabase hay un límite muy bajo de correos por hora: por eso desde el Bloque B se usa un SMTP
   propio (Brevo, ver más abajo).
 
-### Ejecutar 0004 antes de probar la foto
+### La migración 0004 y la foto (ya aplicada)
 
-`supabase/migrations/0004_storage_avatares.sql` crea el bucket privado `avatars` (256 KB, solo `image/jpeg`) y las
+`supabase/migrations/0004_storage_avatares.sql` (hay que ejecutarla antes de probar la foto en un proyecto nuevo) crea el bucket privado `avatars` (256 KB, solo `image/jpeg`) y las
 políticas de `storage.objects`: cada usuario solo ve, sube, reemplaza y borra lo que está en su carpeta
 `<user_id>/`. Se ejecuta a mano en el SQL Editor, como las demás, y una sola vez. Sin él, subir la foto falla y la app
 la deja solo en el teléfono (el mismo aviso de "sin sincronizar" que ya existía). La foto se guarda como
@@ -331,3 +333,38 @@ en el límite de correos de Supabase.
 **Orden de despliegue.** Ejecutar `0006` **antes** de instalar la versión de la app de la Parte D: después de `0006`
 una versión anterior de la app ya no puede guardar el correo de recuperación (la columna se cerró) y la nueva sin la
 función desplegada no puede enviar el código.
+
+## Parte E: progreso de aprendizaje (módulo 3, migración 0007)
+
+**Qué hace.** El módulo 3 (ruta, lecciones, laboratorios y examen final) guarda el avance en tres tablas nuevas. Todo lo demás se
+**deriva** en la app a partir de ellas: qué islas están completas o desbloqueadas, el contador "N de 7", la "Lección diaria", la
+racha y las 9 insignias. Nada de eso se almacena.
+
+**Las tres tablas** (`supabase/migrations/0007_progreso_aprendizaje.sql`, aplicada a mano):
+
+| Tabla | Clave | Columnas | Qué puede hacer la app (`authenticated`) |
+|---|---|---|---|
+| `lesson_progress` | (`user_id`, `topic`) | `topic` ∈ `CONTRASENAS`, `PHISHING`, `MALWARE`, `INGENIERIA_SOCIAL`, `REDES_SEGURAS`, `FIREWALL`; `completed_at` lo pone el servidor | `SELECT` e `INSERT (user_id, topic)` |
+| `lab_progress` | (`user_id`, `lab`) | `lab` ∈ los mismos 6 códigos; `completed_at` (servidor). **Solo existe fila si el lab se completó (3 de 3 objetivos)** | `SELECT` e `INSERT (user_id, lab)` |
+| `exam_attempts` | `id` (identity) | `correct_count` 0 a 6; `passed` **columna generada** (`correct_count >= 5`); `taken_at` (servidor). Una fila por intento, sin límite | `SELECT` e `INSERT (user_id, correct_count)` |
+
+- **RLS** activo y solo del dueño: `(select auth.uid()) = user_id` en `select` e `insert` (6 políticas; ninguna de `update` ni
+  `delete`). `anon` no tiene acceso. Ningún `TRUNCATE`, `REFERENCES` ni `TRIGGER`.
+- **Aislamiento (P5):** las claves foráneas apuntan solo a `auth.users`. Aprobar el examen **no puede** cambiar `placement` ni
+  el nivel BAJO/MEDIO/ALTO: el "aprobado" vive solo en `exam_attempts`.
+- **Escritura idempotente** de lección y lab: la app hace un `upsert` que ignora duplicados (`on_conflict=user_id,topic` o
+  `user_id,lab` con `Prefer: resolution=ignore-duplicates`), que PostgREST ejecuta como `INSERT … ON CONFLICT DO NOTHING`; solo
+  necesita `INSERT`, y repetir no es un error ni duplica. Un intento de examen es un `INSERT` simple (cada llamada añade una fila).
+  El cliente solo envía `correct_count`: `passed` y las fechas las calcula el servidor.
+- **Lectura:** la app lee las tres tablas completas del usuario (con sus fechas `completed_at` y `taken_at`, que `authenticated` puede
+  leer) para calcular el progreso y la racha. Los errores se mapean a `DataAccessException`.
+- **Verificación.** Al final del archivo hay siete consultas, a a g (RLS, políticas, privilegios de tabla y de columna, `passed`
+  generada, claves foráneas solo a `auth.users`, valores permitidos de `topic` y `lab`). Las ejecutó el usuario a mano y dieron el
+  resultado esperado. Las llamadas reales desde la app no tienen pruebas automáticas (F-03): se comprueban a mano con el guion de
+  `reports/modulo-3-diagnostico.md`.
+- **Límites conocidos.** El examen se corrige en el teléfono (un cliente modificado podría enviar `correct_count = 6`; aceptable sin
+  ranking). El desbloqueo en orden y el acceso al examen son reglas de la app, no de la base de datos. Repetir una lección o un lab ya
+  registrado no genera fila, así que no suma un día a la racha (propuesta: una tabla de actividad en `0008`, no creada).
+
+**Orden de despliegue.** Ejecutar `0007` **antes** de instalar la versión 2.1.0 de la app: sin las tablas, abrir una lección,
+completar un lab o terminar un examen falla al guardar (la app lo muestra como error de guardado, con "Reintentar guardado").

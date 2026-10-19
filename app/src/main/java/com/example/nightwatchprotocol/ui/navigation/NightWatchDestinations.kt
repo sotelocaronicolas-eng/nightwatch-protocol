@@ -1,5 +1,7 @@
 package com.example.nightwatchprotocol.ui.navigation
 
+import com.example.nightwatchprotocol.data.learning.LearningTopic
+import com.example.nightwatchprotocol.ui.home.HomeTab
 import com.example.nightwatchprotocol.ui.verifycode.CodePurpose
 import kotlinx.serialization.Serializable
 
@@ -21,8 +23,33 @@ object PasswordReset
 @Serializable
 data class VerifyCode(val email: String, val purpose: CodePurpose)
 
+/** The container with the bottom bar (Inicio, Ruta, Labs). [tab] is the one shown first: Inicio by default, Ruta after the quiz. */
 @Serializable
-object MainMenu
+data class Home(val tab: HomeTab = HomeTab.Inicio)
+
+/** A lesson, full screen and without the bottom bar. */
+@Serializable
+data class Lesson(val topic: LearningTopic)
+
+/** The terminal of one lab, full screen and without the bottom bar. */
+@Serializable
+data class Lab(val topic: LearningTopic)
+
+/** The report of a finished attempt: the objectives done decide success or failure. Full screen, without the bottom bar. */
+@Serializable
+data class LabReport(val topic: LearningTopic, val completedObjectives: List<Int>)
+
+/** The introduction of the final exam, full screen and without the bottom bar. */
+@Serializable
+object ExamIntro
+
+/** The questions of one attempt of the final exam, one per screen. A new entry is a new attempt from question 1. */
+@Serializable
+object Exam
+
+/** The result of a finished attempt: [answers] is the option chosen (0 to 3) for each question, in order. */
+@Serializable
+data class ExamResult(val answers: List<Int>)
 
 @Serializable
 object UserMenu

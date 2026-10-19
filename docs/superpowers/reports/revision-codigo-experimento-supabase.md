@@ -4,6 +4,14 @@
 > sigue abierto y lo que ya se corrigió está en la sección
 > [10. Estado de los hallazgos](#10-estado-de-los-hallazgos-actualizado-tras-las-partes-g-y-h). El resto del texto no se
 > modificó.
+>
+> **Nota sobre las cifras de pruebas (añadida al cerrar el módulo 3).** Este informe cuenta **647** pruebas porque revisó la
+> rama cuando todavía convivían Firebase y Supabase. El informe de la migración (`migracion-supabase.md`) registra 657 justo
+> antes de la parte H y **597** después de borrar las pruebas de Firebase y de las banderas de capacidad: son fotos de la rama
+> en momentos distintos, no una pérdida de cobertura. El recuento vigente es el del informe del módulo 3
+> (`modulo-3-diagnostico.md`, sección 7: **951** pruebas al cerrar el módulo 3). Además, el hallazgo **F-24** habla de una
+> migración nueva "`0007`": ese número ya lo usa el módulo 3 (`0007_progreso_aprendizaje.sql`), así que esa migración sería la
+> `0008`.
 
 Fecha: 2026-10-17. Alcance: `git diff main...HEAD` (53 commits, 107 archivos, +9089 / −374) más el código existente que
 esos cambios tocan. Revisión **solo de lectura**: no se modificó código, pruebas, recursos, migraciones ni funciones; este

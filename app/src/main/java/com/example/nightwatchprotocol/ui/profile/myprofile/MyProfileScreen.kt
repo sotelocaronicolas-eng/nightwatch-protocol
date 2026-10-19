@@ -38,6 +38,7 @@ import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
 import com.example.nightwatchprotocol.ui.components.UserAvatar
+import com.example.nightwatchprotocol.ui.components.streakValueText
 import com.example.nightwatchprotocol.ui.theme.NightWatchBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
@@ -55,7 +56,10 @@ fun MyProfileScreen(
     viewModel: MyProfileViewModel = viewModel(factory = MyProfileViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshAccount() }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.refreshAccount()
+        viewModel.refreshStreak()
+    }
     MyProfileContent(uiState = uiState, onClose = onClose, onEditProfile = onEditProfile)
 }
 
@@ -179,7 +183,7 @@ private fun InfoCard(uiState: MyProfileUiState, modifier: Modifier = Modifier) {
         InfoDivider()
         InfoRow("Nivel actual", uiState.level ?: "…", rowHeight = 43.dp)
         InfoDivider()
-        InfoRow("Racha activa", "${uiState.streakDays} días 🔥", rowHeight = 43.dp)
+        InfoRow("Racha activa", streakValueText(uiState.streak), rowHeight = 43.dp)
         InfoDivider()
         InfoRow("Miembro desde", uiState.memberSince, rowHeight = 41.dp)
         InfoDivider()

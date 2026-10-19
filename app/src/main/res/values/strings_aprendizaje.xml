@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Textos de la interfaz del módulo 3 (decisión P12, opción A): prefijo learning_.
+    Los textos de los módulos 1 y 2 siguen en el código (F-09 pendiente). El contenido (lecciones, labs, preguntas) va en JSON.
+    Cada texto dice su fuente: "Figma" con el nodo, o "propuesto" cuando NO está en Figma (diferencia F13 de la spec).
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Barra inferior. Figma: BottomNav (49:15, 2266:72, 2271:84, 2440:163) -->
+    <string name="learning_tab_home">Inicio</string>
+    <string name="learning_tab_path">Ruta</string>
+    <string name="learning_tab_labs">Labs</string>
+    <string name="learning_tab_social">Social</string>
+    <string name="learning_tab_profile">Perfil</string>
+
+    <!-- Íconos de emoji de la barra (Figma BottomNav 2264:87 y siguientes), el candado de lo bloqueado y el "…" de lo que se está leyendo -->
+    <string name="learning_icon_home">🏠</string>
+    <string name="learning_icon_path">🗺️</string>
+    <string name="learning_icon_labs">🧪</string>
+    <string name="learning_icon_social">👥</string>
+    <string name="learning_icon_profile">👤</string>
+    <string name="learning_icon_lock">🔒</string>
+    <string name="learning_loading_dots">…</string>
+
+    <!-- Aviso "Próximamente" (Q6, Q10): propuesto, no está en Figma -->
+    <string name="learning_coming_soon">Próximamente</string>
+    <!-- Accesibilidad de la pestaña Social atenuada: propuesto -->
+    <string name="learning_social_tab_description">Social, próximamente</string>
+    <string name="learning_state_unavailable">No disponible</string>
+    <!-- Accesibilidad de las tarjetas atenuadas de Inicio: propuesto -->
+    <string name="learning_card_coming_soon_description">%1$s, próximamente</string>
+
+    <!-- Inicio. Figma: MAIN MENU (49:15) -->
+    <string name="learning_home_app_name">Nightwatch Protocol</string>
+    <!-- Racha real (Inicio, menú de usuario y Mi Perfil). El texto es el de Figma ("Racha Activa de N días"); "día" con 1 -->
+    <plurals name="learning_streak_active">
+        <item quantity="one">Racha Activa de %1$d día 🔥</item>
+        <item quantity="other">Racha Activa de %1$d días 🔥</item>
+    </plurals>
+    <plurals name="learning_streak_value">
+        <item quantity="one">%1$d día 🔥</item>
+        <item quantity="other">%1$d días 🔥</item>
+    </plurals>
+    <!-- Logros e insignias. Figma: LOGROS E INSIGNIAS 2287:100 -->
+    <string name="learning_badges_title">Logros e Insignias</string>
+    <!-- "insignias" va con el total (9), que siempre es plural: no es un plural del número de desbloqueadas -->
+    <string name="learning_badges_counter" tools:ignore="PluralsCandidate">%1$d de %2$d insignias desbloqueadas</string>
+    <!-- Logros: textos propuestos (no están en Figma) -->
+    <string name="learning_badges_loading">Cargando tus insignias…</string>
+    <string name="learning_badges_error_offline">Sin conexión. No pudimos cargar tus insignias.</string>
+    <string name="learning_badges_error">No pudimos cargar tus insignias.</string>
+    <string name="learning_badges_stale">Puede estar desactualizado</string>
+    <string name="learning_badges_card_unlocked">%1$s, desbloqueada</string>
+    <string name="learning_badges_card_locked">%1$s, bloqueada</string>
+
+    <!-- Racha: estados propuestos (no están en Figma) -->
+    <string name="learning_streak_loading">Racha Activa de … días 🔥</string>
+    <string name="learning_streak_unavailable">Racha no disponible</string>
+    <string name="learning_streak_value_unavailable">No disponible</string>
+    <string name="learning_home_daily_lesson">Lección diaria</string>
+    <string name="learning_home_new_concept">Concepto nuevo</string>
+    <string name="learning_home_cibermynd">Prepárate con CiberMynd</string>
+
+    <!-- Inicio: textos propuestos (no están en Figma) -->
+    <string name="learning_home_sign_out">Cerrar sesión</string>
+    <string name="learning_home_level">Nivel actual: %1$s</string>
+    <string name="learning_home_next_lesson">Siguiente: %1$s</string>
+    <string name="learning_home_no_pending_lessons">No tienes lecciones pendientes</string>
+    <string name="learning_home_loading_progress">Cargando tu progreso…</string>
+    <string name="learning_home_progress_error_offline">Sin conexión. No pudimos cargar tu progreso.</string>
+    <string name="learning_home_progress_error">No pudimos cargar tu progreso.</string>
+    <string name="learning_home_retry">Reintentar</string>
+
+    <!-- Labs. Figma: LABORATORIOS 2271:84 -->
+    <string name="learning_labs_title">Laboratorios</string>
+    <string name="learning_labs_subtitle">Retos prácticos por cada tema de tu ruta. Aprende haciendo, como en un entorno real.</string>
+    <string name="learning_labs_difficulty_easy">Fácil</string>
+    <string name="learning_labs_difficulty_medium">Medio</string>
+    <string name="learning_labs_difficulty_hard">Difícil</string>
+    <string name="learning_labs_difficulty_exam">Prueba</string>
+    <string name="learning_labs_completed">✅ Completado</string>
+    <string name="learning_labs_start">Comenzar →</string>
+    <string name="learning_labs_final_exam">Examen Final</string>
+    <string name="learning_labs_final_exam_emoji">📝</string>
+
+    <!-- Labs: textos propuestos (no están en Figma). Los de bloqueo los confirmó el grupo (Q6) -->
+    <string name="learning_labs_locked_lab">Completa la isla anterior</string>
+    <string name="learning_labs_locked_exam">Completa las 6 islas</string>
+    <string name="learning_labs_error_offline">Sin conexión. No pudimos cargar tu progreso.</string>
+    <string name="learning_labs_error">No pudimos cargar tu progreso.</string>
+    <string name="learning_labs_card_description">%1$s, %2$s, %3$s</string>
+
+    <!-- Ruta de Aprendizaje. Figma: RUTA DE APRENDIZAJE (MAPA) 2266:72 -->
+    <string name="learning_path_title">Ruta de Aprendizaje</string>
+    <!-- Figma dice "Tu nivel: Aprendiz"; aquí BAJO/MEDIO/ALTO o Sin evaluar (P2, F1) -->
+    <string name="learning_path_level">🧭 Tu nivel: %1$s</string>
+    <string name="learning_path_progress" tools:ignore="PluralsCandidate">%1$d de %2$d islas completadas</string>
+    <string name="learning_path_final_test">Prueba Final</string>
+
+    <!-- Ruta: textos propuestos (no están en Figma) -->
+    <string name="learning_path_error_offline">Sin conexión. No pudimos cargar tu progreso.</string>
+    <string name="learning_path_error">No pudimos cargar tu progreso.</string>
+    <!-- Textos de bloqueo confirmados por el grupo (Q6) -->
+    <string name="learning_path_locked_island">Completa la isla anterior</string>
+    <string name="learning_path_locked_final_test">Completa las 6 islas</string>
+    <!-- Accesibilidad de las islas: propuesto -->
+    <string name="learning_island_state_completed">Completada</string>
+    <string name="learning_island_state_available">Disponible</string>
+    <string name="learning_island_state_locked">Bloqueada</string>
+
+    <!-- Lección. Figma: LECCION 2294:112 a 2294:202 -->
+    <string name="learning_lesson_module">MÓDULO %1$d de %2$d</string>
+    <string name="learning_lesson_go_to_lab">🧪 Ir al laboratorio →</string>
+    <string name="learning_lesson_close">X</string>
+
+    <!-- Lección: textos propuestos (no están en Figma) -->
+    <string name="learning_lesson_close_description">Cerrar lección</string>
+    <string name="learning_lesson_loading">Cargando la lección…</string>
+    <string name="learning_lesson_error">No pudimos cargar la lección.</string>
+    <string name="learning_lesson_save_failed_offline">Sin conexión: no se guardó tu avance, pero puedes seguir leyendo.</string>
+    <string name="learning_lesson_save_failed">No se pudo guardar tu avance, pero puedes seguir leyendo.</string>
+    <string name="learning_retry">Reintentar</string>
+
+    <!-- Lab (terminal). Figma: LAB - FUERZA DE CONTRASEÑAS 2374:273 y las otras cinco terminales -->
+    <string name="learning_lab_terminal">Terminal</string>
+    <string name="learning_lab_objectives">OBJETIVOS · TOCA PARA USAR EL COMANDO</string>
+    <string name="learning_lab_input_prompt">&gt;</string>
+    <string name="learning_lab_input_placeholder" tools:ignore="Typos">escribe un comando…</string>
+    <string name="learning_lab_send">Enviar</string>
+    <string name="learning_lab_finish">Finalizar laboratorio</string>
+    <!-- Prefijo de cada línea escrita en la salida (2374:328) -->
+    <string name="learning_lab_transcript_command">$ %1$s</string>
+
+    <!-- Lab: textos propuestos (no están en Figma) -->
+    <string name="learning_lab_close_description">Cerrar laboratorio</string>
+    <string name="learning_lab_loading">Cargando el laboratorio…</string>
+    <string name="learning_lab_error">No pudimos cargar el laboratorio.</string>
+    <string name="learning_lab_input_description" tools:ignore="Typos">Comando</string>
+    <string name="learning_lab_objective_description" tools:ignore="Typos">%1$s, comando %2$s, %3$s</string>
+    <string name="learning_lab_objective_done">cumplido</string>
+    <string name="learning_lab_objective_pending">pendiente</string>
+
+    <!-- Informe del lab. Figma: LAB - INFORME DE ... (2273:131, 2404:243, 2374:336, 2400:144 y los otros cuatro) -->
+    <string name="learning_report_trophy">🏆</string>
+    <string name="learning_report_percent">%1$d%%</string>
+    <string name="learning_report_item_done">✅  %1$s</string>
+    <string name="learning_report_item_missed">❌  %1$s</string>
+    <string name="learning_report_retry">Reintentar</string>
+    <string name="learning_report_back_to_path">Volver a la ruta</string>
+    <!-- Título común del informe de fallo: decisión del grupo P6 (Figma repite el de éxito en las variantes ERROR) -->
+    <string name="learning_report_failure_title">Laboratorio no completado</string>
+
+    <!-- Examen Final, introducción. Figma: EXAMEN FINAL 2486:249 -->
+    <string name="learning_exam_intro_title">Examen Final</string>
+    <string name="learning_exam_intro_tag">PRUEBA FINAL</string>
+    <string name="learning_exam_intro_what_title">🧭 ¿Qué evalúa?</string>
+    <string name="learning_exam_intro_what_text">Repasa todo lo aprendido: contraseñas, phishing, malware, ingeniería social, redes y firewall.</string>
+    <string name="learning_exam_intro_how_title">📊 ¿Cómo funciona?</string>
+    <string name="learning_exam_intro_how_text">Responde las 6 preguntas, una por cada tema. Puedes fallar como máximo 1 para aprobar.</string>
+    <string name="learning_exam_intro_gain_title">🏆 ¿Qué gano?</string>
+    <!-- Propuesto (F7, P5): Figma promete subir de nivel y contenido nuevo, y aprobar no cambia el nivel -->
+    <string name="learning_exam_intro_gain_text">Al aprobar completas la Ruta de Aprendizaje.</string>
+    <string name="learning_exam_intro_important_title">💡 Importante</string>
+    <string name="learning_exam_intro_important_text">Si fallas más de 1 pregunta no aprobarás, y no te diremos cuáles fueron: así repasas todo con calma. Si respondes bien o fallas solo 1, ¡aprobarás! y te contaremos exactamente cómo te fue.</string>
+    <string name="learning_exam_intro_start">Comenzar Examen →</string>
+
+    <!-- Examen Final, preguntas. Figma: EXAMEN PREGUNTA 1 a 6 (2491:243 y siguientes) -->
+    <string name="learning_exam_question_number">Pregunta %1$d de %2$d</string>
+    <string name="learning_exam_question_topic">%1$s %2$s</string>
+
+    <!-- Examen Final, resultado. Figma: EXAMEN - APROBADO 2491:357, (1 error) 2498:512 y NO APROBADO 2491:345 -->
+    <string name="learning_exam_result_pass_title">¡Examen aprobado!</string>
+    <string name="learning_exam_result_pass_summary">Demostraste que dominas todo lo aprendido hasta ahora.</string>
+    <string name="learning_exam_result_pass_row_1">✅ Contraseñas y Phishing</string>
+    <string name="learning_exam_result_pass_row_2">✅ Malware e Ingeniería Social</string>
+    <string name="learning_exam_result_pass_row_3">✅ Redes y Firewall</string>
+    <string name="learning_exam_result_one_error_title">¡Examen aprobado con 1 error!</string>
+    <string name="learning_exam_result_one_error_summary">Demostraste que dominas casi todo lo aprendido.</string>
+    <string name="learning_exam_result_one_error_row_1">⚠️ 1 respuesta incorrecta</string>
+    <string name="learning_exam_result_one_error_topic">Tema: %1$s</string>
+    <string name="learning_exam_result_one_error_correct">Correcta: %1$s</string>
+    <string name="learning_exam_result_accept">ACEPTAR</string>
+    <string name="learning_exam_result_fail_emoji">📖</string>
+    <string name="learning_exam_result_fail_title">Examen no aprobado</string>
+    <string name="learning_exam_result_fail_summary">Repasa las lecciones y vuelve a intentarlo. ¡Puedes lograrlo!</string>
+    <string name="learning_exam_result_fail_stat">Sigue practicando</string>
+    <string name="learning_exam_result_fail_stat_label">Repasa la Ruta de Aprendizaje antes de tu próximo intento.</string>
+    <string name="learning_exam_result_fail_row_path">📚 Repasa la Ruta de Aprendizaje</string>
+    <string name="learning_exam_result_fail_row_labs">🧪 Practica en los Laboratorios</string>
+    <string name="learning_exam_result_fail_row_retry">🔁 Vuelve a intentar el examen</string>
+    <string name="learning_exam_result_retry">Reintentar</string>
+    <string name="learning_exam_result_home">Volver al inicio</string>
+
+    <!-- Resultado aprobado: textos propuestos (F7, P5). Figma dice "¡Subiste de nivel!" y "Nuevo contenido desbloqueado en tu ruta y laboratorios", pero aprobar no cambia el nivel -->
+    <string name="learning_exam_result_pass_stat">¡Felicidades por aprobar el examen final!</string>
+    <string name="learning_exam_result_pass_stat_label">Completaste la Ruta de Aprendizaje de NightWatch Protocol.</string>
+
+    <!-- Resultado: textos propuestos (no están en Figma) -->
+    <string name="learning_exam_result_loading">Cargando tu resultado…</string>
+    <string name="learning_exam_result_error">No pudimos cargar el resultado.</string>
+    <string name="learning_exam_result_save_failed_offline">Sin conexión: tu intento aún no se guardó.</string>
+    <string name="learning_exam_result_save_failed">No se pudo guardar tu intento.</string>
+
+    <!-- Examen: textos propuestos (no están en Figma) -->
+    <string name="learning_exam_close_description">Cerrar examen</string>
+    <string name="learning_exam_loading">Cargando el examen…</string>
+    <string name="learning_exam_error">No pudimos cargar el examen.</string>
+
+    <!-- Informe: textos propuestos (no están en Figma) -->
+    <string name="learning_report_no_time">—</string>
+    <string name="learning_report_loading">Cargando el informe…</string>
+    <string name="learning_report_error">No pudimos cargar el informe.</string>
+    <string name="learning_report_trophy_broken_description">Trofeo roto</string>
+    <string name="learning_report_saving">Guardando tu avance…</string>
+    <string name="learning_report_saved">Avance guardado</string>
+    <string name="learning_report_save_failed_offline">Sin conexión: el laboratorio aún no se guardó.</string>
+    <string name="learning_report_save_failed">No se pudo guardar el laboratorio.</string>
+    <string name="learning_report_retry_save">Reintentar guardado</string>
+</resources>

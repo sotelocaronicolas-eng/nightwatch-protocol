@@ -10,6 +10,8 @@ import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
 import com.example.nightwatchprotocol.data.avatar.avatarDisplay
+import com.example.nightwatchprotocol.data.learning.ProgressSummaryProvider
+import com.example.nightwatchprotocol.data.learning.readStreak
 import com.example.nightwatchprotocol.data.profile.LEVEL_NOT_ASSESSED
 import com.example.nightwatchprotocol.data.profile.ProfileExtrasRepository
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
@@ -18,6 +20,7 @@ import com.example.nightwatchprotocol.data.profile.memberSinceLabel
 import com.example.nightwatchprotocol.data.profile.profileDisplayName
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import com.example.nightwatchprotocol.data.quiz.QuizResultRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,10 +37,12 @@ class MyProfileViewModel(
     private val profileRepository: ProfileRepository,
     private val avatarRepository: AvatarRepository,
     private val extrasRepository: ProfileExtrasRepository,
+    private val progressSummaryProvider: ProgressSummaryProvider,
 ) : ViewModel() {
 
     private val uid = authRepository.currentUserUid
     private var account = accountRepository.currentProfile()
+    private var streakJob: Job? = null
 
     private val _uiState = MutableStateFlow(
         MyProfileUiState(
@@ -67,6 +72,16 @@ class MyProfileViewModel(
             viewModelScope.launch { extrasRepository.load(uid) }
             viewModelScope.launch { loadLevel(uid) }
             viewModelScope.launch { loadRecoveryEmail(uid) }
+        }
+        refreshStreak()
+    }
+
+    /** Reads the real streak; a read already running is not duplicated, and a failed one keeps the last known value. */
+    fun refreshStreak() {
+        if (streakJob?.isActive == true) return
+        streakJob = viewModelScope.launch {
+            val next = progressSummaryProvider.readStreak(_uiState.value.streak)
+            _uiState.update { it.copy(streak = next) }
         }
     }
 
@@ -110,6 +125,7 @@ class MyProfileViewModel(
                     container.profileRepository,
                     container.avatarRepository,
                     container.profileExtrasRepository,
+                    container.progressSummaryProvider,
                 )
             }
         }
