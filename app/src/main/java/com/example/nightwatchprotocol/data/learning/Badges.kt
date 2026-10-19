@@ -53,9 +53,14 @@ sealed interface BadgeCondition {
         override fun isMet(facts: BadgeFacts) = false
     }
 
-    /** No rule fits it and nothing saved can verify it: never met (SUPUESTO). No false condition is invented. */
-    data object Unverifiable : BadgeCondition {
-        override fun isMet(facts: BadgeFacts) = false
+    /** The six islands completed: lesson seen AND lab completed in every topic. */
+    data object AllIslandsCompleted : BadgeCondition {
+        override fun isMet(facts: BadgeFacts) = LearningTopic.entries.all { facts.islandCompleted(it) }
+    }
+
+    /** Every condition of [conditions] is met (each one is monotonic, so the whole is too). */
+    data class AllOf(val conditions: List<BadgeCondition>) : BadgeCondition {
+        override fun isMet(facts: BadgeFacts) = conditions.all { it.isMet(facts) }
     }
 }
 
@@ -86,9 +91,9 @@ val BadgeCatalog: List<BadgeDefinition> = listOf(
     BadgeDefinition(
         "🌟",
         "Leyenda NightWatch",
-        BadgeCondition.Unverifiable,
+        BadgeCondition.AllOf(listOf(BadgeCondition.AllIslandsCompleted, BadgeCondition.ExamPerfect)),
         "Figma 2287:128",
-        "Regla 9: el nombre no encaja con ninguna regla; bloqueada, SUPUESTO. Emoji desbloqueado: SUPUESTO",
+        "SUPUESTO elegido por el grupo: las 6 islas completadas Y al menos un intento de examen con 6 aciertos. Emoji desbloqueado: SUPUESTO",
     ),
     BadgeDefinition("📞", "Detective de Ingeniería Social", BadgeCondition.IslandCompleted(LearningTopic.INGENIERIA_SOCIAL), "Figma 2540:255", "Regla 5: isla de Ingeniería Social completada. Emoji desbloqueado: SUPUESTO"),
     BadgeDefinition("🔥", "Racha de 30 días", BadgeCondition.BestStreakAtLeast(30), "Figma 2540:259", "Regla 6: mejor racha de 30 días (N sale del nombre)"),

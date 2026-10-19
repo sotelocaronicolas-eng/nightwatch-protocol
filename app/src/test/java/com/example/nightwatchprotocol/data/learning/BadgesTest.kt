@@ -69,9 +69,15 @@ class BadgesTest {
     }
 
     @Test
-    fun aBadgeBlockedOnPurpose_saysSo_inItsNote() {
-        BadgeCatalog.filter { it.condition == BadgeCondition.Unverifiable || it.condition == BadgeCondition.AvailableFromModule4 }
-            .forEach { assertTrue(it.name, it.note!!.contains("SUPUESTO") || it.note!!.contains("módulo 4")) }
+    fun aBadgeForModule4_saysSo_inItsNote_andLeyendaIsMarkedAsAnAssumptionOfTheGroup() {
+        BadgeCatalog.filter { it.condition == BadgeCondition.AvailableFromModule4 }
+            .forEach { assertTrue(it.name, it.note!!.contains("módulo 4")) }
+        val leyenda = BadgeCatalog.first { it.name == "Leyenda NightWatch" }
+        assertTrue(leyenda.note!!.contains("SUPUESTO elegido por el grupo"))
+        assertEquals(
+            BadgeCondition.AllOf(listOf(BadgeCondition.AllIslandsCompleted, BadgeCondition.ExamPerfect)),
+            leyenda.condition,
+        )
     }
 
     @Test
@@ -152,19 +158,77 @@ class BadgesTest {
     // ---- the blocked ones ----
 
     @Test
-    fun aBadgeForModule4_andAnUnverifiableOne_neverUnlock_whateverTheFacts() {
+    fun aBadgeForModule4_neverUnlocks_whateverTheFacts() {
         val everything = facts(lessons = topics(6), labs = topics(6), examPassed = true, examPerfect = true, bestStreak = 999)
         assertFalse(BadgeCondition.AvailableFromModule4.met(everything))
-        assertFalse(BadgeCondition.Unverifiable.met(everything))
-        assertFalse(unlocked(evaluateBadges(everything), "Leyenda NightWatch"))
     }
 
     @Test
-    fun withEverythingDone_eightOfNineUnlock_andOnlyLeyendaStaysLocked() {
+    fun withEverythingDone_theNineUnlock() {
         val state = evaluateBadges(facts(lessons = topics(6), labs = topics(6), examPassed = true, examPerfect = true, bestStreak = 30))
 
-        assertEquals(8, state.count { it.unlocked })
+        assertEquals(9, state.count { it.unlocked })
+    }
+
+    @Test
+    fun withAPassedButNotPerfectExam_onlyLeyendaStaysLocked() {
+        val state = evaluateBadges(facts(lessons = topics(6), labs = topics(6), examPassed = true, examPerfect = false, bestStreak = 30))
+
         assertEquals(listOf("Leyenda NightWatch"), state.filter { !it.unlocked }.map { it.definition.name })
+    }
+
+    // ---- Leyenda NightWatch: six islands AND a perfect exam ----
+
+    private fun leyenda(facts: BadgeFacts) = unlocked(evaluateBadges(facts), "Leyenda NightWatch")
+
+    @Test
+    fun leyenda_needsTheSixIslands_andThePerfectExam() {
+        // Neither of the two.
+        assertFalse(leyenda(facts()))
+        // Perfect exam with five islands (the edge: 5 of 6).
+        assertFalse(leyenda(facts(lessons = topics(5), labs = topics(5), examPassed = true, examPerfect = true)))
+        // Six islands with an exam passed with 5 right answers (not perfect).
+        assertFalse(leyenda(facts(lessons = topics(6), labs = topics(6), examPassed = true, examPerfect = false)))
+        // Six lessons but not the labs, or the labs but not the lessons: the islands are not completed.
+        assertFalse(leyenda(facts(lessons = topics(6), labs = topics(0), examPassed = true, examPerfect = true)))
+        assertFalse(leyenda(facts(lessons = topics(0), labs = topics(6), examPassed = true, examPerfect = true)))
+        // Both.
+        assertTrue(leyenda(facts(lessons = topics(6), labs = topics(6), examPassed = true, examPerfect = true)))
+    }
+
+    @Test
+    fun leyenda_fromTheHistory_atTheEdgeOfFiveAndSixRightAnswers() {
+        fun snapshot(correct: Int, islands: Int) = LearningSnapshot(
+            viewedLessons = topics(islands),
+            completedLabs = topics(islands),
+            exam = ExamStatus(hasPassed = correct >= 5, lastAttempt = null),
+            examAttempts = listOf(ExamAttempt(correct, correct >= 5, takenAt = at(today))),
+        )
+
+        assertFalse(unlocked(summarizeProgress(snapshot(5, 6), now, bogota).badges, "Leyenda NightWatch"))
+        assertFalse(unlocked(summarizeProgress(snapshot(6, 5), now, bogota).badges, "Leyenda NightWatch"))
+        assertTrue(unlocked(summarizeProgress(snapshot(6, 6), now, bogota).badges, "Leyenda NightWatch"))
+    }
+
+    @Test
+    fun leyenda_onceEarned_staysEarned_withMoreAttempts() {
+        val earned = LearningSnapshot(
+            viewedLessons = topics(6),
+            completedLabs = topics(6),
+            exam = ExamStatus(true, null),
+            examAttempts = listOf(ExamAttempt(2, false, at(today)), ExamAttempt(6, true, at(today.minusDays(3)))),
+        )
+
+        assertTrue(unlocked(summarizeProgress(earned, now, bogota).badges, "Leyenda NightWatch"))
+    }
+
+    @Test
+    fun theCompositeConditions_followTheirParts() {
+        val sixIslands = facts(lessons = topics(6), labs = topics(6))
+        assertTrue(BadgeCondition.AllIslandsCompleted.met(sixIslands))
+        assertFalse(BadgeCondition.AllIslandsCompleted.met(facts(lessons = topics(6), labs = topics(5))))
+        assertTrue(BadgeCondition.AllOf(emptyList()).met(facts()))
+        assertFalse(BadgeCondition.AllOf(listOf(BadgeCondition.AllIslandsCompleted, BadgeCondition.ExamPassed)).met(sixIslands))
     }
 
     // ---- the real badges from the history ----

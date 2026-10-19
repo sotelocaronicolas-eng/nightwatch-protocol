@@ -108,18 +108,23 @@ class AchievementsViewModelTest {
     }
 
     @Test
-    fun theBadgesBlockedOnPurpose_neverUnlock_evenWithEverythingDone() = runTest {
+    fun leyenda_unlocksOnlyWithTheSixIslandsAndAPerfectExam() = runTest {
         LearningTopic.entries.forEach {
             progress.viewedLessons += it
             progress.completedLabs += it
         }
-        progress.recordExamAttempt(6)
-        val vm = viewModel()
-        vm.refresh()
+        progress.recordExamAttempt(5)
+        val withFive = viewModel()
+        withFive.refresh()
         advanceUntilIdle()
+        assertFalse("Leyenda NightWatch" in withFive.unlockedNames())
+        assertTrue("Graduado NightWatch" in withFive.unlockedNames())
 
-        assertFalse("Leyenda NightWatch" in vm.unlockedNames())
-        assertTrue("Graduado NightWatch" in vm.unlockedNames())
+        progress.recordExamAttempt(6)
+        val withSix = viewModel()
+        withSix.refresh()
+        advanceUntilIdle()
+        assertTrue("Leyenda NightWatch" in withSix.unlockedNames())
     }
 
     // ---- errors ----

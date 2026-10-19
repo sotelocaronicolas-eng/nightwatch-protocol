@@ -423,7 +423,7 @@ Las condiciones salen de las reglas del encargo de la Etapa 5.5, aplicadas al no
 | 🔑 Maestro de Contraseñas | Isla de Contraseñas completada (lección vista Y lab completado) | 5 | |
 | 🎣 Cazador de Phishing | Isla de Phishing completada | 5 | Emoji desbloqueado: SUPUESTO (Figma solo dibuja 🔒) |
 | 🌐 Guardián de Redes | Isla de Redes Seguras completada | 5 | Emoji desbloqueado: SUPUESTO |
-| 🌟 Leyenda NightWatch | **Ninguna: siempre bloqueada** | 9 | **SUPUESTO**: el nombre no encaja con ninguna regla y no hay dato que verifique una "leyenda". No se inventó una condición. Emoji desbloqueado: SUPUESTO |
+| 🌟 Leyenda NightWatch | Las 6 islas completadas (lección vista Y lab completado en los 6 temas) Y al menos un intento de examen con `correct_count = 6` | Elegida por el grupo (Etapa 6; antes estaba bloqueada por la regla 9) | **SUPUESTO elegido por el grupo**. Monotónica: ni las islas ni los intentos se pierden. Emoji desbloqueado: SUPUESTO |
 | 📞 Detective de Ingeniería Social | Isla de Ingeniería Social completada | 5 | Emoji desbloqueado: SUPUESTO |
 | 🔥 Racha de 30 días | Mejor racha histórica ≥ 30 | 6 | N = 30 sale del nombre |
 | 🎓 Graduado NightWatch | Al menos un intento con `passed = true` | 4 | Emoji desbloqueado: SUPUESTO |
@@ -446,7 +446,7 @@ Repetir una lección o un lab que ya está registrado **no genera un registro nu
 
 | # | Tipo | Detalle |
 |---|---|---|
-| E55-1 | SUPUESTO | "Leyenda NightWatch" queda bloqueada para siempre hasta que el grupo defina su condición (regla 9) |
+| E55-1 | SUPUESTO (cambiado en la Etapa 6) | "Leyenda NightWatch" se desbloquea con las 6 islas completadas Y un intento con 6 aciertos (condición elegida por el grupo; antes quedaba bloqueada siempre). La condición `Unverifiable`, que ya no usa ninguna insignia, se eliminó del código |
 | E55-2 | SUPUESTO | Los emojis de las insignias desbloqueadas distintas de 🥇, 🔥 y 🔑 (🎣, 🌐, 🌟, 📞, 🎓) no están en Figma, que solo dibuja el 🔒 |
 | E55-3 | SUPUESTO | Con racha 0 se muestra "Racha Activa de 0 días 🔥" (en Mi Perfil, "0 días 🔥"); mientras se lee, "Racha Activa de … días 🔥"; si nunca se pudo leer, "Racha no disponible" (menú e Inicio) o "No disponible" (Mi Perfil) |
 | E55-4 | DIFERENCIA CON FIGMA | El contador "N de 9 insignias desbloqueadas" solo existe en Logros e Insignias (2287:104). Perfil e Inicio no lo traen en Figma y no se añadió, para no inventar diseño; sí muestran la racha real |
