@@ -101,6 +101,9 @@ Todo el servidor vive en `supabase/` y **se despliega a mano** desde el panel (n
 - **RLS en todas las tablas, solo del dueño** (`user_id = auth.uid()`); `anon` no tiene acceso a nada. **`GRANT` explícito**
   a `authenticated` (el proyecto tiene "Automatically expose new tables" desactivado y "Automatic RLS" activado). Mínimo
   privilegio por columna; funciones `SECURITY DEFINER` con `search_path` vacío.
+- **Security Advisor:** las advertencias aceptadas y su motivo están en la sección "Advertencias aceptadas del Security
+  Advisor" de `docs/superpowers/supabase-configuracion.md`. Una advertencia nueva se corrige o se documenta ahí antes de
+  fusionar a `main`.
 - **Edge Function `send-recovery-email-code`** (`supabase/functions/`, Deno/TypeScript): envía el código del correo de
   recuperación por la API de Brevo. Su `README.md` explica el despliegue a mano. Los correos de Auth salen por el SMTP de
   Brevo; los ajustes del panel (SMTP, plantillas con `{{ .Token }}`, OTP de 6 dígitos y 600 s, proveedor Google, *Confirm

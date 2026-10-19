@@ -368,3 +368,19 @@ racha y las 9 insignias. Nada de eso se almacena.
 
 **Orden de despliegue.** Ejecutar `0007` **antes** de instalar la versión 2.1.0 de la app: sin las tablas, abrir una lección,
 completar un lab o terminar un examen falla al guardar (la app lo muestra como error de guardado, con "Reintentar guardado").
+
+## Advertencias aceptadas del Security Advisor
+
+Revisadas el 19 de octubre de 2026 en el Security Advisor del panel de Supabase. Cada fila dice qué advierte, sobre qué objeto,
+de dónde viene, por qué se acepta y cuándo hay que volver a mirarla.
+
+| # | Advertencia | Objeto | Origen | Por qué se acepta | Cuándo revisarla de nuevo |
+|---|---|---|---|---|---|
+| 1 | "Public Can Execute SECURITY DEFINER Function" | `public.account_status(p_email text)` | Migración `0005` | Requisito del profesor: errores de inicio de sesión individualizados. La función debe poder llamarse **sin sesión** porque se usa justo cuando el login falla. **Riesgo conocido:** permite saber si un correo está registrado (enumeración de cuentas). **Mitigaciones:** solo devuelve `'not_found'`, `'password'` u `'other_provider'`, nunca ids ni otros datos; `search_path` vacío; rechaza correos nulos o de más de 254 caracteres. | Si el requisito del curso cambia. |
+| 2 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.account_status(p_email text)` | Migración `0005` | Mismo motivo que la anterior: el registro también la consulta, con sesión o sin ella. | Igual que la 1. |
+| 3 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.verify_recovery_email_code(p_code text)` | Migración `0006` | Correcta por diseño: la app debe llamarla para verificar el código del correo de recuperación. Necesita `SECURITY DEFINER` porque lee `recovery_email_codes` y escribe `profile.recovery_email`, a los que la app no tiene acceso directo. Solo actúa sobre `auth.uid()`, no recibe ids, limita a 5 intentos y 10 minutos, y solo la ejecuta `authenticated`. | Si cambia el flujo del correo de recuperación o los permisos de la función. |
+| 4 | "Leaked Password Protection Disabled" | Auth | Ajuste del proyecto | No está disponible en el plan gratuito (solo Pro; usa HaveIBeenPwned). **Protección vigente:** mínimo 8 caracteres con minúscula, mayúscula, número y símbolo, igual en la app y en el servidor. | Si el proyecto pasa a un plan de pago: activarla. |
+| 5 | (Info) "RLS Enabled No Policy" | `public.recovery_email_codes` | Migración `0006` | Intencional: RLS activo sin políticas niega todo acceso desde la app. Solo la usan la Edge Function `send-recovery-email-code` (`service_role`) y `verify_recovery_email_code` (`SECURITY DEFINER`). Es la configuración más cerrada posible. | Solo si la tabla cambia de uso. |
+
+**Nota.** Las tablas del módulo 3 (`lesson_progress`, `lab_progress`, `exam_attempts`, migración `0007`) no generan advertencias.
+Si una migración futura agrega una advertencia nueva, se corrige o se documenta aquí con su motivo **antes de fusionar a `main`**.
