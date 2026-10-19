@@ -3,6 +3,13 @@
 Estado: **solo análisis para que el grupo decida.** No hay tablas, SQL, rutas ni código. Fecha: 2026-10-18. Rama: `modulo-3`.
 Origen: el equipo sacó Social del módulo 3 (`2026-10-18-modulo-3-design.md`, sección 1). En el módulo 3 solo existe la pestaña "Social" atenuada, que muestra un aviso y no navega.
 
+> **Actualización (cierre del módulo 3, Etapas 5.5 y 6).** La **racha real y las 9 insignias ya se resolvieron en el módulo 3**
+> (decisión Q13, que reemplaza a P9; ver la sección 15 de `2026-10-18-modulo-3-design.md`): hoy la racha **no** está fija en 15
+> días, y la pregunta 8 de la sección 7 ya tiene respuesta ("día entrenado" = lección vista, lab completado o intento de examen;
+> cada insignia, la condición de esa sección 15). Donde este análisis dice que esas reglas "se definen en el módulo 4", léase
+> "ya definidas; queda por decidir si el módulo 4 las amplía" (por ejemplo, con una tabla de actividad para que repetir cuente,
+> propuesta `0008`). El resto del análisis no cambia.
+
 Convención: cada afirmación cita su FUENTE (Figma `nombre (ID)` o archivo). Lo que no tiene fuente es **SUPUESTO** o **PREGUNTA ABIERTA**.
 
 ## 1. Qué muestra Figma (17 pantallas)
