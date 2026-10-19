@@ -4,9 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -25,6 +28,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -61,7 +65,11 @@ fun AchievementsScreen(
     SettingsScaffold(title = stringResource(R.string.learning_badges_title), onClose = onClose, topPadding = 90.dp) {
         CounterLine(uiState, onRetry = viewModel::refresh)
         uiState.badges.chunked(3).forEach { rowBadges ->
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+            // The cards of a row take the height of the tallest one, so the grid stays aligned when a name needs 3 lines.
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+            ) {
                 rowBadges.forEach { badge -> BadgeCard(badge, Modifier.weight(1f)) }
             }
         }
@@ -125,10 +133,12 @@ private fun BadgeCard(state: BadgeState, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .height(130.dp)
+            // 130 dp is the height of Figma (2287:105); it is a minimum: the card grows if the name needs it (up to 3 lines).
+            .fillMaxHeight()
+            .heightIn(min = 130.dp)
             .alpha(if (unlocked) 1f else 0.6f)
             .background(if (unlocked) NightWatchSurfaceButton else NightWatchSurfaceButtonMuted, shape)
-            .padding(horizontal = 6.dp, vertical = 16.dp)
+            .padding(start = 4.dp, end = 4.dp, top = 16.dp, bottom = 12.dp)
             .semantics(mergeDescendants = true) { contentDescription = description },
     ) {
         Box(
@@ -149,9 +159,13 @@ private fun BadgeCard(state: BadgeState, modifier: Modifier = Modifier) {
             color = BadgeTextColor,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Medium,
-            fontSize = 11.sp,
+            // 12 sp (Figma has 11): the full name in up to 3 lines, centred, whole words, never cut or with an ellipsis.
+            fontSize = 12.sp,
+            lineHeight = 15.sp,
+            maxLines = 3,
+            overflow = TextOverflow.Visible,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 10.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
         )
     }
 }
