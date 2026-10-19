@@ -47,6 +47,10 @@ object ExamIntro
 @Serializable
 object Exam
 
+/** The result of a finished attempt: [answers] is the option chosen (0 to 3) for each question, in order. */
+@Serializable
+data class ExamResult(val answers: List<Int>)
+
 @Serializable
 object UserMenu
 

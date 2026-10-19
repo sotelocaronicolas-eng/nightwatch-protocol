@@ -16,6 +16,8 @@ import com.example.nightwatchprotocol.ui.home.HomeScreen
 import com.example.nightwatchprotocol.ui.home.HomeTab
 import com.example.nightwatchprotocol.ui.exam.ExamIntroScreen
 import com.example.nightwatchprotocol.ui.exam.ExamScreen
+import com.example.nightwatchprotocol.ui.examresult.ExamDestination
+import com.example.nightwatchprotocol.ui.examresult.ExamResultScreen
 import com.example.nightwatchprotocol.ui.lab.LabScreen
 import com.example.nightwatchprotocol.ui.labreport.LabReportScreen
 import com.example.nightwatchprotocol.ui.lesson.LessonScreen
@@ -175,8 +177,24 @@ fun NightWatchNavHost(
             ExamScreen(
                 // "X": back to where the exam was opened from, without saving anything.
                 onClose = { navController.popBackStack<ExamIntro>(inclusive = true) },
-                // The result screen comes in the next commit of stage 5.
-                onFinished = { navController.popBackStack<ExamIntro>(inclusive = true) },
+                // The questions leave the stack: "atrás" from the result does not go back to the answered exam.
+                onFinished = { answers ->
+                    navController.navigate(ExamResult(answers)) { popUpTo<Exam> { inclusive = true } }
+                },
+            )
+        }
+        composable<ExamResult> {
+            ExamResultScreen(
+                onGo = { destination ->
+                    when (destination) {
+                        // Home is created again and reads the progress, so the map already counts a passed attempt.
+                        ExamDestination.Path -> navController.navigate(Home(HomeTab.Ruta)) { popUpTo<Home> { inclusive = true } }
+                        ExamDestination.Labs -> navController.navigate(Home(HomeTab.Labs)) { popUpTo<Home> { inclusive = true } }
+                        ExamDestination.Home -> navController.navigate(Home(HomeTab.Inicio)) { popUpTo<Home> { inclusive = true } }
+                        // A new attempt from question 1, in the same order (decision P11: no limit of attempts).
+                        ExamDestination.NewAttempt -> navController.navigate(Exam) { popUpTo<ExamResult> { inclusive = true } }
+                    }
+                },
             )
         }
         composable<Lesson> {

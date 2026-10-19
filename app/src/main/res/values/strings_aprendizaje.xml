@@ -134,6 +134,39 @@
     <string name="learning_exam_question_number">Pregunta %1$d de %2$d</string>
     <string name="learning_exam_question_topic">%1$s %2$s</string>
 
+    <!-- Examen Final, resultado. Figma: EXAMEN - APROBADO 2491:357, (1 error) 2498:512 y NO APROBADO 2491:345 -->
+    <string name="learning_exam_result_pass_title">¡Examen aprobado!</string>
+    <string name="learning_exam_result_pass_summary">Demostraste que dominas todo lo aprendido hasta ahora.</string>
+    <string name="learning_exam_result_pass_row_1">✅ Contraseñas y Phishing</string>
+    <string name="learning_exam_result_pass_row_2">✅ Malware e Ingeniería Social</string>
+    <string name="learning_exam_result_pass_row_3">✅ Redes y Firewall</string>
+    <string name="learning_exam_result_one_error_title">¡Examen aprobado con 1 error!</string>
+    <string name="learning_exam_result_one_error_summary">Demostraste que dominas casi todo lo aprendido.</string>
+    <string name="learning_exam_result_one_error_row_1">⚠️ 1 respuesta incorrecta</string>
+    <string name="learning_exam_result_one_error_topic">Tema: %1$s</string>
+    <string name="learning_exam_result_one_error_correct">Correcta: %1$s</string>
+    <string name="learning_exam_result_accept">ACEPTAR</string>
+    <string name="learning_exam_result_fail_emoji">📖</string>
+    <string name="learning_exam_result_fail_title">Examen no aprobado</string>
+    <string name="learning_exam_result_fail_summary">Repasa las lecciones y vuelve a intentarlo. ¡Puedes lograrlo!</string>
+    <string name="learning_exam_result_fail_stat">Sigue practicando</string>
+    <string name="learning_exam_result_fail_stat_label">Repasa la Ruta de Aprendizaje antes de tu próximo intento.</string>
+    <string name="learning_exam_result_fail_row_path">📚 Repasa la Ruta de Aprendizaje</string>
+    <string name="learning_exam_result_fail_row_labs">🧪 Practica en los Laboratorios</string>
+    <string name="learning_exam_result_fail_row_retry">🔁 Vuelve a intentar el examen</string>
+    <string name="learning_exam_result_retry">Reintentar</string>
+    <string name="learning_exam_result_home">Volver al inicio</string>
+
+    <!-- Resultado aprobado: textos propuestos (F7, P5). Figma dice "¡Subiste de nivel!" y "Nuevo contenido desbloqueado en tu ruta y laboratorios", pero aprobar no cambia el nivel -->
+    <string name="learning_exam_result_pass_stat">¡Felicidades por aprobar el examen final!</string>
+    <string name="learning_exam_result_pass_stat_label">Completaste la Ruta de Aprendizaje de NightWatch Protocol.</string>
+
+    <!-- Resultado: textos propuestos (no están en Figma) -->
+    <string name="learning_exam_result_loading">Cargando tu resultado…</string>
+    <string name="learning_exam_result_error">No pudimos cargar el resultado.</string>
+    <string name="learning_exam_result_save_failed_offline">Sin conexión: tu intento aún no se guardó.</string>
+    <string name="learning_exam_result_save_failed">No se pudo guardar tu intento.</string>
+
     <!-- Examen: textos propuestos (no están en Figma) -->
     <string name="learning_exam_close_description">Cerrar examen</string>
     <string name="learning_exam_loading">Cargando el examen…</string>
