@@ -62,9 +62,12 @@ class LabCompletionFlowTest {
         avatars,
     )
 
-    private val path = LearningPathViewModel(auth, quiz, progress, content)
-    private val labs = LabsViewModel(progress, content)
-    private val home = HomeViewModel(
+    // Lazy: a ViewModel must be created after MainDispatcherRule sets the Main dispatcher, which happens after the fields.
+    private val path by lazy { LearningPathViewModel(auth, quiz, progress, content) }
+    private val labs by lazy { LabsViewModel(progress, content) }
+    private val home by lazy { newHome() }
+
+    private fun newHome() = HomeViewModel(
         initialTab = HomeTab.Inicio,
         savedStateHandle = SavedStateHandle(),
         authRepository = auth,

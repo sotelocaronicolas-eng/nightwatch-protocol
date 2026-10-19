@@ -41,13 +41,13 @@ enum class PathMessage {
 
     /** Tapping the locked "Prueba Final" (decision Q6). */
     CompleteAllIslands,
-
-    /** Tapping the unlocked "Prueba Final": provisional until the exam exists (stage 5). */
-    ComingSoon,
 }
 
 sealed interface LearningPathEvent {
     data class OpenLesson(val topic: LearningTopic) : LearningPathEvent
+
+    /** The unlocked "Prueba Final": the exam introduction. */
+    data object OpenExam : LearningPathEvent
 
     data class ShowMessage(val message: PathMessage) : LearningPathEvent
 }

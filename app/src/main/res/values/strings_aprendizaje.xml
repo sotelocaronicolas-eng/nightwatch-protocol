@@ -116,6 +116,29 @@
     <!-- Título común del informe de fallo: decisión del grupo P6 (Figma repite el de éxito en las variantes ERROR) -->
     <string name="learning_report_failure_title">Laboratorio no completado</string>
 
+    <!-- Examen Final, introducción. Figma: EXAMEN FINAL 2486:249 -->
+    <string name="learning_exam_intro_title">Examen Final</string>
+    <string name="learning_exam_intro_tag">PRUEBA FINAL</string>
+    <string name="learning_exam_intro_what_title">🧭 ¿Qué evalúa?</string>
+    <string name="learning_exam_intro_what_text">Repasa todo lo aprendido: contraseñas, phishing, malware, ingeniería social, redes y firewall.</string>
+    <string name="learning_exam_intro_how_title">📊 ¿Cómo funciona?</string>
+    <string name="learning_exam_intro_how_text">Responde las 6 preguntas, una por cada tema. Puedes fallar como máximo 1 para aprobar.</string>
+    <string name="learning_exam_intro_gain_title">🏆 ¿Qué gano?</string>
+    <!-- Propuesto (F7, P5): Figma promete subir de nivel y contenido nuevo, y aprobar no cambia el nivel -->
+    <string name="learning_exam_intro_gain_text">Al aprobar completas la Ruta de Aprendizaje.</string>
+    <string name="learning_exam_intro_important_title">💡 Importante</string>
+    <string name="learning_exam_intro_important_text">Si fallas más de 1 pregunta no aprobarás, y no te diremos cuáles fueron: así repasas todo con calma. Si respondes bien o fallas solo 1, ¡aprobarás! y te contaremos exactamente cómo te fue.</string>
+    <string name="learning_exam_intro_start">Comenzar Examen →</string>
+
+    <!-- Examen Final, preguntas. Figma: EXAMEN PREGUNTA 1 a 6 (2491:243 y siguientes) -->
+    <string name="learning_exam_question_number">Pregunta %1$d de %2$d</string>
+    <string name="learning_exam_question_topic">%1$s %2$s</string>
+
+    <!-- Examen: textos propuestos (no están en Figma) -->
+    <string name="learning_exam_close_description">Cerrar examen</string>
+    <string name="learning_exam_loading">Cargando el examen…</string>
+    <string name="learning_exam_error">No pudimos cargar el examen.</string>
+
     <!-- Informe: textos propuestos (no están en Figma) -->
     <string name="learning_report_no_time">—</string>
     <string name="learning_report_loading">Cargando el informe…</string>

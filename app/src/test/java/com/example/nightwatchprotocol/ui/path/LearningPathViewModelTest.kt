@@ -240,7 +240,7 @@ class LearningPathViewModelTest {
     }
 
     @Test
-    fun theUnlockedFinalTest_saysComingSoon_untilTheExamExists() = runTest {
+    fun theUnlockedFinalTest_opensTheExamIntroduction() = runTest {
         completeIslands(6)
         val vm = viewModel()
         vm.refresh()
@@ -248,7 +248,7 @@ class LearningPathViewModelTest {
 
         vm.events.test {
             vm.onFinalTestClicked()
-            assertEquals(LearningPathEvent.ShowMessage(PathMessage.ComingSoon), awaitItem())
+            assertEquals(LearningPathEvent.OpenExam, awaitItem())
             advanceUntilIdle()
             expectNoEvents()
         }

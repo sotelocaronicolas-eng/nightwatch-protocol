@@ -85,11 +85,15 @@ class LabsViewModel(
         viewModelScope.launch { _events.send(event) }
     }
 
-    /** "Examen Final": locked says why; unlocked is "Próximamente" until the exam is built (stage 5). */
+    /** "Examen Final": locked says why; unlocked opens the exam introduction (decision P1). It can be retaken (P11). */
     fun onFinalTestClicked() {
         if (_uiState.value.status is LabsStatus.Loading) return
-        val message = if (progress.examGate == ExamGate.Locked) LabsMessage.CompleteAllIslands else LabsMessage.ComingSoon
-        viewModelScope.launch { _events.send(LabsEvent.ShowMessage(message)) }
+        val event = if (progress.examGate == ExamGate.Locked) {
+            LabsEvent.ShowMessage(LabsMessage.CompleteAllIslands)
+        } else {
+            LabsEvent.OpenExam
+        }
+        viewModelScope.launch { _events.send(event) }
     }
 
     private fun render(previous: LabsUiState, status: LabsStatus): LabsUiState {

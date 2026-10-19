@@ -97,12 +97,12 @@ private val LabelWidth = 98.dp
 fun LearningPathTab(
     snackbarHostState: SnackbarHostState,
     onOpenLesson: (LearningTopic) -> Unit,
+    onOpenExam: () -> Unit,
     viewModel: LearningPathViewModel = viewModel(factory = LearningPathViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lockedIsland = stringResource(R.string.learning_path_locked_island)
     val lockedFinalTest = stringResource(R.string.learning_path_locked_final_test)
-    val comingSoon = stringResource(R.string.learning_coming_soon)
 
     // Read again each time the tab shows or Home comes back (after a lesson), so the map follows the saved progress.
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refresh() }
@@ -116,9 +116,9 @@ fun LearningPathTab(
                     when (event.message) {
                         PathMessage.CompletePreviousIsland -> lockedIsland
                         PathMessage.CompleteAllIslands -> lockedFinalTest
-                        PathMessage.ComingSoon -> comingSoon
                     },
                 )
+                LearningPathEvent.OpenExam -> onOpenExam()
             }
         }
     }

@@ -72,12 +72,12 @@ private const val LOCKED_ALPHA = 0.6f
 fun LabsTab(
     snackbarHostState: SnackbarHostState,
     onOpenLab: (LearningTopic) -> Unit,
+    onOpenExam: () -> Unit,
     viewModel: LabsViewModel = viewModel(factory = LabsViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lockedLab = stringResource(R.string.learning_labs_locked_lab)
     val lockedExam = stringResource(R.string.learning_labs_locked_exam)
-    val comingSoon = stringResource(R.string.learning_coming_soon)
 
     // Read again each time the tab shows or Home comes back (after a lab), so the cards follow the saved progress.
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refresh() }
@@ -91,9 +91,9 @@ fun LabsTab(
                     when (event.message) {
                         LabsMessage.CompletePreviousIsland -> lockedLab
                         LabsMessage.CompleteAllIslands -> lockedExam
-                        LabsMessage.ComingSoon -> comingSoon
                     },
                 )
+                LabsEvent.OpenExam -> onOpenExam()
             }
         }
     }

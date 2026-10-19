@@ -41,13 +41,13 @@ enum class LabsMessage {
 
     /** Tapping the locked "Examen Final" (decision Q6). */
     CompleteAllIslands,
-
-    /** Tapping the unlocked "Examen Final": provisional until the exam exists (stage 5). */
-    ComingSoon,
 }
 
 sealed interface LabsEvent {
     data class OpenLab(val topic: LearningTopic) : LabsEvent
+
+    /** The unlocked "Examen Final": the exam introduction. */
+    data object OpenExam : LabsEvent
 
     data class ShowMessage(val message: LabsMessage) : LabsEvent
 }

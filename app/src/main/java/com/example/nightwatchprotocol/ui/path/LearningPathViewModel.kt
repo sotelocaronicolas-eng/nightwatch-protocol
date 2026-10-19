@@ -103,11 +103,15 @@ class LearningPathViewModel(
         viewModelScope.launch { _events.send(event) }
     }
 
-    /** "Prueba Final": locked says why; unlocked is "Próximamente" until the exam is built (stage 5). */
+    /** "Prueba Final": locked says why; unlocked opens the exam introduction (decision P1). It can be retaken (P11). */
     fun onFinalTestClicked() {
         if (_uiState.value.status is PathStatus.Loading) return
-        val message = if (progress.examGate == ExamGate.Locked) PathMessage.CompleteAllIslands else PathMessage.ComingSoon
-        viewModelScope.launch { _events.send(LearningPathEvent.ShowMessage(message)) }
+        val event = if (progress.examGate == ExamGate.Locked) {
+            LearningPathEvent.ShowMessage(PathMessage.CompleteAllIslands)
+        } else {
+            LearningPathEvent.OpenExam
+        }
+        viewModelScope.launch { _events.send(event) }
     }
 
     private fun render(previous: LearningPathUiState, status: PathStatus): LearningPathUiState {

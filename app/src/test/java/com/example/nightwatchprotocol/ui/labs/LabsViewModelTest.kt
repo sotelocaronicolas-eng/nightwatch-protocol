@@ -181,7 +181,7 @@ class LabsViewModelTest {
     }
 
     @Test
-    fun tapOnTheUnlockedExam_saysComingSoon_provisionally() = runTest {
+    fun tapOnTheUnlockedExam_opensTheExamIntroduction() = runTest {
         completeIslands(6)
         val vm = viewModel()
         vm.refresh()
@@ -189,7 +189,7 @@ class LabsViewModelTest {
 
         vm.events.test {
             vm.onFinalTestClicked()
-            assertEquals(LabsEvent.ShowMessage(LabsMessage.ComingSoon), awaitItem())
+            assertEquals(LabsEvent.OpenExam, awaitItem())
         }
     }
 

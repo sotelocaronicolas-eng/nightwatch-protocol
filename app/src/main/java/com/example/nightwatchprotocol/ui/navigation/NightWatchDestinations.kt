@@ -39,6 +39,14 @@ data class Lab(val topic: LearningTopic)
 @Serializable
 data class LabReport(val topic: LearningTopic, val completedObjectives: List<Int>)
 
+/** The introduction of the final exam, full screen and without the bottom bar. */
+@Serializable
+object ExamIntro
+
+/** The questions of one attempt of the final exam, one per screen. A new entry is a new attempt from question 1. */
+@Serializable
+object Exam
+
 @Serializable
 object UserMenu
 

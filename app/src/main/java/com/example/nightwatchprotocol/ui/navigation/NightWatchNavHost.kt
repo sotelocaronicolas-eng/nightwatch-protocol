@@ -14,6 +14,8 @@ import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
 import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
 import com.example.nightwatchprotocol.ui.home.HomeScreen
 import com.example.nightwatchprotocol.ui.home.HomeTab
+import com.example.nightwatchprotocol.ui.exam.ExamIntroScreen
+import com.example.nightwatchprotocol.ui.exam.ExamScreen
 import com.example.nightwatchprotocol.ui.lab.LabScreen
 import com.example.nightwatchprotocol.ui.labreport.LabReportScreen
 import com.example.nightwatchprotocol.ui.lesson.LessonScreen
@@ -159,6 +161,22 @@ fun NightWatchNavHost(
                 // From a map island or "Lección diaria": full screen, without the bar.
                 onOpenLesson = { topic -> navController.navigate(Lesson(topic)) },
                 onOpenLab = { topic -> navController.navigate(Lab(topic)) },
+                // From the "Prueba Final" island or the "Examen Final" card, when it is unlocked.
+                onOpenExam = { navController.navigate(ExamIntro) },
+            )
+        }
+        composable<ExamIntro> {
+            ExamIntroScreen(
+                onClose = { navController.popBackStack() },
+                onStart = { navController.navigate(Exam) },
+            )
+        }
+        composable<Exam> {
+            ExamScreen(
+                // "X": back to where the exam was opened from, without saving anything.
+                onClose = { navController.popBackStack<ExamIntro>(inclusive = true) },
+                // The result screen comes in the next commit of stage 5.
+                onFinished = { navController.popBackStack<ExamIntro>(inclusive = true) },
             )
         }
         composable<Lesson> {

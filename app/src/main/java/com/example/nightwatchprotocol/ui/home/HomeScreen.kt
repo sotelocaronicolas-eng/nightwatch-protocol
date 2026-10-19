@@ -83,6 +83,7 @@ fun HomeScreen(
     onOpenUserMenu: () -> Unit,
     onOpenLesson: (LearningTopic) -> Unit,
     onOpenLab: (LearningTopic) -> Unit,
+    onOpenExam: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -113,6 +114,7 @@ fun HomeScreen(
         snackbarHostState = snackbarHostState,
         onOpenLesson = onOpenLesson,
         onOpenLab = onOpenLab,
+        onOpenExam = onOpenExam,
         onDailyLessonClick = viewModel::onDailyLessonClicked,
         onTabSelected = viewModel::onTabSelected,
         onSocialClick = viewModel::onSocialClicked,
@@ -129,6 +131,7 @@ private fun HomeContent(
     snackbarHostState: SnackbarHostState,
     onOpenLesson: (LearningTopic) -> Unit,
     onOpenLab: (LearningTopic) -> Unit,
+    onOpenExam: () -> Unit,
     onDailyLessonClick: () -> Unit,
     onTabSelected: (HomeTab) -> Unit,
     onSocialClick: () -> Unit,
@@ -164,10 +167,12 @@ private fun HomeContent(
                     HomeTab.Ruta -> LearningPathTab(
                         snackbarHostState = snackbarHostState,
                         onOpenLesson = onOpenLesson,
+                        onOpenExam = onOpenExam,
                     )
                     HomeTab.Labs -> LabsTab(
                         snackbarHostState = snackbarHostState,
                         onOpenLab = onOpenLab,
+                        onOpenExam = onOpenExam,
                     )
                 }
             }
