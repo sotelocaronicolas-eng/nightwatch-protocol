@@ -7,6 +7,18 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 
 ## Estado
 
+**Estado final del módulo 3 (Etapa 6, cierre):** el módulo está **hecho**. Lo que funciona hoy, tal como lo recorre el usuario:
+
+- **Navegación:** `Home(tab)` con la barra (Inicio, Ruta, Labs; Perfil abre el Menú de usuario; Social atenuada con "Próximamente"). Pantallas a pantalla completa y sin barra: `Lesson`, `Lab`, `LabReport`, `ExamIntro`, `Exam` y `ExamResult`.
+- **Ruta, lecciones y labs:** islas en orden con estado derivado del progreso; lección vista al abrirse (Q11); 6 terminales con informe de éxito o de "Laboratorio no completado"; el lab se registra solo con 3 de 3 (`lab_progress`).
+- **Examen Final:** introducción, 6 preguntas (tocar avanza, Q12), resultado aprobado con 0 o 1 error y no aprobado; cada intento terminado registra una fila en `exam_attempts` y **nunca** se escribe en `placement` (P5).
+- **Racha e insignias reales** (Q13, sección 15): la racha actual en Inicio, menú de usuario y Mi Perfil; las 9 insignias en Logros e Insignias; todo derivado, nada almacenado.
+- **Datos:** `0007` aplicada y verificada a mano; sin migraciones nuevas. Contenido en JSON dentro de `assets`; textos nuevos en `strings_aprendizaje.xml` (prefijo `learning_`).
+- **Versión 2.1.0** (`versionCode` 4). Informe de cierre, lista de verificación visual y guion de prueba manual: `docs/superpowers/reports/modulo-3-diagnostico.md`. Cierre y decisiones de la Etapa 6: sección 16.
+- **Lo que sigue pendiente a mano:** la revisión visual en el teléfono y las comprobaciones contra el servidor real (E1-11, E3-8, E4-9, E4B-8, E5-9, E55-10); nada de eso se ve desde el repositorio.
+
+**Historial por etapas.** Lo que sigue es lo que se hizo en cada etapa, con su validación de ese momento. **Lo marcado "provisional" en una etapa se reemplazó en una posterior** (se indica en cada punto); el estado vigente es el de arriba.
+
 - **No queda ninguna pregunta abierta.** Las 15 preguntas de la v1 están resueltas en la sección 13 y las 8 propuestas de la v2 (Q1 a Q8) están confirmadas por el grupo en la sección 14.
 - **Etapa 0 hecha:** `supabase/migrations/0007_progreso_aprendizaje.sql` ya está aplicada en Supabase y verificada (la ejecutó y verificó el usuario a mano). El archivo del repo conserva el encabezado "BORRADOR sin aplicar" tal como se aplicó y **no se edita más**: cualquier cambio va en `0008`.
 - **Etapa 1 hecha (datos y contenido), sin pantallas ni UI:**
@@ -18,23 +30,23 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 - **Etapa 2 hecha (contenedor, barra inferior e Inicio):**
   - **Tarea 0:** el texto del lab de correo quedó "esta es una imitación" (F15, E1-9 resuelto).
   - **Navegación:** `Home(tab: HomeTab)` reemplaza a `MainMenu` (que se eliminó junto con `MainMenuScreen`). `PostAuthGate` lleva a `Home(Inicio)`; "Continuar" del quiz lleva a `Home(Ruta)` (P4). El Menú de usuario cierra sesión con `popUpTo<Home>`.
-  - **`ui/home/`:** `HomeScreen` (Scaffold + `SnackbarHost`), `HomeViewModel` (pestaña en `SavedStateHandle`, avisos por `Channel`, cerrar sesión, nivel, progreso), `NightWatchBottomBar` (5 pestañas: Inicio, Ruta y Labs son pestañas; Social atenuada con "Próximamente"; Perfil abre `UserMenu` y no se selecciona) e Inicio según Figma 49:15. Ruta y Labs son provisionales ("en construcción").
+  - **`ui/home/`:** `HomeScreen` (Scaffold + `SnackbarHost`), `HomeViewModel` (pestaña en `SavedStateHandle`, avisos por `Channel`, cerrar sesión, nivel, progreso), `NightWatchBottomBar` (5 pestañas: Inicio, Ruta y Labs son pestañas; Social atenuada con "Próximamente"; Perfil abre `UserMenu` y no se selecciona) e Inicio según Figma 49:15. Ruta y Labs eran provisionales ("en construcción"): **reemplazadas en las Etapas 3 y 4A**.
   - **"Lección diaria":** lee `learningProgressRepository` y `deriveLearningProgress`. Muestra "Siguiente: <lección>" o "No tienes lecciones pendientes"; carga y error de red (con "Reintentar") solo afectan esa línea. **La tarjeta aún no es clicable**: abrir la lección se conecta en la Etapa 3 (y entonces el toque sin lección pendiente mostrará el Snackbar de Q3).
   - **Textos:** `res/values/strings_aprendizaje.xml` (prefijo `learning_`), con los propuestos marcados en comentarios.
   - **Módulos 1 y 2 tocados:** `NightWatchNavHost`, `NightWatchDestinations` y `NightWatchNavHostStartDestinationTest` (pasó de `MainMenu` a `Home`). `PostAuthGate*` y `PlacementResult*` no cambiaron (el destino se decide en el `NavHost`; sus eventos conservan el nombre `NavigateToMainMenu`).
   - **Validación:** `assembleDebug testDebugUnitTest lintDebug compileDebugAndroidTestKotlin` en verde: 705 pruebas, 28 nuevas (`HomeViewModelTest`), lint con 0 errores. Se agregó `NightWatchBottomBarTest` (instrumentada, solo compilada: no se ejecutó).
 - **Etapa 3 hecha (Ruta y lecciones):**
   - **Decisión nueva Q11 (sección 14):** la lección se marca como **vista al abrirse**, no al terminarla ni al tocar "Ir al laboratorio".
-  - **Ruta** (`ui/path/`): `LearningPathViewModel` y `LearningPathTab` (Figma 2266:72). Encabezado "🧭 Tu nivel: …" y "N de 7 islas completadas" con barra; 6 islas en orden más la "Prueba Final", con estado completada, disponible o bloqueada derivado de `deriveLearningProgress`. Tocar una isla abierta o completada abre `Lesson(topic)`; una bloqueada muestra "Completa la isla anterior"; la Prueba Final bloqueada muestra "Completa las 6 islas" y la desbloqueada muestra **"Próximamente" de forma provisional hasta la Etapa 5**. Si el progreso no se lee, el mapa se muestra con la isla 1 abierta y un aviso con "Reintentar".
+  - **Ruta** (`ui/path/`): `LearningPathViewModel` y `LearningPathTab` (Figma 2266:72). Encabezado "🧭 Tu nivel: …" y "N de 7 islas completadas" con barra; 6 islas en orden más la "Prueba Final", con estado completada, disponible o bloqueada derivado de `deriveLearningProgress`. Tocar una isla abierta o completada abre `Lesson(topic)`; una bloqueada muestra "Completa la isla anterior"; la Prueba Final bloqueada muestra "Completa las 6 islas" y la desbloqueada mostraba **"Próximamente" de forma provisional hasta la Etapa 5** (reemplazado en la Etapa 5: abre la introducción del examen). Si el progreso no se lee, el mapa se muestra con la isla 1 abierta y un aviso con "Reintentar".
   - **Lección** (`ui/lesson/`): `Lesson(topic)` a pantalla completa y sin barra, con título, "MÓDULO N de 6", las 3 tarjetas del JSON, "X" y "Ir al laboratorio →". Guarda con `markLessonViewed` (idempotente) una sola vez por apertura; si falla, se puede leer igual y sale un aviso.
-  - **"Ir al laboratorio →" es provisional:** lleva a `Home(Labs)` (que aún muestra "en construcción") hasta la Etapa 4.
+  - **"Ir al laboratorio →" era provisional:** llevaba a `Home(Labs)` (que aún mostraba "en construcción") hasta la Etapa 4 (reemplazado en la 4A: abre el lab de ese tema).
   - **Inicio:** "Lección diaria" es clicable: abre la lección pendiente, o muestra "No tienes lecciones pendientes" (Q3). Sin lectura o con error, el toque no hace nada.
   - **Módulos 1 y 2:** solo `NightWatchNavHost` y `NightWatchDestinations` (ruta `Lesson` y su pantalla); el resto es código del módulo 3.
   - **Validación:** `assembleDebug testDebugUnitTest lintDebug compileDebugAndroidTestKotlin` en verde: 751 pruebas, 46 nuevas (26 de la Ruta, 16 de la lección y 4 de Inicio), lint con 0 errores. No se tocaron pruebas instrumentadas.
 - **Etapa 4A hecha (lista de Labs y terminal, sin informes):**
-  - **Labs** (`ui/labs/`): `LabsViewModel` y `LabsTab` (Figma 2271:84). Seis tarjetas (nombre, Fácil/Medio/Difícil y "✅ Completado", "Comenzar →" o atenuada al 60 %) y la tarjeta "Examen Final" ("Prueba"). Un lab está disponible si su isla está desbloqueada, sin exigir la lección (Q4). Bloqueado: Snackbar "Completa la isla anterior". Examen bloqueado: "Completa las 6 islas"; desbloqueado: **"Próximamente" de forma provisional hasta la Etapa 5**. Carga y error de red con "Reintentar", como la Ruta.
+  - **Labs** (`ui/labs/`): `LabsViewModel` y `LabsTab` (Figma 2271:84). Seis tarjetas (nombre, Fácil/Medio/Difícil y "✅ Completado", "Comenzar →" o atenuada al 60 %) y la tarjeta "Examen Final" ("Prueba"). Un lab está disponible si su isla está desbloqueada, sin exigir la lección (Q4). Bloqueado: Snackbar "Completa la isla anterior". Examen bloqueado: "Completa las 6 islas"; desbloqueado: **"Próximamente" de forma provisional hasta la Etapa 5** (reemplazado en la Etapa 5). Carga y error de red con "Reintentar", como la Ruta.
   - **Terminal** (`ui/lab/`): `Lab(topic)` a pantalla completa y sin barra (Figma 2374:273 y 2374:303). Tres objetivos con su comando (tocar lo copia al campo, no lo envía), campo, "Enviar", salida y ✓ en los cumplidos. Usa `LabTerminal` sin cambios. El intento (comandos enviados y texto del campo) vive en `SavedStateHandle` y la terminal se reconstruye de ahí: sobrevive a la rotación. "X" cierra sin guardar y sin diálogo.
-  - **Provisional para la 4B:** "Finalizar laboratorio" está siempre habilitado pero solo muestra el Snackbar "Próximamente"; **la 4B lo conecta al informe** (y a `markLabCompleted`). Hasta entonces ningún lab se marca como completado desde la app.
+  - **Provisional en la 4A (conectado en la 4B):** "Finalizar laboratorio" estaba siempre habilitado pero solo mostraba el Snackbar "Próximamente"; **la 4B lo conectó al informe** (y a `markLabCompleted`). Hasta entonces ningún lab se marcaba como completado desde la app.
   - **Lección:** "Ir al laboratorio →" abre `Lab(tema de la lección)` (antes iba a `Home(Labs)`); el evento pasó de `OpenLabs` a `OpenLab(topic)`.
   - **Verificación contra Figma:** las otras cinco terminales (2374:357/387, 2383:141/173, 2383:206/238, 2299:118/148, 2383:271/303) tienen la misma estructura que la de Contraseñas y sus títulos, objetivos y comandos coinciden con `learning_labs.json`.
   - **Módulos 1 y 2:** ninguno tocado. Sí `HomeTopBar` y `HomeScreen` (módulo 3), `NightWatchNavHost` y `NightWatchDestinations` (ruta `Lab`).
@@ -63,7 +75,8 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
   - **Interfaz:** Inicio, el menú de usuario y Mi Perfil muestran la racha actual; "Logros e Insignias" el estado real y "N de 9". Se releen al volver (`ON_RESUME`). Se quitaron `FixedProfileData` y `FixedBadges`.
   - **Módulo 2 tocado (lo mínimo):** `MyProfileScreen/ViewModel/UiState`, `UserMenuScreen/ViewModel/UiState`, `AchievementsScreen` y sus pruebas, más `AppContainer` (un proveedor). Lo demás de datos fijos no se tocó.
   - **Validación:** `assembleDebug testDebugUnitTest lintDebug` en verde: 946 pruebas, lint con 0 errores y sin avisos `PluralsCandidate`. No se tocaron pruebas instrumentales.
-- **Sigue la Etapa 6** (cierre del módulo). Lo que falta verificar a mano en el teléfono: E1-11, E3-8, E4-9, E4B-8, E5-9 y E55-10.
+- **Etapa 5.6 hecha (nombres de las insignias):** la tarjeta de Logros crece (130 dp mínimo, misma altura por fila) y el nombre va a 12 sp, hasta 3 líneas y sin recorte (F24).
+- **Etapa 6 hecha (cierre):** ver la sección 16 y el informe `docs/superpowers/reports/modulo-3-diagnostico.md`. Lo que falta verificar a mano en el teléfono: E1-11, E3-8, E4-9, E4B-8, E5-9 y E55-10.
 - Lo que sigue marcado como **SUPUESTO** en el texto (por ejemplo, "Tu nivel: Sin evaluar" si no se puede leer el resultado del quiz, o que los objetivos del lab se cumplan en cualquier orden) y los **textos propuestos de la pantalla de aprobado y de la introducción del examen (F7)** son detalles que no estaban en la lista de confirmaciones del grupo; no bloquean y se anotan en el informe de cierre (Etapa 6) para que el grupo los vea.
 
 **SUPUESTOS y PENDIENTES que dejó la Etapa 1** (no bloquean la Etapa 2):
@@ -79,7 +92,7 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | E1-7 | SUPUESTO | Solo `cat access.log` (Redes) tiene una salida de 2 líneas; el resto es de una línea. La separación con línea en blanco entre comandos aparece en la terminal de Redes pero no en las otras (2299:148 frente a las demás): se trata como presentación y no se guarda |
 | E1-8 | SUPUESTO | El rótulo "MÓDULO N de 6" de las lecciones se calcula por el orden del tema y no se guarda |
 | E1-9 | RESUELTO (F15) | El texto de Figma de la salida del lab de correo decía "este es una imitación" (2383:173); el grupo pidió corregirlo y `learning_labs.json` dice ahora **"esta es una imitación"** |
-| E1-10 | PENDIENTE | Los textos de informe de **fallo** ("No confirmaste que…") son los de las variantes "(ERROR)" de Figma; el título común es "Laboratorio no completado" (P6) y se pondrá en la pantalla (Etapa 4) |
+| E1-10 | RESUELTO (Etapa 4B) | Los textos de informe de **fallo** ("No confirmaste que…") son los de las variantes "(ERROR)" de Figma; el título común es "Laboratorio no completado" (P6) y la pantalla del informe ya lo muestra |
 | E1-11 | NO VERIFICADO | El `upsert` que ignora duplicados no se probó contra un servidor real desde aquí (no hay red ni SQL; F-03 de la revisión). Se comprueba a mano en el teléfono en la Etapa 3: ver una lección dos veces no debe dar error ni duplicar filas |
 | E2-1 | SUPUESTO | Social se dibuja a 55 % × 60 % (≈33 %): Figma no tiene pestaña desactivada; 60 % es la opacidad de los labs bloqueados (2271:84) y 55 % la de una pestaña inactiva |
 | E2-2 | SUPUESTO | La barra tiene 54 dp de contenido + 14 dp arriba + la barra de navegación del sistema; Figma mide 92 dp en un marco de 917 dp que incluye esa zona |
@@ -120,7 +133,7 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | E4B-8 | NO VERIFICADO | Nada se vio en un teléfono ni se probó contra el servidor real la escritura en `lab_progress`, la repetición sin duplicados ni el reintento sin conexión (F-03). Se comprueba a mano con los pasos de la entrega |
 | E4B-9 | LÍMITE | Si el guardado falla y la persona sale con "Volver a la ruta", el lab queda sin completar y tendrá que repetirlo: el intento no se conserva en el teléfono |
 | E5-1 | SUPUESTO | Un toque que cierra la pregunta se registra sin resaltar la opción: Figma no dibuja opción elegida y no hay "Siguiente". No se puede volver atrás ni corregir una respuesta |
-| E5-2 | SUPUESTO | El adorno gris de abajo de las preguntas (elipse 2506:252) se dibuja en Compose, solo como decoración; el texto de la pregunta empieza 196 dp bajo la línea, como en el diseño |
+| E5-2 | SUPUESTO | El adorno gris de abajo de las preguntas (elipse 2506:252) se dibuja en Compose, solo como decoración; el texto de la pregunta empieza 200 dp bajo la línea (272 dp desde arriba, como en el diseño) y su caja mide 60 dp, de modo que las opciones empiezan en 332 dp (corregido en la Etapa 6; antes 196) |
 | E5-3 | SUPUESTO | "X" en una pregunta cierra hasta donde se abrió el examen (Ruta o Labs), no a la introducción; en la introducción vuelve atrás |
 | E5-4 | SUPUESTO (texto propuesto F7, P5) | "¡Felicidades por aprobar el examen final!" + "Completaste la Ruta de Aprendizaje de NightWatch Protocol." sustituyen a "¡Subiste de nivel!" + "Nuevo contenido desbloqueado…"; "Al aprobar completas la Ruta de Aprendizaje." sustituye a "¿Qué gano?" de la introducción. El texto de felicitación es más largo que el de Figma y va a 22 sp en dos líneas; "Sigue practicando" conserva los 32 sp |
 | E5-5 | SUPUESTO | Los destinos de los botones no están en Figma: "ACEPTAR" y "Repasa la Ruta" abren Ruta, "Practica en los Laboratorios" abre Labs, "Reintentar" y "Vuelve a intentar el examen" empiezan un intento nuevo y "Volver al inicio" abre Inicio. Las tres líneas de "no aprobado" son toques (en Figma son texto). El texto de "ACEPTAR" y "Volver al inicio" va oscuro (Figma lo pone blanco sobre gris claro) |
@@ -164,8 +177,8 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | `docs/superpowers/specs/2026-09-24-placement-quiz-design.md` (líneas 12-15, 57-69) | Deja fuera "the real Core Learning map, navigable lessons, labs, and final exam"; el plan de estudio es una lista estática |
 | `docs/superpowers/specs/2026-10-09-profile-settings-design.md` (línea 16, 29, 214, 217) | Deja fuera Core Learning y Social; racha 15 e insignias 3 de 9 fijas; switches de notificaciones |
 | `docs/superpowers/reports/modulo-2-diagnostico.md` (líneas 97-98, 197-200) | "Logros, laboratorios y novedades solo guardan el switch (necesitan backend)"; la racha es fija |
-| `README.md` (líneas 55-56) | Logros e insignias solo visuales |
-| `app/src/main/java/.../data/profile/FixedProfileData.kt` | Racha fija |
+| `README.md` (líneas 55-56, antes de la Etapa 5.5) | Logros e insignias solo visuales (hoy son reales) |
+| `app/src/main/java/.../data/profile/FixedProfileData.kt` | Racha fija (archivo eliminado en la Etapa 5.5: la racha es real) |
 | `app/src/main/java/.../data/profile/ProfileFormatters.kt`, `ui/quiz/PlacementResultScreen.kt:84` | Formato del nivel: "Tu nivel: ${level}" con BAJO/MEDIO/ALTO, y "Sin evaluar" |
 | `app/src/main/java/.../ui/mainmenu/MainMenuScreen.kt`, `ui/navigation/NightWatchNavHost.kt`, `app/build.gradle.kts` | Main Menu actual, salidas del quiz, `versionCode 3` / `versionName 2.0.0` |
 | `supabase/migrations/0001` a `0006` | Convenciones de SQL |
@@ -177,13 +190,13 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 **Ya definido (se respeta):**
 - Core learning = "map, lessons, labs, final exam", subsistema aparte de Social. FUENTE: `2026-09-23-auth-onboarding-design.md:15-19`.
 - El quiz entrega BAJO/MEDIO/ALTO y un plan de estudio estático. FUENTE: `2026-09-24-placement-quiz-design.md:57-61`.
-- Racha 15 días e insignias 3 de 9 fijas. FUENTE: `profile-settings-design.md:27`; reafirmado por P9.
+- Racha 15 días e insignias 3 de 9 fijas. FUENTE: `profile-settings-design.md:27`; reafirmado por P9. **Reemplazado en la Etapa 5.5 (Q13, sección 15): la racha y las 9 insignias son reales.**
 - Notificaciones de "Nuevos laboratorios" solo guardan el switch. FUENTE: `modulo-2-diagnostico.md:98`.
 - Reglas de Supabase (RLS del dueño, GRANT explícito, mínimo privilegio, migraciones nuevas, SQL ejecutado por el usuario). FUENTE: `CLAUDE.md` sección 4.
 
 **Nuevo (de Figma y de las decisiones del grupo):** mapa de 6 islas + Prueba Final con desbloqueo en orden, 6 lecciones, 6 laboratorios con terminal simulada, examen de 6 preguntas sin límites, barra inferior, avisos "Próximamente".
 
-**Sin definir:** nada pendiente (secciones 13 y 14). Racha real e insignias pasan al módulo 4 (P9).
+**Sin definir:** nada pendiente (secciones 13 y 14). La racha real y las insignias se iban a definir en el módulo 4 (P9); **se resolvieron en el módulo 3 en la Etapa 5.5 (Q13, sección 15)**.
 
 ## 4. Contradicciones e inconsistencias (estado actual)
 
@@ -212,7 +225,7 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | # | Pantalla | Nodo(s) de Figma | Ruta propuesta | Interacciones | Datos | Funcional / Visual |
 |---|---|---|---|---|---|---|
 | 1 | Barra inferior | instancia en 49:15, 2266:72, 2271:84, 2440:163 | componente `NightWatchBottomBar` | Cambiar pestaña; Social atenuada con aviso (sección 7); Perfil abre `UserMenu` (P15) | pestaña activa | Funcional |
-| 2 | Inicio (reemplaza Main Menu) | `MAIN MENU` 49:15 | `Home(tab)` (reemplaza `MainMenu`) | Ícono de salida = cerrar sesión. "Lección diaria": abre la siguiente lección pendiente (P7). "Concepto nuevo" y "Prepárate con CiberMynd": atenuadas con "Próximamente" (P7) | nombre y avatar (existen), racha fija | Mixto: racha **fija**; 2 tarjetas visuales |
+| 2 | Inicio (reemplaza Main Menu) | `MAIN MENU` 49:15 | `Home(tab)` (reemplaza `MainMenu`) | Ícono de salida = cerrar sesión. "Lección diaria": abre la siguiente lección pendiente (P7). "Concepto nuevo" y "Prepárate con CiberMynd": atenuadas con "Próximamente" (P7) | nombre y avatar (existen), racha real (Etapa 5.5) | Funcional; 2 tarjetas visuales |
 | 3 | Ruta de Aprendizaje (mapa) | `RUTA DE APRENDIZAJE (MAPA)` 2266:72 | `LearningPath` (pestaña de `Home`) | Encabezado "Tu nivel: BAJO/MEDIO/ALTO" (P2). Tocar una isla desbloqueada abre su lección; bloqueadas atenuadas. Barra "N de 7 islas" | `lesson_progress`, `lab_progress`, `exam_attempts`, `placement` (solo lectura, ya existe) | Funcional |
 | 4 | Lección (6) | 2294:112, 2294:130, 2294:148, 2294:166, 2294:184, 2294:202 | `Lesson(topic)` | Leer 3 tarjetas; "Ir al laboratorio →"; "X" | `lesson_progress` | Funcional |
 | 5 | Laboratorios (lista) | `LABORATORIOS` 2271:84 | `Labs` (pestaña) | 6 tarjetas con dificultad y estado ("✅ Completado" / "Comenzar →" / atenuada si bloqueada); tarjeta "Examen Final" que abre el examen cuando se completaron las 6 islas | `lab_progress` y derivados | Funcional |
@@ -224,13 +237,13 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | 11 | Examen no aprobado | `EXAMEN - NO APROBADO` 2491:345 | `ExamResult` | Accesos a "Repasa la Ruta", "Practica en los Laboratorios", "Vuelve a intentar el examen" (sin límite, P11). No dice cuáles falló | `exam_attempts` | Funcional |
 | 12 | Aviso "Próximamente" | *(no está en Figma)* | sin ruta | Snackbar al tocar Social, "Concepto nuevo" o CiberMynd | ninguno | Visual |
 
-**Se reutilizan, sin tocarlas:** Logros e insignias (2287:100, estática 3 de 9), Notificaciones (switch de "Nuevos laboratorios" y "Logros" sin efecto real), Perfil y Menú de usuario.
+**Se reutilizan:** Logros e insignias (2287:100; era estática, 3 de 9, y desde la Etapa 5.5 muestra el estado real), Notificaciones (switch de "Nuevos laboratorios" y "Logros" sin efecto real), Perfil y Menú de usuario.
 
 **Conexión con lo que ya existe:**
 - **PostAuthGate:** `onNavigateToMainMenu` (`NightWatchNavHost.kt:119-120`) pasa a `Home(tab = Inicio)` (retornos al abrir la app).
 - **Quiz:** el botón "Continuar" del resultado (`NightWatchNavHost.kt:143`) y el "COMENZAR" del plan de estudio de Figma (2017:160, 2051:268, 2051:288) llevan a `Home(tab = Ruta)` (P4). Un solo botón en la pantalla actual: se conserva su texto; el texto "COMENZAR" de Figma es diferencia (F10).
 - **Nivel:** el mapa lee `placement` solo para leer (ya existe): "Tu nivel: BAJO/MEDIO/ALTO". Si no hay resultado o no se puede leer, **SUPUESTO:** "Tu nivel: Sin evaluar" (mismo valor que Mi Perfil, `LEVEL_NOT_ASSESSED`).
-- **Racha:** Inicio y Perfil siguen con `FixedProfileData.STREAK_DAYS` (P9).
+- **Racha:** Inicio, el menú de usuario y Mi Perfil mostraban `FixedProfileData.STREAK_DAYS` (P9); desde la Etapa 5.5 muestran la racha real (Q13).
 
 ## 6. Qué puede ser funcional y qué no (plan gratuito de Supabase)
 
@@ -241,7 +254,7 @@ Convención de este documento: cada afirmación lleva su **FUENTE** (archivo del
 | Desbloqueo en orden, "examen tras las 6 islas", "lección diaria" | **Funcional, calculado en la app** a partir del progreso | Se deriva de las tres tablas; **no se hace cumplir en la BD** (SUPUESTO: no hay ranking que lo exija) |
 | Terminal de los labs | **Simulación local** | Solo comandos de Figma; no ejecuta nada real |
 | Examen corregido en el teléfono | **Funcional con límite** | Las respuestas viajan en el APK; un cliente modificado podría falsear un intento (R2) |
-| Racha real, insignias reales | **Fijas (visual)** | Módulo 4 (P9) |
+| Racha real, insignias reales | **Funcional, derivado en la app** (Etapa 5.5, Q13) | Se calculan del progreso guardado; límite: repetir no suma día (sección 15). Antes eran fijas (P9) |
 | Notificación "Nuevos laboratorios" | **Sin efecto** | Requiere push; aceptado en el módulo 2 |
 | "Concepto nuevo", "CiberMynd", Social | **Visual** ("Próximamente") | P7 y alcance |
 | Sin conexión | Se pueden hacer lecciones, labs y examen; guardar el progreso falla como "sin conexión" | `CLAUDE.md` sección 8 |
@@ -307,7 +320,7 @@ Borrador SQL: `supabase/migrations/0007_progreso_aprendizaje.sql` ("BORRADOR sin
 | D8 | El examen se corrige en el ViewModel y solo se envía `correct_count` | Riesgo R2 |
 | D9 | **Respuestas del examen, verificadas por el grupo contra Figma (P10):** P1 = **C** `k7#mQ!9zRt$2` (Figma 2498:512); P2 = **B** (Un enlace que no coincide con el dominio oficial); P3 = **C** (Analizarlo con un antivirus antes de abrirlo); P4 = **B** (Cuelgas y verificas por un canal oficial); P5 = **B** (Usar una VPN para cifrar tu tráfico); P6 = **B** (Filtrar el tráfico de red no autorizado) | Decisión del grupo P10 |
 | D10 | **Textos (P12, opción A):** los textos nuevos de la UI van en `app/src/main/res/values/strings_aprendizaje.xml` con prefijo `learning_` (`stringResource`). No se tocan los textos de los módulos 1 y 2 (F-09 sigue pendiente para ellos). Contenido (lecciones, labs, preguntas) va en JSON, no en `strings.xml`. Hoy `strings.xml` solo tiene `app_name`; no hay otra infraestructura | Decisión del grupo P12 |
-| D11 | **Versión (P14):** `versionName = "2.1.0"` al cerrar el módulo. `versionCode`: **verificado en `app/build.gradle.kts` (líneas 33-34): hoy `versionCode = 3` y `versionName = "2.0.0"`**, así que el siguiente real es **`versionCode = 4`**. Propuesta para el cierre (Etapa 6); no se cambia antes | P14 + verificación en el repo |
+| D11 | **Versión (P14):** `versionName = "2.1.0"` al cerrar el módulo. `versionCode`: **verificado en `app/build.gradle.kts` (líneas 33-34): hoy `versionCode = 3` y `versionName = "2.0.0"`**, así que el siguiente real es **`versionCode = 4`**. Aplicada en el cierre (Etapa 6): `versionCode = 4` y `versionName = "2.1.0"` | P14 + verificación en el repo |
 
 ## 10. Etapas de implementación (un commit por etapa; cada una valida con `./gradlew assembleDebug testDebugUnitTest lintDebug`, y `compileDebugAndroidTestKotlin` si se tocan pruebas instrumentadas)
 
@@ -346,7 +359,7 @@ Nada se ve en un teléfono desde aquí: la columna "Prueba en el teléfono" la h
 | F1 | "Tu nivel: Aprendiz" (2266:72) se muestra como "Tu nivel: BAJO/MEDIO/ALTO" | P2 |
 | F2 | Social aparece atenuada, muestra "Próximamente" y no navega; no hay pantallas de Social | Alcance (módulo 4) |
 | F3 | El ícono de salida de Inicio conserva "Cerrar sesión" y "Mi cuenta" vive en la pestaña Perfil | Decisiones del módulo 2, P15 |
-| F4 | Racha (15) e insignias (3 de 9) siguen fijas | P9 |
+| F4 | ~~Racha (15) e insignias (3 de 9) siguen fijas~~ **Ya no aplica:** son reales desde la Etapa 5.5 (Figma ejemplifica con 15 días y 3 de 9) | P9, reemplazada por Q13 |
 | F5 | Los comandos de la terminal solo reconocen los de Figma | No se inventan comandos |
 | F6 | **Nuevas:** "Concepto nuevo" y "Prepárate con CiberMynd" (49:15) aparecen atenuadas y muestran "Próximamente" en vez de abrir algo | P7 |
 | F7 | **Nueva (P5):** la pantalla de aprobado **no dice "¡Subiste de nivel!" ni "Nuevo contenido desbloqueado en tu ruta y laboratorios"** (2491:357). Lo mismo en la introducción del examen (2486:249, tarjeta "¿Qué gano?") y en las 6 variantes de 1 error (2498:512 a 2498:572). **Textos propuestos (no de Figma):** en aprobado, el bloque "¡Subiste de nivel!" + "Nuevo contenido desbloqueado…" se reemplaza por **"¡Felicidades por aprobar el examen final!"** + **"Completaste la Ruta de Aprendizaje de NightWatch Protocol."**; en la introducción, el texto de "¿Qué gano?" pasa a **"Al aprobar completas la Ruta de Aprendizaje."** Se conservan "¡Examen aprobado!", "¡Examen aprobado con 1 error!", los textos de "Demostraste que dominas…" y las filas ✅/⚠️ | P5: aprobar no cambia el nivel y no promete contenido nuevo |
@@ -361,7 +374,14 @@ Nada se ve en un teléfono desde aquí: la columna "Prueba en el teléfono" la h
 | F16 | **Nueva (Etapa 2):** la chapa de Inicio (72:2 a 72:6) agrega una tercera línea "Nivel actual: …" y la tarjeta "Lección diaria" una línea de estado debajo (siguiente lección, "No tienes lecciones pendientes" o error). Figma solo tiene nombre y racha, y la tarjeta sin texto | Pedido de la tarea (nivel con el formato de Mi Perfil; lección diaria o "No tienes lecciones pendientes") |
 | F17 | **Nueva (Etapa 3):** "Tu nivel: Aprendiz" (2266:72) se muestra con BAJO/MEDIO/ALTO o "Sin evaluar" (ya era F1) y el contador sale del progreso real, no de los "3 de 7" de Figma | P2, Q5 |
 | F18 | **Nueva (Etapa 3):** la lección se marca como vista al abrirse (Figma no dice cuándo) | Q11 |
-| F19 | **Nueva (Etapa 3):** en la lección, el botón "Ir al laboratorio →" lleva por ahora a la pestaña Labs ("en construcción") hasta la Etapa 4; las tarjetas tienen alto mínimo de 128 dp y crecen si el texto lo necesita (en Figma son fijas) | Etapa 4 pendiente |
+| F19 | **Nueva (Etapa 3):** las tarjetas de la lección tienen alto mínimo de 128 dp y crecen si el texto lo necesita (en Figma son fijas). (El "Ir al laboratorio →" que iba a la pestaña Labs era provisional y desde la Etapa 4A abre el lab del tema) | Texto de la Etapa 3 |
+| F20 | **Nueva (Etapa 6):** el nombre de la chapa de Inicio (72:4) va en Inter Bold; Figma usa ExtraBold y el proyecto no incluye esa fuente | Sin archivo de fuente ExtraBold |
+| F21 | **Nueva (Etapas 4 y 5):** los botones claros ("Finalizar laboratorio", "Volver a la ruta", "ACEPTAR", "Volver al inicio") llevan texto oscuro (#162523); Figma los dibuja con texto blanco sobre gris claro en varios frames y oscuro en otros | Legibilidad (E4-8, E4B-4, E5-5) |
+| F22 | **Nueva (Etapa 6):** el campo de comando y "Enviar" del Lab miden 48 dp (Figma 44) y las tres líneas de "Examen no aprobado" que son toques miden al menos 48 dp (en Figma son texto de 20 dp) | Tamaño táctil mínimo |
+| F23 | **Nueva (Etapa 4B):** los informes de laboratorio usan 20 / 13 / 14 sp para título, frase y lista en los seis (Figma mezcla 22 / 14 / 13 en la Misión y 20 / 13 / 14 en Contraseñas) | E4B-1 |
+| F24 | **Nueva (Etapa 5.6):** en Logros e Insignias el nombre va a 12 sp (Figma 11) y la tarjeta de 130 dp es un mínimo que crece hasta 3 líneas, con la misma altura por fila | Nombres que se cortaban en el teléfono |
+| F25 | **Nueva (Etapa 6):** "Leyenda NightWatch" y los emojis de las insignias desbloqueadas (🎣, 🌐, 🌟, 📞, 🎓) no están definidos en Figma (solo el 🔒 y los de 🥇, 🔥 y 🔑); la condición de Leyenda la eligió el grupo | Sección 15, E55-1 y E55-2 |
+| F26 | **Nueva (Etapa 6):** en "Examen no aprobado" la caja de "Sigue practicando" y las tres líneas quedan unos 3 a 4 dp más abajo que en Figma (2491:348 a 2491:353; estimado por el cálculo del diseño, no medido en pantalla), porque las alturas del texto dependen de la fuente. Propuesta: medirlo en el teléfono y, si se nota, bajar 4 dp el espacio sobre la caja | Medida fina; no se toca sin verla |
 
 ## 13. Decisiones del grupo (2026-10-18)
 
@@ -456,3 +476,18 @@ Repetir una lección o un lab que ya está registrado **no genera un registro nu
 | E55-8 | DETALLE | Fecha de desbloqueo y avisos de "nueva insignia" quedan fuera de alcance |
 | E55-9 | DETALLE | Los avisos `PluralsCandidate` de "N de 9 insignias" y "N de 7 islas": el plural va con el total, que siempre es plural; se marcaron con `tools:ignore` |
 | E55-10 | NO VERIFICADO | Nada se vio en un teléfono ni se probó contra el servidor real la lectura de `completed_at` y `taken_at` (F-03); el formato `timestamptz` se probó solo con textos de ejemplo |
+
+## 16. Cierre del módulo (Etapa 6, 2026-10-18)
+
+Resultado de la Etapa 6 (detalle y cifras en `docs/superpowers/reports/modulo-3-diagnostico.md`).
+
+| # | Tema | Decisión o resultado |
+|---|---|---|
+| E6-1 | Leyenda NightWatch | Se desbloquea con las 6 islas completadas Y un intento con `correct_count = 6` (condición elegida por el grupo, SUPUESTO; ver la sección 15). Se eliminó la condición sin uso `Unverifiable` |
+| E6-2 | Higiene | Los íconos de emoji, el candado y el "…" salieron a `strings_aprendizaje.xml`; `@Keep` en `LearningTopic` y `HomeTab`; `tools:ignore="Typos"` en tres textos con "comando"; campo y "Enviar" del Lab a 48 dp y líneas tocables de "no aprobado" a 48 dp. No quedan TODO ni FIXME; "Próximamente" solo está en Social y en las tarjetas "Concepto nuevo" y "Prepárate con CiberMynd" |
+| E6-3 | Revisión contra Figma | Se corrigieron tres medidas (barra de progreso de la Ruta, círculo de la introducción del examen y texto de la pregunta). Las diferencias nuevas son F20 a F26 |
+| E6-4 | "Lección diaria" con un lab pendiente | **Se deja como limitación, no se cambia.** Cuando no quedan lecciones por ver pero falta un lab, la tarjeta dice "No tienes lecciones pendientes": es exactamente lo que confirma la decisión **Q3** ("todas vistas, o la lección ya vista pero falta el lab") y las pruebas de Inicio y de integración la fijan. Cambiarla es cambiar una decisión del grupo. **Propuesta:** si el grupo lo pide, mostrar "Siguiente: Laboratorio de <tema>" con un nuevo estado `PendingLab` y abrir el lab; reemplazaría Q3 |
+| E6-5 | Íconos de las islas bloqueadas de Redes Seguras y Firewall | Figma solo define 🔒 para esas dos islas (2266:116, 2266:120) porque en el ejemplo están bloqueadas; no define otro ícono para cuando se desbloquean. Se mantiene E3-3 (🔒 mientras están bloqueadas y el emoji de su lección, 📡 y 🧱, al desbloquearse): **SUPUESTO** |
+| E6-6 | Notificaciones "Logros" y "Nuevos laboratorios" | **Sin efecto** (requieren push o recordatorios del servidor); se documenta y no se implementa. Los interruptores solo guardan la preferencia en el teléfono |
+| E6-7 | Documentos | El `CLAUDE.md`, el `README.md` y la guía de Supabase se actualizaron; la revisión de código histórica lleva una nota sobre sus cifras; el análisis del módulo 4 lleva una nota de que la racha y las insignias ya son reales |
+| E6-8 | Versión | `versionCode = 4`, `versionName = "2.1.0"` (P14) |
