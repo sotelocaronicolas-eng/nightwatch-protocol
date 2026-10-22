@@ -41,6 +41,16 @@
 --   * Los valores de XP (+50 victoria, +25 empate, +10 derrota) están dentro de sx_battle_finish. La curva
 --     de niveles NO: está en fighter_level_curve (0009). Cambiar los valores = create or replace en un script nuevo.
 --
+-- LIMITACIONES CONOCIDAS
+--   * Ganar por abandono o por desconexión del rival da la victoria completa (+50 XP). Una persona con DOS
+--     cuentas podría farmear XP (entrar con una, abandonar con la otra). Sin ranking en este módulo el
+--     impacto es bajo (el XP solo sube el nivel de combatiente y la dificultad de las preguntas). Se revisa
+--     si algún día se agrega un ranking o premios.
+--   * El orden de los aciertos de la ulti (escudo) es el de llegada al servidor: la latencia de cada red influye.
+--   * Los comandos de la ulti son los de los laboratorios (viajan en el APK del módulo 3): quien desarme la app
+--     puede conocerlos. Los 3 intentos limitan la fuerza bruta.
+--   * Buscar por usuario permite comprobar que un nombre existe (límite de ritmo, sin listados).
+--
 -- Supuestos del proyecto Supabase (igual que en 0001 y 0007):
 --   * "Automatically expose new tables" DESACTIVADO: cada tabla necesita GRANT explícito a authenticated.
 --   * "Automatic RLS" ACTIVADO: aun así se hace enable row level security en cada tabla.
@@ -52,12 +62,35 @@
 -- TRIGGER (0002); privilegios por columna; todas las funciones con set search_path = '' y nombres
 -- calificados (public., auth.); la persona que actúa sale SIEMPRE de auth.uid(), nunca de un parámetro.
 --
--- ERRORES QUE DEVUELVEN LAS FUNCIONES (mensaje de la excepción; la app los traduce a tipos del dominio):
---   no_session, social_not_enabled, bad_action, bad_query, rate_limited, not_found, invalid_target,
---   not_friends, already_friends, request_exists, request_incoming, request_gone, cooldown, too_many_pending,
---   friends_limit, pair_exists, pair_gone, challenge_pending, challenge_gone, already_in_battle, rival_busy,
---   battle_over, not_your_turn, stale_turn, bad_option, ulti_not_charged, no_ulti, bad_command,
---   already_resolved, bank_empty.
+-- SONDEO (D18) Y DESCONEXIÓN (D5): la app DEBE llamar a battle_sync cada 2 a 3 segundos mientras haya una
+-- batalla abierta, INCLUIDO durante su propio turno y durante la ulti (no basta con llamar al actuar). Cada
+-- llamada de battle_sync o battle_play es el "latido" de esa persona. Si pasan MÁS DE 60 s sin ninguna
+-- llamada, el servidor la da por desconectada y PIERDE LA BATALLA (no solo el turno); si lo están las dos,
+-- la batalla se cancela. Un turno vencido de alguien que sí sondeaba solo pierde el turno (sx_battle_resolve, 5.16).
+--
+-- RESPUESTAS DE ERROR (la app las traduce a tipos del dominio; nunca muestra el texto tal cual):
+--   1) EXCEPCIONES (el mensaje es el código). En social_friends, social_pairs y battle_lobby SOLO estas cinco:
+--        no_session, social_not_enabled, bad_action, bad_query, rate_limited.
+--   2) RESULTADOS DE NEGOCIO de social_friends, social_pairs y battle_lobby: se DEVUELVEN como
+--        {"status": "error", "code": "<código>"}
+--      SIN lanzar excepción. Así la transacción termina y el contador del límite de ritmo se CONSERVA: los
+--      intentos fallidos cuentan (una excepción lo habría deshecho). Códigos:
+--        not_found, invalid_target, already_friends, request_exists, request_incoming, request_gone, cooldown,
+--        too_many_pending, friends_limit, pair_exists, pair_gone, challenge_pending, challenge_gone,
+--        already_in_battle, rival_busy.
+--      Un resultado correcto lleva su propio status ('sent', 'accepted', 'active', 'matched', 'ok', ...).
+--   3) battle_sync y battle_play lanzan excepciones: not_found, battle_over, not_your_turn, stale_turn,
+--      bad_option, ulti_not_charged, no_ulti, bad_command, already_resolved, bank_empty. Desde battle_lobby
+--      solo pueden llegar, al crear una batalla, bank_empty (0009 sin aplicar) y already_in_battle (carrera
+--      entre dos personas a la vez): son errores internos, no resultados de negocio.
+--
+-- NO ENUMERACIÓN DE CUENTAS: ninguna respuesta distingue una cuenta que existe de una que no, salvo cuando la
+-- acción ya es legítima porque la persona está en mis amigos o ya hay una relación conmigo (ya amigos,
+-- solicitud existente o entrante, espera de 24 h, rival ocupado). En particular, "no existe", "es otra
+-- persona que no es mi amiga" y, en retos y parejas, "soy yo" devuelven el MISMO código (not_found). Las
+-- comprobaciones sobre MI propia situación (límites, reto pendiente, ya estoy en una batalla) se hacen ANTES
+-- de resolver al destinatario, para que no sirvan de pista. Buscar y comprobar por nombre sigue siendo
+-- posible (es la función "buscar por usuario"), limitado a 20 búsquedas cada 10 minutos y sin listados.
 -- =====================================================================================================
 
 begin;
@@ -889,6 +922,17 @@ $$;
 --   2. Turno de pregunta vencido (D2): pasados 60 s del plazo (más 2 s de tolerancia de red) se pierde el
 --      turno, sin daño, y se reinicia la racha de la ulti del que no respondió.
 --   3. Ulti vencida (D4): pasados 2 minutos (más 2 s de tolerancia) sin acierto del atacante, la ulti falla.
+-- POR QUÉ ESTE ORDEN (la desconexión se evalúa ANTES que el turno vencido), revisado en la corrección del 0008:
+--   * Quien sondea cada 2 a 3 s (también durante su turno y su ulti) tiene un latido de hace segundos, así que
+--     la desconexión da "falso" y se evalúa el turno vencido: pierde el TURNO, no la batalla. Es el caso normal.
+--   * Quien NO sondea durante más de 60 s tiene un turno vencido (el plazo es de 60 s) Y está desconectado a la
+--     vez. Si se evaluara primero el turno, solo perdería ese turno y la batalla seguiría con una persona
+--     ausente, que perdería un turno tras otro hasta que alguna llamada la diera por desconectada. Con el orden
+--     actual pierde la batalla en cuanto el rival (o ella al volver desde el lobby) llama.
+--   * Quien dejó de sondear hace menos de 60 s en pleno turno solo pierde el turno; la batalla se pierde 60 s
+--     después del último latido si sigue sin volver (ver el sondeo en el encabezado).
+--   * battle_sync y battle_play registran el latido de quien llama ANTES de llamar a esta función: quien vuelve
+--     tarde nunca se castiga a sí mismo con su propia llamada.
 create function public.sx_battle_resolve(p_battle uuid)
 returns void
 language plpgsql
@@ -1227,8 +1271,9 @@ begin
     end if;
     perform public.sx_rate_limit(v_me, 'search', 20, interval '10 minutes');
     v_other := public.sx_resolve_target(p_arg);
+    -- Sin cuenta, sin Social habilitado o yo mismo: la MISMA respuesta (no se distingue una cuenta que no existe).
     if v_other is null or v_other = v_me then
-      return jsonb_build_object('found', false);
+      return jsonb_build_object('status', 'error', 'code', 'not_found');
     end if;
     select * into v_sp from public.social_profile where user_id = v_other;
     select * into v_f from public.friendships
@@ -1240,37 +1285,42 @@ begin
                when v_f.status = 'pending' then 'received'
                else 'none'
              end;
-    return jsonb_build_object('found', true, 'username', v_sp.username, 'friend_code', v_sp.friend_code, 'relation', v_rel);
+    return jsonb_build_object('status', 'ok', 'found', true, 'username', v_sp.username, 'friend_code', v_sp.friend_code, 'relation', v_rel);
 
   elsif p_action = 'invite' then
+    if p_arg is null or char_length(btrim(p_arg)) < 3 or char_length(btrim(p_arg)) > 40 then
+      raise exception 'bad_query';
+    end if;
     perform public.sx_rate_limit(v_me, 'invite', 20, interval '1 hour');
+    -- Primero lo que depende SOLO de mí (mis límites): así no sirve de pista sobre la otra cuenta.
+    if (select count(*) from public.friendships where status = 'pending' and requested_by = v_me) >= 20 then
+      return jsonb_build_object('status', 'error', 'code', 'too_many_pending');
+    end if;
+    if public.sx_friend_count(v_me) >= 50 then
+      return jsonb_build_object('status', 'error', 'code', 'friends_limit');
+    end if;
     v_other := public.sx_resolve_target(p_arg);
     if v_other is null then
-      raise exception 'not_found';
+      return jsonb_build_object('status', 'error', 'code', 'not_found');
     end if;
     if v_other = v_me then
-      raise exception 'invalid_target';
+      return jsonb_build_object('status', 'error', 'code', 'invalid_target');
     end if;
+    -- A partir de aquí ya hay una relación conmigo (amigo, solicitud o rechazo): responder con detalle es legítimo.
     select * into v_f from public.friendships
      where user_low = least(v_me, v_other) and user_high = greatest(v_me, v_other) for update;
     if found then
       if v_f.status = 'accepted' then
-        raise exception 'already_friends';
+        return jsonb_build_object('status', 'error', 'code', 'already_friends');
       elsif v_f.status = 'pending' then
         if v_f.requested_by = v_me then
-          raise exception 'request_exists';
+          return jsonb_build_object('status', 'error', 'code', 'request_exists');
         else
-          raise exception 'request_incoming';
+          return jsonb_build_object('status', 'error', 'code', 'request_incoming');
         end if;
       elsif v_f.responded_at > clock_timestamp() - interval '24 hours' then
-        raise exception 'cooldown';
+        return jsonb_build_object('status', 'error', 'code', 'cooldown');
       end if;
-    end if;
-    if (select count(*) from public.friendships where status = 'pending' and requested_by = v_me) >= 20 then
-      raise exception 'too_many_pending';
-    end if;
-    if public.sx_friend_count(v_me) >= 50 then
-      raise exception 'friends_limit';
     end if;
     if v_f.id is not null then
       update public.friendships
@@ -1288,11 +1338,12 @@ begin
      where user_low = least(v_me, coalesce(v_other, v_me)) and user_high = greatest(v_me, coalesce(v_other, v_me))
        and status = 'pending' and requested_by = v_other
      for update;
+    -- Persona inexistente o sin solicitud mía: la MISMA respuesta.
     if v_other is null or not found then
-      raise exception 'request_gone';
+      return jsonb_build_object('status', 'error', 'code', 'request_gone');
     end if;
     if public.sx_friend_count(v_me) >= 50 or public.sx_friend_count(v_other) >= 50 then
-      raise exception 'friends_limit';
+      return jsonb_build_object('status', 'error', 'code', 'friends_limit');
     end if;
     update public.friendships set status = 'accepted', responded_at = clock_timestamp() where id = v_f.id;
     return jsonb_build_object('status', 'accepted');
@@ -1305,7 +1356,7 @@ begin
        and user_low = least(v_me, v_other) and user_high = greatest(v_me, v_other)
        and status = 'pending' and requested_by = v_other;
     if not found then
-      raise exception 'request_gone';
+      return jsonb_build_object('status', 'error', 'code', 'request_gone');
     end if;
     return jsonb_build_object('status', 'declined');
 
@@ -1316,14 +1367,15 @@ begin
        and user_low = least(v_me, v_other) and user_high = greatest(v_me, v_other)
        and status = 'pending' and requested_by = v_me;
     if not found then
-      raise exception 'request_gone';
+      return jsonb_build_object('status', 'error', 'code', 'request_gone');
     end if;
     return jsonb_build_object('status', 'cancelled');
 
   elsif p_action = 'remove' then
     v_other := public.sx_resolve_target(p_arg);
+    -- Inexistente y "no es mi amigo" devuelven lo mismo.
     if v_other is null or not public.sx_are_friends(v_me, v_other) then
-      raise exception 'not_found';
+      return jsonb_build_object('status', 'error', 'code', 'not_found');
     end if;
     delete from public.friendships
      where user_low = least(v_me, v_other) and user_high = greatest(v_me, v_other);
@@ -1339,7 +1391,7 @@ begin
     -- profile
     v_other := public.sx_resolve_target(p_arg);
     if v_other is null or not public.sx_are_friends(v_me, v_other) then
-      raise exception 'not_found';
+      return jsonb_build_object('status', 'error', 'code', 'not_found');
     end if;
     select * into v_sp from public.social_profile where user_id = v_other;
     v_st := public.sx_personal_streak(v_other);
@@ -1387,7 +1439,8 @@ $$;
 -- 7.2 PAREJAS DE RACHA (D13, D15). Acciones (p_arg = código o nombre de la OTRA persona):
 --   overview           lista de parejas (activas y pendientes) con su racha, y top_current = la racha actual más alta (D15)
 --   detail             lo mismo para una pareja, con los días compartidos
---   invite             invita a un AMIGO a una racha de pareja (O8; vale 3 días y máximo 5 pendientes enviadas, O4)
+--   invite             invita a un AMIGO a una racha de pareja (O8; vale 3 días y máximo 5 pendientes enviadas, O4;
+--                      límite de ritmo: 20 por hora; un no-amigo o una cuenta inexistente dan el mismo not_found)
 --   accept / decline   responde a la invitación de p_arg; aceptar fija el día de inicio (O9)
 --   cancel             cancela la invitación que envié a p_arg
 --   end                termina una pareja activa (la borra; no se conserva la racha, R12)
@@ -1422,7 +1475,7 @@ begin
     if p_action = 'detail' then
       v_other := public.sx_resolve_target(p_arg);
       if v_other is null then
-        raise exception 'pair_gone';
+        return jsonb_build_object('status', 'error', 'code', 'pair_gone');
       end if;
     end if;
 
@@ -1452,26 +1505,29 @@ begin
 
     if p_action = 'detail' then
       if jsonb_array_length(v_items) = 0 then
-        raise exception 'pair_gone';
+        return jsonb_build_object('status', 'error', 'code', 'pair_gone');
       end if;
       return jsonb_build_object('pair', v_items -> 0);
     end if;
     return jsonb_build_object('pairs', v_items, 'top_current', v_top);
 
   elsif p_action = 'invite' then
-    v_other := public.sx_resolve_target(p_arg);
-    if v_other is null or v_other = v_me then
-      raise exception 'not_found';
+    if p_arg is null or char_length(btrim(p_arg)) < 3 or char_length(btrim(p_arg)) > 40 then
+      raise exception 'bad_query';
     end if;
-    if not public.sx_are_friends(v_me, v_other) then
-      raise exception 'not_friends';
+    perform public.sx_rate_limit(v_me, 'pair_invite', 20, interval '1 hour');
+    -- Primero lo que depende SOLO de mí (mi tope de invitaciones pendientes).
+    if (select count(*) from public.pair_streaks where status = 'pending' and invited_by = v_me) >= 5 then
+      return jsonb_build_object('status', 'error', 'code', 'too_many_pending');
+    end if;
+    v_other := public.sx_resolve_target(p_arg);
+    -- "No existe", "soy yo" y "no es mi amigo" devuelven EXACTAMENTE lo mismo (O8: la pareja exige amistad).
+    if v_other is null or v_other = v_me or not public.sx_are_friends(v_me, v_other) then
+      return jsonb_build_object('status', 'error', 'code', 'not_found');
     end if;
     if exists (select 1 from public.pair_streaks
                 where user_low = least(v_me, v_other) and user_high = greatest(v_me, v_other)) then
-      raise exception 'pair_exists';
-    end if;
-    if (select count(*) from public.pair_streaks where status = 'pending' and invited_by = v_me) >= 5 then
-      raise exception 'too_many_pending';
+      return jsonb_build_object('status', 'error', 'code', 'pair_exists');
     end if;
     insert into public.pair_streaks (user_low, user_high, invited_by, expires_at)
     values (least(v_me, v_other), greatest(v_me, v_other), v_me, clock_timestamp() + interval '3 days');
@@ -1485,7 +1541,7 @@ begin
        and user_low = least(v_me, v_other) and user_high = greatest(v_me, v_other)
        and status = 'pending' and invited_by = v_other;
     if not found then
-      raise exception 'pair_gone';
+      return jsonb_build_object('status', 'error', 'code', 'pair_gone');
     end if;
     return jsonb_build_object('status', 'active');
 
@@ -1496,7 +1552,7 @@ begin
        and user_low = least(v_me, v_other) and user_high = greatest(v_me, v_other)
        and status = 'pending' and invited_by = v_other;
     if not found then
-      raise exception 'pair_gone';
+      return jsonb_build_object('status', 'error', 'code', 'pair_gone');
     end if;
     return jsonb_build_object('status', 'declined');
 
@@ -1507,7 +1563,7 @@ begin
        and user_low = least(v_me, v_other) and user_high = greatest(v_me, v_other)
        and status = 'pending' and invited_by = v_me;
     if not found then
-      raise exception 'pair_gone';
+      return jsonb_build_object('status', 'error', 'code', 'pair_gone');
     end if;
     return jsonb_build_object('status', 'cancelled');
 
@@ -1519,7 +1575,7 @@ begin
        and user_low = least(v_me, v_other) and user_high = greatest(v_me, v_other)
        and status = 'active';
     if not found then
-      raise exception 'pair_gone';
+      return jsonb_build_object('status', 'error', 'code', 'pair_gone');
     end if;
     return jsonb_build_object('status', 'ended');
   end if;
@@ -1529,7 +1585,8 @@ $$;
 -- 7.3 LOBBY DE BATALLAS: partida rápida y retos a amigos (D6, D16). Acciones (p_arg = código del amigo):
 --   quick_join / quick_poll / quick_cancel   entra a la cola, consulta (cada 2 a 3 s; a los 60 s devuelve
 --                                            suggest_friend = true, D6) o sale de la cola
---   challenge_send                           reta a un AMIGO; el reto vale 2 minutos (D16)
+--   challenge_send                           reta a un AMIGO; el reto vale 2 minutos (D16); límite de ritmo: 20 por hora;
+--                                            un no-amigo o una cuenta inexistente dan el mismo not_found
 --   challenge_accept / challenge_decline     responde al reto de p_arg (aceptar crea la batalla, la MISMA de la partida rápida)
 --   challenge_cancel                         cancela mi reto pendiente
 --   challenges                               retos recibidos, mi último reto enviado y la batalla activa si la hay
@@ -1646,21 +1703,25 @@ begin
     return jsonb_build_object('status', 'cancelled');
 
   elsif p_action = 'challenge_send' then
-    v_other := public.sx_resolve_target(p_arg);
-    if v_other is null or v_other = v_me then
-      raise exception 'invalid_target';
+    if p_arg is null or char_length(btrim(p_arg)) < 3 or char_length(btrim(p_arg)) > 40 then
+      raise exception 'bad_query';
     end if;
-    if not public.sx_are_friends(v_me, v_other) then
-      raise exception 'not_friends';
-    end if;
+    perform public.sx_rate_limit(v_me, 'challenge_send', 20, interval '1 hour');
+    -- Primero lo que depende SOLO de mí (ya estoy en una batalla, ya tengo un reto pendiente).
     if v_my_battle is not null then
-      raise exception 'already_in_battle';
-    end if;
-    if exists (select 1 from public.battle_active where user_id = v_other) then
-      raise exception 'rival_busy';
+      return jsonb_build_object('status', 'error', 'code', 'already_in_battle');
     end if;
     if exists (select 1 from public.battle_challenges where challenger_id = v_me and status = 'pending') then
-      raise exception 'challenge_pending';
+      return jsonb_build_object('status', 'error', 'code', 'challenge_pending');
+    end if;
+    v_other := public.sx_resolve_target(p_arg);
+    -- "No existe", "soy yo" y "no es mi amigo" devuelven EXACTAMENTE lo mismo.
+    if v_other is null or v_other = v_me or not public.sx_are_friends(v_me, v_other) then
+      return jsonb_build_object('status', 'error', 'code', 'not_found');
+    end if;
+    -- Ya es mi amigo: decir que está ocupado es legítimo.
+    if exists (select 1 from public.battle_active where user_id = v_other) then
+      return jsonb_build_object('status', 'error', 'code', 'rival_busy');
     end if;
     insert into public.battle_challenges (challenger_id, challenged_id, created_at, expires_at)
     values (v_me, v_other, clock_timestamp(), clock_timestamp() + interval '2 minutes');
@@ -1671,14 +1732,15 @@ begin
     select * into v_ch from public.battle_challenges
      where challenger_id = v_other and challenged_id = v_me and status = 'pending'
      for update;
+    -- Persona inexistente o sin reto mío: la MISMA respuesta.
     if v_other is null or not found then
-      raise exception 'challenge_gone';
+      return jsonb_build_object('status', 'error', 'code', 'challenge_gone');
     end if;
     if v_my_battle is not null then
-      raise exception 'already_in_battle';
+      return jsonb_build_object('status', 'error', 'code', 'already_in_battle');
     end if;
     if exists (select 1 from public.battle_active where user_id = v_other) then
-      raise exception 'rival_busy';
+      return jsonb_build_object('status', 'error', 'code', 'rival_busy');
     end if;
     v_battle := public.sx_battle_create(v_other, v_me, 'friend');
     update public.battle_challenges set status = 'accepted', battle_id = v_battle where id = v_ch.id;
@@ -1691,7 +1753,7 @@ begin
        set status = 'declined'
      where v_other is not null and challenger_id = v_other and challenged_id = v_me and status = 'pending';
     if not found then
-      raise exception 'challenge_gone';
+      return jsonb_build_object('status', 'error', 'code', 'challenge_gone');
     end if;
     return jsonb_build_object('status', 'declined');
 
@@ -1703,8 +1765,8 @@ begin
 end;
 $$;
 
--- 7.4 SONDEO DE UNA BATALLA. Lo llama la app cada 2 a 3 s mientras hay una batalla abierta, y cuando su cuenta
--- regresiva llega a cero. Hace tres cosas, en este orden: (1) registra el latido de quien llama (D5);
+-- 7.4 SONDEO DE UNA BATALLA. Lo llama la app cada 2 a 3 s mientras hay una batalla abierta, INCLUIDO durante su
+-- propio turno y durante la ulti (D18), y cuando su cuenta regresiva llega a cero. Más de 60 s sin llamadas = desconectada. Hace tres cosas, en este orden: (1) registra el latido de quien llama (D5);
 -- (2) resuelve los plazos vencidos y las desconexiones (sx_battle_resolve); (3) devuelve la vista de esa
 -- persona (sx_battle_state). Cualquier persona que no sea de la batalla recibe 'not_found'.
 create function public.battle_sync(p_battle uuid)
@@ -1978,9 +2040,9 @@ commit;
 --
 -- | # | Advertencia esperada | Objeto | Por qué es SECURITY DEFINER | Acepta o corrige |
 -- |---|---|---|---|---|
--- | 1 | "Signed-In Users Can Execute SECURITY DEFINER Function" | public.social_friends(text, text) | Lee y escribe friendships (cerrada, con los ids de Auth de dos personas) y lee el progreso de OTRA persona (lesson_progress, lab_progress y exam_attempts son solo del dueño). Devuelve solo nombre de usuario, código, racha y los campos de BadgeFacts; respeta "ocultar progreso". Sin sesión no hace nada (no_session); acción de lista cerrada; límites de ritmo, de pendientes y de amigos; no recibe ids | Se acepta |
--- | 2 | "Signed-In Users Can Execute SECURITY DEFINER Function" | public.social_pairs(text, text) | Lee el progreso de DOS personas para calcular la racha de pareja y escribe pair_streaks (cerrada). Devuelve solo racha, si cada una hizo su ejercicio hoy y los días compartidos, nunca qué isla. Exige amistad; máximo 5 invitaciones pendientes | Se acepta |
--- | 3 | "Signed-In Users Can Execute SECURITY DEFINER Function" | public.battle_lobby(text, text) | Escribe matchmaking_queue, battle_challenges y crea batallas (cerradas); empareja a dos personas con un solo candado (skip locked). Solo opera sobre auth.uid() y sus amigos | Se acepta |
+-- | 1 | "Signed-In Users Can Execute SECURITY DEFINER Function" | public.social_friends(text, text) | Lee y escribe friendships (cerrada, con los ids de Auth de dos personas) y lee el progreso de OTRA persona (lesson_progress, lab_progress y exam_attempts son solo del dueño). Devuelve solo nombre de usuario, código, racha y los campos de BadgeFacts; respeta "ocultar progreso". Sin sesión no hace nada (no_session); acción de lista cerrada; límites de ritmo (20 búsquedas cada 10 min, 20 invitaciones por hora), de pendientes y de amigos; no recibe ids. Los resultados de negocio son {status:error, code} sin excepción y no distinguen una cuenta inexistente de una que no es amiga (sin enumeración) | Se acepta |
+-- | 2 | "Signed-In Users Can Execute SECURITY DEFINER Function" | public.social_pairs(text, text) | Lee el progreso de DOS personas para calcular la racha de pareja y escribe pair_streaks (cerrada). Devuelve solo racha, si cada una hizo su ejercicio hoy y los días compartidos, nunca qué isla. Exige amistad; máximo 5 invitaciones pendientes; 20 invitaciones por hora; "no existe" y "no es amigo" devuelven el mismo código (not_found) | Se acepta |
+-- | 3 | "Signed-In Users Can Execute SECURITY DEFINER Function" | public.battle_lobby(text, text) | Escribe matchmaking_queue, battle_challenges y crea batallas (cerradas); empareja a dos personas con un solo candado (skip locked). Solo opera sobre auth.uid() y sus amigos; 20 retos por hora; "no existe" y "no es amigo" devuelven el mismo código (not_found) | Se acepta |
 -- | 4 | "Signed-In Users Can Execute SECURITY DEFINER Function" | public.battle_sync(uuid) | Lee battles (cerrada, con ids de Auth) y battle_questions (sin ningún permiso, con la respuesta correcta) para devolver la vista PERSONAL de la batalla: la pregunta sin su respuesta, solo el título del reto de ulti de quien llama. Solo los dos jugadores reciben algo; el resto, not_found | Se acepta |
 -- | 5 | "Signed-In Users Can Execute SECURITY DEFINER Function" | public.battle_play(uuid, text, integer, text) | Es la única vía de escritura de la batalla: el servidor decide aciertos, daños, turnos, plazos, escudo y XP (D7). Compara la respuesta con battle_questions y el comando con ulti_challenges, tablas sin permiso para la app. Solo opera sobre auth.uid() y sobre batallas donde esa persona participa | Se acepta |
 -- | 6 | (Info) "RLS Enabled No Policy" (11 tablas) | friendships, pair_streaks, battle_questions, ulti_challenges, matchmaking_queue, battle_challenges, battles, battle_active, battle_turns, battle_ultis, social_rate_limit | No aplica (son tablas): RLS activo sin políticas y sin GRANT niega todo acceso directo; solo las leen las funciones de arriba | Se acepta (igual que recovery_email_codes, 0006) |
