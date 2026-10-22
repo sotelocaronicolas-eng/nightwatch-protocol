@@ -357,7 +357,7 @@ private fun RivalTurn(battle: BattleState) {
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp,
-            modifier = Modifier.padding(top = 14.dp),
+            modifier = Modifier.padding(top = 14.dp).politeAnnouncement(),
         )
         if (battle.rivalSecondsSinceSeen > RIVAL_AWAY_SECONDS) {
             SocialBodyText(stringResource(R.string.social_arena_rival_away, battle.rivalUsername), alpha = 1f, modifier = Modifier.padding(top = 12.dp))
@@ -377,7 +377,7 @@ private fun RivalMoveNotice(move: LastTurn, rival: String) {
         TurnOutcome.Timeout -> stringResource(R.string.social_arena_rival_timeout, rival)
         TurnOutcome.Ulti -> stringResource(R.string.social_arena_rival_ulti, rival, move.damage)
     }
-    SocialBodyText(text, alpha = 1f, modifier = Modifier.padding(top = 14.dp))
+    SocialBodyText(text, alpha = 1f, modifier = Modifier.padding(top = 14.dp).politeAnnouncement())
 }
 
 /** The result of the person's own last turn (Figma 2449:255): the tapped option and what the server decided. */
@@ -428,7 +428,8 @@ private fun Feedback(battle: BattleState, uiState: ArenaUiState) {
             .fillMaxWidth()
             .background(SocialElevated, RoundedCornerShape(16.dp))
             .border(BorderStroke(1.5.dp, border), RoundedCornerShape(16.dp))
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+            .politeAnnouncement(),
     ) {
         Text(text = title, color = if (correct) NightWatchGold else IncorrectBorder, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         SocialBodyText(detail, alpha = 1f, modifier = Modifier.padding(top = 4.dp))

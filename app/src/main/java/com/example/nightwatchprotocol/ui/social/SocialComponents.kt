@@ -34,8 +34,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -100,6 +102,13 @@ fun SocialScreen(title: String, onClose: () -> Unit, content: @Composable Column
         }
     }
 }
+
+/**
+ * Makes a piece of text that appears or changes during a battle ("Mateo acertó", "Incorrecto"...) be read out by a screen reader
+ * without the person having to look for it. Only for fixed text: a text that redraws every second (a countdown) must not use it.
+ */
+fun Modifier.politeAnnouncement(): Modifier =
+    semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }
 
 /**
  * Runs [onLeft] when the screen leaves the composition for good. It does NOT run while the Activity is only being recreated

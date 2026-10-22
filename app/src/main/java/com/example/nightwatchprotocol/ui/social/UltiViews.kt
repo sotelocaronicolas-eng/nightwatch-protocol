@@ -200,7 +200,7 @@ internal fun UltiResultPanel(result: UltiResultView, rival: String) {
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 16.dp),
+            modifier = Modifier.padding(top = 16.dp).politeAnnouncement(),
         )
         SocialBodyText(body, modifier = Modifier.padding(top = 8.dp, start = 12.dp, end = 12.dp))
         Box(
