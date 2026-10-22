@@ -164,7 +164,7 @@ private fun WeekStrip(week: List<WeekDay>) {
                         .background(if (day.shared) NightWatchGold else SocialElevated, CircleShape)
                         .let { if (day.today) it.border(BorderStroke(2.dp, NightWatchOnBackground), CircleShape) else it },
                 ) {
-                    if (day.shared) Text(text = "✓", color = SocialOnLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    if (day.shared) Text(text = stringResource(R.string.social_pair_check), color = SocialOnLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
                 Text(
                     text = initials.getOrElse(index) { "" },

@@ -2,7 +2,6 @@ package com.example.nightwatchprotocol.ui.social
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -86,10 +85,13 @@ internal fun PairStreaksContent(
                     avatarKey = pair.avatarKey,
                     avatarVersion = pair.avatarVersion,
                     details = {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
-                            SocialPill(stringResource(R.string.social_pairs_accept), { onAccept(pair.friendCode) }, style = PillStyle.Gold, enabled = !busy)
-                            SocialPill(stringResource(R.string.social_pairs_decline), { onDecline(pair.friendCode) }, style = PillStyle.Outlined, enabled = !busy)
-                        }
+                        AcceptDeclinePills(
+                            acceptText = stringResource(R.string.social_pairs_accept),
+                            declineText = stringResource(R.string.social_pairs_decline),
+                            onAccept = { onAccept(pair.friendCode) },
+                            onDecline = { onDecline(pair.friendCode) },
+                            enabled = !busy,
+                        )
                     },
                 )
                 PairStatus.PendingSent -> PersonRow(

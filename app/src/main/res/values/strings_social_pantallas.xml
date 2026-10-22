@@ -155,6 +155,7 @@
     <string name="social_pair_me">Tú</string>
     <string name="social_pair_done">✅</string>
     <string name="social_pair_pending">⏳</string>
+    <string name="social_pair_check">✓</string>
     <string name="social_pair_banner_me_missing">⚠️ Aún no entrenas hoy. ¡No pierdas tu racha!</string>
     <string name="social_pair_banner_partner_missing">⏳ %1$s aún no entrena hoy. ¡Anímalo!</string>
     <string name="social_pair_banner_none">Empiecen una racha: completen los dos su ejercicio del día.</string>

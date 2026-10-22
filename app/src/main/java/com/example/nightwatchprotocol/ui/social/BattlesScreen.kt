@@ -214,10 +214,13 @@ private fun ReceivedRow(
         avatarVersion = challenge.avatarVersion,
         trailing = { CountdownText(challenge.timeLeft) },
         details = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
-                SocialPill(stringResource(R.string.social_battles_accept), { onAccept(challenge.friendCode) }, style = PillStyle.Gold, enabled = !busy)
-                SocialPill(stringResource(R.string.social_battles_decline), { onDecline(challenge.friendCode) }, style = PillStyle.Outlined, enabled = !busy)
-            }
+            AcceptDeclinePills(
+                acceptText = stringResource(R.string.social_battles_accept),
+                declineText = stringResource(R.string.social_battles_decline),
+                onAccept = { onAccept(challenge.friendCode) },
+                onDecline = { onDecline(challenge.friendCode) },
+                enabled = !busy,
+            )
         },
     )
 }

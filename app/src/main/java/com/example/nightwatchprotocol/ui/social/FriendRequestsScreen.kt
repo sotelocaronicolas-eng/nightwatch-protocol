@@ -2,7 +2,6 @@ package com.example.nightwatchprotocol.ui.social
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -76,10 +75,13 @@ internal fun FriendRequestsContent(
                 avatarKey = person.avatarKey,
                 avatarVersion = person.avatarVersion,
                 details = {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
-                        SocialPill(stringResource(R.string.social_requests_accept), { onAccept(person.friendCode) }, style = PillStyle.Gold, enabled = !busy)
-                        SocialPill(stringResource(R.string.social_requests_decline), { onDecline(person.friendCode) }, style = PillStyle.Outlined, enabled = !busy)
-                    }
+                    AcceptDeclinePills(
+                        acceptText = stringResource(R.string.social_requests_accept),
+                        declineText = stringResource(R.string.social_requests_decline),
+                        onAccept = { onAccept(person.friendCode) },
+                        onDecline = { onDecline(person.friendCode) },
+                        enabled = !busy,
+                    )
                 },
             )
         }

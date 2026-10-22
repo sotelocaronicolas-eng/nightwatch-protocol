@@ -90,8 +90,13 @@ val SocialContentTopSpacing = 16.dp
  * [SocialContentTopSpacing] above and stays clear of the navigation bar. The keyboard is handled by [NightWatchScreenBackground].
  */
 @Composable
-fun SocialScreen(title: String, onClose: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
-    NightWatchScreenBackground {
+fun SocialScreen(
+    title: String,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    NightWatchScreenBackground(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             TitleTopBar(title = title, onClose = onClose)
             Column(
@@ -328,6 +333,22 @@ fun SocialPill(
             maxLines = 1,
             textAlign = TextAlign.Center,
         )
+    }
+}
+
+/** "Aceptar" (gold) and "Rechazar" (outlined) side by side: the answer to a request, an invitation or a challenge. */
+@Composable
+fun AcceptDeclinePills(
+    acceptText: String,
+    declineText: String,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = modifier.padding(top = 6.dp)) {
+        SocialPill(acceptText, onAccept, style = PillStyle.Gold, enabled = enabled)
+        SocialPill(declineText, onDecline, style = PillStyle.Outlined, enabled = enabled)
     }
 }
 
