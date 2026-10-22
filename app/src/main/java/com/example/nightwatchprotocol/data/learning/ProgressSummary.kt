@@ -38,12 +38,13 @@ fun summarizeProgress(snapshot: LearningSnapshot, now: Instant, zone: ZoneId): P
 }
 
 /**
- * Reads the progress and summarizes it. The [clock] gives "now" and the zone of the device (`systemDefault` by default);
- * a test passes a fixed one. Errors are the ones of the repository (`DataAccessException`).
+ * Reads the progress and summarizes it. The [clock] gives "now" and the zone in which the days are counted: Colombia by default
+ * ([ColombiaZone], so the personal streak agrees with the friends' and the pairs'); a test passes a fixed one. Errors are the
+ * ones of the repository (`DataAccessException`).
  */
 class ProgressSummaryProvider(
     private val learningProgressRepository: LearningProgressRepository,
-    private val clock: Clock = Clock.systemDefaultZone(),
+    private val clock: Clock = colombiaClock(),
 ) {
     suspend fun get(): ProgressSummary = summarizeProgress(learningProgressRepository.getSnapshot(), clock.instant(), clock.zone)
 }

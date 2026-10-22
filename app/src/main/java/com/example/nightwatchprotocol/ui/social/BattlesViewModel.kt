@@ -39,6 +39,10 @@ data class BattlesUiState(
     val wins: Int? = null,
     val losses: Int? = null,
     val draws: Int = 0,
+    /** The combatant level and XP (the server's), shown under the score; null until read. */
+    val level: Int? = null,
+    val xp: Int = 0,
+    val nextLevelXp: Int? = null,
     val friends: List<Friend>? = null,
     val received: List<ReceivedChallenge> = emptyList(),
     val sent: SentChallenge? = null,
@@ -109,6 +113,9 @@ class BattlesViewModel(
                     wins = (fighter as? SocialResult.Success)?.value?.wins ?: state.wins,
                     losses = (fighter as? SocialResult.Success)?.value?.losses ?: state.losses,
                     draws = (fighter as? SocialResult.Success)?.value?.draws ?: state.draws,
+                    level = (fighter as? SocialResult.Success)?.value?.level ?: state.level,
+                    xp = (fighter as? SocialResult.Success)?.value?.xp ?: state.xp,
+                    nextLevelXp = if (fighter is SocialResult.Success) fighter.value.nextLevelXp else state.nextLevelXp,
                     friends = (friends as? SocialResult.Success)?.value ?: state.friends,
                     loadError = (friends as? SocialResult.Failure)?.error ?: (fighter as? SocialResult.Failure)?.error,
                 )

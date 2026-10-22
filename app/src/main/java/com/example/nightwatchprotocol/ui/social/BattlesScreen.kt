@@ -90,6 +90,17 @@ internal fun BattlesContent(
         uiState.loadError?.let { ErrorNotice(it, null) }
         uiState.actionError?.let { InlineError(it) }
         ScoreCard(uiState.wins?.toString() ?: placeholder, uiState.losses?.toString() ?: placeholder)
+        uiState.level?.let { level ->
+            val next = uiState.nextLevelXp
+            SocialBodyText(
+                text = if (next != null) {
+                    stringResource(R.string.social_end_level_next, level, uiState.xp, next)
+                } else {
+                    stringResource(R.string.social_end_level, level, uiState.xp)
+                },
+                alpha = 1f,
+            )
+        }
         uiState.waiting?.let { WaitingCard(it, onCancelWaiting) }
         uiState.sent?.let { SentNotice(it) }
         QuickMatchCard(onQuickSearch)

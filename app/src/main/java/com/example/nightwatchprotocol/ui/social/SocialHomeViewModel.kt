@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.data.preferences.UserPreferences
+import com.example.nightwatchprotocol.data.preferences.UserSetting
 import com.example.nightwatchprotocol.data.social.FighterRepository
 import com.example.nightwatchprotocol.data.social.FriendsRepository
 import com.example.nightwatchprotocol.data.social.PairStreakRepository
@@ -21,6 +23,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -62,6 +65,8 @@ class SocialHomeViewModel(
     private val friendsRepository: FriendsRepository,
     private val pairStreakRepository: PairStreakRepository,
     private val fighterRepository: FighterRepository,
+    /** The "ocultar mi progreso" chosen before Social existed is carried to the new profile, so nothing becomes visible by surprise. */
+    private val userPreferences: UserPreferences? = null,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SocialHomeUiState())
@@ -132,6 +137,10 @@ class SocialHomeViewModel(
             when (val created = profileRepository.createProfile(name)) {
                 is SocialResult.Failure -> _uiState.update { it.copy(creating = false, usernameError = created.error) }
                 is SocialResult.Success -> {
+                    // A person who already hid their progress on this device keeps it hidden in the new profile.
+                    if (userPreferences?.settings?.first()?.get(UserSetting.HIDE_PUBLIC_PROGRESS) == true) {
+                        profileRepository.setHideProgress(true)
+                    }
                     _uiState.update { it.copy(creating = false, status = SocialHomeStatus.Ready) }
                     loadTiles()
                 }
@@ -149,6 +158,7 @@ class SocialHomeViewModel(
                     friendsRepository = container.friendsRepository,
                     pairStreakRepository = container.pairStreakRepository,
                     fighterRepository = container.fighterRepository,
+                    userPreferences = container.userPreferences,
                 )
             }
         }

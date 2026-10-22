@@ -228,6 +228,39 @@ class SocialHomeViewModelTest {
     }
 
     @Test
+    fun aProgressHiddenBeforeSocialExisted_staysHiddenInTheNewProfile() = runTest {
+        profiles.profile = null
+        val preferences = com.example.nightwatchprotocol.data.preferences.UserPreferences.inMemory()
+        preferences.set(com.example.nightwatchprotocol.data.preferences.UserSetting.HIDE_PUBLIC_PROGRESS, true)
+        val vm = SocialHomeViewModel(profiles, friends, pairs, fighter, preferences)
+        vm.refresh()
+        advanceUntilIdle()
+
+        vm.onUsernameChanged("valeNightwatch")
+        vm.onCreateUsername()
+        advanceUntilIdle()
+
+        assertTrue(profiles.profile!!.hideProgress)
+        assertEquals(1, profiles.hideCalls)
+    }
+
+    @Test
+    fun withoutAHiddenProgress_theNewProfileIsLeftAsTheServerCreatedIt() = runTest {
+        profiles.profile = null
+        val preferences = com.example.nightwatchprotocol.data.preferences.UserPreferences.inMemory()
+        val vm = SocialHomeViewModel(profiles, friends, pairs, fighter, preferences)
+        vm.refresh()
+        advanceUntilIdle()
+
+        vm.onUsernameChanged("valeNightwatch")
+        vm.onCreateUsername()
+        advanceUntilIdle()
+
+        assertFalse(profiles.profile!!.hideProgress)
+        assertEquals(0, profiles.hideCalls)
+    }
+
+    @Test
     fun aSecondTapWhileCreating_isIgnored() = runTest {
         profiles.profile = null
         val vm = viewModel()

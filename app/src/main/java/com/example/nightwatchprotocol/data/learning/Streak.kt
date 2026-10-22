@@ -1,8 +1,18 @@
 package com.example.nightwatchprotocol.data.learning
 
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+
+/**
+ * The zone in which a "day" is counted for every streak of the app (module 4, rule R10): the personal one, the friends' and the
+ * pair streaks cut the day at midnight of Colombia, whatever the zone of the phone is, so all of them agree.
+ */
+val ColombiaZone: ZoneId = ZoneId.of("America/Bogota")
+
+/** The real clock, read in [ColombiaZone]: what the personal streak uses by default. */
+fun colombiaClock(): Clock = Clock.system(ColombiaZone)
 
 /**
  * The streak of practice days. [current] counts the consecutive days that end today (or yesterday, see [computeStreak]);

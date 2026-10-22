@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.toRoute
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.data.learning.ColombiaZone
 import com.example.nightwatchprotocol.data.learning.LearningProgressRepository
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.deriveLearningProgress
@@ -21,7 +22,6 @@ import com.example.nightwatchprotocol.ui.navigation.PairDetailRoute
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.ZoneId
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,9 +30,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-/** The pair streak counts days in Colombian time (decision D13), whatever the zone of the phone is. */
-val ColombiaZone: ZoneId = ZoneId.of("America/Bogota")
 
 /** One day of the week strip of the detail: [shared] when both did their exercise that day; [today] gets a ring. */
 data class WeekDay(val date: LocalDate, val shared: Boolean, val today: Boolean)

@@ -92,6 +92,19 @@ class BattlesViewModelsTest {
     }
 
     @Test
+    fun lobby_showsTheCombatantLevelAndXp_ofTheServer() = runTest {
+        val vm = lobbyViewModel()
+
+        vm.onStart()
+        runCurrent()
+
+        assertEquals(2, vm.uiState.value.level)
+        assertEquals(120, vm.uiState.value.xp)
+        assertEquals(200, vm.uiState.value.nextLevelXp)
+        vm.onStop()
+    }
+
+    @Test
     fun lobby_theChallengesAreReadEvery7500ms_whileTheScreenIsVisible_andNoMoreAfterOnStop() = runTest {
         val vm = lobbyViewModel()
 
