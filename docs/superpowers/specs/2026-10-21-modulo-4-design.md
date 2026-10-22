@@ -1,14 +1,15 @@
 # Módulo 4: Social (amigos, rachas de pareja y batallas): spec de diseño
 
-Estado: **v1, Etapa 0 (solo especificación).** No hay código de la app, ni SQL ejecutable, ni cambios en recursos o Gradle. Las
-decisiones D1 a D17 ya las tomó el grupo y aquí no se discuten; lo que no estaba decidido va a la sección 12.
+Estado: **v2, decisiones cerradas el 2026-10-21 (solo especificación).** No hay código de la app ni cambios en recursos o Gradle. Las
+decisiones D1 a D17 ya las tomó el grupo; las preguntas abiertas O1 a O15 de la v1 se respondieron el 2026-10-21 y están en la sección 12
+("Decidido por el grupo"). **No queda ninguna pregunta abierta;** solo quedan dos cosas por confirmar al cierre (versión, sección 12).
 Fecha: 2026-10-21. Rama: `modulo-4` (creada desde `main`, igual a `origin/main` en ese momento). Figma: fileKey `wd3fQTzF5NqsfGfdR4I1lb`.
 Versión de partida: **2.1.0** (`versionCode` 4). Este módulo es desarrollo nuevo, no una migración: `supabase/migrations/` es solo la carpeta de los scripts
 de la base de datos.
 
 **Cómo leer las marcas.** Cada regla lleva su origen: **D#** (decisión del grupo), **F** (Figma, con el nodo), **P** (propuesta técnica de esta
-spec: se puede revisar, no es decisión) y **O#** (pregunta abierta de la sección 12, sin decidir). Lo que no está en Figma ni en las decisiones no se
-inventó: está marcado **P** con su alternativa, o es una **O#**.
+spec: se puede revisar, no es decisión) y **O#** (decisión del grupo del 2026-10-21 sobre una de las preguntas abiertas de la v1, sección 12).
+Lo que no está en Figma ni en las decisiones no se inventó: está marcado **P** con su alternativa.
 
 ## Estado
 
@@ -32,7 +33,7 @@ inventó: está marcado **P** con su alternativa, o es una **O#**.
 | Figma `wd3fQTzF5NqsfGfdR4I1lb` | 17 frames de Social (sección 1) |
 | Documentación de Supabase (Realtime Limits, Pricing, Edge Functions Limits, Cron, Broadcast, Postgres Changes) | Límites y opciones de tiempo real (sección 5) |
 
-## Decisiones del grupo (resumen, sin cambios)
+## Decisiones del grupo (resumen: D1 a D17, y desde el 2026-10-21 O1 a O15 y D18 a D20)
 
 | # | Resumen |
 |---|---|
@@ -53,6 +54,24 @@ inventó: está marcado **P** con su alternativa, o es una **O#**.
 | D15 | RACHA GRUPAL pasa a ser la lista de parejas con su racha; al tocar una, su detalle. El contador de afuera es la racha de la pareja con más días |
 | D16 | Sin notificaciones fuera de la app. Invitaciones y retos se ven al abrir Social. La invitación a retar dura 2 minutos |
 | D17 | Pantallas que faltan: se crean siguiendo el diseño existente, se ajustan al probarlas en el teléfono; sin estilo nuevo |
+| O1 | XP: 100 XP por nivel (nivel = 1 + XP ÷ 100, tope 20 con 1.900 XP). Victoria +50, empate +25, derrota +10 |
+| O2 | Empieza una persona elegida al azar por el servidor. La batalla termina con HP 0 o a los 10 turnos por jugador (20 en total): gana quien tenga más HP, y con el mismo HP es empate. Si los dos se desconectan más de 60 s: cancelada, sin ganador ni XP, no cuenta en el marcador. El empate no rompe ni suma la racha de batallas |
+| O3 | El nombre de usuario **no** se puede cambiar |
+| O4 | Una invitación a racha de pareja vale 3 días; máximo 5 pendientes enviadas a la vez (recibidas sin tope) |
+| O5 | Sin ejercicios por hacer: nada. La racha se detiene y se explica en pantalla ("Ya completaste las 6 islas"); el botón "Hacer mi ejercicio de hoy →" se deshabilita con ese texto |
+| O6 | Usuario: 3 a 20 caracteres (letras, números y `_`), único sin distinguir mayúsculas, sin lista de palabras prohibidas. Código de amigo: `NIGHT-` más 6 caracteres sin ambigüedades (sin 0/O ni 1/I), generado por el servidor |
+| O7 | Máximo 50 amigos; 20 solicitudes pendientes enviadas; 24 horas de espera para volver a invitar a quien rechazó |
+| O8 | La pareja de racha exige amistad aceptada. Eliminar al amigo termina la pareja y se pierde la racha |
+| O9 | El día de aceptación cuenta, y cuenta cualquier ejercicio completado ese día de Colombia (regla por día, no por hora) |
+| O10 (**cambia** respecto de la propuesta) | Ulti: cada jugador tiene **hasta 3 intentos** dentro de los 2 minutos; un comando incorrecto consume un intento y no termina el reto. **El comando NO se muestra en pantalla:** se sabe de memoria. Los retos usan **exactamente los comandos de los laboratorios** del módulo 3 (tal como están en `learning_labs.json`). El primero en acertar gana la carrera: si el atacante agota sus 3 intentos o se acaba el tiempo, no pasa nada y pierde la carga; si el defensor acierta antes de que acierte el atacante, activa el escudo (mitad del daño, redondeada); si el defensor falla o se queda sin tiempo, no hay escudo. Usar la ulti gasta el turno (de la propuesta, sin cambio) |
+| O11 | El rango de ±3 niveles se amplía +1 nivel cada 10 s de espera, sin tope |
+| O12 | Escalones de dificultad: niveles de combatiente 1 a 7, 8 a 14 y 15 a 20; no hace falta haber visto la lección de un tema; ampliar el banco después si se repite |
+| O13 | "Revancha" envía un reto de 2 minutos al mismo rival (solo si es amigo; en partida rápida no aparece). La "X" de la arena pide confirmación y abandonar da la derrota |
+| O14 | "Nivel" en D11 oculta el de nivelación y el de combatiente en el perfil (el de combatiente se sigue usando en el emparejamiento sin mostrarse). Solo emojis, sin fotos de amigos |
+| O15 | **Fuera del módulo.** Limitación conocida: los nombres de usuario son texto libre y no hay reportar ni bloquear (R12) |
+| D18 | Tiempo real: **se empieza con sondeo**, sin dependencia nueva. `realtime-kt` solo se agrega si el equipo lo aprueba después de una prueba de concepto; queda como **mejora opcional posterior** |
+| D19 | El rótulo de la tarjeta "Racha grupal" de SOCIAL - INICIO pasa a **"Racha en pareja"** |
+| D20 | Versión del cierre del módulo: **2.2.0**, `versionCode` 5 (a confirmar al cierre) |
 
 ## 1. Inventario de pantallas del Figma y pantallas que faltan
 
@@ -63,7 +82,7 @@ ejemplos (12 días, 47 ejercicios, 8 amigos) son datos de muestra de Figma, no r
 
 | # | Frame (nodo) | Qué dibuja (F) | Qué cambian las decisiones | Qué se reutiliza del proyecto |
 |---|---|---|---|---|
-| 1 | SOCIAL - INICIO (2440:163) | Título "Social"; frase "Mantén tu racha con amigos y demuestra lo que sabes en batallas de preguntas."; 3 tarjetas: Racha grupal ("12 días", "Ver racha →"), Amigos ("8 amigos", "Ver amigos →"), Batallas ("5V · 2D", "Batallar →"); barra inferior con Social activa (`BottomNav` 2440:212) | La tarjeta 1 muestra la racha de la pareja con más días (D15). Social deja de estar atenuada | `HomeTopBar`, `NightWatchScreenBackground`, `NightWatchBottomBar` (hoy Social se dibuja atenuada con "Próximamente"; pasa a pestaña activa), tarjetas como las de Inicio |
+| 1 | SOCIAL - INICIO (2440:163) | Título "Social"; frase "Mantén tu racha con amigos y demuestra lo que sabes en batallas de preguntas."; 3 tarjetas: Racha grupal ("12 días", "Ver racha →"), Amigos ("8 amigos", "Ver amigos →"), Batallas ("5V · 2D", "Batallar →"); barra inferior con Social activa (`BottomNav` 2440:212) | La tarjeta 1 se llama **"Racha en pareja"** (D19, no "Racha grupal") y muestra la racha de la pareja con más días (D15). Social deja de estar atenuada | `HomeTopBar`, `NightWatchScreenBackground`, `NightWatchBottomBar` (hoy Social se dibuja atenuada con "Próximamente"; pasa a pestaña activa), tarjetas como las de Inicio |
 | 2 | SOCIAL - AMIGOS (2446:181) | "8 amigos · 3 mantienen la racha hoy"; filas con avatar emoji, nombre, "🔥 N días" o "Sin racha activa", "✅ Ya entrenó hoy" / "⏳ Pendiente hoy" | El nombre es el nombre de usuario (D10). "Racha" es la racha personal del amigo (sección 8) | `TitleTopBar`, filas como `SettingsRow`, `UserAvatar`, `StreakText` |
 | 3 | SOCIAL - AGREGAR AMIGOS (2446:212) | "Buscar por usuario" (`ej. valeNightwatch`), "Tu código de amigo" `NIGHT-7F3K` con "Copiar", enlace "📥 Solicitudes de amistad" con contador, bloque "Sugerencias" con "Agregar +" | **Se quita "Sugerencias"** (D12). Se busca por usuario **o por id** (D10) | `NightWatchTextField`, `ProfileButton`, `SettingsRow` |
 | 4 | SOCIAL - SOLICITUDES (2446:242) | "Tienes 2 solicitudes de amistad pendientes."; recibidas con "Aceptar" y "Rechazar"; "Solicitudes enviadas" con "Cancelar solicitud"; bloque "Sugerencias" con "Agregar +" | **Se quita "Sugerencias"** (D12) | Mismas filas y botones |
@@ -75,7 +94,7 @@ ejemplos (12 días, 47 ejercicios, 8 amigos) son datos de muestra de Figma, no r
 | 10 | SOCIAL - ARENA CORRECTO (2449:221) | La opción elegida en oro, "✅ ¡Correcto! -20 HP a Mateo", "Siguiente turno →" | HP del rival baja 20 (D3) | Igual |
 | 11 | SOCIAL - ARENA INCORRECTO (2449:255) | Opción elegida con ✕, "❌ Incorrecto. Sin daño. Mateo toma su turno." | Igual (D3). La correcta **no** se revela | Igual |
 | 12 | SOCIAL - ULTI DISPONIBLE (2449:290) | 🔥 "¡Ulti disponible!": "Respondiste 3 preguntas seguidas. Puedes lanzar tu Ulti ahora — pero necesitas resolver un reto de terminal para que sea efectiva.", botones "Guardar para después" y "🔥 Usar Ulti ahora" | "Guardar para después" = responder una pregunta normal con la ulti aún cargada (D1) | `NightWatchButton`, `ProfileButton` |
-| 13 | SOCIAL - DESAFÍO ULTI (2450:193) | "Desafío de tu Ulti", tarjeta "Bloquea la IP atacante" con la chapa de comando `ufw deny from 198.51.100.9`, salida de terminal, campo `> escribe el comando…`, "Enviar" | El plazo es de 2 minutos (D4), con cuenta regresiva visible. Aquí el atacante ve el comando en pantalla: el reto consiste en escribirlo bien y rápido | Terminal de `ui/lab` (campo, salida, chapa de comando) |
+| 13 | SOCIAL - DESAFÍO ULTI (2450:193) | "Desafío de tu Ulti", tarjeta "Bloquea la IP atacante" con la chapa de comando `ufw deny from 198.51.100.9`, salida de terminal, campo `> escribe el comando…`, "Enviar" | El plazo es de 2 minutos (D4), con cuenta regresiva visible y hasta 3 intentos (O10). **Se quita la chapa con el comando:** en pantalla solo se ve el objetivo; el comando se sabe de memoria (O10) | Terminal de `ui/lab` (campo y salida); sin la chapa de comando |
 | 14 | SOCIAL - ULTI ÉXITO (2450:211) | 💥 "¡Ulti efectiva!", "Resolviste el comando a tiempo. Tu Ulti impacta con fuerza total.", "-45 HP a Mateo", "Continuar →" | Si hubo escudo, el daño es la mitad (D4): falta el texto de esa variante | Igual |
 | 15 | SOCIAL - ULTI FALLO (2450:223) | 💨 "Tu Ulti falló", "No resolviste el comando a tiempo. La IP atacante sigue activa y tu Ulti no causó daño.", "0 HP de daño" | También cuando el comando fue incorrecto (D4); texto de Figma habla solo de tiempo | Igual |
 | 16 | SOCIAL - FIN BATALLA VICTORIA (2451:195) | 🏆 "¡Victoria!", "Derrotaste a Mateo en la batalla de preguntas.", "80/100 HP restante", "🎁 +50 XP", "🔥 Racha de batallas +1", "⚔️ 6 Victorias · 2 Derrotas", "Revancha" y "Volver a Social" | El XP por victoria queda en O1 (Figma: +50) | `ConfirmationContent` (patrón de resultado) |
@@ -106,7 +125,7 @@ No se dibuja nada nuevo aquí: solo se dice qué falta y con qué se armaría.
 | # | Figma | Decisión | Qué se hace | Origen |
 |---|---|---|---|---|
 | S1 | RACHA GRUPAL: una racha de grupo de 4 amigos ("Tus amigos hoy"), 12 días | Solo parejas, varias por persona | La pantalla se vuelve una lista de parejas con su racha; el detalle usa el diseño del frame con **una** persona en "hoy" | D13, D15 |
-| S2 | Tarjeta "Racha grupal / 12 días" en SOCIAL - INICIO | El contador de afuera es la racha de la pareja con más días | La tarjeta muestra esa cifra. **Se conserva el rótulo "Racha grupal" de Figma** aunque ahora son parejas; si el grupo prefiere otro nombre, es un cambio de texto | D15 |
+| S2 | Tarjeta "Racha grupal / 12 días" en SOCIAL - INICIO | El contador de afuera es la racha de la pareja con más días | La tarjeta muestra esa cifra y se llama **"Racha en pareja"** (Figma dice "Racha grupal"). **Diferencia deliberada** | D15, D19 |
 | S3 | Semana L-D con 5 ✓ y racha de 12 | Máximo 6 días | La racha de pareja nunca pasa de 6 (sección 7); el "12 días" de Figma no se alcanza. **Aceptado** | D14 |
 | S4 | "Sugerencias" en AGREGAR AMIGOS y en SOLICITUDES | Se quitan | Se eliminan los dos bloques. **Diferencia deliberada.** No hay ninguna función que recomiende personas | D12 |
 | S5 | Nombres propios (Valentina, Mateo) | Nombre de usuario único (D10) | Se muestra el nombre de usuario, no el nombre de la cuenta | D10 |
@@ -116,9 +135,11 @@ No se dibuja nada nuevo aquí: solo se dice qué falta y con qué se armaría.
 | S9 | "Te avisaremos apenas encontremos un rival" | Sin notificaciones fuera de la app | El texto se cambia: la búsqueda solo avanza con Social abierto | D16 |
 | S10 | Social atenuada con "Próximamente" (módulo 3, F2) | Social habilitada | La pestaña pasa a activa; el aviso "Próximamente" de Social desaparece (las de "Concepto nuevo" y CiberMynd siguen) | Alcance |
 | S11 | Arena sin temporizador ni pantalla de espera | D2 | Se agregan M2 y M3 | D2, D17 |
-| S12 | ULTI: un solo reto, sin plazo numérico ("antes de que termine el turno") | Plazo de 2 minutos y defensa a la vez | Reto de ataque + reto de defensa, cada uno de 2 minutos | D4 |
+| S12 | ULTI: un solo reto, sin plazo numérico ("antes de que termine el turno") | Plazo de 2 minutos y defensa a la vez, con hasta 3 intentos cada uno | Reto de ataque + reto de defensa, cada uno de 2 minutos y 3 intentos | D4, O10 |
 | S13 | Avatares de emoji (🧑, 🧙‍♂️) | Foto de perfil en un bucket privado (`0004`) | Se usan los emojis de Figma; mostrar la foto real de los amigos exigiría otra política de Storage (O14) | O14 |
-| S14 | Marcador "5V · 2D" sin empates | Puede haber empate (O2) | Si el grupo mantiene el empate, se agrega "E" al marcador | O2 |
+| S14 | Marcador "5V · 2D" sin empates | Puede haber empate (O2) | Se agrega "E" al marcador cuando hay empates (por ejemplo "5V · 2D · 1E") | O2 |
+| S15 | DESAFÍO ULTI muestra una chapa con el comando (`ufw deny from 198.51.100.9`) | El comando no se muestra; se sabe de memoria (O10) | Se quita la chapa; la tarjeta solo dice el objetivo. El comando de Figma **no** se usa: los retos usan comandos de los laboratorios | O10 |
+| S16 | Tarjeta "Racha grupal" | Se llama "Racha en pareja" | Cambio de rótulo (ver S2) | D19 |
 
 ## 3. Modelo de datos nuevo para Social (propuesta; script `0008`)
 
@@ -146,13 +167,13 @@ de participantes con `GRANT` por columna en vez de funciones de lectura, es posi
 | `friendships` | `id` | `user_low`, `user_high` (con `user_low < user_high`, un par = una fila), `requested_by`, `status` (`pending` o `accepted`), `created_at`, `responded_at`. Único (`user_low`, `user_high`) | Cerrada. Solo funciones |
 | `pair_streaks` | `id` | `user_low`, `user_high`, `invited_by`, `status` (`pending`, `active`, `ended`), `created_at`, `accepted_at`, `ended_at`. Único parcial (`user_low`, `user_high`) cuando `status` es `pending` o `active` | Cerrada. Solo funciones. **No guarda el contador**: la racha se deriva (sección 7) |
 | `battle_questions` | `id` | `topic` (los 6 temas de `0007`), `tier` (1 a 3), `question`, `option_a` a `option_d`, `correct` (A a D), `active` | **Cerrada, sin ningún permiso**: las respuestas nunca salen (D7) |
-| `ulti_challenges` | `id` | `kind` (`attack` o `defense`), `title`, `command_hint` (texto que se muestra), `expected_command`, `active` | Cerrada |
+| `ulti_challenges` | `id` | `kind` (`attack` o `defense`), `topic`, `objective_title` (lo único que se muestra), `expected_command` (nunca sale del servidor), `active` | Cerrada |
 | `fighter_level_curve` | `level` | `level` 1 a 20, `min_xp` | Cerrada (la leen las funciones); contenido en `0009` (O1) |
 | `matchmaking_queue` | `user_id` | `fighter_level`, `joined_at`, `last_seen_at`, `battle_id` (nulo mientras espera) | Cerrada |
 | `battle_challenges` | `id` | `challenger_id`, `challenged_id`, `created_at`, `expires_at` (= `created_at` + 2 minutos, D16), `status` (`pending`, `accepted`, `declined`, `cancelled`, `expired`), `battle_id` | Cerrada |
 | `battles` | `id` | `mode` (`quick` o `friend`), `status` (`active`, `finished`, `cancelled`), `player1_id`, `player2_id`, `hp1`, `hp2` (0 a 100), `correct_streak1`, `correct_streak2` (0 a 3), `ulti_charged1`, `ulti_charged2`, `turn_seat` (1 o 2), `turn_number`, `turn_phase` (`question`, `ulti`), `turn_deadline`, `current_question_id`, `last_seen1`, `last_seen2`, `version`, `winner_seat`, `end_reason`, `created_at`, `finished_at`. Índice único parcial: una batalla `active` por jugador | Cerrada |
 | `battle_turns` | (`battle_id`, `turn_number`) | `seat`, `question_id`, `chosen_option`, `correct`, `timed_out`, `damage`, `answered_at`. Sirve de bitácora y evita repetir preguntas dentro de una batalla | Cerrada |
-| `battle_ultis` | `id` | `battle_id`, `turn_number`, `attacker_seat`, `attack_challenge_id`, `defense_challenge_id`, `started_at`, `deadline` (= `started_at` + 2 minutos), `attacker_result` (`pending`, `solved`, `failed`), `attacker_at`, `defender_result`, `defender_at`, `shield`, `damage`, `resolved_at` | Cerrada |
+| `battle_ultis` | `id` | `battle_id`, `turn_number`, `attacker_seat`, `attack_challenge_id`, `defense_challenge_id`, `started_at`, `deadline` (= `started_at` + 2 minutos), `attacker_attempts` (0 a 3), `attacker_result` (`pending`, `solved`, `failed`), `attacker_at`, `defender_attempts` (0 a 3), `defender_result`, `defender_at`, `shield`, `damage`, `resolved_at` | Cerrada |
 | `battle_results` | (`battle_id`, `user_id`) | `result` (`win`, `loss`, `draw`), `xp_awarded`, `hp_left`, `finished_at`. Dos filas por batalla | Cerrada. De aquí salen XP, marcador, historial y racha de batallas |
 | `social_rate_limit` | (`user_id`, `action`) | `window_start`, `count` | Cerrada. Frena la búsqueda de usuarios y las invitaciones (sección 4.4) |
 
@@ -228,8 +249,9 @@ distinto de vacío, claves foráneas solo a `auth.users` y a tablas nuevas. Adem
 | La cuenta regresiva que se ve | **El teléfono, solo para mostrar** | `battle_state` devuelve `server_now` y `deadline`; la app calcula la diferencia y no confía en su propio reloj |
 
 **Lo que sale al teléfono antes de responder (D7):** el texto de la pregunta y las 4 opciones, sin la correcta. Tras responder, la respuesta dice si
-acertó, **pero no revela la correcta cuando falla** (Figma, frame 2449:255, solo marca la elegida con ✕). Los retos de ulti sí viajan completos porque en Figma el
-comando se ve en pantalla (frame 2450:193); lo que el servidor decide es si el texto escrito coincide, con qué normalización y en qué orden llegan los envíos.
+acertó, **pero no revela la correcta cuando falla** (Figma, frame 2449:255, solo marca la elegida con ✕). De los retos de ulti sale al teléfono **solo el
+objetivo** (por ejemplo "Poner el archivo en cuarentena"); el comando esperado **nunca** sale del servidor (O10: el jugador lo sabe de memoria). El servidor decide si el
+texto escrito coincide, con qué normalización, cuántos intentos quedan y en qué orden llegan los aciertos.
 
 ### 4.2 Funciones `SECURITY DEFINER` (P)
 
@@ -314,10 +336,10 @@ Verificación manual antes de aplicar: el Advisor se mira **después** de ejecut
 | **D. Presencia (Presence) para saber si el rival está** | El canal informa quién entra y sale | Fácil de mostrar | Un cliente no puede afirmar que el otro se fue sin que el servidor lo compruebe (D7); el límite gratuito es de 20 mensajes por segundo. **No se usa para decidir**: la desconexión se decide con latidos al servidor (5.4) |
 | **E. Edge Function con WebSocket propio** | | | No hace falta: límite de 150 s de duración en el plan gratuito y reimplementaría lo que Realtime ya da |
 
-**Recomendación (P):** empezar con **A** (la batalla funciona completa sin dependencia nueva) y agregar **C** como mejora si el equipo aprueba `realtime-kt` tras una
-prueba de concepto. Esa prueba es el primer paso de la etapa de batallas (sección 10) y tiene un criterio de salida: si `realtime-kt` 3.2.4 no permite
-canales privados o no es estable con Ktor 3.3.0 y Kotlin 2.2.10, se queda en **A** y no se cambia nada más.
-**Decisión pendiente del equipo (no de esta spec):** aprobar o no la dependencia `realtime-kt`. Hasta entonces no se agrega.
+**Decisión del grupo (D18): se empieza con A (sondeo)**, sin dependencia nueva; la batalla funciona completa así. **C** (`realtime-kt` con Broadcast como señal) es una
+**mejora opcional posterior**: solo se agrega si el equipo lo aprueba después de una prueba de concepto, con este criterio de salida: si `realtime-kt` 3.2.4 no
+permite canales privados o no es estable con Ktor 3.3.0 y Kotlin 2.2.10, se queda en **A** y no se cambia nada más. El script `0008` está escrito **para sondeo** y no
+toca la publicación de Realtime ni `realtime.messages`; si luego se adopta C, esas políticas irían en un script nuevo.
 
 ### 5.3 Turnos vencidos (sin un proceso que corra solo)
 
@@ -325,7 +347,7 @@ La base de datos no tiene un "temporizador" propio; el plazo se guarda como `tur
 
 1. Toda función de batalla empieza llamando `battle_resolve_timeouts(batalla)` (bajo el candado de la fila): si `turn_phase = question` y `now() > turn_deadline` (más una tolerancia de red de 2 s, parámetro técnico), registra un turno perdido (`timed_out`), no hay daño, y pasa el turno. Lo mismo con el reto de ulti vencido (`battle_ultis.deadline`).
 2. La app, cuando **su** cuenta regresiva llega a cero, llama `battle_state`. Los dos teléfonos lo hacen; el primero resuelve y el segundo ve el resultado ya hecho (idempotente por el candado y `version`).
-3. **Red de seguridad (P):** si `pg_cron` está disponible (por verificar), un trabajo cada 30 s llama a una función interna que resuelve batallas con plazos vencidos y cierra las abandonadas. Sin `pg_cron`, una batalla abandonada por los dos queda como `active` hasta que alguno abra Social, momento en que `battle_state` o `social_me` la cierran. No daña nada: el índice de "una batalla activa por jugador" se libera al cerrarla.
+3. **Sin `pg_cron`:** el script `0008` **no depende** de `pg_cron`. Una batalla abandonada por los dos queda como `active` hasta que alguno abra Social: la primera llamada de Batallas (lobby) resuelve primero la batalla activa de esa persona, y eso libera la restricción de "una batalla activa por jugador".
 4. La cola y los retos vencidos se limpian igual, de forma perezosa (un reto vencido deja de listarse cuando `expires_at < now()`).
 
 ### 5.4 Desconexiones (D5)
@@ -376,8 +398,8 @@ Tiempo de ida y vuelta de `battle_state` en el teléfono, mensajes por batalla e
 | Carga de la ulti | Al llegar a 3 aciertos seguidos, `ulti_charged = true`. El contador no pasa de 3 | D1 |
 | Turno con la ulti cargada | La persona elige: "Guardar para después" (responde una pregunta normal; la ulti **sigue cargada**, acierte o falle) o "Usar Ulti ahora" | D1, F 2449:290 |
 | Ulti | Empieza `battle_ultis`: atacante y defensor reciben **a la vez** su reto (uno de ataque y otro de defensa, distintos), con 2 minutos | D4 |
-| Resolver el reto | Cada jugador **envía** su comando una vez (O10). El servidor normaliza el texto y lo compara; guarda la hora del servidor de cada envío | D4, P |
-| Atacante no resuelve a tiempo o resuelve mal | No pasa nada (haya escudo o no), **pierde la carga** (`ulti_charged = false`, `correct_streak = 0`) | D4 |
+| Resolver el reto | Cada jugador tiene **hasta 3 intentos** dentro de los 2 minutos. Un comando incorrecto consume un intento y **no** termina el reto. El comando **no se muestra** (se sabe de memoria). El servidor normaliza el texto, lo compara con el comando del laboratorio y guarda la hora del servidor de cada acierto | D4, O10 |
+| Atacante agota los 3 intentos o se acaba el tiempo | No pasa nada (haya escudo o no), **pierde la carga** (`ulti_charged = false`, `correct_streak = 0`) y el turno pasa | D4, O10 |
 | Atacante resuelve bien | Impacto de **45 HP**. Si el defensor resolvió bien **antes** (su hora es estrictamente anterior a la del atacante), escudo: daño = `round(45 / 2)` = **23** (redondeo de la mitad hacia arriba: 22,5 → 23) | D4, P (el redondeo exacto) |
 | Después de la ulti | Gasta la carga y el turno pasa al otro (el reto ocurre dentro del turno del atacante, Figma 2450:205: "antes de que termine el turno") | F, P |
 | Fin por HP | Si el HP de alguien llega a 0, la batalla termina y gana el otro | O2 (el resto de condiciones) |
@@ -385,12 +407,12 @@ Tiempo de ida y vuelta de `battle_state` en el teléfono, mensajes por batalla e
 
 **Resolución de la ulti, paso a paso (P):**
 
-- La ulti se resuelve en el instante en que se sabe: cuando el atacante envía (bien o mal) o cuando vence el plazo de 2 minutos sin envío del atacante.
-- Si el atacante envía bien en el instante `t_a`: hay escudo solo si el defensor envió bien en `t_d` con `t_d < t_a`. Si el defensor aún no había enviado, **no hay escudo** aunque envíe después.
-- Un defensor que envía mal, o que no envía, no activa el escudo.
-- Un atacante que envía mal, o que no envía a tiempo, falla sin importar el defensor.
+- La ulti se resuelve en el instante en que se sabe: cuando el atacante **acierta** (impacto), cuando **agota sus 3 intentos** (falla) o cuando vence el plazo de 2 minutos sin acierto del atacante (falla).
+- **El primero en acertar gana la carrera.** Si el atacante acierta en el instante `t_a`: hay escudo solo si el defensor acertó antes, en `t_d` con `t_d < t_a`. Si el defensor aún no había acertado, **no hay escudo** aunque acierte después.
+- Un defensor que acierta antes que el atacante deja el escudo armado hasta que el atacante termine. Un defensor que agota sus 3 intentos o se queda sin tiempo **no** activa el escudo.
+- Un atacante que agota sus intentos o el tiempo falla sin importar el defensor: no hay daño y pierde la carga.
 - El defensor ve su pantalla de resultado ("Recibiste N HP", o "Tu escudo bloqueó la mitad").
-- **Limitación aceptada:** el orden lo da la llegada al servidor, así que la latencia de cada jugador influye en quién "llegó antes". Y como el comando se muestra en pantalla (Figma), un cliente modificado podría enviarlo al instante. Es la misma clase de límite que el examen del módulo 3 (R2) y se documenta en la sección 11.
+- **Limitación aceptada:** el orden lo da la llegada al servidor, así que la latencia de cada jugador influye en quién "llegó antes". Los comandos son los de los laboratorios del módulo 3, que **sí viajan en el APK** (`learning_labs.json`): quien desarme la app puede conocerlos aunque la pantalla no los muestre. Los 3 intentos limitan la fuerza bruta. Es la misma clase de límite que el examen del módulo 3 (R2) y se documenta en la sección 11.
 
 ## 7. Racha compartida de pareja
 
@@ -406,7 +428,7 @@ Tiempo de ida y vuelta de `battle_state` en el teléfono, mensajes por batalla e
 
 | # | Regla |
 |---|---|
-| R1 | **Inicio.** Una pareja existe cuando A invita a B (B es amigo de A, ver O8) y B acepta. La racha empieza a contar desde el día de aceptación (hora de Colombia): los ejercicios de días **anteriores** no cuentan. Si el mismo día de la aceptación se completó una isla, la regla fina es O9 |
+| R1 | **Inicio.** Una pareja existe cuando A invita a B (B es amigo de A, ver O8) y B acepta. La racha empieza a contar desde el día de aceptación (hora de Colombia): los ejercicios de días **anteriores** no cuentan. El día de la aceptación **sí** cuenta, y cuenta cualquier isla completada ese día de Colombia, aunque haya sido antes de aceptar (O9) |
 | R2 | **Día compartido.** Un día D es compartido si, con D ≥ el día de aceptación, **los dos** completaron su ejercicio del día D (7.1) |
 | R3 | **Racha actual.** Los días compartidos consecutivos que terminan en el último día compartido, mientras ese día sea **hoy o ayer** (hora de Colombia). Si el último día compartido es anterior a ayer: 0. La misma idea que la racha personal del módulo 3 |
 | R4 | **Mejor racha.** La secuencia consecutiva más larga de la pareja. Nunca baja. Máximo 6 |
@@ -429,7 +451,7 @@ Tiempo de ida y vuelta de `battle_state` en el teléfono, mensajes por batalla e
 | A completa 2 islas hoy y B 1 | Día compartido; A gastó 2 de sus 6 |
 | A ya completó las 6 islas; B no | A no puede aportar días nuevos; la racha de la pareja se detiene (R9) |
 | Pareja A-B y A-C, A completa una isla hoy; B también, C no | Día compartido para A-B, no para A-C (R7) |
-| Se acepta a las 22:00 y A ya había completado una isla a las 09:00 del mismo día | Regla fina en O9 |
+| Se acepta a las 22:00 y A ya había completado una isla a las 09:00 del mismo día | Cuenta: la regla es por día de Colombia, no por hora (O9) |
 | Reloj del teléfono adelantado | No afecta: se usan los instantes del servidor (R11) |
 | Cuenta eliminada | La pareja y su racha desaparecen (borrado en cascada) |
 | Alguien ve su racha de pareja en riesgo y completa su ejercicio a las 00:05 | Para ese día ya es tarde; cuenta para el día nuevo |
@@ -613,27 +635,29 @@ Convención de revisión: **una sola respuesta correcta**, sin trampas de lengua
 
 ### 9.5 Borrador de los retos de ulti (ataque y defensa)
 
-D4 pide un reto de ataque y otro de defensa, **distintos**. Se proponen 6 de cada tipo, de **dos conjuntos separados** para que nunca coincidan. Se reutilizan los comandos y las salidas de los laboratorios del módulo 3 cuando existen (no se inventa una sintaxis nueva), salvo el primero, que es el de Figma (2450:203).
+D4 pide un reto de ataque y otro de defensa, **distintos**; O10 exige que cada reto corresponda a un **objetivo real de un laboratorio** del módulo 3, con su comando **exacto** de
+`app/src/main/assets/learning_labs.json`. Se proponen 6 de ataque y 6 de defensa, de **dos conjuntos separados** (uno de cada tipo por tema) para que nunca coincidan. **No hay comandos nuevos**; el
+comando de Figma (`ufw deny from 198.51.100.9`) ya no se usa. En pantalla solo se muestra el **título del objetivo** (tal como lo escribe el laboratorio); el comando se sabe de memoria.
 
-| Id | Tipo | Objetivo (lo que dice la tarjeta) | Comando exacto | Origen |
+| Id | Tipo | Tema (laboratorio) | Objetivo que se muestra (título en el JSON) | Comando exacto (en el JSON) |
 |---|---|---|---|---|
-| ULT-A1 | Ataque | Bloquea la IP atacante | `ufw deny from 198.51.100.9` | Figma 2450:203 |
-| ULT-A2 | Ataque | Investiga la IP sospechosa | `whois 203.0.113.55` | Lab Redes |
-| ULT-A3 | Ataque | Bloquea el SSH expuesto | `ufw deny 203.0.113.77 port 22` | Lab Firewall |
-| ULT-A4 | Ataque | Escanea el archivo con el antivirus | `scan sospechoso.exe` | Lab Malware |
-| ULT-A5 | Ataque | Revisa el enlace del correo | `curl -I hxxp://nw-verify.io` | Lab Phishing |
-| ULT-A6 | Ataque | Filtra los intentos fallidos | `grep failed access.log` | Lab Redes |
-| ULT-D1 | Defensa | Pon el archivo en cuarentena | `quarantine sospechoso.exe` | Lab Malware |
-| ULT-D2 | Defensa | Verifica las reglas activas | `iptables -L INPUT` | Lab Firewall |
-| ULT-D3 | Defensa | Revisa el registro de accesos | `cat access.log` | Lab Redes |
-| ULT-D4 | Defensa | Reporta el intento de ingeniería social | `report-incident social-engineering` | Lab Ingeniería Social |
-| ULT-D5 | Defensa | Revisa los procesos en ejecución | `ps aux \| grep sospechoso` | Lab Malware |
-| ULT-D6 | Defensa | Bloquea el escritorio remoto extranjero | `ufw deny 198.51.100.23 port 3389` | Lab Firewall |
+| ULT-A1 | Ataque | `CONTRASENAS` | Probar una contraseña débil | `crack 123456` |
+| ULT-A2 | Ataque | `PHISHING` | Inspeccionar el remitente | `whois nightwatch-secure-verify.com` |
+| ULT-A3 | Ataque | `MALWARE` | Escanear el archivo con el antivirus | `scan sospechoso.exe` |
+| ULT-A4 | Ataque | `INGENIERIA_SOCIAL` | Verificar la identidad del llamante | `lookup +1-555-0134` |
+| ULT-A5 | Ataque | `REDES_SEGURAS` | Investigar la IP sospechosa | `whois 203.0.113.55` |
+| ULT-A6 | Ataque | `FIREWALL` | Bloquear el SSH expuesto | `ufw deny 203.0.113.77 port 22` |
+| ULT-D1 | Defensa | `CONTRASENAS` | Probar una contraseña robusta | `crack N!ghtW4tch#7kQ2` |
+| ULT-D2 | Defensa | `PHISHING` | Comparar con el dominio oficial | `diff nightwatch-verify.io nw.app` |
+| ULT-D3 | Defensa | `MALWARE` | Poner el archivo en cuarentena | `quarantine sospechoso.exe` |
+| ULT-D4 | Defensa | `INGENIERIA_SOCIAL` | Reportar el intento de ingeniería social | `report-incident social-engineering` |
+| ULT-D5 | Defensa | `REDES_SEGURAS` | Ver el registro de accesos | `cat access.log` |
+| ULT-D6 | Defensa | `FIREWALL` | Verificar las reglas activas | `iptables -L INPUT` |
 
-- **Normalización (P):** igual que la terminal del módulo 3 (E1-1): se ignoran los espacios de los extremos y los repetidos; el **nombre del comando** (primera palabra) no distingue mayúsculas, los **argumentos** sí. Esa regla la implementa `normalize_command` en SQL y se verifica con casos escritos en el guion de la Etapa 1.
-- El comando **se muestra en pantalla** (Figma 2450:203), así que el reto mide escribirlo bien y rápido, no adivinarlo.
+- **Normalización (P):** igual que la terminal del módulo 3 (E1-1, `normalizeCommand` en `LabTerminal.kt`): se ignoran los espacios de los extremos y los repetidos; el **nombre del comando** (primera palabra) no distingue mayúsculas, los **argumentos** sí. La implementa `sx_normalize_command` en SQL.
+- **Los comandos se copian a `0009`** (tabla `ulti_challenges`) y quedan **duplicados** respecto del JSON del módulo 3: si alguien cambia un comando del laboratorio, hay que cambiarlo también en la base. Propuesta para la Etapa 2: una prueba unitaria que lea el JSON y compruebe que cada reto de esta tabla existe tal cual.
+- Hasta **3 intentos** por jugador dentro de los 2 minutos; un comando incorrecto consume un intento y no termina el reto (O10).
 - Los textos de salida ("Tu Ulti solo será efectiva si…") salen de Figma; los de defensa y escudo son nuevos (M4).
-- Cuántos envíos se permiten y qué pasa con un comando mal escrito: **O10**.
 
 ### 9.6 Lista para el grupo
 
@@ -645,18 +669,18 @@ Cada etapa es **un commit** (o uno por tema si es grande) en la rama `modulo-4`,
 
 | Etapa | Contenido | Criterio de aceptación | Pruebas |
 |---|---|---|---|
-| **0 (esta)** | La spec | Revisada y aprobada por el grupo; respondidas O1 a O5 (o aceptadas sus propuestas); decidido si se aprueba `realtime-kt` | Ninguna |
+| **0 (esta)** | La spec | Revisada por el grupo; decisiones de la sección 12 cerradas el 2026-10-21 (O1 a O15, D18 a D20); `realtime-kt` queda como mejora opcional posterior | Ninguna |
 | **1. Script `0008` y guion SQL** | `supabase/migrations/0008_social.sql` (borrador, 13 tablas, funciones, `GRANT`, RLS, verificaciones comentadas); guion de escenarios de juego (archivo en `docs/superpowers/`); "Parte F: Social" en `supabase-configuracion.md`; lista de las advertencias esperadas del Security Advisor | **(usuario)** lo ejecuta a mano y corre las verificaciones: RLS en las 13, sin políticas en las 12 cerradas, nada para `anon`, `EXECUTE` solo para `authenticated`, `search_path` vacío, claves foráneas solo a `auth.users` y tablas nuevas. Después revisa el Advisor y cada fila nueva se corrige o se documenta. No se tocó ninguna tabla anterior | Sin pruebas automáticas (F-03): guion manual con estos casos: crear usuario (único, sin distinguir mayúsculas), búsqueda exacta y límite de ritmo, invitación y aceptación, racha de pareja (con fechas de prueba escritas por el usuario como administrador), respuesta correcta (-20), incorrecta, 3 aciertos y ulti cargada, ulti 45, ulti con escudo (23), ulti fallida (pierde la carga), turno vencido, desconexión de 60 s, reto vencido a los 2 minutos, XP al terminar |
 | **2. Contenido `0009`** | `0009_banco_batallas.sql`: 72 preguntas, 12 retos de ulti y la curva de XP | **(usuario)** aplicado. Conteos: 12 por tema y 4 por escalón por tema, 6 + 6 retos, una sola correcta por pregunta, 18 de cada letra, ninguna pregunta del examen repetida. El grupo aprobó el texto. Depende de O1 y O12 | Consultas de conteo; ninguna prueba automática |
 | **3. Capa de datos del cliente** | Modelos y repositorios con interfaz (`SocialRepository`, `FriendsRepository`, `PairStreakRepository`, `BattleRepository`), clases `Supabase*` en `data/supabase`, *fakes*, nuevos tipos de error (por ejemplo, nombre en uso, demasiados intentos), `AppContainer`. Sin UI, sin dependencias nuevas | Mapeo de filas y de errores; ninguna excepción de la librería llega a la pantalla | Pruebas de mapeo y de errores como las del módulo 3; una prueba que comprueba que ninguna pantalla ni ViewModel importa Supabase |
 | **4. Social habilitado** | Pestaña Social activa, SOCIAL - INICIO, crear nombre de usuario (M1), `hide_progress` en el servidor, estados vacíos y de error (M12) | Sin nombre: pide uno; con nombre: Inicio de Social. El interruptor "ocultar progreso" guarda en el servidor | ViewModels con Turbine y *fakes* (sin perfil, con perfil, nombre ocupado, sin conexión); el cambio de la barra inferior |
 | **5. Amigos** | Lista, agregar (usuario o id, copiar código), solicitudes (aceptar, rechazar, cancelar), perfil del amigo con insignias y "ocultar progreso", eliminar | Sin "Sugerencias" en ninguna pantalla. La búsqueda solo coincide exacto. Un perfil oculto no muestra nivel, insignias ni islas | ViewModels; búsqueda sin coincidencia; límite de ritmo; perfil oculto y visible; evaluación de insignias con los `BadgeFacts` del amigo |
 | **6. Rachas de pareja** | Invitar, aceptar, lista de parejas, detalle, tarjeta de Inicio con la mayor, "Hacer mi ejercicio de hoy →" | Racha de 0 a 6 como máximo; varias parejas; estados *activa*, *en riesgo*, *sin racha* y *ruta completa* | ViewModels con *fakes*; la derivación en SQL se verifica con el guion de la Etapa 1 y se repite con los datos de prueba |
-| **7. Batallas I: lobby, cola y retos** | **Primero la prueba de concepto de Realtime** (decide A o A + C); luego BATALLAS, BUSCANDO OPONENTE con la sugerencia a los 60 s, retos recibidos y enviados, cuenta de 2 minutos | La búsqueda se cancela; un reto vence a los 2 minutos y no se puede aceptar; la sugerencia aparece a los 60 s; cerrar Social cancela lo pendiente | Cuentas regresivas con tiempo virtual (`kotlinx-coroutines-test`); cola; reto vencido; sondeo |
+| **7. Batallas I: lobby, cola y retos** | **Con sondeo** (D18, sin dependencia nueva): BATALLAS, BUSCANDO OPONENTE con la sugerencia a los 60 s, retos recibidos y enviados, cuenta de 2 minutos. La prueba de concepto de `realtime-kt` es opcional y posterior | La búsqueda se cancela; un reto vence a los 2 minutos y no se puede aceptar; la sugerencia aparece a los 60 s; cerrar Social cancela lo pendiente | Cuentas regresivas con tiempo virtual (`kotlinx-coroutines-test`); cola; reto vencido; sondeo |
 | **8. Batallas II: arena** | Pregunta con temporizador de 1 minuto, espera de turno, correcto, incorrecto, turno perdido, latidos, desconexión y reconexión | El servidor decide todo; la app solo muestra la cuenta; la respuesta correcta no está en ningún estado ni registro; un doble toque no responde dos veces | ViewModels con *fake* del servidor: respuestas, vencimiento, reconexión, sondeo; una prueba que comprueba que ningún modelo del cliente tiene el campo de respuesta correcta |
-| **9. Ulti** | Ulti disponible, "Guardar para después", desafío, defensa con escudo, éxito y fallo | Los dos retos a la vez y de 2 minutos; el resultado sigue la tabla de la sección 6.4 | Estados y tiempos; envío duplicado; resultados con y sin escudo |
+| **9. Ulti** | Ulti disponible, "Guardar para después", desafío, defensa con escudo, éxito y fallo | Los dos retos a la vez, de 2 minutos y con hasta 3 intentos; el comando no se muestra; el resultado sigue la tabla de la sección 6.4 | Estados y tiempos; intentos (incorrecto consume uno y no termina); envío duplicado; resultados con y sin escudo |
 | **10. Fin de batalla, XP y nivel** | Victoria, derrota, empate, "Revancha", "Volver a Social", historial, marcador, XP y nivel | XP y nivel salen del servidor; "Repasa X y Y"; el marcador coincide con el historial | ViewModels; marcador y racha de batallas |
-| **11. Cierre** | `reports/modulo-4-diagnostico.md` (pantallas, diferencias con Figma, pruebas, lista visual y guion manual), actualización de `CLAUDE.md`, `README.md` y la guía de Supabase (Advisor), versión (propuesta: 2.2.0, `versionCode` 5; a decidir) | Todo en verde, lint en 0 errores, diferencias documentadas, sin secretos en el diff | Recuento de pruebas del cierre |
+| **11. Cierre** | `reports/modulo-4-diagnostico.md` (pantallas, diferencias con Figma, pruebas, lista visual y guion manual), actualización de `CLAUDE.md`, `README.md` y la guía de Supabase (Advisor), versión (2.2.0, `versionCode` 5, a confirmar al cierre) | Todo en verde, lint en 0 errores, diferencias documentadas, sin secretos en el diff | Recuento de pruebas del cierre |
 
 **Orden de despliegue.** `0008` y `0009` se ejecutan **antes** de instalar la versión de la app de las Etapas 4 a 10 (sin las tablas, Social falla al cargar; se muestra el error con "Reintentar"). El plan gratuito pausa el proyecto tras 7 días sin actividad: antes de probar en el teléfono, comprobar que no esté pausado.
 
@@ -674,20 +698,22 @@ Cada etapa es **un commit** (o uno por tema si es grande) en la rama `modulo-4`,
 | R8 | **Reglas duplicadas en SQL y Kotlin:** la racha personal vive en el cliente y la de pareja en el servidor (con otra zona horaria) | Guion de casos; las insignias del amigo se evalúan con el mismo código del cliente (4.5) |
 | R9 | **Complejidad del script:** `0008` es grande y se ejecuta a mano; un error ya aplicado se arregla en un script nuevo, no se edita | Revisión por el grupo antes de ejecutar; verificaciones comentadas; entrega en un solo archivo pero revisable por bloques |
 | R10 | **Advertencias del Security Advisor:** unas 32 de "Signed-In Users Can Execute SECURITY DEFINER Function" y 12 de "RLS Enabled No Policy" | Documentarlas por grupo (4.6); cualquiera inesperada se corrige antes de fusionar |
-| R11 | **Dependencia nueva `realtime-kt`:** no verificada con Kotlin 2.2.10 y Ktor 3.3.0 | Solo con aprobación y tras la prueba de concepto; si falla, se queda el sondeo |
-| R12 | **Seguridad de menores y moderación:** partida rápida entre desconocidos, nombres de usuario sin filtrar, sin forma de reportar o bloquear (el análisis previo lo marcó) | O15 |
+| R11 | **Dependencia `realtime-kt` (mejora opcional posterior, D18):** no verificada con Kotlin 2.2.10 y Ktor 3.3.0 | No se agrega ahora. Solo con aprobación del equipo y tras una prueba de concepto; si falla, se queda el sondeo |
+| R12 | **Limitación conocida (O15, fuera del módulo): moderación y menores.** Los **nombres de usuario son texto libre** (solo se limita el largo y los caracteres, sin lista de palabras prohibidas) y **no hay forma de reportar ni de bloquear** a otra persona. La partida rápida empareja desconocidos (el análisis previo lo marcó) | Aceptada por el grupo; se documenta en `CLAUDE.md` al cierre. Si más adelante se abre a un público amplio, hay que resolverlo antes |
 | R13 | **Enumeración parcial:** se puede comprobar si un nombre de usuario existe | Límite de ritmo, coincidencia exacta, sin listados; documentado (4.4) |
 | R14 | **Pausa de la racha de pareja por límite de contenido (D14):** con 6 islas la racha no pasa de 6 días | Aceptado por el grupo (D14) |
 | R15 | **Sin pruebas automáticas contra Supabase (F-03)** del juego, las rachas ni los permisos | Guion manual por etapa y lista de verificación en el cierre |
 | R16 | **Borrado de cuenta:** borra el historial de batallas de la otra persona (P) | Alternativa en 3.1; decidir antes del script |
 
-## 12. Preguntas abiertas
+## 12. Decidido por el grupo (antes, preguntas abiertas)
 
-Ninguna de estas se dio por decidida. Cada una trae una **propuesta por defecto**, que es lo que se implementaría si el grupo no responde otra cosa.
+El 2026-10-21 el grupo respondió las preguntas abiertas de la v1: **aceptó tal cual las propuestas de O1 a O9 y de O11 a O14**, **cambió O10** y dejó **O15 fuera del
+módulo**. La columna "Decisión" es lo que se implementa; las filas O10 y O15 reemplazan a la propuesta original. Los mismos acuerdos están resumidos en la tabla de decisiones del
+inicio.
 
-### Pendientes pedidos por el grupo (O1 a O5)
+### O1 a O5 (pedidas por el grupo)
 
-| # | Pendiente del grupo | Propuesta por defecto |
+| # | Pregunta | Decisión |
 |---|---|---|
 | **O1** | **Curva de XP del 1 al 20 y XP de una victoria, una derrota y un empate** (Figma muestra +50 por victoria) | 100 XP por nivel (nivel = 1 + XP ÷ 100, tope 20 con 1.900 XP). Victoria **+50**, empate **+25**, derrota **+10** (un mínimo por jugar). 38 victorias llevan al nivel 20 |
 | **O2** | **Quién empieza el primer turno y cómo se cierra una batalla** (HP en 0; límite de turnos o de duración) | Empieza una persona elegida **al azar por el servidor**. Termina cuando el HP de alguien llega a 0. Límite: **10 turnos por jugador** (20 en total); al llegar, gana quien tenga más HP; mismo HP = **empate**. Si los dos se desconectan más de 60 s: batalla cancelada, sin ganador ni XP, no cuenta en el marcador. El empate no rompe ni suma la racha de batallas |
@@ -695,22 +721,35 @@ Ninguna de estas se dio por decidida. Cada una trae una **propuesta por defecto*
 | **O4** | **Cuánto vale una invitación a racha de pareja sin responder y cuántas pueden estar pendientes a la vez** | Vale **3 días** y se permiten **5 pendientes enviadas** a la vez; las recibidas no tienen tope. Al vencer desaparece sin aviso |
 | **O5** | **Qué se ofrece como ejercicio del día cuando ya se completaron todos** | **Nada**: la racha se detiene y se explica en pantalla ("Ya completaste las 6 islas"); el botón "Hacer mi ejercicio de hoy →" se deshabilita con ese texto |
 
-### Preguntas nuevas que surgieron al escribir la spec (O6 a O15)
+### O6 a O15 (surgieron al escribir la spec)
 
-| # | Pregunta | Propuesta por defecto |
+| # | Pregunta | Decisión |
 |---|---|---|
 | **O6** | Formato del **nombre de usuario** (largo, caracteres permitidos, mayúsculas, palabras prohibidas) y del **código de amigo** (Figma: `NIGHT-7F3K`) | Usuario: 3 a 20 caracteres, letras, números y `_`, único sin distinguir mayúsculas, sin lista de palabras prohibidas. Código: `NIGHT-` más 6 caracteres sin ambigüedades (sin 0/O ni 1/I), generado por el servidor |
 | **O7** | **Límites de amistad:** máximo de amigos, de solicitudes pendientes enviadas y espera tras un rechazo | Máximo 50 amigos; 20 solicitudes pendientes enviadas; 24 horas de espera para volver a invitar a quien rechazó |
 | **O8** | ¿La **pareja de racha exige amistad**? ¿Qué pasa con la pareja si se elimina la amistad? | Sí exige amistad aceptada. Eliminar al amigo termina la pareja y se pierde la racha |
 | **O9** | **Día de aceptación:** ¿cuenta para la racha, y cuenta un ejercicio hecho ese mismo día antes de aceptar? | El día de aceptación cuenta, y cualquier ejercicio completado ese día de Colombia cuenta (regla por día, no por hora) |
-| **O10** | **Ulti:** ¿cuántos envíos tiene cada jugador? ¿Un comando mal escrito es fallo inmediato? ¿Usar la ulti gasta el turno? | Un solo envío por jugador; mal escrito = fallo inmediato (mismas consecuencias que no resolver). La ulti gasta el turno (inferido de Figma 2450:205) |
+| **O10** | **Ulti:** ¿cuántos envíos tiene cada jugador? ¿Un comando mal escrito es fallo inmediato? ¿Usar la ulti gasta el turno? | **Cambia respecto de la propuesta.** Hasta **3 intentos** por jugador dentro de los 2 minutos; un comando incorrecto consume un intento y no termina el reto. El comando **no se muestra** (se sabe de memoria): cambia el diseño de DESAFÍO ULTI (diferencia S15). Los retos usan **exactamente los comandos de los laboratorios** del módulo 3 (sección 9.5). El primero en acertar gana la carrera; atacante sin intentos o sin tiempo: no pasa nada y pierde la carga; defensor que acierta antes: escudo; defensor que falla o sin tiempo: sin escudo. Usar la ulti gasta el turno (de la propuesta, sin cambio) |
 | **O11** | **Ritmo en que se amplía el rango** de ±3 niveles y si tiene tope | +1 nivel cada 10 s de espera, sin tope (a los 60 s ya cubre todo el rango 1 a 20) |
 | **O12** | **Banco:** equivalencia de niveles de combatiente con los tres escalones, ¿hace falta haber visto la lección de un tema para recibir sus preguntas?, ¿12 por tema alcanzan? | Escalones 1 a 7, 8 a 14 y 15 a 20; no hace falta haber visto la lección; ampliar a 20 por tema después si se repiten |
 | **O13** | **"Revancha"** de las pantallas de fin: ¿a quién reta y vale en partida rápida? Y la "X" de la arena: ¿abandona? | Revancha envía un reto de 2 minutos al mismo rival (solo si es amigo; en partida rápida el botón no aparece). "X" pide confirmación y abandonar da la derrota |
 | **O14** | **Qué es "nivel" en D11** (¿nivel de nivelación, de combatiente o ambos?) y si se ven **fotos reales** de los amigos (bucket privado) o solo los emojis de Figma | "Nivel" oculta ambos en el perfil; el de combatiente se sigue usando en el emparejamiento sin mostrarse. Solo emojis, sin fotos de amigos |
-| **O15** | **Moderación y menores:** reportar o bloquear usuarios, y si la partida rápida entre desconocidos se abre a toda la base de usuarios | No se incluye en este módulo; se anota como riesgo (R12). Sin reportar ni bloquear en la primera versión |
+| **O15** | **Moderación y menores:** reportar o bloquear usuarios, y si la partida rápida entre desconocidos se abre a toda la base de usuarios | **Fuera del módulo.** Limitación conocida (R12): los nombres de usuario son texto libre y no hay reportar ni bloquear |
 
-## Diagnóstico de la Etapa 0
+### Otras decisiones del 2026-10-21
+
+| # | Decisión |
+|---|---|
+| D18 | Tiempo real: se empieza con **sondeo** (sin dependencia nueva). `realtime-kt` solo se agrega si el equipo lo aprueba después de una prueba de concepto; es una mejora opcional posterior |
+| D19 | La tarjeta "Racha grupal" de SOCIAL - INICIO se llama **"Racha en pareja"** (diferencia deliberada frente a Figma, S2 y S16) |
+| D20 | Versión del cierre: **2.2.0**, `versionCode` 5 (a confirmar al cierre) |
+
+### Por confirmar (no son preguntas abiertas)
+
+- La versión 2.2.0 / `versionCode` 5 se confirma en la Etapa 11.
+- El título de la pantalla de lista de parejas (D15) no estaba decidido: la spec supone **"Racha en pareja"**, como la tarjeta de Inicio.
+
+## Diagnóstico de la Etapa 0 (v1)
 
 - **Qué se hizo:** esta spec (un solo archivo nuevo). Ningún código de la app, prueba, recurso, `gradle`, `CLAUDE.md` ni script SQL se tocó. No se editó `supabase/migrations/`.
 - **Qué no se pudo verificar:** nada contra un Supabase real; nada en un teléfono; la API de `realtime-kt` en Kotlin; cómo cuenta Supabase cada mensaje de Realtime; si `pg_cron` está disponible en el plan gratuito; las pantallas de Figma se revisaron por el texto de las capas y por capturas de 11 de los 17 frames (los frames AMIGOS, ARENA PREGUNTA, ARENA INCORRECTO, BUSCANDO OPONENTE, DESAFÍO ULTI y ULTI FALLO solo por el texto de sus capas).
