@@ -53,7 +53,7 @@ El esquema está en `supabase/migrations/0001_esquema_inicial.sql`. **Nada lo ej
 Los archivos de `supabase/migrations/` se ejecutan **en orden numérico** (`0001`, `0002`, ...) y **una sola vez
 por proyecto**. Una migración que ya se aplicó **no se edita**: cualquier cambio posterior va en una migración
 nueva con el siguiente número. Hoy hay siete **ya aplicadas** en el proyecto del equipo (un proyecto nuevo las necesita
-todas, en orden) y una octava **en borrador, sin aplicar** (`0008`, Social; ver la Parte F):
+todas, en orden) y una octava **ya aplicada** (`0008`, Social; ver la Parte F). La novena (`0009`) está en borrador:
 
 1. `0001_esquema_inicial.sql`: tablas, RLS, políticas y grants.
 2. `0002_minimo_privilegio.sql`: quita a `authenticated` los privilegios `TRUNCATE`, `REFERENCES` y `TRIGGER`,
@@ -69,9 +69,9 @@ todas, en orden) y una octava **en borrador, sin aplicar** (`0008`, Social; ver 
    `profile.recovery_email` al cliente y crea `verify_recovery_email_code(p_code)` (aplicada; ver "Parte D").
 7. `0007_progreso_aprendizaje.sql`: tablas `lesson_progress`, `lab_progress` y `exam_attempts` del módulo 3, con RLS del
    dueño y `GRANT` por columna (aplicada; ver "Parte E"). No toca ninguna tabla anterior.
-8. `0008_social.sql` (**BORRADOR, sin aplicar**): 14 tablas y 5 funciones públicas del módulo 4 (amigos, rachas de pareja y batallas).
-   Se aplica a mano y **antes** que `0009` (banco de preguntas, retos de ulti y curva de XP, aún sin escribir); ver la Parte F.
-   No toca ninguna tabla anterior.
+8. `0008_social.sql` (**aplicada y verificada**): 14 tablas y 5 funciones públicas del módulo 4 (amigos, rachas de pareja y batallas).
+   No toca ninguna tabla anterior; ver la Parte F.
+9. `0009_banco_batallas.sql` (**BORRADOR, sin aplicar**): curva de XP, 72 preguntas de batalla y 12 retos de ulti. Se aplica a mano **después** de `0008`.
 
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
@@ -374,9 +374,11 @@ completar un lab o terminar un examen falla al guardar (la app lo muestra como e
 
 ## Parte F: Social (módulo 4, script 0008)
 
-**Estado: borrador sin aplicar** (rama `modulo-4`). El script es `supabase/migrations/0008_social.sql` y su guion de verificación
-`supabase/verificacion/0008_escenarios.sql`. La especificación está en `docs/superpowers/specs/2026-10-21-modulo-4-design.md`.
-Este bloque no está cerrado: lo que sigue describe lo que el script hace y cómo probarlo, y se actualiza cuando se aplique.
+**Estado: `0008` aplicado en Supabase y verificado** (rama `modulo-4`; el guion dio 219 comprobaciones con 0 fallas el 2026-10-21 y el
+Security Advisor no mostró errores; ver "Resultado de la verificación"). El script es `supabase/migrations/0008_social.sql` y su guion de
+verificación `supabase/verificacion/0008_escenarios.sql`. La especificación está en `docs/superpowers/specs/2026-10-21-modulo-4-design.md`.
+**`0008` ya no se edita:** cualquier cambio va en un script nuevo. El banco de preguntas, los retos de ulti y la curva de XP van en `0009`
+(borrador, sin aplicar).
 
 ### Qué crea el 0008
 
@@ -400,9 +402,9 @@ Este bloque no está cerrado: lo que sigue describe lo que el script hace y cóm
 ### Orden de aplicación
 
 1. **Antes:** `0001` a `0007` ya aplicadas. Comprobar que el proyecto no esté pausado (plan gratuito: pausa a los 7 días sin actividad).
-2. **Aplicar `0008_social.sql`** pegándolo **completo** en el SQL Editor, **una sola vez**. Mientras conserve la línea "BORRADOR" se puede corregir; una vez aplicado no se edita y cualquier cambio va en un script nuevo.
-3. **Correr las consultas de verificación** del final del archivo (a a i) y el **guion de escenarios** (más abajo).
-4. **Revisar el Security Advisor** y documentar las advertencias aceptadas en la sección de abajo (tabla de esta Parte).
+2. **Aplicar `0008_social.sql`** pegándolo **completo** en el SQL Editor, **una sola vez** (**hecho**). Una vez aplicado no se edita y cualquier cambio va en un script nuevo.
+3. **Correr las consultas de verificación** del final del archivo (a a i) y el **guion de escenarios** (más abajo) (**hecho**: ver "Resultado de la verificación").
+4. **Revisar el Security Advisor** y documentar las advertencias aceptadas (**hecho**: ver "Advertencias aceptadas del Security Advisor (Social)").
 5. **Aplicar `0009`** (banco de 72 preguntas, retos de ulti y curva de XP) **después** del `0008`. Hasta entonces las tablas de contenido están vacías: una batalla no puede empezar (`bank_empty`) y todos son nivel 1.
 6. **Instalar la versión de la app** de las etapas de Social **después** de `0008` y `0009`: sin las tablas, Social falla al cargar y muestra el error con "Reintentar".
 
@@ -417,9 +419,18 @@ Este bloque no está cerrado: lo que sigue describe lo que el script hace y cóm
   - El bloque de escenarios es **una sola sentencia atómica**: si falla con un error inesperado, se deshace todo. Si termina, **borra** lo que creó y **restaura** el banco, los retos y la curva reales (si ya existían). Cubre permisos, perfiles, búsqueda, invitaciones, ritmo, parejas, partida rápida, retos, respuestas, daño, ulti (éxito, escudo, tres intentos fallidos, por tiempo), turno vencido, desconexión (de uno y de los dos), abandono, fin por HP y por 20 turnos, XP, nivel y "ocultar progreso". **No cubre** parejas múltiples ni los topes de 5, 20 y 50 (necesitan más cuentas).
 - **Pruebas desde un teléfono:** no hay pruebas automáticas contra el servidor real (F-03); lo que se verifica a mano está en la lista del informe de cierre del módulo 4 (aún por escribir).
 
+### Resultado de la verificación
+
+| Qué | Resultado |
+|---|---|
+| Guion `supabase/verificacion/0008_escenarios.sql` | **219 comprobaciones, 0 fallas.** Ejecutado el **2026-10-21** en el SQL Editor, con **dos usuarios de prueba** (ya **eliminados**). El guion borró lo que creó y restauró el banco, los retos y la curva |
+| Security Advisor tras aplicar `0008` | **0 errores** y las advertencias esperadas (tabla "Advertencias aceptadas del Security Advisor (Social)") |
+| Corrección del guion tras la primera corrida | El bloque 9 crea la segunda batalla con la partida rápida y no con `new_battle`, porque `new_battle` borra las batallas anteriores de los dos jugadores. Es un cambio del guion, no del script `0008` |
+
 ### Advertencias esperadas del Security Advisor (0008)
 
-Se revisa el Advisor **después** de aplicar `0008`. Cada fila que aparezca y no esté aquí se corrige o se documenta antes de fusionar a `main`. Una vez aplicado, las aceptadas pasan a la tabla de la sección siguiente.
+Estas eran las advertencias **previstas** antes de aplicar `0008` (tabla copiada del final del script). Ya se aplicó y se revisó el Advisor: las
+aceptadas están en "Advertencias aceptadas del Security Advisor (Social)", más abajo.
 
 | # | Advertencia esperada | Objeto | Por qué es `SECURITY DEFINER` | Se acepta o se corrige |
 |---|---|---|---|---|
@@ -449,4 +460,24 @@ de dónde viene, por qué se acepta y cuándo hay que volver a mirarla.
 
 **Nota.** Las tablas del módulo 3 (`lesson_progress`, `lab_progress`, `exam_attempts`, migración `0007`) no generan advertencias.
 Si una migración futura agrega una advertencia nueva, se corrige o se documenta aquí con su motivo **antes de fusionar a `main`**.
-Las del `0008` (módulo 4) están previstas en la tabla de la Parte F y pasan a esta cuando se aplique el script y se revise el Advisor.
+Las del `0008` (módulo 4, Social) están en la sección siguiente.
+
+## Advertencias aceptadas del Security Advisor (Social)
+
+Revisadas tras aplicar `0008` (módulo 4). El Advisor mostró **0 errores**. Con estas, quedan **9 advertencias en total**: las 4 de arriba
+(filas 1 a 4) y las **5 nuevas** de Social; la fila informativa "RLS Enabled No Policy" (nivel info) se suma a la que ya existía de
+`recovery_email_codes`. Cada fila dice qué advierte, sobre qué objeto, por qué la función es `SECURITY DEFINER` y por qué se acepta.
+El detalle del diseño está en la Parte F y en el encabezado de `0008_social.sql`.
+
+| # | Advertencia | Objeto | Por qué es `SECURITY DEFINER` | Por qué se acepta | Cuándo revisarla de nuevo |
+|---|---|---|---|---|---|
+| S1 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.social_friends(text, text)` | Lee y escribe `friendships` (cerrada, con los ids de Auth de dos personas) y lee el progreso de **otra** persona (`lesson_progress`, `lab_progress` y `exam_attempts` son solo del dueño) | Es la única vía a esos datos y la app debe llamarla con sesión. Solo actúa sobre `auth.uid()`; no recibe ids de Auth (usa nombre de usuario o código); acción de lista cerrada; devuelve solo nombre de usuario, código, racha y los campos de las insignias y respeta "ocultar progreso"; límites de ritmo (20 búsquedas cada 10 minutos, 20 invitaciones por hora), de pendientes y de amigos; los resultados de negocio no distinguen una cuenta inexistente de una que no es amiga; `anon` no puede ejecutarla | Si cambia lo que devuelve o la lista de acciones |
+| S2 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.social_pairs(text, text)` | Lee el progreso de **dos** personas para calcular la racha de pareja y escribe `pair_streaks` (cerrada) | Devuelve solo racha, si cada persona hizo su ejercicio hoy y los días compartidos, nunca qué isla. Exige amistad; máximo 5 invitaciones pendientes y 20 por hora; "no existe" y "no es amigo" dan el mismo código; solo `auth.uid()` | Igual que S1 |
+| S3 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.battle_lobby(text, text)` | Escribe `matchmaking_queue` y `battle_challenges` y crea batallas (tablas cerradas); empareja a dos personas con un solo candado | Solo opera sobre `auth.uid()` y sus amigos; 20 retos por hora; "no existe" y "no es amigo" dan el mismo código; el reto vale 2 minutos | Igual que S1 |
+| S4 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.battle_sync(uuid)` | Lee `battles` (cerrada, con ids de Auth) y `battle_questions` (sin ningún permiso para la app, con la respuesta correcta) | Devuelve la vista **personal** de la batalla: la pregunta sin su respuesta y solo el título del reto de ulti de quien llama. Solo los dos jugadores reciben algo; cualquier otra persona recibe `not_found` | Si cambia la vista que devuelve |
+| S5 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.battle_play(uuid, text, integer, text)` | Es la única vía de escritura de la batalla: compara la respuesta con `battle_questions` y el comando con `ulti_challenges`, tablas sin permiso para la app | El servidor decide aciertos, daños, turnos, plazos, escudo y XP con la hora de la base de datos. Solo opera sobre `auth.uid()` y sobre batallas donde esa persona participa | Si se agrega una acción nueva |
+| S6 | (Info) "RLS Enabled No Policy" | 11 tablas: `friendships`, `pair_streaks`, `battle_questions`, `ulti_challenges`, `matchmaking_queue`, `battle_challenges`, `battles`, `battle_active`, `battle_turns`, `battle_ultis`, `social_rate_limit` | No aplica (son tablas) | Intencional: RLS activo sin políticas y sin `GRANT` niega todo acceso directo desde la app; solo las leen las funciones de arriba. Es la misma configuración de `recovery_email_codes` (`0006`, fila 5 de la tabla anterior) | Solo si una tabla cambia de uso |
+
+No hay advertencias de "Public Can Execute SECURITY DEFINER Function" ni de "Function Search Path Mutable" para Social: ninguna función se puede
+llamar sin sesión y todas declaran `set search_path = ''`. `social_new_code()` es `SECURITY INVOKER` y las 20 funciones internas `sx_*` no
+tienen `EXECUTE` para `anon` ni `authenticated`.

@@ -103,7 +103,8 @@ Todo el servidor vive en `supabase/` y **se despliega a mano** desde el panel (n
   privilegio por columna; funciones `SECURITY DEFINER` con `search_path` vacío.
 - **Security Advisor:** las advertencias aceptadas y su motivo están en la sección "Advertencias aceptadas del Security
   Advisor" de `docs/superpowers/supabase-configuracion.md`. Una advertencia nueva se corrige o se documenta ahí antes de
-  fusionar a `main`.
+  fusionar a `main`. Las de Social (módulo 4, `0008`) están en "Advertencias aceptadas del Security Advisor (Social)" del
+  mismo documento.
 - **Edge Function `send-recovery-email-code`** (`supabase/functions/`, Deno/TypeScript): envía el código del correo de
   recuperación por la API de Brevo. Su `README.md` explica el despliegue a mano. Los correos de Auth salen por el SMTP de
   Brevo; los ajustes del panel (SMTP, plantillas con `{{ .Token }}`, OTP de 6 dígitos y 600 s, proveedor Google, *Confirm
