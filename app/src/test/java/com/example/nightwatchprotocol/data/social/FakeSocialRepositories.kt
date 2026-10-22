@@ -274,11 +274,24 @@ class FakeBattleLobbyRepository : BattleLobbyRepository {
         return sendChallengeResult
     }
 
-    override suspend fun acceptChallenge(friendCode: String): SocialResult<String> = begin() ?: acceptChallengeResult
+    var acceptCalls = 0
+    var declineCalls = 0
+    var cancelChallengeCalls = 0
 
-    override suspend fun declineChallenge(friendCode: String): SocialResult<Unit> = begin() ?: ok(Unit)
+    override suspend fun acceptChallenge(friendCode: String): SocialResult<String> {
+        acceptCalls++
+        return begin() ?: acceptChallengeResult
+    }
 
-    override suspend fun cancelChallenge(): SocialResult<Unit> = begin() ?: ok(Unit)
+    override suspend fun declineChallenge(friendCode: String): SocialResult<Unit> {
+        declineCalls++
+        return begin() ?: ok(Unit)
+    }
+
+    override suspend fun cancelChallenge(): SocialResult<Unit> {
+        cancelChallengeCalls++
+        return begin() ?: ok(Unit)
+    }
 
     override suspend fun challenges(): SocialResult<ChallengesView> {
         challengesCalls++

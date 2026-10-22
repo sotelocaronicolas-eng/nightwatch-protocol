@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -89,15 +88,13 @@ fun HomeScreen(
     onOpenExam: () -> Unit,
     onOpenFriends: () -> Unit,
     onOpenPairStreaks: () -> Unit,
+    onOpenBattles: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val comingSoon = stringResource(R.string.learning_coming_soon)
     val noPendingLessons = stringResource(R.string.learning_home_no_pending_lessons)
-    val scope = rememberCoroutineScope()
-    // The tiles of Social - Inicio whose screens are not built yet only say "Próximamente".
-    val socialComingSoon: () -> Unit = { scope.showNotice(snackbarHostState, comingSoon) }
 
     // Name and progress are re-read each time Home comes back (after Editar Perfil, or after a lesson in a later stage).
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
@@ -127,7 +124,7 @@ fun HomeScreen(
         onTabSelected = viewModel::onTabSelected,
         onOpenPairStreaks = onOpenPairStreaks,
         onOpenFriends = onOpenFriends,
-        onOpenBattles = socialComingSoon,
+        onOpenBattles = onOpenBattles,
         onProfileClick = viewModel::onProfileClicked,
         onComingSoonCardClick = viewModel::onComingSoonCardClicked,
         onSignOut = viewModel::onSignOutClicked,

@@ -38,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.learning.BadgeState
 import com.example.nightwatchprotocol.data.social.BattleOutcome
+import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.components.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
@@ -47,6 +48,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 @Composable
 fun FriendProfileScreen(
     onClose: () -> Unit,
+    onChallengeSent: () -> Unit,
     viewModel: FriendProfileViewModel = viewModel(factory = FriendProfileViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -55,6 +57,7 @@ fun FriendProfileScreen(
         viewModel.events.collect { event ->
             when (event) {
                 FriendProfileEvent.Removed -> onClose()
+                FriendProfileEvent.ChallengeSent -> onChallengeSent()
             }
         }
     }
@@ -64,6 +67,7 @@ fun FriendProfileScreen(
             uiState = uiState,
             onRetry = viewModel::refresh,
             onInvitePair = viewModel::onInvitePairClicked,
+            onBattle = viewModel::onBattleClicked,
             onRemove = viewModel::onRemoveClicked,
         )
     }
@@ -81,6 +85,7 @@ internal fun FriendProfileContent(
     uiState: FriendProfileUiState,
     onRetry: () -> Unit,
     onInvitePair: () -> Unit,
+    onBattle: () -> Unit,
     onRemove: () -> Unit,
 ) {
     Column(
@@ -139,6 +144,12 @@ internal fun FriendProfileContent(
         }
 
         uiState.actionError?.let { InlineError(it, Modifier.padding(top = 10.dp)) }
+        NightWatchButton(
+            text = stringResource(R.string.social_profile_battle),
+            onClick = onBattle,
+            enabled = !uiState.challenging,
+            modifier = Modifier.padding(top = 20.dp),
+        )
         if (uiState.pairInviteSent) {
             SocialBodyText(
                 stringResource(R.string.social_profile_invite_pair_sent, uiState.username),

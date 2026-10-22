@@ -45,6 +45,9 @@ import com.example.nightwatchprotocol.ui.profile.usermenu.UserMenuScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementQuizScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementResultScreen
 import com.example.nightwatchprotocol.ui.social.AddFriendScreen
+import com.example.nightwatchprotocol.ui.social.BattlePendingScreen
+import com.example.nightwatchprotocol.ui.social.BattlesScreen
+import com.example.nightwatchprotocol.ui.social.QuickSearchScreen
 import com.example.nightwatchprotocol.ui.social.FriendProfileScreen
 import com.example.nightwatchprotocol.ui.social.FriendRequestsScreen
 import com.example.nightwatchprotocol.ui.social.FriendsScreen
@@ -173,7 +176,28 @@ fun NightWatchNavHost(
                 onOpenExam = { navController.navigate(ExamIntro) },
                 onOpenFriends = { navController.navigate(Friends) },
                 onOpenPairStreaks = { navController.navigate(PairStreaksRoute) },
+                onOpenBattles = { navController.navigate(BattlesRoute) },
             )
+        }
+        composable<BattlesRoute> {
+            BattlesScreen(
+                onClose = { navController.popBackStack() },
+                onQuickSearch = { navController.navigate(QuickSearchRoute) },
+                onOpenBattle = { battleId -> navController.navigate(BattleRoute(battleId)) },
+            )
+        }
+        composable<QuickSearchRoute> {
+            QuickSearchScreen(
+                onClose = { navController.popBackStack() },
+                // The battle replaces the search: going back from it does not return to a search that is over.
+                onOpenBattle = { battleId ->
+                    navController.navigate(BattleRoute(battleId)) { popUpTo<QuickSearchRoute> { inclusive = true } }
+                },
+                onChallengeFriend = { navController.popBackStack() },
+            )
+        }
+        composable<BattleRoute> {
+            BattlePendingScreen(onClose = { navController.popBackStack<Home>(inclusive = false) })
         }
         composable<PairStreaksRoute> {
             PairStreaksScreen(
@@ -206,7 +230,11 @@ fun NightWatchNavHost(
             FriendRequestsScreen(onClose = { navController.popBackStack() })
         }
         composable<FriendProfileRoute> {
-            FriendProfileScreen(onClose = { navController.popBackStack() })
+            FriendProfileScreen(
+                onClose = { navController.popBackStack() },
+                // The wait for the answer is shown in the lobby, on top of the list of friends.
+                onChallengeSent = { navController.navigate(BattlesRoute) },
+            )
         }
         composable<ExamIntro> {
             ExamIntroScreen(

@@ -6,6 +6,7 @@ import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.common.FailureKind
 import com.example.nightwatchprotocol.data.learning.FakeLearningProgressRepository
 import com.example.nightwatchprotocol.data.learning.LearningTopic
+import com.example.nightwatchprotocol.data.social.FakeBattleLobbyRepository
 import com.example.nightwatchprotocol.data.social.FakeFriendsRepository
 import com.example.nightwatchprotocol.data.social.FakePairStreakRepository
 import com.example.nightwatchprotocol.data.social.Friend
@@ -382,7 +383,7 @@ class PairStreaksViewModelsTest {
         friends.friends.clear()
         friends.friends += Friend("mateo", "NIGHT-9H4M5P", 0, false)
         val profile = FriendProfileViewModel(
-            SavedStateHandle(mapOf(FriendProfileViewModel.KEY_FRIEND_CODE to "NIGHT-9H4M5P")), friends, pairs,
+            SavedStateHandle(mapOf(FriendProfileViewModel.KEY_FRIEND_CODE to "NIGHT-9H4M5P")), friends, pairs, FakeBattleLobbyRepository(),
         )
 
         profile.onInvitePairClicked()
@@ -398,7 +399,7 @@ class PairStreaksViewModelsTest {
     fun profile_invitingWhenThereIsAlreadyAPair_showsTheMessage() = runTest {
         pairs.pairs += FakePairStreakRepository.activePair("mateo", "NIGHT-9H4M5P", 1)
         val profile = FriendProfileViewModel(
-            SavedStateHandle(mapOf(FriendProfileViewModel.KEY_FRIEND_CODE to "NIGHT-9H4M5P")), friends, pairs,
+            SavedStateHandle(mapOf(FriendProfileViewModel.KEY_FRIEND_CODE to "NIGHT-9H4M5P")), friends, pairs, FakeBattleLobbyRepository(),
         )
 
         profile.onInvitePairClicked()

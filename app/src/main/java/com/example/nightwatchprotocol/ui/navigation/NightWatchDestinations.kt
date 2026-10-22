@@ -66,6 +66,18 @@ object FriendRequestsRoute
 @Serializable
 object PairStreaksRoute
 
+/** "Batallas": the score, the quick match, the challenges and the friends to challenge. Full screen, without the bottom bar. */
+@Serializable
+object BattlesRoute
+
+/** "Buscando oponente": the quick match queue. */
+@Serializable
+object QuickSearchRoute
+
+/** One battle, full screen. [battleId] is the id the server gave (a battle is only readable by its two players). */
+@Serializable
+data class BattleRoute(val battleId: String)
+
 /** The detail of the pair with the friend whose public code is [friendCode]. */
 @Serializable
 data class PairDetailRoute(val friendCode: String)

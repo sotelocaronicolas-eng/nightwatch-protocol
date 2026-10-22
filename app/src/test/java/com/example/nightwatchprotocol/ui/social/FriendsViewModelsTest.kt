@@ -5,6 +5,7 @@ import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.social.BattleOutcome
+import com.example.nightwatchprotocol.data.social.FakeBattleLobbyRepository
 import com.example.nightwatchprotocol.data.social.FakeFriendsRepository
 import com.example.nightwatchprotocol.data.social.FakePairStreakRepository
 import com.example.nightwatchprotocol.data.social.FakeSocialProfileRepository
@@ -43,6 +44,7 @@ class FriendsViewModelsTest {
     }
     private val profiles = FakeSocialProfileRepository(SocialProfile("yo", "NIGHT-MINE22", hideProgress = false))
     private val pairs = FakePairStreakRepository()
+    private val lobby = FakeBattleLobbyRepository()
 
     // ---- list ----
 
@@ -350,7 +352,7 @@ class FriendsViewModelsTest {
     private val clock = Clock.fixed(now, ZoneOffset.UTC)
 
     private fun profileViewModel(code: String = "NIGHT-VVVVVV") =
-        FriendProfileViewModel(SavedStateHandle(mapOf(FriendProfileViewModel.KEY_FRIEND_CODE to code)), friends, pairs, clock)
+        FriendProfileViewModel(SavedStateHandle(mapOf(FriendProfileViewModel.KEY_FRIEND_CODE to code)), friends, pairs, lobby, clock)
 
     private fun addValentina(hidden: Boolean = false) {
         friends.friends += Friend("valentina", "NIGHT-VVVVVV", 12, trainedToday = true)
@@ -467,6 +469,41 @@ class FriendsViewModelsTest {
             assertEquals(FriendProfileEvent.Removed, awaitItem())
         }
         assertTrue(friends.friends.isEmpty())
+    }
+
+    @Test
+    fun profile_battle_sendsTheChallenge_andGoesToTheLobby() = runTest {
+        addValentina()
+        val vm = profileViewModel()
+        vm.refresh()
+        advanceUntilIdle()
+
+        vm.events.test {
+            vm.onBattleClicked()
+            advanceUntilIdle()
+
+            assertEquals(FriendProfileEvent.ChallengeSent, awaitItem())
+        }
+        assertEquals(listOf("NIGHT-VVVVVV"), lobby.sentChallengesTo)
+    }
+
+    @Test
+    fun profile_battle_withARivalBusy_showsTheMessage_andStays() = runTest {
+        addValentina()
+        lobby.sendChallengeResult = com.example.nightwatchprotocol.data.social.SocialResult.Failure(
+            SocialError.Rejected(SocialRejection.RivalBusy),
+        )
+        val vm = profileViewModel()
+        vm.refresh()
+        advanceUntilIdle()
+
+        vm.events.test {
+            vm.onBattleClicked()
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+        assertEquals(SocialError.Rejected(SocialRejection.RivalBusy), vm.uiState.value.actionError)
+        assertFalse(vm.uiState.value.challenging)
     }
 
     @Test

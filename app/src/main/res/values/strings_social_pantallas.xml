@@ -113,6 +113,7 @@
     <string name="social_profile_pending_today">⏳ Pendiente hoy</string>
 
     <string name="social_profile_invite_pair">🔥 Invitar a una racha en pareja</string>
+    <string name="social_profile_battle">⚔️ Batallar</string>
     <string name="social_profile_invite_pair_sent">Enviamos la invitación de racha en pareja a %1$s.</string>
 
     <!-- Racha en pareja: lista (D15). La pantalla de Figma 2447:186 era "Racha grupal" -->
@@ -162,6 +163,44 @@
     <string name="social_pair_end_title">¿Terminar la racha con %1$s?</string>
     <string name="social_pair_end_body">Se borra para los dos y no se conserva la racha. Seguirán siendo amigos.</string>
     <string name="social_pair_end_confirm">Terminar</string>
+
+    <!-- Batallas: lobby. Figma 2448:187 -->
+    <string name="social_battles_title">Batallas</string>
+    <string name="social_battles_wins">Victorias</string>
+    <string name="social_battles_losses">Derrotas</string>
+    <string name="social_battles_quick_title">🎲 Partida rápida</string>
+    <string name="social_battles_quick_body">Emparejamiento contra un rival de tu nivel</string>
+    <string name="social_battles_quick_button">Buscar oponente →</string>
+    <string name="social_battles_friends_title">Retar a un amigo</string>
+    <string name="social_battles_friends_empty">Aún no tienes amigos a quienes retar. Agrega amigos desde Social.</string>
+    <string name="social_battles_challenge">⚔️ Retar</string>
+    <string name="social_battles_received_title">Retos recibidos</string>
+    <string name="social_battles_received_body">Te retó a una batalla</string>
+    <string name="social_battles_accept">Aceptar</string>
+    <string name="social_battles_decline">Rechazar</string>
+    <string name="social_battles_waiting_title">Esperando a %1$s…</string>
+    <string name="social_battles_waiting_body">Tiene 2 minutos para aceptar. Si sales de esta pantalla, el reto se cancela.</string>
+    <string name="social_battles_waiting_cancel">Cancelar reto</string>
+    <string name="social_battles_declined">%1$s rechazó tu reto.</string>
+    <string name="social_battles_expired">%1$s no respondió a tiempo.</string>
+    <string name="social_countdown">%1$d:%2$02d</string>
+
+    <!-- Buscando oponente. Figma 2448:223 -->
+    <string name="social_search_title">Partida rápida</string>
+    <string name="social_search_searching">Buscando oponente…</string>
+    <string name="social_search_body">Esto puede tardar unos segundos. La búsqueda sigue mientras tengas esta pantalla abierta.</string>
+    <string name="social_search_vs">VS</string>
+    <string name="social_search_unknown">?</string>
+    <string name="social_search_icon_you">🧙</string>
+    <string name="social_search_icon_search">🔍</string>
+    <string name="social_search_cancel">Cancelar búsqueda</string>
+    <string name="social_search_suggest">Aún no aparece un rival. Mientras tanto puedes retar a un amigo.</string>
+    <string name="social_search_challenge_friend">Retar a un amigo</string>
+    <string name="social_search_stopped">La búsqueda se detuvo porque saliste de la pantalla.</string>
+    <string name="social_search_again">Buscar de nuevo</string>
+
+    <string name="social_battle_pending">Tu batalla está lista. La arena llega en la siguiente etapa.</string>
+    <string name="social_back_to_social">Volver a Social</string>
 
     <!-- Hace cuánto (solo para mostrar: el servidor decide los plazos) -->
     <string name="social_ago_today">hoy</string>

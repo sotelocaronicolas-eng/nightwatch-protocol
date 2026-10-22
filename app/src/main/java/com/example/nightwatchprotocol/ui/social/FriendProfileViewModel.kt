@@ -11,6 +11,7 @@ import androidx.navigation.toRoute
 import com.example.nightwatchprotocol.NightWatchApplication
 import com.example.nightwatchprotocol.data.learning.BadgeState
 import com.example.nightwatchprotocol.data.learning.evaluateBadges
+import com.example.nightwatchprotocol.data.social.BattleLobbyRepository
 import com.example.nightwatchprotocol.data.social.BattleOutcome
 import com.example.nightwatchprotocol.data.social.FriendProfile
 import com.example.nightwatchprotocol.data.social.FriendsRepository
@@ -50,6 +51,7 @@ data class FriendProfileUiState(
     val loadError: SocialError? = null,
     val confirmingRemove: Boolean = false,
     val removing: Boolean = false,
+    val challenging: Boolean = false,
     val invitingPair: Boolean = false,
     val pairInviteSent: Boolean = false,
     val actionError: SocialError? = null,
@@ -58,6 +60,9 @@ data class FriendProfileUiState(
 sealed interface FriendProfileEvent {
     /** The friend was removed: the screen goes back to the list. */
     data object Removed : FriendProfileEvent
+
+    /** The challenge was sent: the lobby shows "Esperando a ..." with its countdown. */
+    data object ChallengeSent : FriendProfileEvent
 }
 
 /** "Perfil amigo" (Figma 2446:265). The badges are evaluated here with the same catalog as the own ones. */
@@ -65,6 +70,7 @@ class FriendProfileViewModel(
     savedStateHandle: SavedStateHandle,
     private val friendsRepository: FriendsRepository,
     private val pairStreakRepository: PairStreakRepository,
+    private val lobbyRepository: BattleLobbyRepository,
     private val clock: Clock = Clock.systemUTC(),
 ) : ViewModel() {
 
@@ -104,6 +110,22 @@ class FriendProfileViewModel(
             unlockedBadges = progress?.let { evaluateBadges(it.toBadgeFacts()).filter { badge -> badge.unlocked } }.orEmpty(),
             history = profile.history.map { FriendBattleRow(it.outcome, daysAgo(it.finishedAt, now)) },
         )
+    }
+
+    /** "⚔️ Batallar": sends the challenge (2 minutes) and the screen goes to the lobby, where the wait is shown. */
+    fun onBattleClicked() {
+        val state = _uiState.value
+        if (state.challenging) return
+        _uiState.update { it.copy(challenging = true, actionError = null) }
+        viewModelScope.launch {
+            when (val result = lobbyRepository.sendChallenge(friendCode)) {
+                is SocialResult.Success -> {
+                    _uiState.update { it.copy(challenging = false) }
+                    _events.send(FriendProfileEvent.ChallengeSent)
+                }
+                is SocialResult.Failure -> _uiState.update { it.copy(challenging = false, actionError = result.error) }
+            }
+        }
     }
 
     /** "Invitar a una racha en pareja" (M5): the server checks that this person is a friend and that there is no pair yet. */
@@ -152,7 +174,12 @@ class FriendProfileViewModel(
                 // The route carries the friend code; it is copied under a fixed key so the tests do not need the navigation library.
                 handle[KEY_FRIEND_CODE] = handle.toRoute<FriendProfileRoute>().friendCode
                 val container = application.container
-                FriendProfileViewModel(handle, container.friendsRepository, container.pairStreakRepository)
+                FriendProfileViewModel(
+                    handle,
+                    container.friendsRepository,
+                    container.pairStreakRepository,
+                    container.battleLobbyRepository,
+                )
             }
         }
     }

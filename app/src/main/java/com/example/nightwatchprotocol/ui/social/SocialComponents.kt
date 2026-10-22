@@ -21,6 +21,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -32,10 +35,13 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.social.ServerCountdown
 import com.example.nightwatchprotocol.data.social.SocialError
+import com.example.nightwatchprotocol.data.social.SystemMonotonicClock
 import com.example.nightwatchprotocol.ui.components.NightWatchGold
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.TitleTopBar
@@ -44,6 +50,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import kotlinx.coroutines.delay
 
 /*
  * The pieces every Social screen shares. They reuse the look that already exists in the app (the light cards and pills of Labs, the
@@ -332,3 +339,37 @@ fun EmptyState(text: String, modifier: Modifier = Modifier) {
 
 /** The spacing of a list of rows. */
 val SocialListSpacing = Arrangement.spacedBy(10.dp)
+
+/**
+ * The seconds left of a [ServerCountdown], redrawn four times a second from the monotonic clock. The phone's date and time are
+ * never read, and reaching 0 decides nothing: the next answer of the server says what happened.
+ */
+@Composable
+fun rememberSecondsLeft(countdown: ServerCountdown): State<Int> = produceState(
+    initialValue = countdown.remainingSeconds(SystemMonotonicClock.nanoTime()),
+    key1 = countdown,
+) {
+    while (true) {
+        value = countdown.remainingSeconds(SystemMonotonicClock.nanoTime())
+        delay(250)
+    }
+}
+
+/** "1:45" for a countdown. */
+@Composable
+fun CountdownText(
+    countdown: ServerCountdown,
+    modifier: Modifier = Modifier,
+    color: Color = SocialOnLight,
+    fontSize: TextUnit = 12.sp,
+) {
+    val seconds by rememberSecondsLeft(countdown)
+    Text(
+        text = stringResource(R.string.social_countdown, seconds / 60, seconds % 60),
+        color = color,
+        fontFamily = NightWatchBodyFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = fontSize,
+        modifier = modifier,
+    )
+}
