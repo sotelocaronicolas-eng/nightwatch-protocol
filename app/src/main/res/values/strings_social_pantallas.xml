@@ -199,8 +199,37 @@
     <string name="social_search_stopped">La búsqueda se detuvo porque saliste de la pantalla.</string>
     <string name="social_search_again">Buscar de nuevo</string>
 
-    <string name="social_battle_pending">La batalla terminó. El resultado llega en la siguiente etapa.</string>
-    <string name="social_back_to_social">Volver a Social</string>
+    <!-- Fin de batalla. Figma 2451:195 y 2451:209 -->
+    <string name="social_end_title">Resultado</string>
+    <string name="social_end_victory_icon">🏆</string>
+    <string name="social_end_victory">¡Victoria!</string>
+    <string name="social_end_victory_body">Derrotaste a %1$s en la batalla de preguntas.</string>
+    <string name="social_end_victory_forfeit_body">%1$s salió de la batalla o perdió la conexión. ¡La victoria es tuya!</string>
+    <string name="social_end_defeat_icon">💀</string>
+    <string name="social_end_defeat">Derrota</string>
+    <string name="social_end_defeat_body">%1$s ganó esta batalla. ¡Sigue practicando y vuelve más fuerte!</string>
+    <string name="social_end_defeat_disconnect_body">Perdiste porque pasó más de 1 minuto sin conexión con la batalla. Mantén la app abierta mientras peleas.</string>
+    <string name="social_end_defeat_abandon_body">Saliste de la batalla, así que la perdiste.</string>
+    <string name="social_end_draw_icon">🤝</string>
+    <string name="social_end_draw">Empate</string>
+    <string name="social_end_draw_body">Nadie ganó contra %1$s: se acabaron los 20 turnos con la misma vida.</string>
+    <string name="social_end_cancelled_icon">🚫</string>
+    <string name="social_end_cancelled">Batalla cancelada</string>
+    <string name="social_end_cancelled_body">Los dos salieron antes de empezar a jugar. Nadie gana ni pierde XP.</string>
+    <string name="social_end_hp_left">HP restante</string>
+    <string name="social_end_hp_value">%1$d/100</string>
+    <string name="social_end_xp">🎁 +%1$d XP</string>
+    <string name="social_end_xp_none">🎁 Sin XP en esta batalla</string>
+    <string name="social_end_level">⭐ Nivel de combatiente %1$d · %2$d XP</string>
+    <string name="social_end_level_next">⭐ Nivel de combatiente %1$d · %2$d de %3$d XP</string>
+    <string name="social_end_battle_streak">🔥 Racha de batallas: %1$d</string>
+    <string name="social_end_review">📚 Repasa %1$s</string>
+    <string name="social_end_review_join">%1$s y %2$s</string>
+    <string name="social_end_streak_safe">🔥 Tu racha de entrenamiento sigue intacta</string>
+    <string name="social_end_score">⚔️ %1$d Victorias · %2$d Derrotas</string>
+    <string name="social_end_score_draws">⚔️ %1$d Victorias · %2$d Derrotas · %3$d Empates</string>
+    <string name="social_end_rematch">Revancha</string>
+    <string name="social_end_back">Volver a Social</string>
 
     <!-- Arena. Figma 2449:189, 2449:255 y la espera de turno (M2) -->
     <string name="social_arena_title">Batalla vs %1$s</string>

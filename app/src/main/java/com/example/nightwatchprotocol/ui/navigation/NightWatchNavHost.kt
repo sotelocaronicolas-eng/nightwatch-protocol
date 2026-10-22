@@ -46,7 +46,7 @@ import com.example.nightwatchprotocol.ui.quiz.PlacementQuizScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementResultScreen
 import com.example.nightwatchprotocol.ui.social.AddFriendScreen
 import com.example.nightwatchprotocol.ui.social.ArenaScreen
-import com.example.nightwatchprotocol.ui.social.BattlePendingScreen
+import com.example.nightwatchprotocol.ui.social.BattleResultScreen
 import com.example.nightwatchprotocol.ui.social.BattlesScreen
 import com.example.nightwatchprotocol.ui.social.QuickSearchScreen
 import com.example.nightwatchprotocol.ui.social.FriendProfileScreen
@@ -207,7 +207,13 @@ fun NightWatchNavHost(
             )
         }
         composable<BattleResultRoute> {
-            BattlePendingScreen(onClose = { navController.popBackStack<Home>(inclusive = false) })
+            BattleResultScreen(
+                onBack = { navController.popBackStack<Home>(inclusive = false) },
+                // "Revancha": the lobby shows the wait for the friend's answer, with Home (Social) below it.
+                onRematchSent = {
+                    navController.navigate(BattlesRoute) { popUpTo<BattleResultRoute> { inclusive = true } }
+                },
+            )
         }
         composable<PairStreaksRoute> {
             PairStreaksScreen(
