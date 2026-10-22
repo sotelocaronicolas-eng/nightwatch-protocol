@@ -45,6 +45,7 @@ import com.example.nightwatchprotocol.ui.profile.usermenu.UserMenuScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementQuizScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementResultScreen
 import com.example.nightwatchprotocol.ui.social.AddFriendScreen
+import com.example.nightwatchprotocol.ui.social.ArenaScreen
 import com.example.nightwatchprotocol.ui.social.BattlePendingScreen
 import com.example.nightwatchprotocol.ui.social.BattlesScreen
 import com.example.nightwatchprotocol.ui.social.QuickSearchScreen
@@ -197,6 +198,15 @@ fun NightWatchNavHost(
             )
         }
         composable<BattleRoute> {
+            ArenaScreen(
+                onClose = { navController.popBackStack<Home>(inclusive = false) },
+                // The battle leaves the stack: back from the result goes to Social, never into a battle that is over.
+                onFinished = { battleId ->
+                    navController.navigate(BattleResultRoute(battleId)) { popUpTo<BattleRoute> { inclusive = true } }
+                },
+            )
+        }
+        composable<BattleResultRoute> {
             BattlePendingScreen(onClose = { navController.popBackStack<Home>(inclusive = false) })
         }
         composable<PairStreaksRoute> {

@@ -78,6 +78,10 @@ object QuickSearchRoute
 @Serializable
 data class BattleRoute(val battleId: String)
 
+/** The end of one battle: the result, the XP and the way back. Full screen. */
+@Serializable
+data class BattleResultRoute(val battleId: String)
+
 /** The detail of the pair with the friend whose public code is [friendCode]. */
 @Serializable
 data class PairDetailRoute(val friendCode: String)
