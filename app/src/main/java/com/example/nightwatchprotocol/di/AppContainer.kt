@@ -45,8 +45,25 @@ import com.example.nightwatchprotocol.data.quiz.QuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.SupabasePlacementRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.data.session.sessionDataStore
+import com.example.nightwatchprotocol.data.social.BattleLobbyRepository
+import com.example.nightwatchprotocol.data.social.BattlePoller
+import com.example.nightwatchprotocol.data.social.BattleRepository
+import com.example.nightwatchprotocol.data.social.ChallengesPoller
+import com.example.nightwatchprotocol.data.social.FighterRepository
+import com.example.nightwatchprotocol.data.social.FriendsRepository
+import com.example.nightwatchprotocol.data.social.PairStreakRepository
+import com.example.nightwatchprotocol.data.social.QuickMatchPoller
+import com.example.nightwatchprotocol.data.social.SocialProfileRepository
+import com.example.nightwatchprotocol.data.social.SocialRpcClient
+import com.example.nightwatchprotocol.data.supabase.SupabaseBattleLobbyRepository
+import com.example.nightwatchprotocol.data.supabase.SupabaseBattleRepository
+import com.example.nightwatchprotocol.data.supabase.SupabaseFighterRepository
+import com.example.nightwatchprotocol.data.supabase.SupabaseFriendsRepository
 import com.example.nightwatchprotocol.data.supabase.SupabaseLearningProgressRepository
+import com.example.nightwatchprotocol.data.supabase.SupabasePairStreakRepository
 import com.example.nightwatchprotocol.data.supabase.SupabaseRecoveryEmailCodeApi
+import com.example.nightwatchprotocol.data.supabase.SupabaseSocialProfileRepository
+import com.example.nightwatchprotocol.data.supabase.SupabaseSocialRpcClient
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.auth
@@ -85,6 +102,19 @@ interface AppContainer {
 
     /** The streak and the badges, derived from the progress (nothing of them is stored). */
     val progressSummaryProvider: ProgressSummaryProvider
+
+    // Social (module 4). The server decides everything about the game; these only ask and show.
+    val socialProfileRepository: SocialProfileRepository
+    val fighterRepository: FighterRepository
+    val friendsRepository: FriendsRepository
+    val pairStreakRepository: PairStreakRepository
+    val battleLobbyRepository: BattleLobbyRepository
+    val battleRepository: BattleRepository
+
+    /** Polling (decision D18): `battle_sync` every 2 to 3 seconds while a battle is open, the queue while looking for a rival. */
+    val battlePoller: BattlePoller
+    val quickMatchPoller: QuickMatchPoller
+    val challengesPoller: ChallengesPoller
 }
 
 /**
@@ -156,4 +186,18 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val learningProgressRepository: LearningProgressRepository =
         SupabaseLearningProgressRepository(supabaseClient.postgrest, sessionUserId)
     override val progressSummaryProvider: ProgressSummaryProvider = ProgressSummaryProvider(learningProgressRepository)
+
+    // Social: the SQL functions travel through one client; the person always comes from the session (no id is sent).
+    private val socialRpcClient: SocialRpcClient = SupabaseSocialRpcClient(supabaseClient.postgrest, sessionUserId)
+
+    override val socialProfileRepository: SocialProfileRepository =
+        SupabaseSocialProfileRepository(supabaseClient.postgrest, sessionUserId)
+    override val fighterRepository: FighterRepository = SupabaseFighterRepository(supabaseClient.postgrest, sessionUserId)
+    override val friendsRepository: FriendsRepository = SupabaseFriendsRepository(socialRpcClient)
+    override val pairStreakRepository: PairStreakRepository = SupabasePairStreakRepository(socialRpcClient)
+    override val battleLobbyRepository: BattleLobbyRepository = SupabaseBattleLobbyRepository(socialRpcClient)
+    override val battleRepository: BattleRepository = SupabaseBattleRepository(socialRpcClient)
+    override val battlePoller: BattlePoller = BattlePoller(battleRepository)
+    override val quickMatchPoller: QuickMatchPoller = QuickMatchPoller(battleLobbyRepository)
+    override val challengesPoller: ChallengesPoller = ChallengesPoller(battleLobbyRepository)
 }

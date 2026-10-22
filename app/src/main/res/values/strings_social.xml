@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Textos de la interfaz del módulo 4 (Social): prefijo social_.
+    Aquí van los mensajes de error: la interfaz NUNCA muestra un código crudo del servidor (no_session, rate_limited...);
+    cada error y cada motivo de rechazo de SocialError tiene su mensaje. Todos son "propuestos": no están en Figma (diferencia
+    F13 de la spec). Las pantallas del módulo agregan aquí sus textos en las etapas siguientes.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Fallas de la llamada (SocialError). "momento" y "comando" son español correcto: el aviso de Typos es del diccionario en inglés
+         (la misma exclusión que usa strings_aprendizaje.xml). -->
+    <string name="social_error_offline">Sin conexión. Revisa tu internet e inténtalo de nuevo.</string>
+    <string name="social_error_no_session">Tu sesión expiró. Vuelve a iniciar sesión.</string>
+    <string name="social_error_not_enabled">Primero crea tu nombre de usuario para usar Social.</string>
+    <string name="social_error_rate_limited" tools:ignore="Typos">Demasiados intentos. Espera un momento y vuelve a probar.</string>
+    <string name="social_error_invalid_input">El texto escrito no es válido. Revísalo e inténtalo otra vez.</string>
+    <string name="social_error_permission_denied">No tienes permiso para hacer esto.</string>
+    <string name="social_error_unknown">Ocurrió un error inesperado. Inténtalo de nuevo.</string>
+
+    <!-- Motivos de rechazo (SocialRejection): amigos -->
+    <string name="social_rejected_not_found">No encontramos a esa persona.</string>
+    <string name="social_rejected_invalid_target">No puedes hacer esto contigo mismo.</string>
+    <string name="social_rejected_already_friends">Ya son amigos.</string>
+    <string name="social_rejected_request_exists">Ya enviaste una solicitud a esta persona.</string>
+    <string name="social_rejected_request_incoming">Esta persona ya te envió una solicitud. Revísala en Solicitudes.</string>
+    <string name="social_rejected_request_gone">Esa solicitud ya no existe.</string>
+    <string name="social_rejected_cooldown">Esta persona rechazó tu solicitud hace poco. Inténtalo de nuevo más tarde.</string>
+    <string name="social_rejected_too_many_pending">Tienes demasiadas solicitudes pendientes. Espera a que respondan.</string>
+    <string name="social_rejected_friends_limit">Se alcanzó el máximo de amigos.</string>
+
+    <!-- Motivos de rechazo: racha en pareja -->
+    <string name="social_rejected_pair_exists">Ya tienen una racha en pareja o una invitación pendiente.</string>
+    <string name="social_rejected_pair_gone">Esa racha en pareja ya no existe.</string>
+
+    <!-- Motivos de rechazo: retos y batallas -->
+    <string name="social_rejected_challenge_pending">Ya tienes un reto pendiente.</string>
+    <string name="social_rejected_challenge_gone">Ese reto ya no está disponible.</string>
+    <string name="social_rejected_already_in_battle">Ya estás en una batalla.</string>
+    <string name="social_rejected_rival_busy">Tu amigo está en otra batalla.</string>
+    <string name="social_rejected_battle_over">La batalla ya terminó.</string>
+    <string name="social_rejected_not_your_turn">Todavía no es tu turno.</string>
+    <string name="social_rejected_stale_turn">Esa pregunta ya pasó.</string>
+    <string name="social_rejected_bad_option">Elige una opción de la A a la D.</string>
+    <string name="social_rejected_ulti_not_charged">Tu ulti todavía no está cargada.</string>
+    <string name="social_rejected_no_ulti">No hay un reto de ulti en curso.</string>
+    <string name="social_rejected_bad_command" tools:ignore="Typos">El comando no es válido.</string>
+    <string name="social_rejected_already_resolved">Ya terminaste este reto.</string>
+    <string name="social_rejected_bank_empty">Las batallas todavía no tienen preguntas disponibles.</string>
+
+    <!-- Motivos de rechazo: nombre de usuario -->
+    <string name="social_rejected_username_taken">Ese nombre de usuario ya está en uso.</string>
+    <string name="social_rejected_invalid_username">Usa de 3 a 20 letras, números o guion bajo (_).</string>
+</resources>
