@@ -53,7 +53,7 @@ El esquema está en `supabase/migrations/0001_esquema_inicial.sql`. **Nada lo ej
 Los archivos de `supabase/migrations/` se ejecutan **en orden numérico** (`0001`, `0002`, ...) y **una sola vez
 por proyecto**. Una migración que ya se aplicó **no se edita**: cualquier cambio posterior va en una migración
 nueva con el siguiente número. Hoy hay siete **ya aplicadas** en el proyecto del equipo (un proyecto nuevo las necesita
-todas, en orden) y una octava **ya aplicada** (`0008`, Social; ver la Parte F). La novena (`0009`) está en borrador:
+todas, en orden) y una octava y una novena **ya aplicadas** (`0008` y `0009`, Social; ver la Parte F):
 
 1. `0001_esquema_inicial.sql`: tablas, RLS, políticas y grants.
 2. `0002_minimo_privilegio.sql`: quita a `authenticated` los privilegios `TRUNCATE`, `REFERENCES` y `TRIGGER`,
@@ -71,7 +71,8 @@ todas, en orden) y una octava **ya aplicada** (`0008`, Social; ver la Parte F). 
    dueño y `GRANT` por columna (aplicada; ver "Parte E"). No toca ninguna tabla anterior.
 8. `0008_social.sql` (**aplicada y verificada**): 14 tablas y 5 funciones públicas del módulo 4 (amigos, rachas de pareja y batallas).
    No toca ninguna tabla anterior; ver la Parte F.
-9. `0009_banco_batallas.sql` (**BORRADOR, sin aplicar**): curva de XP, 72 preguntas de batalla y 12 retos de ulti. Se aplica a mano **después** de `0008`.
+9. `0009_banco_batallas.sql` (**aplicada y verificada el 2026-10-21**): curva de XP (20 niveles, máximo 1.900 XP), 72 preguntas de batalla
+   (18 respuestas correctas de cada letra) y 12 retos de ulti. Se aplicó a mano **después** de `0008`.
 
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
@@ -377,8 +378,9 @@ completar un lab o terminar un examen falla al guardar (la app lo muestra como e
 **Estado: `0008` aplicado en Supabase y verificado** (rama `modulo-4`; el guion dio 219 comprobaciones con 0 fallas el 2026-10-21 y el
 Security Advisor no mostró errores; ver "Resultado de la verificación"). El script es `supabase/migrations/0008_social.sql` y su guion de
 verificación `supabase/verificacion/0008_escenarios.sql`. La especificación está en `docs/superpowers/specs/2026-10-21-modulo-4-design.md`.
-**`0008` ya no se edita:** cualquier cambio va en un script nuevo. El banco de preguntas, los retos de ulti y la curva de XP van en `0009`
-(borrador, sin aplicar).
+**`0008` y `0009` ya no se editan:** cualquier cambio va en un script nuevo. El banco de preguntas, los retos de ulti y la curva de XP
+están en `0009` (**aplicado y verificado el 2026-10-21**: 72 preguntas, 18 respuestas correctas de cada letra, 12 retos y 20 niveles con un
+máximo de 1.900 XP). El guion de escenarios se repitió **con el banco real** y dio **219 de 219 comprobaciones, 0 fallas**.
 
 ### Qué crea el 0008
 
@@ -405,7 +407,7 @@ verificación `supabase/verificacion/0008_escenarios.sql`. La especificación es
 2. **Aplicar `0008_social.sql`** pegándolo **completo** en el SQL Editor, **una sola vez** (**hecho**). Una vez aplicado no se edita y cualquier cambio va en un script nuevo.
 3. **Correr las consultas de verificación** del final del archivo (a a i) y el **guion de escenarios** (más abajo) (**hecho**: ver "Resultado de la verificación").
 4. **Revisar el Security Advisor** y documentar las advertencias aceptadas (**hecho**: ver "Advertencias aceptadas del Security Advisor (Social)").
-5. **Aplicar `0009`** (banco de 72 preguntas, retos de ulti y curva de XP) **después** del `0008`. Hasta entonces las tablas de contenido están vacías: una batalla no puede empezar (`bank_empty`) y todos son nivel 1.
+5. **Aplicar `0009`** (banco de 72 preguntas, retos de ulti y curva de XP) **después** del `0008` (**hecho el 2026-10-21**, con sus consultas de conteo: 72 preguntas, 18 por letra, 12 retos, 20 niveles, máximo 1.900 XP). Antes de aplicarlo las tablas de contenido están vacías: una batalla no puede empezar (`bank_empty`) y todos son nivel 1.
 6. **Instalar la versión de la app** de las etapas de Social **después** de `0008` y `0009`: sin las tablas, Social falla al cargar y muestra el error con "Reintentar".
 
 ### Cómo verificar
@@ -424,6 +426,8 @@ verificación `supabase/verificacion/0008_escenarios.sql`. La especificación es
 | Qué | Resultado |
 |---|---|
 | Guion `supabase/verificacion/0008_escenarios.sql` | **219 comprobaciones, 0 fallas.** Ejecutado el **2026-10-21** en el SQL Editor, con **dos usuarios de prueba** (ya **eliminados**). El guion borró lo que creó y restauró el banco, los retos y la curva |
+| Mismo guion **con el banco real** (después de aplicar `0009`) | **219 de 219 comprobaciones, 0 fallas** (2026-10-21). El guion aparta el banco real mientras corre y lo vuelve a activar al terminar |
+| Conteos de `0009` | 72 preguntas (12 por tema, 4 por escalón en cada tema), 18 respuestas correctas de cada letra, 12 retos de ulti (6 de ataque y 6 de defensa) y 20 niveles con un máximo de 1.900 XP |
 | Security Advisor tras aplicar `0008` | **0 errores** y las advertencias esperadas (tabla "Advertencias aceptadas del Security Advisor (Social)") |
 | Corrección del guion tras la primera corrida | El bloque 9 crea la segunda batalla con la partida rápida y no con `new_battle`, porque `new_battle` borra las batallas anteriores de los dos jugadores. Es un cambio del guion, no del script `0008` |
 
