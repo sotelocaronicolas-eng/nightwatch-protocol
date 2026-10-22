@@ -962,7 +962,9 @@ begin
     -- A abandona una batalla (B gana +50, A 0) y B abandona otra (A gana +50, B 0)
     bid := pg_temp.new_battle(v_a, v_b);
     perform pg_temp.pl(v_a, bid, 'abandon');
-    bid2 := pg_temp.new_battle(v_a, v_b);
+    perform pg_temp.l(v_a, 'quick_join');
+    bid2 := (pg_temp.l(v_b, 'quick_join') ->> 'battle_id')::uuid;
+    update public.battles set last_seen1 = clock_timestamp(), last_seen2 = clock_timestamp() where id = bid2;
     perform pg_temp.pl(v_b, bid2, 'abandon');
 
     perform pg_temp.chk('9 XP', 'B ve sus 2 resultados y NINGUNO de A (RLS de dueño)', '2|0',
