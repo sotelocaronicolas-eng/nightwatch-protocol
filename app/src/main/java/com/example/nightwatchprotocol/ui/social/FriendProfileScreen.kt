@@ -100,8 +100,9 @@ internal fun FriendProfileContent(
             if (uiState.loading) SocialLoading()
             return@Column
         }
-        SocialAvatar(
-            photo = null,
+        SocialPhotoAvatar(
+            avatarKey = uiState.avatarKey,
+            avatarVersion = uiState.avatarVersion,
             emoji = stringResource(R.string.social_icon_person),
             size = 100.dp,
             withWizardGear = false,

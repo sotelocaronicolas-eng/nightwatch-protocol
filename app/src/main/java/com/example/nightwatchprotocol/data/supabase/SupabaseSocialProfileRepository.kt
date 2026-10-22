@@ -10,6 +10,7 @@ import com.example.nightwatchprotocol.data.social.SocialProfileRepository
 import com.example.nightwatchprotocol.data.social.SocialRejection
 import com.example.nightwatchprotocol.data.social.SocialResult
 import com.example.nightwatchprotocol.data.social.flatMap
+import com.example.nightwatchprotocol.data.social.isValidAvatarKey
 import com.example.nightwatchprotocol.data.social.isValidUsername
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Order
@@ -40,6 +41,9 @@ data class SocialProfileRow(
     val username: String,
     @SerialName("friend_code") val friendCode: String,
     @SerialName("hide_progress") val hideProgress: Boolean,
+    // Default values: the columns exist only once `0010_fotos_social.sql` is applied, and the row is only ever read.
+    @SerialName("avatar_key") val avatarKey: String? = null,
+    @SerialName("avatar_version") val avatarVersion: Int? = null,
 )
 
 @Serializable
@@ -56,7 +60,8 @@ data class BattleResultRow(
 @Serializable
 data class LevelCurveRow(val level: Int, @SerialName("min_xp") val minXp: Int)
 
-fun SocialProfileRow.toDomain(): SocialProfile = SocialProfile(username, friendCode, hideProgress)
+fun SocialProfileRow.toDomain(): SocialProfile =
+    SocialProfile(username, friendCode, hideProgress, avatarKey?.takeIf(::isValidAvatarKey), avatarVersion?.takeIf { it >= 1 })
 
 /** Own Social profile (table `social_profile`). The row is the session's: it is filtered by the session id, never by a screen's. */
 class SupabaseSocialProfileRepository(

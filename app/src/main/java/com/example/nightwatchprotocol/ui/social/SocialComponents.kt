@@ -220,6 +220,8 @@ fun PersonRow(
     modifier: Modifier = Modifier,
     emoji: String = stringResource(R.string.social_icon_person),
     showAvatar: Boolean = true,
+    avatarKey: String? = null,
+    avatarVersion: Int? = null,
     onClick: (() -> Unit)? = null,
     details: (@Composable ColumnScope.() -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
@@ -234,7 +236,10 @@ fun PersonRow(
             .let { if (onClick != null) it.clickable(role = Role.Button, onClick = onClick) else it }
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
-        if (showAvatar) SocialAvatar(photo = null, emoji = emoji, size = 40.dp, withWizardGear = false, contentDescription = null)
+        if (showAvatar) {
+            // The name is right next to it: the avatar is decoration for a screen reader.
+            SocialPhotoAvatar(avatarKey, avatarVersion, emoji, size = 40.dp, withWizardGear = false, contentDescription = null)
+        }
         Column(modifier = Modifier.padding(start = if (showAvatar) 12.dp else 0.dp).weight(1f)) {
             Text(
                 text = name,

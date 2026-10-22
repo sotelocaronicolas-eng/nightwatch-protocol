@@ -67,12 +67,21 @@ class SocialHomeViewModel(
     private val fighterRepository: FighterRepository,
     /** The "ocultar mi progreso" chosen before Social existed is carried to the new profile, so nothing becomes visible by surprise. */
     private val userPreferences: UserPreferences? = null,
+    /** Runs once, the first time Social is seen enabled: it puts into Social a profile photo saved before. A failure changes nothing. */
+    private val onSocialReady: suspend () -> Unit = {},
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SocialHomeUiState())
     val uiState: StateFlow<SocialHomeUiState> = _uiState.asStateFlow()
 
     private var refreshJob: Job? = null
+    private var photoSyncStarted = false
+
+    private fun syncPhotoOnce() {
+        if (photoSyncStarted) return
+        photoSyncStarted = true
+        viewModelScope.launch { onSocialReady() }
+    }
 
     /** Reads the profile and, with Social enabled, the three tiles. Safe to call again: a read already running is not duplicated. */
     fun refresh() {
@@ -86,6 +95,7 @@ class SocialHomeViewModel(
                         _uiState.update { it.copy(status = SocialHomeStatus.NeedsUsername) }
                     } else {
                         _uiState.update { it.copy(status = SocialHomeStatus.Ready) }
+                        syncPhotoOnce()
                         loadTiles()
                     }
             }
@@ -142,6 +152,7 @@ class SocialHomeViewModel(
                         profileRepository.setHideProgress(true)
                     }
                     _uiState.update { it.copy(creating = false, status = SocialHomeStatus.Ready) }
+                    syncPhotoOnce()
                     loadTiles()
                 }
             }
@@ -159,6 +170,7 @@ class SocialHomeViewModel(
                     pairStreakRepository = container.pairStreakRepository,
                     fighterRepository = container.fighterRepository,
                     userPreferences = container.userPreferences,
+                    onSocialReady = { container.avatarRepository.syncSocialIfMissing() },
                 )
             }
         }

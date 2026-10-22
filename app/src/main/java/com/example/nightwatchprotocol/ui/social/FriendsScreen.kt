@@ -88,6 +88,8 @@ private fun FriendRow(friend: Friend, onClick: () -> Unit) {
     PersonRow(
         name = friend.username,
         subtitle = null,
+        avatarKey = friend.avatarKey,
+        avatarVersion = friend.avatarVersion,
         onClick = onClick,
         details = {
             Text(

@@ -13,8 +13,20 @@ import java.time.LocalDate
 
 // ---- own profile (table social_profile) and fighter progress (tables battle_results and fighter_level_curve) ----
 
+/*
+ * The photo of a person in Social is identified by [avatarKey] (a random key the server makes up, NEVER an Auth id) and
+ * [avatarVersion] (null = no photo; it goes up each time the photo changes). Both are null when the server does not send them
+ * (`0010_fotos_social.sql` not applied yet): the screens then show the emoji. See [SocialAvatarRepository].
+ */
+
 /** The signed-in person's Social profile. There is none until they create a username. */
-data class SocialProfile(val username: String, val friendCode: String, val hideProgress: Boolean)
+data class SocialProfile(
+    val username: String,
+    val friendCode: String,
+    val hideProgress: Boolean,
+    val avatarKey: String? = null,
+    val avatarVersion: Int? = null,
+)
 
 /** One finished battle of the signed-in person (a row of `battle_results`). */
 data class BattleHistoryEntry(
@@ -46,16 +58,34 @@ enum class BattleOutcome { Win, Loss, Draw }
 
 // ---- friends (social_friends) ----
 
-data class PersonRef(val username: String, val friendCode: String)
+data class PersonRef(
+    val username: String,
+    val friendCode: String,
+    val avatarKey: String? = null,
+    val avatarVersion: Int? = null,
+)
 
 /** [streakDays] is the friend's personal streak (Colombian time) and [trainedToday] whether they practiced today. */
-data class Friend(val username: String, val friendCode: String, val streakDays: Int, val trainedToday: Boolean)
+data class Friend(
+    val username: String,
+    val friendCode: String,
+    val streakDays: Int,
+    val trainedToday: Boolean,
+    val avatarKey: String? = null,
+    val avatarVersion: Int? = null,
+)
 
 data class FriendRequests(val received: List<PersonRef>, val sent: List<PersonRef>)
 
 enum class FriendRelation { None, Sent, Received, Friends }
 
-data class FriendSearchHit(val username: String, val friendCode: String, val relation: FriendRelation)
+data class FriendSearchHit(
+    val username: String,
+    val friendCode: String,
+    val relation: FriendRelation,
+    val avatarKey: String? = null,
+    val avatarVersion: Int? = null,
+)
 
 /** The fields of [BadgeFacts] plus the combatant level: the app evaluates the 9 badges with them (no badge rules in SQL). */
 data class FriendProgress(
@@ -81,6 +111,8 @@ data class FriendProfile(
     val hidden: Boolean,
     val progress: FriendProgress?,
     val history: List<FriendBattleEntry>,
+    val avatarKey: String? = null,
+    val avatarVersion: Int? = null,
 )
 
 // ---- pair streaks (social_pairs) ----
@@ -109,6 +141,8 @@ data class PairStreak(
     val status: PairStatus,
     val expiresAt: Instant?,
     val metrics: PairMetrics?,
+    val avatarKey: String? = null,
+    val avatarVersion: Int? = null,
 )
 
 /** [topCurrentDays] is the current streak of the pair with the most days: the big number of the Social home (D15). */
@@ -133,7 +167,13 @@ sealed interface QuickMatchStatus {
 
 enum class ChallengeStatus { Pending, Accepted, Declined, Cancelled, Expired }
 
-data class ReceivedChallenge(val username: String, val friendCode: String, val timeLeft: ServerCountdown)
+data class ReceivedChallenge(
+    val username: String,
+    val friendCode: String,
+    val timeLeft: ServerCountdown,
+    val avatarKey: String? = null,
+    val avatarVersion: Int? = null,
+)
 
 data class SentChallenge(
     val username: String,
@@ -141,6 +181,8 @@ data class SentChallenge(
     val status: ChallengeStatus,
     val timeLeft: ServerCountdown,
     val battleId: String?,
+    val avatarKey: String? = null,
+    val avatarVersion: Int? = null,
 )
 
 /** [activeBattleId] is set when the person is in a battle (for example the friend accepted their challenge). */
@@ -223,6 +265,10 @@ data class BattleState(
     val lastUlti: LastUlti?,
     val result: BattleResultView?,
     val endReason: BattleEndReason?,
+    val myAvatarKey: String? = null,
+    val myAvatarVersion: Int? = null,
+    val rivalAvatarKey: String? = null,
+    val rivalAvatarVersion: Int? = null,
 ) {
     val isOpen: Boolean get() = status == BattleStatus.Active
 }

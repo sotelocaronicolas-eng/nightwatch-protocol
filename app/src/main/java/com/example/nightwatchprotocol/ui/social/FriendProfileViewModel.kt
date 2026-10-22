@@ -39,6 +39,8 @@ data class FriendBattleRow(val outcome: BattleOutcome, val daysAgo: Int?)
 data class FriendProfileUiState(
     val loading: Boolean = true,
     val username: String = "",
+    val avatarKey: String? = null,
+    val avatarVersion: Int? = null,
     val streakDays: Int = 0,
     val trainedToday: Boolean = false,
     val hidden: Boolean = false,
@@ -101,6 +103,8 @@ class FriendProfileViewModel(
             loaded = true,
             loadError = null,
             username = profile.username,
+            avatarKey = profile.avatarKey,
+            avatarVersion = profile.avatarVersion,
             streakDays = profile.streakDays,
             trainedToday = profile.trainedToday,
             hidden = profile.hidden,

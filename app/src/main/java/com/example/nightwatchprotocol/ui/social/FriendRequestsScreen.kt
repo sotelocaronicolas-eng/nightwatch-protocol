@@ -73,6 +73,8 @@ internal fun FriendRequestsContent(
             PersonRow(
                 name = person.username,
                 subtitle = stringResource(R.string.social_requests_wants_friend),
+                avatarKey = person.avatarKey,
+                avatarVersion = person.avatarVersion,
                 details = {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
                         SocialPill(stringResource(R.string.social_requests_accept), { onAccept(person.friendCode) }, style = PillStyle.Gold, enabled = !busy)
@@ -87,6 +89,8 @@ internal fun FriendRequestsContent(
                 PersonRow(
                     name = person.username,
                     subtitle = stringResource(R.string.social_requests_sent_label),
+                    avatarKey = person.avatarKey,
+                    avatarVersion = person.avatarVersion,
                     details = {
                         SocialPill(
                             text = stringResource(R.string.social_requests_cancel),

@@ -175,8 +175,9 @@ private fun HpHeader(battle: BattleState) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth(),
     ) {
-        SocialAvatar(
-            photo = null,
+        SocialPhotoAvatar(
+            avatarKey = battle.myAvatarKey,
+            avatarVersion = battle.myAvatarVersion,
             emoji = stringResource(R.string.social_icon_person),
             size = ARENA_AVATAR_SIZE,
             withWizardGear = true,
@@ -207,8 +208,9 @@ private fun HpHeader(battle: BattleState) {
                 HpLabel(stringResource(R.string.social_arena_hp, battle.rivalHp), Modifier, TextAlign.End)
             }
         }
-        SocialAvatar(
-            photo = null,
+        SocialPhotoAvatar(
+            avatarKey = battle.rivalAvatarKey,
+            avatarVersion = battle.rivalAvatarVersion,
             emoji = stringResource(R.string.social_icon_person),
             size = ARENA_AVATAR_SIZE,
             withWizardGear = true,
@@ -341,8 +343,9 @@ private fun OptionRow(
 @Composable
 private fun RivalTurn(battle: BattleState) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 40.dp)) {
-        SocialAvatar(
-            photo = null,
+        SocialPhotoAvatar(
+            avatarKey = battle.rivalAvatarKey,
+            avatarVersion = battle.rivalAvatarVersion,
             emoji = stringResource(R.string.social_icon_person),
             size = 72.dp,
             withWizardGear = true,

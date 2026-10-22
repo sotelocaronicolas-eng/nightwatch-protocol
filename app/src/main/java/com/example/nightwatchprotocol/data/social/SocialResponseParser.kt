@@ -102,6 +102,17 @@ private fun JsonObject.objOrNull(key: String): JsonObject? {
 
 private fun JsonObject.arr(key: String): JsonArray = field(key) as? JsonArray ?: throw MalformedResponse("$key no es una lista")
 
+/**
+ * The key of a person's photo, or null when the server does not send it (before `0010`), sends null or sends something that is
+ * not a UUID: the key becomes a file name, so only that shape gets through. Never throws: a photo is decoration.
+ */
+private fun JsonObject.photoKey(): String? =
+    (this["avatar_key"] as? JsonPrimitive)?.takeIf { it.isString }?.content?.takeIf(::isValidAvatarKey)
+
+/** The version of the photo (1 or more), or null when there is no photo or the server does not send it. */
+private fun JsonObject.photoVersion(): Int? =
+    (this["avatar_version"] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull?.takeIf { it >= 1 }
+
 private fun JsonArray.strings(): List<String> = map {
     (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.content ?: throw MalformedResponse("elemento no es texto")
 }
@@ -127,11 +138,12 @@ private val OPTION_LETTERS = listOf('A', 'B', 'C', 'D')
 
 fun parseFriends(response: JsonElement): SocialResult<List<Friend>> = parseResponse(response) { body ->
     body.arr("friends").objects().map {
-        Friend(it.str("username"), it.str("friend_code"), it.int("streak"), it.bool("trained_today"))
+        Friend(it.str("username"), it.str("friend_code"), it.int("streak"), it.bool("trained_today"), it.photoKey(), it.photoVersion())
     }
 }
 
-private fun JsonArray.people(): List<PersonRef> = objects().map { PersonRef(it.str("username"), it.str("friend_code")) }
+private fun JsonArray.people(): List<PersonRef> =
+    objects().map { PersonRef(it.str("username"), it.str("friend_code"), it.photoKey(), it.photoVersion()) }
 
 fun parseFriendRequests(response: JsonElement): SocialResult<FriendRequests> = parseResponse(response) { body ->
     FriendRequests(received = body.arr("received").people(), sent = body.arr("sent").people())
@@ -146,7 +158,13 @@ private val RELATIONS = mapOf(
 
 fun parseFriendSearch(response: JsonElement): SocialResult<FriendSearchHit> = parseResponse(response) { body ->
     if (!body.bool("found")) throw MalformedResponse("sin resultado")
-    FriendSearchHit(body.str("username"), body.str("friend_code"), body.str("relation").word(RELATIONS))
+    FriendSearchHit(
+        username = body.str("username"),
+        friendCode = body.str("friend_code"),
+        relation = body.str("relation").word(RELATIONS),
+        avatarKey = body.photoKey(),
+        avatarVersion = body.photoVersion(),
+    )
 }
 
 /** Topics this version does not know (a newer server) are dropped, like in the progress of the learning path. */
@@ -172,6 +190,8 @@ fun parseFriendProfile(response: JsonElement): SocialResult<FriendProfile> = par
         history = body.arr("history").objects().map {
             FriendBattleEntry(it.str("result").word(OUTCOMES), instantOrNull(it.strOrNull("finished_at")))
         },
+        avatarKey = body.photoKey(),
+        avatarVersion = body.photoVersion(),
     )
 }
 
@@ -205,6 +225,8 @@ private fun pairFrom(item: JsonObject): PairStreak = PairStreak(
             sharedDays = it.arr("shared_days").strings().map { day -> LocalDate.parse(day) },
         )
     },
+    avatarKey = item.photoKey(),
+    avatarVersion = item.photoVersion(),
 )
 
 fun parsePairOverview(response: JsonElement): SocialResult<PairStreakOverview> = parseResponse(response) { body ->
@@ -246,7 +268,13 @@ fun parseChallenges(response: JsonElement, clock: MonotonicClock): SocialResult<
     ChallengesView(
         activeBattleId = body.strOrNull("active_battle_id"),
         received = body.arr("received").objects().map {
-            ReceivedChallenge(it.str("username"), it.str("friend_code"), ServerCountdown(it.double("seconds_left"), receivedAt))
+            ReceivedChallenge(
+                username = it.str("username"),
+                friendCode = it.str("friend_code"),
+                timeLeft = ServerCountdown(it.double("seconds_left"), receivedAt),
+                avatarKey = it.photoKey(),
+                avatarVersion = it.photoVersion(),
+            )
         },
         sent = body.objOrNull("sent")?.let {
             SentChallenge(
@@ -255,6 +283,8 @@ fun parseChallenges(response: JsonElement, clock: MonotonicClock): SocialResult<
                 status = it.str("status").word(CHALLENGE_STATUSES),
                 timeLeft = ServerCountdown(it.double("seconds_left"), receivedAt),
                 battleId = it.strOrNull("battle_id"),
+                avatarKey = it.photoKey(),
+                avatarVersion = it.photoVersion(),
             )
         },
     )
@@ -349,5 +379,24 @@ fun parseBattleState(response: JsonElement, clock: MonotonicClock): SocialResult
             )
         },
         endReason = body.strOrNull("end_reason")?.word(END_REASONS),
+        myAvatarKey = me.photoKey(),
+        myAvatarVersion = me.photoVersion(),
+        rivalAvatarKey = rival.photoKey(),
+        rivalAvatarVersion = rival.photoVersion(),
     )
+}
+
+// ---- the photo of the own profile ----
+
+/** The function that tells the server the person uploaded (true) or deleted (false) their photo. */
+const val SOCIAL_SET_AVATAR_RPC = "social_set_avatar"
+
+fun avatarParams(hasPhoto: Boolean): JsonObject = buildJsonObject { put("p_has_photo", hasPhoto) }
+
+/** What the server answers after `social_set_avatar`: the (possibly new) key and the new version, null when there is no photo. */
+data class AvatarMark(val avatarKey: String?, val avatarVersion: Int?)
+
+fun parseAvatarMark(response: JsonElement): SocialResult<AvatarMark> = parseResponse(response) { body ->
+    if (body.str("status") != "ok") throw MalformedResponse("estado inesperado")
+    AvatarMark(body.photoKey(), body.photoVersion())
 }

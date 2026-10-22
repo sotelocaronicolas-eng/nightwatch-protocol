@@ -211,6 +211,8 @@ private fun ReceivedRow(
     PersonRow(
         name = challenge.username,
         subtitle = stringResource(R.string.social_battles_received_body),
+        avatarKey = challenge.avatarKey,
+        avatarVersion = challenge.avatarVersion,
         trailing = { CountdownText(challenge.timeLeft) },
         details = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
@@ -225,6 +227,8 @@ private fun ReceivedRow(
 private fun FriendChallengeRow(friend: Friend, blocked: Boolean, busy: Boolean, onChallenge: (String) -> Unit) {
     PersonRow(
         name = friend.username,
+        avatarKey = friend.avatarKey,
+        avatarVersion = friend.avatarVersion,
         subtitle = if (friend.streakDays > 0) {
             stringResource(R.string.social_friend_streak_active, pluralStringResource(R.plurals.social_days, friend.streakDays, friend.streakDays))
         } else {

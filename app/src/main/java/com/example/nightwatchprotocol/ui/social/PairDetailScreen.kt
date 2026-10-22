@@ -132,7 +132,7 @@ internal fun PairDetailContent(
         SocialSectionTitle(stringResource(R.string.social_pair_today_title), modifier = Modifier.align(Alignment.Start))
         Column(verticalArrangement = SocialListSpacing) {
             TodayRow(stringResource(R.string.social_pair_me), metrics.meDoneToday)
-            TodayRow(uiState.username, metrics.partnerDoneToday)
+            TodayRow(uiState.username, metrics.partnerDoneToday, uiState.avatarKey, uiState.avatarVersion)
         }
         uiState.actionError?.let { InlineError(it, Modifier.padding(top = 10.dp)) }
         ExerciseButton(uiState.exercise, metrics, onExercise)
@@ -202,10 +202,12 @@ private fun Banner(metrics: PairMetrics, partner: String) {
 
 /** Only "did their exercise today: yes or no" (rule R14): never which island. */
 @Composable
-private fun TodayRow(name: String, done: Boolean) {
+private fun TodayRow(name: String, done: Boolean, avatarKey: String? = null, avatarVersion: Int? = null) {
     PersonRow(
         name = name,
         subtitle = null,
+        avatarKey = avatarKey,
+        avatarVersion = avatarVersion,
         trailing = {
             Text(
                 text = stringResource(if (done) R.string.social_pair_done else R.string.social_pair_pending),

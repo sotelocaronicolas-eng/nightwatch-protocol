@@ -276,6 +276,35 @@ class SocialHomeViewModelTest {
     }
 
     @Test
+    fun theFirstTimeSocialIsSeenEnabled_thePhotoSavedBeforeIsPutInSocial_once() = runTest {
+        var syncs = 0
+        val vm = SocialHomeViewModel(profiles, friends, pairs, fighter, onSocialReady = { syncs++ })
+
+        vm.refresh()
+        advanceUntilIdle()
+        vm.refresh()
+        advanceUntilIdle()
+
+        assertEquals(1, syncs)
+    }
+
+    @Test
+    fun withoutAUsername_noPhotoIsSynced_untilTheUsernameIsCreated() = runTest {
+        var syncs = 0
+        profiles.profile = null
+        val vm = SocialHomeViewModel(profiles, friends, pairs, fighter, onSocialReady = { syncs++ })
+        vm.refresh()
+        advanceUntilIdle()
+        assertEquals(0, syncs)
+
+        vm.onUsernameChanged("valeNightwatch")
+        vm.onCreateUsername()
+        advanceUntilIdle()
+
+        assertEquals(1, syncs)
+    }
+
+    @Test
     fun aFailedCreation_showsTheErrorOfTheCall() = runTest {
         profiles.profile = null
         val vm = viewModel()

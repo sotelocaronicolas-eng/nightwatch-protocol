@@ -83,6 +83,8 @@ internal fun PairStreaksContent(
                 PairStatus.PendingReceived -> PersonRow(
                     name = pair.username,
                     subtitle = stringResource(R.string.social_pairs_pending_received),
+                    avatarKey = pair.avatarKey,
+                    avatarVersion = pair.avatarVersion,
                     details = {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
                             SocialPill(stringResource(R.string.social_pairs_accept), { onAccept(pair.friendCode) }, style = PillStyle.Gold, enabled = !busy)
@@ -93,6 +95,8 @@ internal fun PairStreaksContent(
                 PairStatus.PendingSent -> PersonRow(
                     name = pair.username,
                     subtitle = stringResource(R.string.social_pairs_pending_sent),
+                    avatarKey = pair.avatarKey,
+                    avatarVersion = pair.avatarVersion,
                     details = {
                         SocialPill(
                             text = stringResource(R.string.social_pairs_cancel),
@@ -113,6 +117,8 @@ internal fun PairStreaksContent(
             PersonRow(
                 name = friend.username,
                 subtitle = null,
+                avatarKey = friend.avatarKey,
+                avatarVersion = friend.avatarVersion,
                 trailing = {
                     SocialPill(
                         text = stringResource(R.string.social_pairs_invite_button),
@@ -132,6 +138,8 @@ private fun ActivePairRow(pair: PairStreak, onClick: () -> Unit) {
     PersonRow(
         name = pair.username,
         subtitle = null,
+        avatarKey = pair.avatarKey,
+        avatarVersion = pair.avatarVersion,
         onClick = onClick,
         details = {
             if (metrics != null) {

@@ -115,6 +115,8 @@ private fun HitRow(hit: FriendSearchHit, working: Boolean, onInvite: () -> Unit,
     PersonRow(
         name = hit.username,
         subtitle = hit.friendCode,
+        avatarKey = hit.avatarKey,
+        avatarVersion = hit.avatarVersion,
         trailing = {
             when (hit.relation) {
                 FriendRelation.None -> SocialPill(stringResource(R.string.social_add_invite), onInvite, style = PillStyle.Gold, enabled = !working)
