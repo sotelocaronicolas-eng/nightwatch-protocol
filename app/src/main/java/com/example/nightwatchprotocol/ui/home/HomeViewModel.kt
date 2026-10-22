@@ -96,11 +96,6 @@ class HomeViewModel(
         _uiState.update { it.copy(selectedTab = tab) }
     }
 
-    /** Social is not built (module 4): it does not change the tab; it only says "Próximamente". */
-    fun onSocialClicked() {
-        viewModelScope.launch { _events.send(HomeEvent.ShowComingSoon) }
-    }
-
     /** "Concepto nuevo" and "Prepárate con CiberMynd". */
     fun onComingSoonCardClicked() {
         viewModelScope.launch { _events.send(HomeEvent.ShowComingSoon) }

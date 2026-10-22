@@ -4,6 +4,7 @@ import com.example.nightwatchprotocol.data.social.BattleOutcome
 import com.example.nightwatchprotocol.data.social.SocialError
 import com.example.nightwatchprotocol.data.social.SocialRejection
 import com.example.nightwatchprotocol.data.social.SocialResult
+import com.example.nightwatchprotocol.data.social.isValidUsername
 import java.time.Instant
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json

@@ -1,0 +1,328 @@
+package com.example.nightwatchprotocol.ui.social
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.social.SocialError
+import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
+import com.example.nightwatchprotocol.ui.components.TitleTopBar
+import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
+import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
+import com.example.nightwatchprotocol.ui.theme.NightWatchError
+import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+
+/*
+ * The pieces every Social screen shares. They reuse the look that already exists in the app (the light cards and pills of Labs, the
+ * header of the settings screens): no new style (decision D17). The measures come from the Figma frames of Social
+ * (2440:163 to 2451:209) and are adjusted after trying them on a phone.
+ */
+
+/** Figma color/bg/elevated (#3E6E71): the icon circle and the chips (as in Labs, 2271:92). */
+internal val SocialElevated = Color(0xFF3E6E71)
+
+/** Figma color/text/on-light (#162523). */
+internal val SocialOnLight = Color(0xFF162523)
+
+private val CardShape = RoundedCornerShape(16.dp)
+private val PillShape = RoundedCornerShape(100.dp)
+
+/** A full screen of Social (without the bottom bar): the header with the title and the "X", and the content below it. */
+@Composable
+fun SocialScreen(title: String, onClose: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    NightWatchScreenBackground {
+        Column(modifier = Modifier.fillMaxSize()) {
+            TitleTopBar(title = title, onClose = onClose)
+            content()
+        }
+    }
+}
+
+@Composable
+fun SocialBodyText(text: String, modifier: Modifier = Modifier, alpha: Float = 0.85f) {
+    Text(
+        text = text,
+        color = NightWatchOnBackground,
+        fontFamily = NightWatchBodyFontFamily,
+        fontSize = 13.sp,
+        modifier = modifier.alpha(alpha),
+    )
+}
+
+@Composable
+fun SocialSectionTitle(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        color = NightWatchOnBackground,
+        fontFamily = NightWatchBodyFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp,
+        modifier = modifier.padding(top = 20.dp, bottom = 8.dp),
+    )
+}
+
+/** The icon circle with an emoji (Figma 2440:237, 2446:187). The emoji is decoration: the text next to it says everything. */
+@Composable
+fun EmojiCircle(emoji: String, modifier: Modifier = Modifier, size: Int = 48) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.size(size.dp).background(SocialElevated, CircleShape),
+    ) {
+        Text(text = emoji, fontSize = (size * 0.46f).sp, color = Color.Black, modifier = Modifier.clearAndSetSemantics {})
+    }
+}
+
+/** A tile of Social - Inicio (2440:236): light card, 2 dp border, icon circle, title, chip and a "… →" button drawn only. */
+@Composable
+fun SocialCard(
+    emoji: String,
+    title: String,
+    chip: String,
+    buttonText: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 118.dp)
+            .shadow(4.dp, CardShape)
+            .background(NightWatchSurfaceButton, CardShape)
+            .border(2.dp, NightWatchBorderAccent, CardShape)
+            .clickable(role = Role.Button, onClick = onClick)
+            .semantics(mergeDescendants = true) {}
+            .padding(14.dp),
+    ) {
+        EmojiCircle(emoji)
+        Column(modifier = Modifier.padding(start = 12.dp).weight(1f)) {
+            Text(
+                text = title,
+                color = SocialOnLight,
+                fontFamily = NightWatchBodyFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 14.sp,
+            )
+            Chip(chip, modifier = Modifier.padding(top = 10.dp))
+            PillLabel(buttonText, modifier = Modifier.padding(top = 8.dp))
+        }
+    }
+}
+
+@Composable
+fun Chip(text: String, modifier: Modifier = Modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .widthIn(min = 60.dp)
+            .height(20.dp)
+            .background(SocialElevated, RoundedCornerShape(8.dp))
+            .padding(horizontal = 8.dp),
+    ) {
+        Text(
+            text = text,
+            color = NightWatchOnBackground,
+            fontFamily = NightWatchBodyFontFamily,
+            fontWeight = FontWeight.Medium,
+            fontSize = 10.sp,
+            maxLines = 1,
+        )
+    }
+}
+
+/** The "Ver amigos →" pill, only drawn: the card takes the tap. */
+@Composable
+private fun PillLabel(text: String, modifier: Modifier = Modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .widthIn(min = 110.dp)
+            .height(36.dp)
+            .shadow(4.dp, PillShape)
+            .background(NightWatchSurfaceButton, PillShape)
+            .padding(horizontal = 7.dp),
+    ) {
+        Text(
+            text = text,
+            color = SocialOnLight,
+            fontFamily = NightWatchBodyFontFamily,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
+            maxLines = 1,
+        )
+    }
+}
+
+/** A row of a list of people (Figma 2446:186): avatar circle, name, a second line and something on the right (a button or a state). */
+@Composable
+fun PersonRow(
+    name: String,
+    subtitle: String?,
+    modifier: Modifier = Modifier,
+    emoji: String = stringResource(R.string.social_icon_person),
+    onClick: (() -> Unit)? = null,
+    trailing: (@Composable () -> Unit)? = null,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 64.dp)
+            .shadow(2.dp, CardShape)
+            .background(NightWatchSurfaceButton, CardShape)
+            .let { if (onClick != null) it.clickable(role = Role.Button, onClick = onClick) else it }
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+    ) {
+        EmojiCircle(emoji, size = 40)
+        Column(modifier = Modifier.padding(start = 12.dp).weight(1f)) {
+            Text(
+                text = name,
+                color = SocialOnLight,
+                fontFamily = NightWatchBodyFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp,
+                maxLines = 1,
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    color = SocialOnLight,
+                    fontFamily = NightWatchBodyFontFamily,
+                    fontSize = 12.sp,
+                    modifier = Modifier.alpha(0.8f),
+                )
+            }
+        }
+        trailing?.invoke()
+    }
+}
+
+enum class PillStyle { Light, Gold, Outlined }
+
+/** The small pills of the lists: "Aceptar", "Retar", "Cancelar solicitud" (Figma 2446:252, 2448:207). */
+@Composable
+fun SocialPill(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    style: PillStyle = PillStyle.Light,
+    enabled: Boolean = true,
+) {
+    val container = when (style) {
+        PillStyle.Light -> NightWatchSurfaceButton
+        PillStyle.Gold -> NightWatchGold
+        PillStyle.Outlined -> Color.Transparent
+    }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .heightIn(min = 36.dp)
+            .alpha(if (enabled) 1f else 0.5f)
+            .background(container, PillShape)
+            .let { if (style == PillStyle.Outlined) it.border(1.5.dp, SocialOnLight, PillShape) else it.shadow(2.dp, PillShape) }
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+    ) {
+        Text(
+            text = text,
+            color = SocialOnLight,
+            fontFamily = NightWatchBodyFontFamily,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 13.sp,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+/** The error of a call: its own message (never the code) and "Reintentar". */
+@Composable
+fun ErrorNotice(error: SocialError, onRetry: (() -> Unit)?, modifier: Modifier = Modifier) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+        Text(
+            text = stringResource(error.messageRes()),
+            color = NightWatchOnBackground,
+            fontFamily = NightWatchBodyFontFamily,
+            fontSize = 13.sp,
+            modifier = Modifier.weight(1f),
+        )
+        if (onRetry != null) {
+            TextButton(onClick = onRetry) {
+                Text(
+                    text = stringResource(R.string.social_retry),
+                    color = NightWatchOnBackground,
+                    fontFamily = NightWatchBodyFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 13.sp,
+                )
+            }
+        }
+    }
+}
+
+/** The error under a field or a button: red, like the other forms of the app. */
+@Composable
+fun InlineError(error: SocialError, modifier: Modifier = Modifier) {
+    Text(
+        text = stringResource(error.messageRes()),
+        color = NightWatchError,
+        fontFamily = NightWatchBodyFontFamily,
+        fontSize = 12.sp,
+        modifier = modifier.padding(top = 6.dp),
+    )
+}
+
+@Composable
+fun SocialLoading(modifier: Modifier = Modifier) {
+    Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth().padding(32.dp)) {
+        CircularProgressIndicator(color = NightWatchOnBackground)
+    }
+}
+
+/** A list with nothing in it: a short sentence, not an error. */
+@Composable
+fun EmptyState(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        color = NightWatchOnBackground,
+        fontFamily = NightWatchBodyFontFamily,
+        fontSize = 14.sp,
+        textAlign = TextAlign.Center,
+        modifier = modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp).alpha(0.85f),
+    )
+}
+
+/** The spacing of a list of rows. */
+val SocialListSpacing = Arrangement.spacedBy(10.dp)

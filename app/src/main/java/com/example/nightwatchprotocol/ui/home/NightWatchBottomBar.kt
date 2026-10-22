@@ -22,9 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,21 +41,14 @@ private val LabelColor = Color(0xFF162523)
 private const val INACTIVE_ALPHA = 0.55f
 
 /**
- * SUPUESTO: Figma has no "disabled" tab. Social is drawn at the opacity of the locked islands and labs (60%, 2271:84) on
- * top of the inactive 55%, so it reads as dimmer than its neighbours.
- */
-private const val COMING_SOON_ALPHA = INACTIVE_ALPHA * 0.6f
-
-/**
- * The bottom bar of Home: Inicio, Ruta, Labs, Social, Perfil (Figma 49:15, 2266:72, 2271:84, 2440:163).
- * Only Inicio, Ruta and Labs are tabs ([selected]). Social is dimmed and only reports [onSocialClick]; Perfil is not a tab
- * either: it reports [onProfileClick] and never becomes the selected one.
+ * The bottom bar of Home: Inicio, Ruta, Labs, Social, Perfil (Figma 49:15, 2266:72, 2271:84, 2440:163). Inicio, Ruta, Labs
+ * and Social are tabs ([selected]; Social is enabled since module 4, Figma 2440:212 draws it active). Perfil is not a tab: it
+ * reports [onProfileClick] and never becomes the selected one.
  */
 @Composable
 fun NightWatchBottomBar(
     selected: HomeTab,
     onTabSelected: (HomeTab) -> Unit,
-    onSocialClick: () -> Unit,
     onProfileClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -90,12 +80,11 @@ fun NightWatchBottomBar(
             isSelected = selected == HomeTab.Labs,
             onClick = { onTabSelected(HomeTab.Labs) },
         )
-        ComingSoonTabItem(
+        TabItem(
             emoji = stringResource(R.string.learning_icon_social),
             label = stringResource(R.string.learning_tab_social),
-            description = stringResource(R.string.learning_social_tab_description),
-            state = stringResource(R.string.learning_state_unavailable),
-            onClick = onSocialClick,
+            isSelected = selected == HomeTab.Social,
+            onClick = { onTabSelected(HomeTab.Social) },
         )
         ActionItem(
             emoji = stringResource(R.string.learning_icon_profile),
@@ -125,32 +114,6 @@ private fun RowScope.ActionItem(emoji: String, label: String, onClick: () -> Uni
         isSelected = false,
         alpha = INACTIVE_ALPHA,
         modifier = Modifier.clickable(role = Role.Button, onClick = onClick),
-    )
-}
-
-/**
- * Social: dimmed, never selected, and tapping it only shows "Próximamente". It stays focusable so TalkBack reads
- * "Social, próximamente" and "No disponible" instead of skipping it.
- */
-@Composable
-private fun RowScope.ComingSoonTabItem(
-    emoji: String,
-    label: String,
-    description: String,
-    state: String,
-    onClick: () -> Unit,
-) {
-    TabContent(
-        emoji = emoji,
-        label = label,
-        isSelected = false,
-        alpha = COMING_SOON_ALPHA,
-        modifier = Modifier
-            .clickable(role = Role.Button, onClick = onClick)
-            .semantics {
-                contentDescription = description
-                stateDescription = state
-            },
     )
 }
 

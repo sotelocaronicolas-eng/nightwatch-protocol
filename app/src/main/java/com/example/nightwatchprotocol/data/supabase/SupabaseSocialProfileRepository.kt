@@ -10,6 +10,7 @@ import com.example.nightwatchprotocol.data.social.SocialProfileRepository
 import com.example.nightwatchprotocol.data.social.SocialRejection
 import com.example.nightwatchprotocol.data.social.SocialResult
 import com.example.nightwatchprotocol.data.social.flatMap
+import com.example.nightwatchprotocol.data.social.isValidUsername
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Order
 import java.time.OffsetDateTime
@@ -56,11 +57,6 @@ data class BattleResultRow(
 data class LevelCurveRow(val level: Int, @SerialName("min_xp") val minXp: Int)
 
 fun SocialProfileRow.toDomain(): SocialProfile = SocialProfile(username, friendCode, hideProgress)
-
-private val USERNAME_RULE = Regex("^[A-Za-z0-9_]{3,20}$")
-
-/** The same rule as the `check` of the table (3 to 20 letters, digits or `_`); the server checks it again. */
-fun isValidUsername(username: String): Boolean = USERNAME_RULE.matches(username)
 
 /** Own Social profile (table `social_profile`). The row is the session's: it is filtered by the session id, never by a screen's. */
 class SupabaseSocialProfileRepository(

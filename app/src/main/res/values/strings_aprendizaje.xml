@@ -23,8 +23,6 @@
 
     <!-- Aviso "Próximamente" (Q6, Q10): propuesto, no está en Figma -->
     <string name="learning_coming_soon">Próximamente</string>
-    <!-- Accesibilidad de la pestaña Social atenuada: propuesto -->
-    <string name="learning_social_tab_description">Social, próximamente</string>
     <string name="learning_state_unavailable">No disponible</string>
     <!-- Accesibilidad de las tarjetas atenuadas de Inicio: propuesto -->
     <string name="learning_card_coming_soon_description">%1$s, próximamente</string>

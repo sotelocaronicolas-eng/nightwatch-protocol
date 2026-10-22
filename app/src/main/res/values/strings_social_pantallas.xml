@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Textos de las pantallas de Social (módulo 4), prefijo social_. Los de Figma dicen su nodo; los demás son "propuestos" (no están
+    en Figma: diferencia F13 de la spec). Los mensajes de error están en strings_social.xml.
+-->
+<resources>
+    <string name="social_retry">Reintentar</string>
+    <string name="social_loading_dots">…</string>
+    <string name="social_unavailable_value">—</string>
+
+    <!-- Emojis de las tarjetas y de las filas -->
+    <string name="social_icon_pair">🔥</string>
+    <string name="social_icon_friends">🧑‍🤝‍🧑</string>
+    <string name="social_icon_battles">⚔️</string>
+    <string name="social_icon_person">🧑</string>
+
+    <!-- Social - Inicio. Figma 2440:163, 2440:167 -->
+    <string name="social_title">Social</string>
+    <string name="social_intro">Mantén tu racha con amigos y demuestra lo que sabes en batallas de preguntas.</string>
+    <!-- La tarjeta se llama "Racha en pareja" (decisión D19; Figma dice "Racha grupal") -->
+    <string name="social_card_pair_title">Racha en pareja</string>
+    <string name="social_card_pair_none">Sin racha</string>
+    <string name="social_card_pair_button">Ver racha →</string>
+    <string name="social_card_friends_title">Amigos</string>
+    <string name="social_card_friends_button">Ver amigos →</string>
+    <string name="social_card_battles_title">Batallas</string>
+    <string name="social_card_battles_button">Batallar →</string>
+    <string name="social_score">%1$dV · %2$dD</string>
+    <string name="social_score_with_draws">%1$dV · %2$dD · %3$dE</string>
+    <plurals name="social_days">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <plurals name="social_friends_count">
+        <item quantity="one">%d amigo</item>
+        <item quantity="other">%d amigos</item>
+    </plurals>
+
+    <!-- Crear nombre de usuario (pantalla que falta en Figma, M1) -->
+    <string name="social_username_title">Crea tu nombre de usuario</string>
+    <string name="social_username_body">Es el nombre con el que te verán tus amigos. Tiene de 3 a 20 letras, números o guion bajo (_) y no podrás cambiarlo después.</string>
+    <string name="social_username_label">Nombre de usuario</string>
+    <string name="social_username_hint">Por ejemplo: valeNightwatch</string>
+    <string name="social_username_create">CREAR USUARIO</string>
+    <string name="social_username_creating">CREANDO…</string>
+</resources>

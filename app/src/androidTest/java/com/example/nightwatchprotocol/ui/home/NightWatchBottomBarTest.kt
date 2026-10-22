@@ -2,7 +2,6 @@ package com.example.nightwatchprotocol.ui.home
 
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
@@ -14,7 +13,6 @@ class NightWatchBottomBarTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private var socialClicks = 0
     private var profileClicks = 0
     private val selectedTabs = mutableListOf<HomeTab>()
 
@@ -24,7 +22,6 @@ class NightWatchBottomBarTest {
                 NightWatchBottomBar(
                     selected = selected,
                     onTabSelected = { selectedTabs += it },
-                    onSocialClick = { socialClicks++ },
                     onProfileClick = { profileClicks++ },
                 )
             }
@@ -35,9 +32,7 @@ class NightWatchBottomBarTest {
     fun showsTheFiveFigmaLabels() {
         setBar()
 
-        listOf("Inicio", "Ruta", "Labs", "Perfil").forEach { composeTestRule.onNodeWithText(it).assertExists() }
-        // Social is read as "Social, próximamente" (its label is replaced by the description for TalkBack).
-        composeTestRule.onNodeWithContentDescription("Social, próximamente").assertExists()
+        listOf("Inicio", "Ruta", "Labs", "Social", "Perfil").forEach { composeTestRule.onNodeWithText(it).assertExists() }
     }
 
     @Test
@@ -48,15 +43,21 @@ class NightWatchBottomBarTest {
     }
 
     @Test
-    fun social_onlyReportsTheClick_andProfileOnlyReportsItsOwn() {
+    fun social_isATab_itReportsItAsSelected_andProfileOnlyReportsItsOwnClick() {
         setBar()
 
-        composeTestRule.onNodeWithContentDescription("Social, próximamente").performClick()
+        composeTestRule.onNodeWithText("Social").performClick()
         composeTestRule.onNodeWithText("Perfil").performClick()
 
-        assertEquals(1, socialClicks)
+        assertEquals(listOf(HomeTab.Social), selectedTabs)
         assertEquals(1, profileClicks)
-        assertEquals(emptyList<HomeTab>(), selectedTabs)
+    }
+
+    @Test
+    fun theSocialTab_isMarkedSelectedWhenItIsTheCurrentOne() {
+        setBar(selected = HomeTab.Social)
+
+        composeTestRule.onNodeWithText("Social").assertIsSelected()
     }
 
     @Test

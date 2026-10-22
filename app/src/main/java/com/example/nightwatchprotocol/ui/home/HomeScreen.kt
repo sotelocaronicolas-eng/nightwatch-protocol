@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -66,6 +67,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.ui.labs.LabsTab
 import com.example.nightwatchprotocol.ui.path.LearningPathTab
+import com.example.nightwatchprotocol.ui.social.SocialTab
 
 /** Figma 49:15 "MAIN MENU": the colours of the bar line, the panel behind the pill and the sheet border/handle (113:145, 113:150). */
 private val SheetBorderColor = Color(0xFF204143)
@@ -91,6 +93,9 @@ fun HomeScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val comingSoon = stringResource(R.string.learning_coming_soon)
     val noPendingLessons = stringResource(R.string.learning_home_no_pending_lessons)
+    val scope = rememberCoroutineScope()
+    // The three tiles of Social - Inicio open their screens in the next stages; until then they only say "Próximamente".
+    val socialComingSoon: () -> Unit = { scope.showNotice(snackbarHostState, comingSoon) }
 
     // Name and progress are re-read each time Home comes back (after Editar Perfil, or after a lesson in a later stage).
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
@@ -118,7 +123,9 @@ fun HomeScreen(
         onOpenExam = onOpenExam,
         onDailyLessonClick = viewModel::onDailyLessonClicked,
         onTabSelected = viewModel::onTabSelected,
-        onSocialClick = viewModel::onSocialClicked,
+        onOpenPairStreaks = socialComingSoon,
+        onOpenFriends = socialComingSoon,
+        onOpenBattles = socialComingSoon,
         onProfileClick = viewModel::onProfileClicked,
         onComingSoonCardClick = viewModel::onComingSoonCardClicked,
         onSignOut = viewModel::onSignOutClicked,
@@ -135,7 +142,9 @@ private fun HomeContent(
     onOpenExam: () -> Unit,
     onDailyLessonClick: () -> Unit,
     onTabSelected: (HomeTab) -> Unit,
-    onSocialClick: () -> Unit,
+    onOpenPairStreaks: () -> Unit,
+    onOpenFriends: () -> Unit,
+    onOpenBattles: () -> Unit,
     onProfileClick: () -> Unit,
     onComingSoonCardClick: () -> Unit,
     onSignOut: () -> Unit,
@@ -151,7 +160,6 @@ private fun HomeContent(
                 NightWatchBottomBar(
                     selected = uiState.selectedTab,
                     onTabSelected = onTabSelected,
-                    onSocialClick = onSocialClick,
                     onProfileClick = onProfileClick,
                 )
             },
@@ -174,6 +182,11 @@ private fun HomeContent(
                         snackbarHostState = snackbarHostState,
                         onOpenLab = onOpenLab,
                         onOpenExam = onOpenExam,
+                    )
+                    HomeTab.Social -> SocialTab(
+                        onOpenPairStreaks = onOpenPairStreaks,
+                        onOpenFriends = onOpenFriends,
+                        onOpenBattles = onOpenBattles,
                     )
                 }
             }
