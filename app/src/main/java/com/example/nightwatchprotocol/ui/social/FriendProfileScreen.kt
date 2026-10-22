@@ -100,7 +100,13 @@ internal fun FriendProfileContent(
             if (uiState.loading) SocialLoading()
             return@Column
         }
-        EmojiCircle(stringResource(R.string.social_icon_person), size = 100)
+        SocialAvatar(
+            photo = null,
+            emoji = stringResource(R.string.social_icon_person),
+            size = 100.dp,
+            withWizardGear = false,
+            contentDescription = stringResource(R.string.social_avatar_of, uiState.username),
+        )
         Text(
             text = uiState.username,
             color = NightWatchOnBackground,

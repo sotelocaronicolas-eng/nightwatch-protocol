@@ -175,7 +175,13 @@ private fun HpHeader(battle: BattleState) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth(),
     ) {
-        EmojiCircle(stringResource(R.string.social_search_icon_you), size = 48)
+        SocialAvatar(
+            photo = null,
+            emoji = stringResource(R.string.social_icon_person),
+            size = ARENA_AVATAR_SIZE,
+            withWizardGear = true,
+            contentDescription = stringResource(R.string.social_avatar_mine),
+        )
         Column(modifier = Modifier.weight(1f).padding(horizontal = 10.dp)) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 NameLabel(stringResource(R.string.social_arena_you), Modifier.weight(1f))
@@ -201,9 +207,18 @@ private fun HpHeader(battle: BattleState) {
                 HpLabel(stringResource(R.string.social_arena_hp, battle.rivalHp), Modifier, TextAlign.End)
             }
         }
-        EmojiCircle(stringResource(R.string.social_search_icon_you), size = 48)
+        SocialAvatar(
+            photo = null,
+            emoji = stringResource(R.string.social_icon_person),
+            size = ARENA_AVATAR_SIZE,
+            withWizardGear = true,
+            contentDescription = stringResource(R.string.social_avatar_of, battle.rivalUsername),
+        )
     }
 }
+
+/** The size of the two fighters in the bar of the arena (Figma 2449:189). */
+private val ARENA_AVATAR_SIZE = 56.dp
 
 @Composable
 private fun NameLabel(text: String, modifier: Modifier, align: TextAlign = TextAlign.Start) {
@@ -326,7 +341,13 @@ private fun OptionRow(
 @Composable
 private fun RivalTurn(battle: BattleState) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 40.dp)) {
-        EmojiCircle(stringResource(R.string.social_search_icon_you), size = 72)
+        SocialAvatar(
+            photo = null,
+            emoji = stringResource(R.string.social_icon_person),
+            size = 72.dp,
+            withWizardGear = true,
+            contentDescription = stringResource(R.string.social_avatar_of, battle.rivalUsername),
+        )
         Text(
             text = stringResource(R.string.social_arena_waiting_rival, battle.rivalUsername),
             color = NightWatchOnBackground,

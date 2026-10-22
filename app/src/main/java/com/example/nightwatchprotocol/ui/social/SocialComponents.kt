@@ -234,7 +234,7 @@ fun PersonRow(
             .let { if (onClick != null) it.clickable(role = Role.Button, onClick = onClick) else it }
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
-        if (showAvatar) EmojiCircle(emoji, size = 40)
+        if (showAvatar) SocialAvatar(photo = null, emoji = emoji, size = 40.dp, withWizardGear = false, contentDescription = null)
         Column(modifier = Modifier.padding(start = if (showAvatar) 12.dp else 0.dp).weight(1f)) {
             Text(
                 text = name,

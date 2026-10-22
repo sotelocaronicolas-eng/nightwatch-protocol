@@ -14,6 +14,10 @@
     <string name="social_icon_battles">⚔️</string>
     <string name="social_icon_person">🧑</string>
 
+    <!-- Descripción del avatar para los lectores de pantalla (propuestos; solo donde el nombre no está justo al lado) -->
+    <string name="social_avatar_mine">Tu foto de perfil</string>
+    <string name="social_avatar_of">Foto de perfil de %1$s</string>
+
     <!-- Social - Inicio. Figma 2440:163, 2440:167 -->
     <string name="social_title">Social</string>
     <string name="social_intro">Mantén tu racha con amigos y demuestra lo que sabes en batallas de preguntas.</string>
