@@ -6,6 +6,7 @@ import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.social.BattleOutcome
 import com.example.nightwatchprotocol.data.social.FakeFriendsRepository
+import com.example.nightwatchprotocol.data.social.FakePairStreakRepository
 import com.example.nightwatchprotocol.data.social.FakeSocialProfileRepository
 import com.example.nightwatchprotocol.data.social.Friend
 import com.example.nightwatchprotocol.data.social.FriendBattleEntry
@@ -41,6 +42,7 @@ class FriendsViewModelsTest {
         addPerson("valeNightwatch", "NIGHT-7F3K2A")
     }
     private val profiles = FakeSocialProfileRepository(SocialProfile("yo", "NIGHT-MINE22", hideProgress = false))
+    private val pairs = FakePairStreakRepository()
 
     // ---- list ----
 
@@ -348,7 +350,7 @@ class FriendsViewModelsTest {
     private val clock = Clock.fixed(now, ZoneOffset.UTC)
 
     private fun profileViewModel(code: String = "NIGHT-VVVVVV") =
-        FriendProfileViewModel(SavedStateHandle(mapOf(FriendProfileViewModel.KEY_FRIEND_CODE to code)), friends, clock)
+        FriendProfileViewModel(SavedStateHandle(mapOf(FriendProfileViewModel.KEY_FRIEND_CODE to code)), friends, pairs, clock)
 
     private fun addValentina(hidden: Boolean = false) {
         friends.friends += Friend("valentina", "NIGHT-VVVVVV", 12, trainedToday = true)

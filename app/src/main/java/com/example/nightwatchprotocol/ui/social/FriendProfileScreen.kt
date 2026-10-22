@@ -63,6 +63,7 @@ fun FriendProfileScreen(
         FriendProfileContent(
             uiState = uiState,
             onRetry = viewModel::refresh,
+            onInvitePair = viewModel::onInvitePairClicked,
             onRemove = viewModel::onRemoveClicked,
         )
     }
@@ -76,7 +77,12 @@ fun FriendProfileScreen(
 }
 
 @Composable
-internal fun FriendProfileContent(uiState: FriendProfileUiState, onRetry: () -> Unit, onRemove: () -> Unit) {
+internal fun FriendProfileContent(
+    uiState: FriendProfileUiState,
+    onRetry: () -> Unit,
+    onInvitePair: () -> Unit,
+    onRemove: () -> Unit,
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -133,6 +139,21 @@ internal fun FriendProfileContent(uiState: FriendProfileUiState, onRetry: () -> 
         }
 
         uiState.actionError?.let { InlineError(it, Modifier.padding(top = 10.dp)) }
+        if (uiState.pairInviteSent) {
+            SocialBodyText(
+                stringResource(R.string.social_profile_invite_pair_sent, uiState.username),
+                alpha = 1f,
+                modifier = Modifier.padding(top = 20.dp),
+            )
+        } else {
+            SocialPill(
+                text = stringResource(R.string.social_profile_invite_pair),
+                onClick = onInvitePair,
+                style = PillStyle.Gold,
+                enabled = !uiState.invitingPair,
+                modifier = Modifier.padding(top = 20.dp),
+            )
+        }
         Text(
             text = stringResource(R.string.social_profile_remove),
             color = NightWatchOnBackground,

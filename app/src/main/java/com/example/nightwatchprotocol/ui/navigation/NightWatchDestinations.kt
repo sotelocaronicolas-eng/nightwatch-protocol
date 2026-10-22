@@ -62,6 +62,14 @@ object AddFriend
 @Serializable
 object FriendRequestsRoute
 
+/** "Racha en pareja": the list of pairs and invitations. */
+@Serializable
+object PairStreaksRoute
+
+/** The detail of the pair with the friend whose public code is [friendCode]. */
+@Serializable
+data class PairDetailRoute(val friendCode: String)
+
 /** The profile of one friend. [friendCode] is the public code of the friend (never an internal id). */
 @Serializable
 data class FriendProfileRoute(val friendCode: String)

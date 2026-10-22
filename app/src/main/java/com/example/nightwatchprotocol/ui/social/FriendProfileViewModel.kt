@@ -14,6 +14,7 @@ import com.example.nightwatchprotocol.data.learning.evaluateBadges
 import com.example.nightwatchprotocol.data.social.BattleOutcome
 import com.example.nightwatchprotocol.data.social.FriendProfile
 import com.example.nightwatchprotocol.data.social.FriendsRepository
+import com.example.nightwatchprotocol.data.social.PairStreakRepository
 import com.example.nightwatchprotocol.data.social.SocialError
 import com.example.nightwatchprotocol.data.social.SocialResult
 import com.example.nightwatchprotocol.ui.navigation.FriendProfileRoute
@@ -49,6 +50,8 @@ data class FriendProfileUiState(
     val loadError: SocialError? = null,
     val confirmingRemove: Boolean = false,
     val removing: Boolean = false,
+    val invitingPair: Boolean = false,
+    val pairInviteSent: Boolean = false,
     val actionError: SocialError? = null,
 )
 
@@ -61,6 +64,7 @@ sealed interface FriendProfileEvent {
 class FriendProfileViewModel(
     savedStateHandle: SavedStateHandle,
     private val friendsRepository: FriendsRepository,
+    private val pairStreakRepository: PairStreakRepository,
     private val clock: Clock = Clock.systemUTC(),
 ) : ViewModel() {
 
@@ -102,6 +106,19 @@ class FriendProfileViewModel(
         )
     }
 
+    /** "Invitar a una racha en pareja" (M5): the server checks that this person is a friend and that there is no pair yet. */
+    fun onInvitePairClicked() {
+        val state = _uiState.value
+        if (state.invitingPair || state.pairInviteSent) return
+        _uiState.update { it.copy(invitingPair = true, actionError = null) }
+        viewModelScope.launch {
+            when (val result = pairStreakRepository.invite(friendCode)) {
+                is SocialResult.Success -> _uiState.update { it.copy(invitingPair = false, pairInviteSent = true) }
+                is SocialResult.Failure -> _uiState.update { it.copy(invitingPair = false, actionError = result.error) }
+            }
+        }
+    }
+
     fun onRemoveClicked() {
         _uiState.update { it.copy(confirmingRemove = true, actionError = null) }
     }
@@ -134,7 +151,8 @@ class FriendProfileViewModel(
                 val handle = createSavedStateHandle()
                 // The route carries the friend code; it is copied under a fixed key so the tests do not need the navigation library.
                 handle[KEY_FRIEND_CODE] = handle.toRoute<FriendProfileRoute>().friendCode
-                FriendProfileViewModel(handle, application.container.friendsRepository)
+                val container = application.container
+                FriendProfileViewModel(handle, container.friendsRepository, container.pairStreakRepository)
             }
         }
     }

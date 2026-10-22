@@ -112,6 +112,57 @@
     <string name="social_profile_trained_today">✅ Ya entrenó hoy</string>
     <string name="social_profile_pending_today">⏳ Pendiente hoy</string>
 
+    <string name="social_profile_invite_pair">🔥 Invitar a una racha en pareja</string>
+    <string name="social_profile_invite_pair_sent">Enviamos la invitación de racha en pareja a %1$s.</string>
+
+    <!-- Racha en pareja: lista (D15). La pantalla de Figma 2447:186 era "Racha grupal" -->
+    <string name="social_pairs_title">Racha en pareja</string>
+    <string name="social_pairs_intro">Entrenen el mismo día y sumen días seguidos juntos. Cada día cuenta cuando los dos completan su ejercicio, en hora de Colombia.</string>
+    <string name="social_pairs_empty">Aún no tienes ninguna racha en pareja. Invita a un amigo para empezar una.</string>
+    <string name="social_pairs_pending_received">Te invitó a una racha en pareja</string>
+    <string name="social_pairs_pending_sent">Invitación enviada</string>
+    <string name="social_pairs_accept">Aceptar</string>
+    <string name="social_pairs_decline">Rechazar</string>
+    <string name="social_pairs_cancel">Cancelar invitación</string>
+    <string name="social_pairs_invite_title">Invitar a un amigo</string>
+    <string name="social_pairs_invite_none">No tienes amigos a quienes invitar. Primero agrega amigos.</string>
+    <string name="social_pairs_invite_button">Invitar</string>
+    <string name="social_pairs_state_active">Entrenaron los dos hoy</string>
+    <string name="social_pairs_state_at_risk">En riesgo: falta entrenar hoy</string>
+    <string name="social_pairs_state_none">Sin racha por ahora</string>
+    <string name="social_pairs_state_route_complete">Ruta completa: la racha se detiene</string>
+    <string name="social_pairs_best">Mejor racha: %1$s</string>
+
+    <!-- Racha en pareja: detalle (frame 2447:186 con una sola persona en "hoy") -->
+    <string name="social_pair_title">Racha con %1$s</string>
+    <string name="social_pair_days_label">días seguidos entrenando</string>
+    <string name="social_pair_week_label">Esta semana (hora de Colombia)</string>
+    <string-array name="social_week_initials">
+        <item>L</item>
+        <item>M</item>
+        <item>M</item>
+        <item>J</item>
+        <item>V</item>
+        <item>S</item>
+        <item>D</item>
+    </string-array>
+    <string name="social_pair_today_title">Hoy</string>
+    <string name="social_pair_me">Tú</string>
+    <string name="social_pair_done">✅</string>
+    <string name="social_pair_pending">⏳</string>
+    <string name="social_pair_banner_me_missing">⚠️ Aún no entrenas hoy. ¡No pierdas tu racha!</string>
+    <string name="social_pair_banner_partner_missing">⏳ %1$s aún no entrena hoy. ¡Anímalo!</string>
+    <string name="social_pair_banner_none">Empiecen una racha: completen los dos su ejercicio del día.</string>
+    <string name="social_pair_banner_done">¡Los dos entrenaron hoy! Vuelvan mañana.</string>
+    <string name="social_pair_banner_route_complete">Alguno de los dos ya completó las 6 islas, así que la racha se detiene aquí.</string>
+    <string name="social_pair_exercise_lesson">Hacer mi ejercicio de hoy →</string>
+    <string name="social_pair_exercise_done">Ya hiciste tu ejercicio de hoy</string>
+    <string name="social_pair_exercise_all_done">Ya completaste las 6 islas</string>
+    <string name="social_pair_end">Terminar racha en pareja</string>
+    <string name="social_pair_end_title">¿Terminar la racha con %1$s?</string>
+    <string name="social_pair_end_body">Se borra para los dos y no se conserva la racha. Seguirán siendo amigos.</string>
+    <string name="social_pair_end_confirm">Terminar</string>
+
     <!-- Hace cuánto (solo para mostrar: el servidor decide los plazos) -->
     <string name="social_ago_today">hoy</string>
     <plurals name="social_ago_days">

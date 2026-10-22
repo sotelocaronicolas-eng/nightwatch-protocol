@@ -48,6 +48,8 @@ import com.example.nightwatchprotocol.ui.social.AddFriendScreen
 import com.example.nightwatchprotocol.ui.social.FriendProfileScreen
 import com.example.nightwatchprotocol.ui.social.FriendRequestsScreen
 import com.example.nightwatchprotocol.ui.social.FriendsScreen
+import com.example.nightwatchprotocol.ui.social.PairDetailScreen
+import com.example.nightwatchprotocol.ui.social.PairStreaksScreen
 import com.example.nightwatchprotocol.ui.verifycode.CodePurpose
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeScreen
 
@@ -170,6 +172,21 @@ fun NightWatchNavHost(
                 // From the "Prueba Final" island or the "Examen Final" card, when it is unlocked.
                 onOpenExam = { navController.navigate(ExamIntro) },
                 onOpenFriends = { navController.navigate(Friends) },
+                onOpenPairStreaks = { navController.navigate(PairStreaksRoute) },
+            )
+        }
+        composable<PairStreaksRoute> {
+            PairStreaksScreen(
+                onClose = { navController.popBackStack() },
+                onOpenPair = { friendCode -> navController.navigate(PairDetailRoute(friendCode)) },
+            )
+        }
+        composable<PairDetailRoute> {
+            PairDetailScreen(
+                onClose = { navController.popBackStack() },
+                // "Hacer mi ejercicio de hoy": the lesson (or the lab) of the next island, full screen like from the map.
+                onOpenLesson = { topic -> navController.navigate(Lesson(topic)) },
+                onOpenLab = { topic -> navController.navigate(Lab(topic)) },
             )
         }
         composable<Friends> {

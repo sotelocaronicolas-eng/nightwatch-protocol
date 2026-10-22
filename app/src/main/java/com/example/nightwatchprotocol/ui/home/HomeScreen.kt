@@ -88,6 +88,7 @@ fun HomeScreen(
     onOpenLab: (LearningTopic) -> Unit,
     onOpenExam: () -> Unit,
     onOpenFriends: () -> Unit,
+    onOpenPairStreaks: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -124,7 +125,7 @@ fun HomeScreen(
         onOpenExam = onOpenExam,
         onDailyLessonClick = viewModel::onDailyLessonClicked,
         onTabSelected = viewModel::onTabSelected,
-        onOpenPairStreaks = socialComingSoon,
+        onOpenPairStreaks = onOpenPairStreaks,
         onOpenFriends = onOpenFriends,
         onOpenBattles = socialComingSoon,
         onProfileClick = viewModel::onProfileClicked,
