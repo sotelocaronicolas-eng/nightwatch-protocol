@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.ui.social
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,9 +23,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -95,6 +98,20 @@ fun SocialScreen(title: String, onClose: () -> Unit, content: @Composable Column
                 content = content,
             )
         }
+    }
+}
+
+/**
+ * Runs [onLeft] when the screen leaves the composition for good. It does NOT run while the Activity is only being recreated
+ * (rotation, dark mode, language, font size): the view model survives that, and the person did not leave, so a challenge waiting
+ * for an answer or a place in the queue must not be given up.
+ */
+@Composable
+fun LeaveScreenEffect(key: Any, onLeft: () -> Unit) {
+    val activity = LocalActivity.current
+    val currentOnLeft by rememberUpdatedState(onLeft)
+    DisposableEffect(key) {
+        onDispose { if (activity?.isChangingConfigurations != true) currentOnLeft() }
     }
 }
 

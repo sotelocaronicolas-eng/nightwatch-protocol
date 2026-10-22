@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -51,7 +50,7 @@ fun QuickSearchScreen(
     // The search starts when the screen opens and ends when it is hidden or left: the queue is left each time.
     LaunchedEffect(viewModel) { viewModel.onStart() }
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { viewModel.onStop() }
-    DisposableEffect(viewModel) { onDispose { viewModel.onLeft() } }
+    LeaveScreenEffect(viewModel) { viewModel.onLeft() }
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {

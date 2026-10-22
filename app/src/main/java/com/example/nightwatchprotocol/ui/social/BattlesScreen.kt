@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -48,8 +47,8 @@ fun BattlesScreen(
     // The challenges are read again every few seconds only while the screen is visible.
     LifecycleEventEffect(Lifecycle.Event.ON_START) { viewModel.onStart() }
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { viewModel.onStop() }
-    // Leaving the screen for good cancels the challenge that is still waiting.
-    DisposableEffect(viewModel) { onDispose { viewModel.onLeft() } }
+    // Leaving the screen for good cancels the challenge that is still waiting (not a rotation or a change of theme).
+    LeaveScreenEffect(viewModel) { viewModel.onLeft() }
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
