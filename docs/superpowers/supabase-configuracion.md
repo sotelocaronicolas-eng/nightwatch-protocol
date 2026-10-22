@@ -52,8 +52,8 @@ El esquema está en `supabase/migrations/0001_esquema_inicial.sql`. **Nada lo ej
 
 Los archivos de `supabase/migrations/` se ejecutan **en orden numérico** (`0001`, `0002`, ...) y **una sola vez
 por proyecto**. Una migración que ya se aplicó **no se edita**: cualquier cambio posterior va en una migración
-nueva con el siguiente número. Hoy hay siete, **todas ya aplicadas** en el proyecto del equipo (un proyecto nuevo las necesita
-todas, en orden):
+nueva con el siguiente número. Hoy hay siete **ya aplicadas** en el proyecto del equipo (un proyecto nuevo las necesita
+todas, en orden) y una octava **en borrador, sin aplicar** (`0008`, Social; ver la Parte F):
 
 1. `0001_esquema_inicial.sql`: tablas, RLS, políticas y grants.
 2. `0002_minimo_privilegio.sql`: quita a `authenticated` los privilegios `TRUNCATE`, `REFERENCES` y `TRIGGER`,
@@ -69,6 +69,9 @@ todas, en orden):
    `profile.recovery_email` al cliente y crea `verify_recovery_email_code(p_code)` (aplicada; ver "Parte D").
 7. `0007_progreso_aprendizaje.sql`: tablas `lesson_progress`, `lab_progress` y `exam_attempts` del módulo 3, con RLS del
    dueño y `GRANT` por columna (aplicada; ver "Parte E"). No toca ninguna tabla anterior.
+8. `0008_social.sql` (**BORRADOR, sin aplicar**): 14 tablas y 5 funciones públicas del módulo 4 (amigos, rachas de pareja y batallas).
+   Se aplica a mano y **antes** que `0009` (banco de preguntas, retos de ulti y curva de XP, aún sin escribir); ver la Parte F.
+   No toca ninguna tabla anterior.
 
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
@@ -369,6 +372,68 @@ racha y las 9 insignias. Nada de eso se almacena.
 **Orden de despliegue.** Ejecutar `0007` **antes** de instalar la versión 2.1.0 de la app: sin las tablas, abrir una lección,
 completar un lab o terminar un examen falla al guardar (la app lo muestra como error de guardado, con "Reintentar guardado").
 
+## Parte F: Social (módulo 4, script 0008)
+
+**Estado: borrador sin aplicar** (rama `modulo-4`). El script es `supabase/migrations/0008_social.sql` y su guion de verificación
+`supabase/verificacion/0008_escenarios.sql`. La especificación está en `docs/superpowers/specs/2026-10-21-modulo-4-design.md`.
+Este bloque no está cerrado: lo que sigue describe lo que el script hace y cómo probarlo, y se actualiza cuando se aplique.
+
+### Qué crea el 0008
+
+| Qué | Detalle |
+|---|---|
+| **14 tablas**, todas con RLS activo | `social_profile`, `friendships`, `pair_streaks`, `battle_questions`, `ulti_challenges`, `fighter_level_curve`, `battles`, `battle_active`, `matchmaking_queue`, `battle_challenges`, `battle_turns`, `battle_ultis`, `battle_results`, `social_rate_limit` |
+| **Acceso directo desde la app (solo 3 tablas)** | `social_profile`: la persona lee, inserta (`user_id`, `username`) y actualiza (`hide_progress`) solo su fila. `battle_results`: lee solo sus filas. `fighter_level_curve`: lectura (dato de referencia). Ninguna lleva el id de Auth de otra persona |
+| **11 tablas cerradas** | RLS activo, **sin políticas y sin `GRANT`** para `anon` y `authenticated` (el patrón de `recovery_email_codes`, `0006`). Incluye el banco de preguntas y los retos de ulti: las respuestas y los comandos esperados **nunca** salen del servidor |
+| **5 funciones públicas `SECURITY DEFINER`** | `social_friends`, `social_pairs`, `battle_lobby`, `battle_sync` y `battle_play`. La acción va como parámetro y devuelven `jsonb`. Todas con `search_path` vacío, `revoke all ... from public, anon` y `grant execute ... to authenticated`; **ninguna es invocable por `anon`** |
+| **1 función auxiliar `SECURITY INVOKER`** | `social_new_code()`: valor por defecto del código de amigo (`NIGHT-` + 6 caracteres) |
+| **20 funciones internas (`sx_*`)** | Sin `EXECUTE` para `anon` ni `authenticated`; solo las llaman las 5 públicas |
+| Lo que **no** hace | No toca `placement`, `profile`, `devices`, `recovery_email_codes` ni las tablas del módulo 3 (solo **lee** `lesson_progress`, `lab_progress` y `exam_attempts` desde las funciones). Sin Realtime, sin `pg_cron`, sin Edge Function |
+
+- **Tiempos con la hora de la base de datos** (`clock_timestamp()`): 1 minuto por pregunta, 2 minutos de ulti, 60 s de gracia por desconexión y 2 s de tolerancia de red. La app solo **muestra** la cuenta regresiva.
+- **Sondeo (D18).** La app llama a `battle_sync` **cada 2 a 3 segundos** mientras haya una batalla abierta, **también durante su turno y durante la ulti**. Si pasan **más de 60 s sin llamadas**, el servidor la da por desconectada y **pierde la batalla**. Los turnos vencidos y las desconexiones se resuelven al llegar la siguiente acción o sondeo.
+- **Racha de pareja y racha personal de los amigos** con **hora de Colombia** (`America/Bogota`), calculadas en el servidor con la fecha de completado de cada isla. Se calculan, no se guardan.
+- **Respuestas de error.** Las funciones de negocio devuelven `{"status":"error","code":"..."}` **sin lanzar excepción**, para que el contador del límite de ritmo no se deshaga; las excepciones quedan para `no_session`, `social_not_enabled`, `bad_action`, `bad_query` y `rate_limited` (lista completa en el encabezado del script). Ninguna respuesta distingue una cuenta que existe de una que no, salvo que la acción ya sea legítima (la persona está en mis amigos).
+- **Límites de ritmo:** 20 búsquedas cada 10 minutos; 20 invitaciones de amistad, 20 de pareja y 20 retos por hora.
+- **Limitaciones conocidas:** ganar por abandono o desconexión da **+50 XP**, así que una persona con **dos cuentas** podría farmear XP (sin ranking el impacto es bajo; se revisa si se agrega uno). El orden de los aciertos de la ulti es el de llegada al servidor. Los comandos de la ulti son los de los laboratorios y viajan en el APK. Buscar por usuario permite comprobar que un nombre existe (con límite de ritmo y sin listados). No hay reportar ni bloquear usuarios (O15, fuera del módulo).
+
+### Orden de aplicación
+
+1. **Antes:** `0001` a `0007` ya aplicadas. Comprobar que el proyecto no esté pausado (plan gratuito: pausa a los 7 días sin actividad).
+2. **Aplicar `0008_social.sql`** pegándolo **completo** en el SQL Editor, **una sola vez**. Mientras conserve la línea "BORRADOR" se puede corregir; una vez aplicado no se edita y cualquier cambio va en un script nuevo.
+3. **Correr las consultas de verificación** del final del archivo (a a i) y el **guion de escenarios** (más abajo).
+4. **Revisar el Security Advisor** y documentar las advertencias aceptadas en la sección de abajo (tabla de esta Parte).
+5. **Aplicar `0009`** (banco de 72 preguntas, retos de ulti y curva de XP) **después** del `0008`. Hasta entonces las tablas de contenido están vacías: una batalla no puede empezar (`bank_empty`) y todos son nivel 1.
+6. **Instalar la versión de la app** de las etapas de Social **después** de `0008` y `0009`: sin las tablas, Social falla al cargar y muestra el error con "Reintentar".
+
+### Cómo verificar
+
+- **Consultas a a i** al final de `0008_social.sql` (comentadas): RLS activo en las 14 tablas; exactamente 5 políticas; ningún privilegio de tabla para `anon` y `SELECT` solo en 3 tablas para `authenticated`; permisos por columna de `social_profile`; `SECURITY DEFINER` y `search_path` de cada función; quién puede ejecutar cada función; claves foráneas solo a `auth.users` y a tablas nuevas; formato del código de amigo; tablas de contenido vacías hasta `0009`.
+- **Guion de escenarios** `supabase/verificacion/0008_escenarios.sql` (no se aplica a un proyecto nuevo; es solo una prueba):
+  1. Crea **dos cuentas de prueba** en Authentication > Users (sin progreso real) y copia sus ids.
+  2. Reemplaza `v_a` y `v_b` (dos líneas marcadas "REEMPLAZA") en el bloque de escenarios.
+  3. Ejecuta **todo el archivo** de una vez, con el rol `postgres` del SQL Editor.
+  4. El resultado es una tabla con una fila por comprobación (esperado, obtenido, OK o FALLA); la primera fila resume y debe decir **0 fallas**.
+  - El bloque de escenarios es **una sola sentencia atómica**: si falla con un error inesperado, se deshace todo. Si termina, **borra** lo que creó y **restaura** el banco, los retos y la curva reales (si ya existían). Cubre permisos, perfiles, búsqueda, invitaciones, ritmo, parejas, partida rápida, retos, respuestas, daño, ulti (éxito, escudo, tres intentos fallidos, por tiempo), turno vencido, desconexión (de uno y de los dos), abandono, fin por HP y por 20 turnos, XP, nivel y "ocultar progreso". **No cubre** parejas múltiples ni los topes de 5, 20 y 50 (necesitan más cuentas).
+- **Pruebas desde un teléfono:** no hay pruebas automáticas contra el servidor real (F-03); lo que se verifica a mano está en la lista del informe de cierre del módulo 4 (aún por escribir).
+
+### Advertencias esperadas del Security Advisor (0008)
+
+Se revisa el Advisor **después** de aplicar `0008`. Cada fila que aparezca y no esté aquí se corrige o se documenta antes de fusionar a `main`. Una vez aplicado, las aceptadas pasan a la tabla de la sección siguiente.
+
+| # | Advertencia esperada | Objeto | Por qué es `SECURITY DEFINER` | Se acepta o se corrige |
+|---|---|---|---|---|
+| 1 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.social_friends(text, text)` | Lee y escribe `friendships` (cerrada, con los ids de Auth de dos personas) y lee el progreso de **otra** persona (`lesson_progress`, `lab_progress` y `exam_attempts` son solo del dueño). Devuelve solo nombre de usuario, código, racha y los campos de las insignias; respeta "ocultar progreso". Sin sesión no hace nada; acción de lista cerrada; límites de ritmo, de pendientes y de amigos; no recibe ids. Los resultados de negocio no distinguen una cuenta inexistente de una que no es amiga | Se acepta |
+| 2 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.social_pairs(text, text)` | Lee el progreso de **dos** personas para calcular la racha de pareja y escribe `pair_streaks` (cerrada). Devuelve solo racha, si cada una hizo su ejercicio hoy y los días compartidos, nunca qué isla. Exige amistad; máximo 5 invitaciones pendientes y 20 por hora; "no existe" y "no es amigo" dan el mismo código | Se acepta |
+| 3 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.battle_lobby(text, text)` | Escribe `matchmaking_queue` y `battle_challenges` y crea batallas (cerradas); empareja a dos personas con un solo candado. Solo opera sobre `auth.uid()` y sus amigos; 20 retos por hora; "no existe" y "no es amigo" dan el mismo código | Se acepta |
+| 4 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.battle_sync(uuid)` | Lee `battles` (cerrada, con ids de Auth) y `battle_questions` (sin ningún permiso, con la respuesta correcta) para devolver la vista **personal** de la batalla: la pregunta sin su respuesta y solo el título del reto de ulti de quien llama. Solo los dos jugadores reciben algo; el resto, `not_found` | Se acepta |
+| 5 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.battle_play(uuid, text, integer, text)` | Es la única vía de escritura de la batalla: el servidor decide aciertos, daños, turnos, plazos, escudo y XP. Compara la respuesta con `battle_questions` y el comando con `ulti_challenges`, tablas sin permiso para la app. Solo opera sobre `auth.uid()` y sobre batallas donde esa persona participa | Se acepta |
+| 6 | (Info) "RLS Enabled No Policy" (11 tablas) | `friendships`, `pair_streaks`, `battle_questions`, `ulti_challenges`, `matchmaking_queue`, `battle_challenges`, `battles`, `battle_active`, `battle_turns`, `battle_ultis`, `social_rate_limit` | No aplica (son tablas): RLS activo sin políticas y sin `GRANT` niega todo acceso directo; solo las leen las funciones de arriba | Se acepta (igual que `recovery_email_codes`, `0006`) |
+| 7 | "Public Can Execute SECURITY DEFINER Function" | (ninguna) | Ninguna función de Social es invocable por `anon`: todas llevan `revoke` de `public` y `anon` y exigen sesión | Si aparece alguna, se **corrige** (falta un `revoke`) |
+| 8 | "Function Search Path Mutable" | (ninguna) | Todas las funciones, públicas e internas, declaran `set search_path = ''` | Si aparece alguna, se **corrige** |
+
+`social_new_code()` es `SECURITY INVOKER` y las 20 funciones internas `sx_*` no tienen `EXECUTE` para `anon` ni `authenticated`: no generan advertencia de ejecución.
+
 ## Advertencias aceptadas del Security Advisor
 
 Revisadas el 19 de octubre de 2026 en el Security Advisor del panel de Supabase. Cada fila dice qué advierte, sobre qué objeto,
@@ -384,3 +449,4 @@ de dónde viene, por qué se acepta y cuándo hay que volver a mirarla.
 
 **Nota.** Las tablas del módulo 3 (`lesson_progress`, `lab_progress`, `exam_attempts`, migración `0007`) no generan advertencias.
 Si una migración futura agrega una advertencia nueva, se corrige o se documenta aquí con su motivo **antes de fusionar a `main`**.
+Las del `0008` (módulo 4) están previstas en la tabla de la Parte F y pasan a esta cuando se aplique el script y se revise el Advisor.
