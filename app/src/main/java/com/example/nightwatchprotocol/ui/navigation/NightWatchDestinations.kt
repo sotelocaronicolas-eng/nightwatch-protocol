@@ -51,6 +51,21 @@ object Exam
 @Serializable
 data class ExamResult(val answers: List<Int>)
 
+/** "Amigos" of Social: the list of friends, full screen and without the bottom bar. */
+@Serializable
+object Friends
+
+/** "Agregar amigos": search by username or friend code, the own code and the way to the requests. */
+@Serializable
+object AddFriend
+
+@Serializable
+object FriendRequestsRoute
+
+/** The profile of one friend. [friendCode] is the public code of the friend (never an internal id). */
+@Serializable
+data class FriendProfileRoute(val friendCode: String)
+
 @Serializable
 object UserMenu
 

@@ -54,6 +54,9 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 /** Figma color/bg/elevated (#3E6E71): the icon circle and the chips (as in Labs, 2271:92). */
 internal val SocialElevated = Color(0xFF3E6E71)
 
+/** The grey-green card of "Tu código de amigo" and of the stats (Figma 2446:212, 2446:265). */
+internal val SocialCardTint = Color(0xFF94A6A7)
+
 /** Figma color/text/on-light (#162523). */
 internal val SocialOnLight = Color(0xFF162523)
 
@@ -192,7 +195,9 @@ fun PersonRow(
     subtitle: String?,
     modifier: Modifier = Modifier,
     emoji: String = stringResource(R.string.social_icon_person),
+    showAvatar: Boolean = true,
     onClick: (() -> Unit)? = null,
+    details: (@Composable ColumnScope.() -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
 ) {
     Row(
@@ -205,8 +210,8 @@ fun PersonRow(
             .let { if (onClick != null) it.clickable(role = Role.Button, onClick = onClick) else it }
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
-        EmojiCircle(emoji, size = 40)
-        Column(modifier = Modifier.padding(start = 12.dp).weight(1f)) {
+        if (showAvatar) EmojiCircle(emoji, size = 40)
+        Column(modifier = Modifier.padding(start = if (showAvatar) 12.dp else 0.dp).weight(1f)) {
             Text(
                 text = name,
                 color = SocialOnLight,
@@ -224,6 +229,7 @@ fun PersonRow(
                     modifier = Modifier.alpha(0.8f),
                 )
             }
+            details?.invoke(this)
         }
         trailing?.invoke()
     }

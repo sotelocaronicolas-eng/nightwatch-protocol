@@ -43,4 +43,79 @@
     <string name="social_username_hint">Por ejemplo: valeNightwatch</string>
     <string name="social_username_create">CREAR USUARIO</string>
     <string name="social_username_creating">CREANDO…</string>
+
+    <!-- Compartidos -->
+    <string name="social_cancel">Cancelar</string>
+
+    <!-- Amigos. Figma 2446:181 -->
+    <string name="social_friends_title">Amigos</string>
+    <string name="social_friends_summary">%1$s · %2$s</string>
+    <plurals name="social_friends_keeping_today">
+        <item quantity="one">%d mantiene la racha hoy</item>
+        <item quantity="other">%d mantienen la racha hoy</item>
+    </plurals>
+    <string name="social_friends_empty">Aún no tienes amigos. Agrega a alguien con su nombre de usuario o con su código.</string>
+    <string name="social_friend_streak_active">🔥 %1$s</string>
+    <string name="social_friend_no_streak">Sin racha activa</string>
+    <string name="social_friend_trained_today">✅ Ya entrenó hoy</string>
+    <string name="social_friend_pending_today">⏳ Pendiente hoy</string>
+    <string name="social_friends_add">+ Agregar amigos</string>
+
+    <!-- Agregar amigos. Figma 2446:212 (se quita "Sugerencias", D12) -->
+    <string name="social_add_title">Agregar amigos</string>
+    <string name="social_add_intro">Busca a tus amigos por usuario o comparte tu código.</string>
+    <string name="social_add_search_label">Buscar por usuario o código</string>
+    <string name="social_add_search_hint">ej. valeNightwatch o NIGHT-7F3K2A</string>
+    <string name="social_add_search_button">Buscar</string>
+    <string name="social_add_my_code">Tu código de amigo</string>
+    <string name="social_add_copy">Copiar</string>
+    <string name="social_add_copied">¡Copiado!</string>
+    <string name="social_add_requests_link">📥 Solicitudes de amistad</string>
+    <string name="social_add_invite">Agregar +</string>
+    <string name="social_add_sent">Solicitud enviada</string>
+    <string name="social_add_already_friends">Ya son amigos</string>
+    <string name="social_add_accept_request">Aceptar</string>
+    <string name="social_add_invited_ok">Enviamos la solicitud a %1$s.</string>
+    <string name="social_add_accepted_ok">Ahora %1$s es tu amigo.</string>
+
+    <!-- Solicitudes. Figma 2446:242 -->
+    <string name="social_requests_title">Solicitudes</string>
+    <plurals name="social_requests_pending">
+        <item quantity="one">Tienes %d solicitud de amistad pendiente.</item>
+        <item quantity="other">Tienes %d solicitudes de amistad pendientes.</item>
+    </plurals>
+    <string name="social_requests_none">No tienes solicitudes de amistad pendientes.</string>
+    <string name="social_requests_wants_friend">Quiere ser tu amigo</string>
+    <string name="social_requests_accept">Aceptar</string>
+    <string name="social_requests_decline">Rechazar</string>
+    <string name="social_requests_sent_title">Solicitudes enviadas</string>
+    <string name="social_requests_sent_label">Solicitud enviada</string>
+    <string name="social_requests_cancel">Cancelar solicitud</string>
+
+    <!-- Perfil de un amigo. Figma 2446:265 -->
+    <string name="social_profile_streak">🔥 %1$s de racha</string>
+    <string name="social_profile_level">Nivel de combatiente %1$d</string>
+    <string name="social_profile_exercises">Ejercicios</string>
+    <string name="social_profile_labs">Labs superados</string>
+    <string name="social_profile_badges">Insignias</string>
+    <string name="social_profile_no_badges">Aún no tiene insignias.</string>
+    <string name="social_profile_hidden">%1$s oculta su progreso.</string>
+    <string name="social_profile_history">Historial de batallas</string>
+    <string name="social_profile_history_empty">Aún no han peleado entre ustedes.</string>
+    <string name="social_profile_won">🏆 Ganaste vs %1$s</string>
+    <string name="social_profile_lost">💀 Perdiste vs %1$s</string>
+    <string name="social_profile_draw">🤝 Empate vs %1$s</string>
+    <string name="social_profile_remove">Eliminar amigo</string>
+    <string name="social_profile_remove_title">¿Eliminar a %1$s?</string>
+    <string name="social_profile_remove_body">Dejarán de ser amigos. Podrán volver a agregarse más adelante.</string>
+    <string name="social_profile_remove_confirm">Eliminar</string>
+    <string name="social_profile_trained_today">✅ Ya entrenó hoy</string>
+    <string name="social_profile_pending_today">⏳ Pendiente hoy</string>
+
+    <!-- Hace cuánto (solo para mostrar: el servidor decide los plazos) -->
+    <string name="social_ago_today">hoy</string>
+    <plurals name="social_ago_days">
+        <item quantity="one">hace %d día</item>
+        <item quantity="other">hace %d días</item>
+    </plurals>
 </resources>

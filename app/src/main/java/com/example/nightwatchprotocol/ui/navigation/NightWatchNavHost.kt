@@ -44,6 +44,10 @@ import com.example.nightwatchprotocol.ui.profile.recoveryemail.RecoveryEmailScre
 import com.example.nightwatchprotocol.ui.profile.usermenu.UserMenuScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementQuizScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementResultScreen
+import com.example.nightwatchprotocol.ui.social.AddFriendScreen
+import com.example.nightwatchprotocol.ui.social.FriendProfileScreen
+import com.example.nightwatchprotocol.ui.social.FriendRequestsScreen
+import com.example.nightwatchprotocol.ui.social.FriendsScreen
 import com.example.nightwatchprotocol.ui.verifycode.CodePurpose
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeScreen
 
@@ -165,7 +169,27 @@ fun NightWatchNavHost(
                 onOpenLab = { topic -> navController.navigate(Lab(topic)) },
                 // From the "Prueba Final" island or the "Examen Final" card, when it is unlocked.
                 onOpenExam = { navController.navigate(ExamIntro) },
+                onOpenFriends = { navController.navigate(Friends) },
             )
+        }
+        composable<Friends> {
+            FriendsScreen(
+                onClose = { navController.popBackStack() },
+                onOpenFriend = { friendCode -> navController.navigate(FriendProfileRoute(friendCode)) },
+                onAddFriends = { navController.navigate(AddFriend) },
+            )
+        }
+        composable<AddFriend> {
+            AddFriendScreen(
+                onClose = { navController.popBackStack() },
+                onOpenRequests = { navController.navigate(FriendRequestsRoute) },
+            )
+        }
+        composable<FriendRequestsRoute> {
+            FriendRequestsScreen(onClose = { navController.popBackStack() })
+        }
+        composable<FriendProfileRoute> {
+            FriendProfileScreen(onClose = { navController.popBackStack() })
         }
         composable<ExamIntro> {
             ExamIntroScreen(

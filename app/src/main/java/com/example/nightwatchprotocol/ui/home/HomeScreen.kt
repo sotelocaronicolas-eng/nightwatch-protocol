@@ -87,6 +87,7 @@ fun HomeScreen(
     onOpenLesson: (LearningTopic) -> Unit,
     onOpenLab: (LearningTopic) -> Unit,
     onOpenExam: () -> Unit,
+    onOpenFriends: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -94,7 +95,7 @@ fun HomeScreen(
     val comingSoon = stringResource(R.string.learning_coming_soon)
     val noPendingLessons = stringResource(R.string.learning_home_no_pending_lessons)
     val scope = rememberCoroutineScope()
-    // The three tiles of Social - Inicio open their screens in the next stages; until then they only say "Próximamente".
+    // The tiles of Social - Inicio whose screens are not built yet only say "Próximamente".
     val socialComingSoon: () -> Unit = { scope.showNotice(snackbarHostState, comingSoon) }
 
     // Name and progress are re-read each time Home comes back (after Editar Perfil, or after a lesson in a later stage).
@@ -124,7 +125,7 @@ fun HomeScreen(
         onDailyLessonClick = viewModel::onDailyLessonClicked,
         onTabSelected = viewModel::onTabSelected,
         onOpenPairStreaks = socialComingSoon,
-        onOpenFriends = socialComingSoon,
+        onOpenFriends = onOpenFriends,
         onOpenBattles = socialComingSoon,
         onProfileClick = viewModel::onProfileClicked,
         onComingSoonCardClick = viewModel::onComingSoonCardClicked,
