@@ -149,90 +149,87 @@ es solo la propuesta. Ninguna tabla nueva toca ni referencia `placement`, `profi
 `exam_attempts` mediante claves foráneas (solo `auth.users`, como `0007`); las funciones de Social **leen** el progreso del módulo 3 y nunca escriben en él.
 
 **Contenido en otro archivo (P).** El banco de preguntas y los retos de ulti van en `0009_banco_batallas.sql` y no dentro de `0008`: el grupo va a revisar
-y corregir preguntas, y una migración aplicada no se edita (`CLAUDE.md` sección 4); así una corrección es otro archivo, no un arreglo de `0008`.
+y corregir preguntas, y un script ya aplicado no se edita (`CLAUDE.md` sección 4); así una corrección es otro archivo, no un arreglo de `0008`.
 La curva de XP (O1) también va en `0009`.
 
-**Regla general de acceso (P).** Las tablas de varias personas (amistades, parejas, batallas, cola, retos) y los dos bancos son **cerradas**: RLS activo,
+**Estado:** el script **ya está escrito** (`supabase/migrations/0008_social.sql`, borrador sin ejecutar, Etapa 1). Lo que sigue describe lo que ese archivo contiene; donde difiere de
+la propuesta de la v1 de esta spec, se indica.
+
+**Regla general de acceso.** Las tablas de varias personas (amistades, parejas, batallas, cola, retos) y los dos bancos son **cerradas**: RLS activo,
 **sin políticas y sin `GRANT`** para `authenticated` y `anon`, el mismo patrón de `recovery_email_codes` (`0006`). Solo se leen y escriben con funciones
 `SECURITY DEFINER` (sección 4). Motivo: el análisis previo prohíbe exponer el `user_id` de Auth de otra persona (punto 4 de su sección 3), y una política de
-"participantes" daría la fila completa, que lleva los dos ids. Las tablas del dueño (`social_profile`) sí llevan política de dueño. Si el grupo prefiere políticas
-de participantes con `GRANT` por columna en vez de funciones de lectura, es posible para `battles` (sin los ids), pero se pierde la lectura personalizada
-(qué ve cada jugador) que la sección 4 exige.
+"participantes" daría la fila completa, que lleva los dos ids. Solo **tres** tablas tienen acceso directo, todas sin ids de otras personas: `social_profile` (política de dueño),
+`battle_results` (política de dueño, solo lectura) y `fighter_level_curve` (dato de referencia, solo lectura).
+**Menos superficie:** en vez de las 32 funciones públicas de la v1, el script deja **5** `SECURITY DEFINER` (una por dominio, con el verbo como parámetro) y una auxiliar `SECURITY INVOKER`; el
+resto de la lógica vive en 20 funciones internas que la app no puede llamar.
 
 ### 3.1 Tablas
 
 | Tabla | Clave | Columnas (propuesta) | Quién lee / escribe |
 |---|---|---|---|
-| `social_profile` | `user_id` | `username` (único sin distinguir mayúsculas), `friend_code` (único), `hide_progress` boolean, `created_at`. FK `user_id` → `auth.users` con `on delete cascade` | Dueño: `SELECT` de su fila y `UPDATE (hide_progress)`. El `INSERT` solo por `social_enable`, porque el servidor genera `friend_code` |
-| `friendships` | `id` | `user_low`, `user_high` (con `user_low < user_high`, un par = una fila), `requested_by`, `status` (`pending` o `accepted`), `created_at`, `responded_at`. Único (`user_low`, `user_high`) | Cerrada. Solo funciones |
-| `pair_streaks` | `id` | `user_low`, `user_high`, `invited_by`, `status` (`pending`, `active`, `ended`), `created_at`, `accepted_at`, `ended_at`. Único parcial (`user_low`, `user_high`) cuando `status` es `pending` o `active` | Cerrada. Solo funciones. **No guarda el contador**: la racha se deriva (sección 7) |
+| `social_profile` | `user_id` | `username` (único sin distinguir mayúsculas), `friend_code` (único), `hide_progress` boolean, `created_at`. FK `user_id` → `auth.users` con `on delete cascade` | Dueño: `SELECT` de su fila, `INSERT (user_id, username)` y `UPDATE (hide_progress)`. **Sin función de alta:** el servidor genera `friend_code` con un valor por defecto (`social_new_code()`, formato `NIGHT-` + 6 caracteres, O6) y un nombre repetido lo rechaza el índice único (sin distinguir mayúsculas). El nombre no se puede cambiar (O3) |
+| `friendships` | `id` | `user_low`, `user_high` (con `user_low < user_high`, un par = una fila), `requested_by`, `status` (`pending`, `accepted` o **`declined`**, que solo se conserva para la espera de 24 horas, O7), `created_at`, `responded_at`. Único (`user_low`, `user_high`) | Cerrada. Solo `social_friends` |
+| `pair_streaks` | `id` | `user_low`, `user_high`, `invited_by`, `status` (`pending` o `active`; una pareja rechazada, cancelada, terminada o vencida **se borra**), `created_at`, `expires_at` (+3 días, O4), `accepted_at`. Único (`user_low`, `user_high`) | Cerrada. Solo `social_pairs`. **No guarda el contador**: la racha se deriva (sección 7) |
 | `battle_questions` | `id` | `topic` (los 6 temas de `0007`), `tier` (1 a 3), `question`, `option_a` a `option_d`, `correct` (A a D), `active` | **Cerrada, sin ningún permiso**: las respuestas nunca salen (D7) |
 | `ulti_challenges` | `id` | `kind` (`attack` o `defense`), `topic`, `objective_title` (lo único que se muestra), `expected_command` (nunca sale del servidor), `active` | Cerrada |
-| `fighter_level_curve` | `level` | `level` 1 a 20, `min_xp` | Cerrada (la leen las funciones); contenido en `0009` (O1) |
+| `fighter_level_curve` | `level` | `level` 1 a 20, `min_xp` | **Solo lectura para `authenticated`** (dato de referencia, no sensible: la app calcula el nivel con ella); contenido en `0009` (O1). Vacía = todos son nivel 1 |
 | `matchmaking_queue` | `user_id` | `fighter_level`, `joined_at`, `last_seen_at`, `battle_id` (nulo mientras espera) | Cerrada |
+| `battle_active` (nueva respecto de la v1) | `user_id` | `battle_id` | Cerrada. Su clave primaria es lo que impide estar en dos batallas a la vez (reemplaza al "índice único parcial") |
 | `battle_challenges` | `id` | `challenger_id`, `challenged_id`, `created_at`, `expires_at` (= `created_at` + 2 minutos, D16), `status` (`pending`, `accepted`, `declined`, `cancelled`, `expired`), `battle_id` | Cerrada |
-| `battles` | `id` | `mode` (`quick` o `friend`), `status` (`active`, `finished`, `cancelled`), `player1_id`, `player2_id`, `hp1`, `hp2` (0 a 100), `correct_streak1`, `correct_streak2` (0 a 3), `ulti_charged1`, `ulti_charged2`, `turn_seat` (1 o 2), `turn_number`, `turn_phase` (`question`, `ulti`), `turn_deadline`, `current_question_id`, `last_seen1`, `last_seen2`, `version`, `winner_seat`, `end_reason`, `created_at`, `finished_at`. Índice único parcial: una batalla `active` por jugador | Cerrada |
-| `battle_turns` | (`battle_id`, `turn_number`) | `seat`, `question_id`, `chosen_option`, `correct`, `timed_out`, `damage`, `answered_at`. Sirve de bitácora y evita repetir preguntas dentro de una batalla | Cerrada |
+| `battles` | `id` | `mode` (`quick` o `friend`), `status` (`active`, `finished`, `cancelled`), `player1_id`, `player2_id`, `hp1`, `hp2` (0 a 100), `correct_streak1`, `correct_streak2` (0 a 3), `ulti_charged1`, `ulti_charged2`, `turn_seat` (1 o 2), `turn_number`, `turn_phase` (`question`, `ulti`), `turn_deadline`, `current_question_id`, `last_seen1`, `last_seen2`, `version`, `winner_seat`, `end_reason` (`hp_zero`, `turn_limit`, `forfeit_disconnect`, `abandon`, `both_disconnected`), `created_at`, `finished_at` | Cerrada |
+| `battle_turns` | (`battle_id`, `turn_number`) | `seat`, `question_id`, `outcome` (`correct`, `incorrect`, `timeout`, `ulti`), `chosen_option`, `damage`, `created_at`. Sirve de bitácora y evita repetir preguntas dentro de una batalla | Cerrada |
 | `battle_ultis` | `id` | `battle_id`, `turn_number`, `attacker_seat`, `attack_challenge_id`, `defense_challenge_id`, `started_at`, `deadline` (= `started_at` + 2 minutos), `attacker_attempts` (0 a 3), `attacker_result` (`pending`, `solved`, `failed`), `attacker_at`, `defender_attempts` (0 a 3), `defender_result`, `defender_at`, `shield`, `damage`, `resolved_at` | Cerrada |
-| `battle_results` | (`battle_id`, `user_id`) | `result` (`win`, `loss`, `draw`), `xp_awarded`, `hp_left`, `finished_at`. Dos filas por batalla | Cerrada. De aquí salen XP, marcador, historial y racha de batallas |
+| `battle_results` | (`battle_id`, `user_id`) | `result` (`win`, `loss`, `draw`), `xp_awarded`, `hp_left`, `opponent_username` (foto del nombre del rival al cerrar, para el historial sin exponer su id), `finished_at`. Dos filas por batalla | **El dueño lee sus filas** (`SELECT` con política de dueño); nadie escribe desde la app. De aquí salen XP, marcador, historial y racha de batallas |
 | `social_rate_limit` | (`user_id`, `action`) | `window_start`, `count` | Cerrada. Frena la búsqueda de usuarios y las invitaciones (sección 4.4) |
 
 **Borrado de cuenta (P).** Todas las claves hacia `auth.users` con `on delete cascade`, como `0007`. Si una cuenta se elimina, sus batallas y sus filas de
 resultados se borran, y a la otra persona le desaparece ese historial. Alternativa: dejar la batalla con el id en nulo. No se decide aquí.
 
-### 3.2 Funciones (todas `SECURITY DEFINER`, `search_path` vacío; detalle en la sección 4)
+### 3.2 Funciones (agrupadas: 5 `SECURITY DEFINER` públicas, 1 `INVOKER` auxiliar, 20 internas)
 
-Lista de nombres propuestos, una línea cada una. Ninguna recibe un `user_id`: la persona sale siempre de `auth.uid()`.
+Ninguna recibe un `user_id`: la persona sale siempre de `auth.uid()`. Cada función pública recibe la **acción** como parámetro (lista cerrada; otra acción da `bad_action`) y devuelve `jsonb`.
+Todas con `set search_path = ''`, `revoke all ... from public, anon` y `grant execute ... to authenticated`. **Ninguna es invocable por `anon`.**
 
-| Grupo | Funciones |
-|---|---|
-| Identidad | `social_enable(p_username)`, `social_me()`, `social_set_hide_progress(p_hide)` |
-| Amigos | `friends_search(p_query)`, `friend_invite(p_target)`, `friend_respond(p_request, p_accept)`, `friend_cancel(p_request)`, `friend_remove(p_friend_code)`, `friends_list()`, `friend_requests()`, `friend_profile(p_friend_code)` |
-| Parejas de racha | `pair_invite(p_friend_code)`, `pair_respond(p_pair, p_accept)`, `pair_end(p_pair)`, `pair_streaks_overview()`, `pair_streak_detail(p_pair)` |
-| Retos y cola | `quickmatch_join()`, `quickmatch_poll()`, `quickmatch_cancel()`, `challenge_send(p_friend_code)`, `challenge_respond(p_challenge, p_accept)`, `challenge_cancel(p_challenge)`, `challenges_pending()` |
-| Batalla | `battle_state(p_battle)`, `battle_answer(p_battle, p_turn, p_option)`, `battle_use_ulti(p_battle)`, `battle_skip_ulti(p_battle)`, `ulti_submit(p_battle, p_command)`, `battle_heartbeat(p_battle)`, `battle_abandon(p_battle)` |
-| Progreso de combatiente | `fighter_summary()`, `battle_history(p_limit)` |
-| Internas (sin `EXECUTE` para nadie) | `battle_resolve_timeouts`, `battle_finish`, `battle_pick_question`, `fighter_level_of`, `normalize_command` |
+| Función pública (`SECURITY DEFINER`) | Acciones | Qué reemplaza de la lista de la v1 |
+|---|---|---|
+| `social_friends(p_action, p_arg)` | `list`, `requests`, `search`, `invite`, `accept`, `decline`, `cancel`, `remove`, `profile` | 8 funciones de amigos |
+| `social_pairs(p_action, p_arg)` | `overview`, `detail`, `invite`, `accept`, `decline`, `cancel`, `end` | 5 funciones de parejas |
+| `battle_lobby(p_action, p_arg)` | `quick_join`, `quick_poll`, `quick_cancel`, `challenge_send`, `challenge_accept`, `challenge_decline`, `challenge_cancel`, `challenges` | 7 funciones de cola y retos |
+| `battle_sync(p_battle)` | (sondeo) latido + resolución de plazos + vista personal de la batalla | `battle_state`, `battle_heartbeat` |
+| `battle_play(p_battle, p_action, p_turn, p_arg)` | `answer`, `use_ulti`, `ulti_submit`, `abandon` | `battle_answer`, `battle_use_ulti`, `ulti_submit`, `battle_abandon` (y `battle_skip_ulti`, que ya no hace falta: "Guardar para después" es seguir respondiendo la pregunta del turno) |
+| `social_new_code()` (`SECURITY INVOKER`) | — | Valor por defecto de `friend_code`; solo devuelve texto aleatorio |
+
+**Se eliminaron de la v1** (no hacen falta): `social_enable` y `social_set_hide_progress` (el dueño inserta y actualiza `social_profile` directamente con permisos por columna), `social_me` (es un `SELECT` de su fila),
+`fighter_summary` y `battle_history` (son `SELECT` sobre `battle_results`; el nivel sale de `fighter_level_curve`, ambas legibles). Antes de agrupar eran **32** funciones públicas; ahora son **5** (más 1 auxiliar).
+
+**Internas** (20, prefijo `sx_`, `SECURITY INVOKER`, sin `EXECUTE` para `anon` ni `authenticated`; solo las llaman las 5 de arriba): `sx_username`, `sx_resolve_target`, `sx_are_friends`, `sx_friend_count`,
+`sx_rate_limit`, `sx_personal_streak`, `sx_islands_done`, `sx_pair_metrics`, `sx_xp`, `sx_level`, `sx_user_level`, `sx_normalize_command`, `sx_pick_question`, `sx_battle_create`, `sx_battle_finish`,
+`sx_advance_turn`, `sx_ulti_resolve`, `sx_battle_resolve`, `sx_battle_state`, `sx_try_match`.
 
 ### 3.3 Privilegios, con `GRANT` explícito (P)
 
 El proyecto tiene "Automatically expose new tables" desactivado y "Automatic RLS" activado (`CLAUDE.md` sección 4), así que el script hace, como `0007`:
 
-1. `enable row level security` en las 13 tablas.
+1. `enable row level security` en las 14 tablas.
 2. `revoke all` de cada tabla para `anon` y `authenticated`, **antes** de cualquier `grant`.
-3. Solo `social_profile` recibe `grant select` y `grant update (hide_progress)` a `authenticated`, con políticas `(select auth.uid()) = user_id`.
-4. Cada función: `revoke execute ... from public, anon` y `grant execute ... to authenticated` (el patrón de `0003` y `0006`; sin el `revoke`, Postgres da `EXECUTE` a todos por defecto).
-5. Las funciones internas: `revoke execute ... from public, anon, authenticated`.
+3. `authenticated` recibe: en `social_profile`, `select`, `insert (user_id, username)` y `update (hide_progress)`; en `battle_results` y `fighter_level_curve`, solo `select`. Políticas: dueño `(select auth.uid()) = user_id` en las dos primeras y `using (true)` en la curva. Las otras 11 tablas quedan sin políticas y sin `GRANT`.
+4. Cada función pública: `revoke all ... from public, anon` y `grant execute ... to authenticated` (el patrón de `0003` y `0006`; Supabase y PostgreSQL dan `EXECUTE` por defecto, así que el `revoke` es obligatorio).
+5. Las funciones internas: `revoke all ... from public, anon, authenticated`.
 6. Nada de `TRUNCATE`, `REFERENCES` ni `TRIGGER` (`0002`).
 
-### 3.4 Dos fragmentos ilustrativos (SQL comentado, NO ejecutable)
+### 3.4 Tiempos, ulti y racha de pareja en el script
 
-```sql
--- Ilustrativo. No se ejecuta. Muestra el patrón de una función de Social.
--- create function public.friend_invite(p_target text) returns text
---   language plpgsql security definer set search_path = '' as $$
--- declare v_me uuid := (select auth.uid());
--- begin
---   if v_me is null then raise exception 'no_session'; end if;
---   -- 1) limita el ritmo (social_rate_limit); 2) resuelve p_target por nombre exacto o por código;
---   -- 3) crea la fila pending; la respuesta es la misma exista o no la otra persona.
--- end $$;
--- revoke execute on function public.friend_invite(text) from public, anon;
--- grant  execute on function public.friend_invite(text) to authenticated;
-```
+- **Tiempos con la hora del servidor.** Todo plazo (60 s por pregunta, 2 minutos de ulti, 60 s de gracia, 2 s de tolerancia de red) se guarda y se compara con `clock_timestamp()` de la base de datos. Ninguna función recibe una hora del teléfono.
+- **Sin `pg_cron`.** `sx_battle_resolve` resuelve, bajo el candado de la fila de la batalla y **antes** de cada acción o sondeo: desconexión (60 s sin latido: pierde; los dos: cancelada), turno vencido y ulti vencida. `battle_lobby` resuelve primero la batalla activa de quien llama.
+- **Ulti (O10).** `battle_ultis` guarda los intentos (máximo 3 por jugador) y la hora del servidor de cada acierto. `sx_ulti_resolve` aplica: atacante acierta = 45 HP, o 23 si el defensor acertó **antes** (estrictamente anterior); atacante sin intentos o sin tiempo = no pasa nada y pierde la carga. El comando esperado nunca sale del servidor; al teléfono solo llega el título del reto propio.
+- **Racha de pareja (D13, D14).** `sx_pair_metrics` la calcula con la fecha de completado de cada isla (la mayor entre su lección y su lab), hora de Colombia, desde el día de aceptación (O9). No guarda el contador.
+- **XP (O1).** `sx_battle_finish`: victoria +50, empate +25, derrota +10; quien pierde por abandono o desconexión recibe 0 (decisión técnica del script, ver el resumen del commit).
 
-```sql
--- Ilustrativo. No se ejecuta. La racha de pareja se calcula, no se guarda.
--- día compartido = un día de America/Bogota en que A y B completaron una isla
---   (isla completada = max(lesson_progress.completed_at, lab_progress.completed_at) del mismo tema)
--- racha actual   = días consecutivos hasta el último día compartido, si ese día es hoy o ayer
-```
+### 3.5 Verificaciones y advertencias esperadas
 
-### 3.5 Verificaciones (para la etapa del script)
-
-El script llevará al final consultas de verificación comentadas, como las de `0007`: RLS activo en las 13 tablas, ninguna política en las cerradas, ningún
-privilegio para `anon`, solo `social_profile` con permisos para `authenticated`, `EXECUTE` de cada función solo para `authenticated`, ninguna función con `search_path`
-distinto de vacío, claves foráneas solo a `auth.users` y a tablas nuevas. Además, un **guion de escenarios de juego** (sección 10, Etapa 1) que el usuario ejecuta a mano.
+El script lleva al final, comentadas, consultas de verificación como las de `0007`: (a) RLS activo en las 14 tablas, (b) exactamente 5 políticas, (c) ningún privilegio de tabla para `anon` y `SELECT` solo en 3 tablas para `authenticated`,
+(d) permisos por columna de `social_profile`, (e) `SECURITY DEFINER` y `search_path` de cada función, (f) quién puede ejecutar cada función, (g) claves foráneas solo a `auth.users` y a tablas nuevas, (h) formato del código y (i) tablas de contenido vacías hasta `0009`.
+También lleva la tabla de **advertencias esperadas del Security Advisor** (sección 4.6). Falta aún el **guion de escenarios de juego** (sección 10, Etapa 1) que el usuario ejecuta a mano.
 
 ## 4. Seguridad
 
@@ -240,13 +237,13 @@ distinto de vacío, claves foráneas solo a `auth.users` y a tablas nuevas. Adem
 
 | Qué | Quién decide | Cómo |
 |---|---|---|
-| Si una respuesta es correcta | El servidor | `battle_answer` compara con `battle_questions.correct`, que ningún rol de la app puede leer |
+| Si una respuesta es correcta | El servidor | `battle_play` (acción `answer`) compara con `battle_questions.correct`, que ningún rol de la app puede leer |
 | El daño (20, 45, 23) y el HP | El servidor | El cliente nunca envía HP ni daño; solo envía la opción elegida o el comando escrito |
 | De quién es el turno y cuándo vence | El servidor | `turn_seat`, `turn_deadline`, reloj de la base de datos (`clock_timestamp()`) |
 | La carga de la ulti (3 aciertos seguidos) | El servidor | `correct_streak` y `ulti_charged` en `battles` |
 | Escudo | El servidor | Compara `defender_at` con `attacker_at` (sección 6.4) |
-| Quién gana, XP y nivel | El servidor | `battle_finish`, una sola vez por batalla |
-| La cuenta regresiva que se ve | **El teléfono, solo para mostrar** | `battle_state` devuelve `server_now` y `deadline`; la app calcula la diferencia y no confía en su propio reloj |
+| Quién gana, XP y nivel | El servidor | `sx_battle_finish`, una sola vez por batalla |
+| La cuenta regresiva que se ve | **El teléfono, solo para mostrar** | `battle_sync` devuelve `server_now` y `seconds_left`; la app muestra esa cuenta y no confía en su propio reloj |
 
 **Lo que sale al teléfono antes de responder (D7):** el texto de la pregunta y las 4 opciones, sin la correcta. Tras responder, la respuesta dice si
 acertó, **pero no revela la correcta cuando falla** (Figma, frame 2449:255, solo marca la elegida con ✕). De los retos de ulti sale al teléfono **solo el
@@ -296,9 +293,9 @@ Cada advertencia nueva se corrige o se documenta en la sección "Advertencias ac
 
 | Esperado | Origen | Propuesta |
 |---|---|---|
-| "Signed-In Users Can Execute SECURITY DEFINER Function", **una por cada función pública de la sección 3.2** (unas 32) | La app llama cada función con la sesión, y Supabase solo expone funciones del esquema `public` | **Documentar** (una fila por grupo, con los nombres): es la única vía de escritura y cada una actúa solo sobre `auth.uid()`, no recibe ids, valida y limita. Es el mismo caso que `verify_recovery_email_code` (advertencia 3 de la guía) |
+| "Signed-In Users Can Execute SECURITY DEFINER Function", **5** (una por función pública de la sección 3.2: `social_friends`, `social_pairs`, `battle_lobby`, `battle_sync` y `battle_play`; antes de agrupar eran 32) | La app llama cada función con la sesión, y Supabase solo expone funciones del esquema `public` | **Documentar**, una fila por función (tabla completa con el motivo de cada una al final de `0008_social.sql`): son la única vía de acceso a las tablas cerradas y cada una actúa solo sobre `auth.uid()`, no recibe ids de Auth, valida una lista cerrada de acciones y limita. Es el mismo caso que `verify_recovery_email_code` (advertencia 3 de la guía) |
 | "Public Can Execute SECURITY DEFINER Function" | Solo si se olvida el `revoke ... from public, anon` | **Corregir**, no aceptar: ninguna función de Social debe poder llamarse sin sesión (a diferencia de `account_status`) |
-| "RLS Enabled No Policy" (info), una por tabla cerrada (12) | Patrón de `recovery_email_codes` | **Documentar** (intencional: deniega todo a la app) |
+| "RLS Enabled No Policy" (info), una por tabla cerrada (**11**) | Patrón de `recovery_email_codes` | **Documentar** (intencional: deniega todo a la app) |
 | Función sin `search_path` fijo | Si una función no lo declara | **Corregir** |
 | Las del Realtime Authorization, si se usa (sección 5) | Políticas sobre `realtime.messages` | Documentar al decidir |
 
@@ -330,7 +327,7 @@ Verificación manual antes de aplicar: el Advisor se mira **después** de ejecut
 
 | Opción | Cómo funciona | Pros | Contras |
 |---|---|---|---|
-| **A. Sondeo (polling) con la API que ya existe** | La app llama `battle_state` cada 2 a 3 s durante una batalla y cada 5 a 10 s en la espera, el emparejamiento y la lista de retos | **Sin dependencia nueva** (`postgrest-kt` ya está). Funciona con cualquier red. Un solo camino de código | Latencia de 2 a 3 s. Más peticiones. Más batería en pantalla. Sin límite documentado de peticiones en las páginas consultadas, pero cuenta en la salida de datos (5 GB) |
+| **A. Sondeo (polling) con la API que ya existe** | La app llama `battle_sync` cada 2 a 3 s durante una batalla y cada 5 a 10 s en la espera, el emparejamiento y la lista de retos | **Sin dependencia nueva** (`postgrest-kt` ya está). Funciona con cualquier red. Un solo camino de código | Latencia de 2 a 3 s. Más peticiones. Más batería en pantalla. Sin límite documentado de peticiones en las páginas consultadas, pero cuenta en la salida de datos (5 GB) |
 | **B. `realtime-kt` + Postgres Changes** (suscribirse a filas de `battles`) | El servidor avisa de cada cambio de fila | API conocida | Cada evento se autoriza contra cada suscriptor y se procesa en un solo hilo (Postgres Changes); obliga a abrir `SELECT` sobre `battles`, que lleva los ids de Auth de los dos jugadores (contradice 4.3) |
 | **C. `realtime-kt` + Broadcast desde la base de datos, canal privado, como solo una "señal"** (recomendada) | Tras cada cambio, la función hace `realtime.send` por el tema `battle:<id>` con un contador (`version`), sin datos. La app, al recibirlo, llama `battle_state`. Si la señal falla, el sondeo (A) la cubre | **No viaja información sensible** por el canal; si Realtime cae, el juego sigue con A. Latencia de décimas de segundo. La documentación presenta Broadcast como la vía de escala | **Dependencia nueva (`realtime-kt`, BOM 3.2.4): requiere aprobación del equipo** (`CLAUDE.md` sección 2). Hay que crear políticas sobre `realtime.messages` (Realtime Authorization) y el cliente debe llamar `setAuth` antes de suscribirse (documentación de JavaScript). **No verificado** en Kotlin 3.2.4 |
 | **D. Presencia (Presence) para saber si el rival está** | El canal informa quién entra y sale | Fácil de mostrar | Un cliente no puede afirmar que el otro se fue sin que el servidor lo compruebe (D7); el límite gratuito es de 20 mensajes por segundo. **No se usa para decidir**: la desconexión se decide con latidos al servidor (5.4) |
@@ -345,16 +342,16 @@ toca la publicación de Realtime ni `realtime.messages`; si luego se adopta C, e
 
 La base de datos no tiene un "temporizador" propio; el plazo se guarda como `turn_deadline` y se **resuelve de forma perezosa**:
 
-1. Toda función de batalla empieza llamando `battle_resolve_timeouts(batalla)` (bajo el candado de la fila): si `turn_phase = question` y `now() > turn_deadline` (más una tolerancia de red de 2 s, parámetro técnico), registra un turno perdido (`timed_out`), no hay daño, y pasa el turno. Lo mismo con el reto de ulti vencido (`battle_ultis.deadline`).
-2. La app, cuando **su** cuenta regresiva llega a cero, llama `battle_state`. Los dos teléfonos lo hacen; el primero resuelve y el segundo ve el resultado ya hecho (idempotente por el candado y `version`).
+1. Toda función de batalla empieza llamando `sx_battle_resolve` (bajo el candado de la fila): si `turn_phase = question` y `clock_timestamp() > turn_deadline` (más una tolerancia de red de 2 s, parámetro técnico), registra un turno perdido (`outcome = timeout`), no hay daño, y pasa el turno con 60 s completos para el siguiente. Lo mismo con el reto de ulti vencido (`battle_ultis.deadline`).
+2. La app, cuando **su** cuenta regresiva llega a cero, llama `battle_sync`. Los dos teléfonos lo hacen; el primero resuelve y el segundo ve el resultado ya hecho (idempotente por el candado y `version`).
 3. **Sin `pg_cron`:** el script `0008` **no depende** de `pg_cron`. Una batalla abandonada por los dos queda como `active` hasta que alguno abra Social: la primera llamada de Batallas (lobby) resuelve primero la batalla activa de esa persona, y eso libera la restricción de "una batalla activa por jugador".
 4. La cola y los retos vencidos se limpian igual, de forma perezosa (un reto vencido deja de listarse cuando `expires_at < now()`).
 
 ### 5.4 Desconexiones (D5)
 
-- Mientras hay una batalla activa la app envía un **latido** (`battle_heartbeat`, o el propio `battle_state`) cada 10 s (P) que actualiza `last_seen1` o `last_seen2`.
+- Mientras hay una batalla activa la app envía un **latido** (el propio sondeo `battle_sync`, o cualquier acción de `battle_play`) cada 2 a 3 s, que actualiza `last_seen1` o `last_seen2`.
 - Un jugador está **desconectado** si pasan más de 60 s sin latido (D5). El plazo se cuenta desde el último latido recibido, así que el error máximo es un intervalo de latido (10 s).
-- Quien sigue conectado sigue llamando a `battle_state`; esa llamada evalúa `now() - last_seen_otro > 60 s`. Si es cierto, **la batalla termina**, gana quien sigue conectado (`end_reason = forfeit_disconnect`).
+- Quien sigue conectado sigue llamando a `battle_sync`; esa llamada evalúa `now() - last_seen_otro > 60 s`. Si es cierto, **la batalla termina**, gana quien sigue conectado (`end_reason = forfeit_disconnect`).
 - Si el jugador vuelve antes de los 60 s, el siguiente latido lo marca como conectado y la batalla sigue; el turno que le tocaba corre normal (si su minuto se acaba, pierde el turno).
 - Ambos desconectados a la vez: O2.
 - Android pone la app en segundo plano al cambiar de aplicación: los latidos se detienen y cuenta como desconexión. Es una consecuencia de no tener notificaciones fuera de la app (D16); se avisa en la pantalla de espera.
@@ -362,18 +359,18 @@ La base de datos no tiene un "temporizador" propio; el plazo se guarda como `tur
 
 ### 5.5 Qué se mide en la prueba de concepto
 
-Tiempo de ida y vuelta de `battle_state` en el teléfono, mensajes por batalla en el panel de Realtime, comportamiento con la pantalla apagada y con pérdida de red, y si la señal de Broadcast llega siempre antes del sondeo.
+Tiempo de ida y vuelta de `battle_sync` en el teléfono, mensajes por batalla en el panel de Realtime, comportamiento con la pantalla apagada y con pérdida de red, y si la señal de Broadcast llega siempre antes del sondeo.
 
 ## 6. Emparejamiento y reto a amigos
 
 ### 6.1 Partida rápida (D6)
 
-1. `quickmatch_join()` inserta a la persona en `matchmaking_queue` con su nivel de combatiente. Si ya está en una batalla activa, error.
+1. `battle_lobby('quick_join')` inserta a la persona en `matchmaking_queue` con su nivel de combatiente. Si ya está en una batalla activa, error.
 2. Busca, con `for update skip locked`, a la persona en espera con la que la diferencia de niveles sea ≤ al rango actual. El rango arranca en **3** y **se amplía** con el tiempo de espera de la persona que lleva más tiempo; el ritmo de ampliación es la **O11**.
 3. Si hay pareja, crea la batalla con la **misma función interna** que el reto a un amigo (D6) y marca a las dos filas con su `battle_id`.
-4. La app consulta `quickmatch_poll()` cada 2 a 3 s (o recibe la señal, opción C). Un jugador que no consulta en 15 s se saca de la cola.
-5. **A los 60 s sin rival** `quickmatch_poll()` devuelve `suggest_friend = true` y la app muestra M8. La búsqueda **sigue** (sugerir no cancela).
-6. `quickmatch_cancel()` la saca de la cola. Cerrar la pantalla de búsqueda también.
+4. La app consulta `battle_lobby('quick_poll')` cada 2 a 3 s. Un jugador que no consulta en 15 s se saca de la cola.
+5. **A los 60 s sin rival** `quick_poll` devuelve `suggest_friend = true` y la app muestra M8. La búsqueda **sigue** (sugerir no cancela).
+6. `quick_cancel` la saca de la cola. Cerrar la pantalla de búsqueda también.
 
 ### 6.2 Reto a un amigo (D6, D16)
 
@@ -386,7 +383,7 @@ Tiempo de ida y vuelta de `battle_state` en el teléfono, mensajes por batalla e
 
 ### 6.3 Una misma batalla (D6)
 
-`battle_create_internal(player1, player2, mode)` es la única función que crea una fila de `battles`; la partida rápida y el reto solo cambian `mode`. Reglas comunes: HP 100 para cada uno; quien empieza: O2; una batalla activa por persona (índice único parcial).
+`sx_battle_create(player1, player2, mode)` es la única función que crea una fila de `battles`; la partida rápida y el reto solo cambian `mode`. Reglas comunes: HP 100 para cada uno; empieza una persona al azar (O2); una batalla activa por persona (clave primaria de `battle_active`).
 
 ### 6.4 Reglas de batalla, juntas
 
@@ -481,11 +478,11 @@ Con 6 islas, la racha personal de 30 días del módulo 3 sigue siendo alcanzable
 
 - **XP** y **nivel de combatiente** son nuevos y **separados** del nivel de nivelación (`placement`: BAJO, MEDIO, ALTO). **Este módulo no lee ni escribe `placement`** (igual que el módulo 3): el nivel de nivelación sigue sin cambiar por nada de Social.
 - **Solo las batallas dan XP** (D8). Aprobar el examen, completar labs o mantener rachas **no** dan XP.
-- El XP se guarda como `xp_awarded` en `battle_results` y el total se **calcula** sumándolo: una sola fuente de verdad, sin un contador que pueda desfasarse. (Alternativa: un contador en una tabla de estadísticas, actualizado solo por `battle_finish`; no cambia nada para la app.)
+- El XP se guarda como `xp_awarded` en `battle_results` y el total se **calcula** sumándolo: una sola fuente de verdad, sin un contador que pueda desfasarse. (Alternativa: un contador en una tabla de estadísticas, actualizado solo por `sx_battle_finish`; no cambia nada para la app.)
 - El **nivel** sale del total y de la curva `fighter_level_curve` (1 a 20). El 20 es el tope: más allá, fuera de alcance (D8). Una persona nueva empieza en nivel 1 con 0 XP (P; no se parte del nivel de nivelación).
 - La **curva** y cuánto XP da una victoria, una derrota y un empate: **O1** (Figma muestra +50 por victoria).
 - El nivel de combatiente se usa en el **emparejamiento** (D6) y para escoger la **dificultad** de las preguntas (sección 9.2). No desbloquea nada de la ruta de aprendizaje.
-- El XP solo lo escribe `battle_finish`, una vez por batalla, en el servidor. Ningún rol de la app puede escribirlo.
+- El XP solo lo escribe `sx_battle_finish`, una vez por batalla, en el servidor. Ningún rol de la app puede escribirlo.
 
 ### 8.3 Relación con el progreso del módulo 3
 
@@ -519,8 +516,8 @@ El servidor escoge cada pregunta según el **nivel de quien responde** (no el de
 
 ### 9.3 Cómo se sirven sin exponer las respuestas (D7)
 
-1. `battle_state` devuelve, en el turno de quien responde, `question_id`, el texto, las 4 opciones y `deadline`. **No devuelve `correct`.**
-2. `battle_answer(p_battle, p_turn, p_option)` recibe la opción y el número de turno (para ignorar un envío viejo), compara en el servidor y devuelve `correct` (sí o no), el daño y el HP nuevo.
+1. `battle_sync` devuelve, en el turno de quien responde, el id, el texto y las 4 opciones de la pregunta y `seconds_left`. **No devuelve `correct`.**
+2. `battle_play` con la acción `answer` (`p_turn`, `p_arg` = `A` a `D`) recibe la opción y el número de turno (para ignorar un envío viejo), compara en el servidor y devuelve `correct` (sí o no), el daño y el HP nuevo.
 3. Si acertó, la app marca la opción elegida en oro (Figma 2449:221). Si falló, marca la elegida con ✕ y **no revela cuál era la correcta** (Figma 2449:255): así quien pierde no se lleva el banco.
 4. `battle_turns` guarda la opción elegida: de ahí sale el "Repasa Contraseñas y Phishing" de la derrota (los dos temas con más fallos de esa batalla; P).
 5. El orden de las opciones es el del banco (P). Mezclarlo por pregunta y batalla es posible desde el servidor si el grupo lo pide.
@@ -670,7 +667,7 @@ Cada etapa es **un commit** (o uno por tema si es grande) en la rama `modulo-4`,
 | Etapa | Contenido | Criterio de aceptación | Pruebas |
 |---|---|---|---|
 | **0 (esta)** | La spec | Revisada por el grupo; decisiones de la sección 12 cerradas el 2026-10-21 (O1 a O15, D18 a D20); `realtime-kt` queda como mejora opcional posterior | Ninguna |
-| **1. Script `0008` y guion SQL** | `supabase/migrations/0008_social.sql` (borrador, 13 tablas, funciones, `GRANT`, RLS, verificaciones comentadas); guion de escenarios de juego (archivo en `docs/superpowers/`); "Parte F: Social" en `supabase-configuracion.md`; lista de las advertencias esperadas del Security Advisor | **(usuario)** lo ejecuta a mano y corre las verificaciones: RLS en las 13, sin políticas en las 12 cerradas, nada para `anon`, `EXECUTE` solo para `authenticated`, `search_path` vacío, claves foráneas solo a `auth.users` y tablas nuevas. Después revisa el Advisor y cada fila nueva se corrige o se documenta. No se tocó ninguna tabla anterior | Sin pruebas automáticas (F-03): guion manual con estos casos: crear usuario (único, sin distinguir mayúsculas), búsqueda exacta y límite de ritmo, invitación y aceptación, racha de pareja (con fechas de prueba escritas por el usuario como administrador), respuesta correcta (-20), incorrecta, 3 aciertos y ulti cargada, ulti 45, ulti con escudo (23), ulti fallida (pierde la carga), turno vencido, desconexión de 60 s, reto vencido a los 2 minutos, XP al terminar |
+| **1. Script `0008` y guion SQL** | `supabase/migrations/0008_social.sql` (**escrito, borrador sin ejecutar**: 14 tablas, 5 funciones públicas `SECURITY DEFINER`, 20 internas, `GRANT`, RLS, verificaciones comentadas y la tabla de advertencias esperadas del Security Advisor); **pendientes de esta etapa:** el guion de escenarios de juego (archivo en `docs/superpowers/`) y la "Parte F: Social" en `supabase-configuracion.md` | **(usuario)** lo ejecuta a mano y corre las verificaciones: RLS en las 14, exactamente 5 políticas (las otras 11 tablas, cerradas), nada para `anon`, `EXECUTE` solo para `authenticated` y solo en las 5 funciones públicas y `social_new_code`, `search_path` vacío, claves foráneas solo a `auth.users` y tablas nuevas. Después revisa el Advisor y cada fila nueva se corrige o se documenta. No se tocó ninguna tabla anterior | Sin pruebas automáticas (F-03): guion manual con estos casos: crear usuario (único, sin distinguir mayúsculas), búsqueda exacta y límite de ritmo, invitación y aceptación, racha de pareja (con fechas de prueba escritas por el usuario como administrador), respuesta correcta (-20), incorrecta, 3 aciertos y ulti cargada, ulti 45, ulti con escudo (23), ulti fallida (pierde la carga), turno vencido, desconexión de 60 s, reto vencido a los 2 minutos, XP al terminar |
 | **2. Contenido `0009`** | `0009_banco_batallas.sql`: 72 preguntas, 12 retos de ulti y la curva de XP | **(usuario)** aplicado. Conteos: 12 por tema y 4 por escalón por tema, 6 + 6 retos, una sola correcta por pregunta, 18 de cada letra, ninguna pregunta del examen repetida. El grupo aprobó el texto. Depende de O1 y O12 | Consultas de conteo; ninguna prueba automática |
 | **3. Capa de datos del cliente** | Modelos y repositorios con interfaz (`SocialRepository`, `FriendsRepository`, `PairStreakRepository`, `BattleRepository`), clases `Supabase*` en `data/supabase`, *fakes*, nuevos tipos de error (por ejemplo, nombre en uso, demasiados intentos), `AppContainer`. Sin UI, sin dependencias nuevas | Mapeo de filas y de errores; ninguna excepción de la librería llega a la pantalla | Pruebas de mapeo y de errores como las del módulo 3; una prueba que comprueba que ninguna pantalla ni ViewModel importa Supabase |
 | **4. Social habilitado** | Pestaña Social activa, SOCIAL - INICIO, crear nombre de usuario (M1), `hide_progress` en el servidor, estados vacíos y de error (M12) | Sin nombre: pide uno; con nombre: Inicio de Social. El interruptor "ocultar progreso" guarda en el servidor | ViewModels con Turbine y *fakes* (sin perfil, con perfil, nombre ocupado, sin conexión); el cambio de la barra inferior |
@@ -697,7 +694,7 @@ Cada etapa es **un commit** (o uno por tema si es grande) en la rama `modulo-4`,
 | R7 | **Banco pequeño:** 24 preguntas por escalón se repiten pronto | O12; ampliar con scripts nuevos sin cambiar la app |
 | R8 | **Reglas duplicadas en SQL y Kotlin:** la racha personal vive en el cliente y la de pareja en el servidor (con otra zona horaria) | Guion de casos; las insignias del amigo se evalúan con el mismo código del cliente (4.5) |
 | R9 | **Complejidad del script:** `0008` es grande y se ejecuta a mano; un error ya aplicado se arregla en un script nuevo, no se edita | Revisión por el grupo antes de ejecutar; verificaciones comentadas; entrega en un solo archivo pero revisable por bloques |
-| R10 | **Advertencias del Security Advisor:** unas 32 de "Signed-In Users Can Execute SECURITY DEFINER Function" y 12 de "RLS Enabled No Policy" | Documentarlas por grupo (4.6); cualquiera inesperada se corrige antes de fusionar |
+| R10 | **Advertencias del Security Advisor:** 5 de "Signed-In Users Can Execute SECURITY DEFINER Function" (antes de agrupar iban a ser 32) y 11 de "RLS Enabled No Policy" | Documentarlas por grupo (4.6); cualquiera inesperada se corrige antes de fusionar |
 | R11 | **Dependencia `realtime-kt` (mejora opcional posterior, D18):** no verificada con Kotlin 2.2.10 y Ktor 3.3.0 | No se agrega ahora. Solo con aprobación del equipo y tras una prueba de concepto; si falla, se queda el sondeo |
 | R12 | **Limitación conocida (O15, fuera del módulo): moderación y menores.** Los **nombres de usuario son texto libre** (solo se limita el largo y los caracteres, sin lista de palabras prohibidas) y **no hay forma de reportar ni de bloquear** a otra persona. La partida rápida empareja desconocidos (el análisis previo lo marcó) | Aceptada por el grupo; se documenta en `CLAUDE.md` al cierre. Si más adelante se abre a un público amplio, hay que resolverlo antes |
 | R13 | **Enumeración parcial:** se puede comprobar si un nombre de usuario existe | Límite de ritmo, coincidencia exacta, sin listados; documentado (4.4) |
