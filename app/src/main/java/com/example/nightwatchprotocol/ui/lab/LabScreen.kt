@@ -365,7 +365,7 @@ private fun TerminalOutput(terminal: LabTerminal, modifier: Modifier = Modifier)
 
 /** The field (2374:296): "> escribe un comando…". 48 dp (Figma 44: raised to the minimum touch size). Capital letters and auto-correct are off: it is a command line. */
 @Composable
-private fun CommandInput(input: String, onInputChange: (String) -> Unit, onSend: () -> Unit, modifier: Modifier = Modifier) {
+internal fun CommandInput(input: String, onInputChange: (String) -> Unit, onSend: () -> Unit, modifier: Modifier = Modifier) {
     val description = stringResource(R.string.learning_lab_input_description)
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -412,7 +412,7 @@ private fun CommandInput(input: String, onInputChange: (String) -> Unit, onSend:
 
 /** "Enviar" (2374:299): 96 x 48 (Figma 44: raised to the minimum touch size), light, radius 12. */
 @Composable
-private fun SendButton(onClick: () -> Unit) {
+internal fun SendButton(onClick: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier

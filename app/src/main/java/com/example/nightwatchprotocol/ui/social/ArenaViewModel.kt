@@ -17,6 +17,7 @@ import com.example.nightwatchprotocol.data.social.LastTurn
 import com.example.nightwatchprotocol.data.social.SocialError
 import com.example.nightwatchprotocol.data.social.SocialResult
 import com.example.nightwatchprotocol.data.social.TurnOutcome
+import com.example.nightwatchprotocol.data.social.UltiAttemptResult
 import com.example.nightwatchprotocol.data.social.TurnPhase
 import com.example.nightwatchprotocol.ui.navigation.BattleRoute
 import kotlinx.coroutines.Job
@@ -33,11 +34,30 @@ import kotlinx.coroutines.launch
 data class TurnFeedback(val turnNumber: Int, val chosen: Char?, val outcome: TurnOutcome, val damage: Int)
 
 /** What the arena shows now. It is derived from the last state the server sent: the app decides nothing. */
-enum class ArenaPhase { Loading, MyQuestion, RivalTurn, Feedback, Ulti, Finished }
+enum class ArenaPhase { Loading, MyQuestion, UltiChoice, RivalTurn, Feedback, Ulti, UltiResult, Finished }
+
+/**
+ * How an ulti ended, from the last state the server sent: [byMe] is who threw it, [damage] what it did, [shield] whether the
+ * defender solved their challenge first, and each side's result. The 45 or 23 HP are the server's numbers.
+ */
+data class UltiResultView(
+    val turnNumber: Int,
+    val byMe: Boolean,
+    val damage: Int,
+    val shield: Boolean,
+    val attackerSolved: Boolean,
+    val defenderSolved: Boolean,
+)
 
 data class ArenaUiState(
     val battle: BattleState? = null,
     val feedback: TurnFeedback? = null,
+    val ultiResult: UltiResultView? = null,
+    /** The turn whose "Ulti disponible" the person put aside with "Guardar para después" (the ulti stays charged). */
+    val ultiChoiceDismissedTurn: Int? = null,
+    val command: String = "",
+    /** The last command sent was wrong: it used one of the 3 attempts and did not end the challenge. */
+    val wrongCommand: Boolean = false,
     /** What the rival did in their last turn (shown above my question), until the person answers. */
     val rivalMove: LastTurn? = null,
     val chosen: Char? = null,
@@ -54,10 +74,12 @@ data class ArenaUiState(
             val turn = state.turn
             return when {
                 !state.isOpen -> ArenaPhase.Finished
+                ultiResult != null -> ArenaPhase.UltiResult
                 feedback != null -> ArenaPhase.Feedback
                 turn == null -> ArenaPhase.RivalTurn
                 turn.phase == TurnPhase.Ulti -> ArenaPhase.Ulti
-                turn.isMine && state.question != null -> ArenaPhase.MyQuestion
+                turn.isMine && state.question != null ->
+                    if (state.myUltiCharged && ultiChoiceDismissedTurn != state.turnNumber) ArenaPhase.UltiChoice else ArenaPhase.MyQuestion
                 else -> ArenaPhase.RivalTurn
             }
         }
@@ -130,20 +152,30 @@ class ArenaViewModel(
             var feedback = state.feedback
             var rivalMove = state.rivalMove
             var chosen = state.chosen
+            var ultiResult = state.ultiResult
             if (last != null && last.byMe && last.number > lastMineHandled) {
                 lastMineHandled = last.number
-                feedback = TurnFeedback(last.number, state.chosen, last.outcome, last.damage)
+                if (last.outcome == TurnOutcome.Ulti) {
+                    ultiResult = ultiResultOf(last, new)
+                } else {
+                    feedback = TurnFeedback(last.number, state.chosen, last.outcome, last.damage)
+                }
                 chosen = null
             }
             if (last != null && !last.byMe && last.number > lastRivalHandled) {
                 lastRivalHandled = last.number
-                rivalMove = last
+                if (last.outcome == TurnOutcome.Ulti) ultiResult = ultiResultOf(last, new) else rivalMove = last
             }
             // A new question of mine, two turns after the one I answered, replaces the feedback: its minute is already running.
             if (feedback != null && new.turn?.isMine == true && new.turnNumber > feedback.turnNumber + 1) feedback = null
+            if (ultiResult != null && new.turn?.isMine == true && new.turnNumber > ultiResult.turnNumber + 1) ultiResult = null
+            val inUlti = new.turn?.phase == TurnPhase.Ulti
             state.copy(
                 battle = new,
                 feedback = feedback,
+                ultiResult = ultiResult,
+                command = if (inUlti) state.command else "",
+                wrongCommand = if (inUlti) state.wrongCommand else false,
                 answered = if (feedback == null && !state.submitting) null else state.answered,
                 rivalMove = rivalMove,
                 chosen = chosen,
@@ -155,6 +187,66 @@ class ArenaViewModel(
             finishedSent = true
             _events.send(ArenaEvent.Finished)
         }
+    }
+
+    private fun ultiResultOf(last: LastTurn, state: BattleState) = UltiResultView(
+        turnNumber = last.number,
+        byMe = last.byMe,
+        damage = last.damage,
+        shield = state.lastUlti?.shield == true,
+        attackerSolved = state.lastUlti?.attackerResult == UltiAttemptResult.Solved,
+        defenderSolved = state.lastUlti?.defenderResult == UltiAttemptResult.Solved,
+    )
+
+    /** "Guardar para después": the question of this turn is answered as usual and the ulti stays charged. Nothing is sent. */
+    fun onSaveUlti() {
+        val turn = _uiState.value.battle?.turnNumber ?: return
+        _uiState.update { it.copy(ultiChoiceDismissedTurn = turn) }
+    }
+
+    /** "Usar Ulti ahora": the turn becomes an ulti for both players (each gets their own challenge). */
+    fun onUseUlti() {
+        val state = _uiState.value
+        if (state.phase != ArenaPhase.UltiChoice || state.submitting) return
+        _uiState.update { it.copy(submitting = true, error = null, rivalMove = null) }
+        viewModelScope.launch {
+            when (val result = repository.useUlti(battleId)) {
+                is SocialResult.Success -> apply(result.value, fromAction = true)
+                is SocialResult.Failure -> _uiState.update { it.copy(submitting = false, error = result.error) }
+            }
+        }
+    }
+
+    fun onCommandChanged(text: String) {
+        _uiState.update { it.copy(command = text.take(MAX_COMMAND_LENGTH), wrongCommand = false) }
+    }
+
+    /** "Enviar": one attempt of three. The command is typed from memory and the server compares it; a wrong one only costs the attempt. */
+    fun onSubmitCommand() {
+        val state = _uiState.value
+        val ulti = state.battle?.ulti
+        val command = state.command.trim()
+        if (state.phase != ArenaPhase.Ulti || state.submitting || command.isEmpty()) return
+        if (ulti == null || ulti.myResult != UltiAttemptResult.Pending || ulti.attemptsLeft <= 0) return
+        val before = ulti.attemptsLeft
+        _uiState.update { it.copy(submitting = true, error = null, wrongCommand = false) }
+        viewModelScope.launch {
+            when (val result = repository.submitUltiCommand(battleId, command)) {
+                is SocialResult.Success -> {
+                    apply(result.value, fromAction = true)
+                    // Still in the challenge with fewer attempts, or out of attempts: the command did not solve it.
+                    val now = result.value.ulti
+                    val wrong = now != null && now.myResult != UltiAttemptResult.Solved && now.attemptsLeft < before
+                    _uiState.update { it.copy(command = "", wrongCommand = wrong) }
+                }
+                is SocialResult.Failure -> _uiState.update { it.copy(submitting = false, error = result.error) }
+            }
+        }
+    }
+
+    /** "Continuar →" on the result of an ulti. */
+    fun onContinueUlti() {
+        _uiState.update { it.copy(ultiResult = null) }
     }
 
     /** The person taps an option: the answer goes with the turn number it was drawn for (the server rejects a turn that passed). */
@@ -203,6 +295,9 @@ class ArenaViewModel(
 
     companion object {
         const val KEY_BATTLE_ID = "battleId"
+
+        /** A command is short; the server compares it after normalizing it, so more than this is never right. */
+        const val MAX_COMMAND_LENGTH = 200
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

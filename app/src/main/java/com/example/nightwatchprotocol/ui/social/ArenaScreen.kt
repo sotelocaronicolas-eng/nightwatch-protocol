@@ -80,7 +80,12 @@ fun ArenaScreen(
 
     val rival = uiState.battle?.rivalUsername.orEmpty()
     SocialScreen(
-        title = if (rival.isEmpty()) stringResource(R.string.social_battles_title) else stringResource(R.string.social_arena_title, rival),
+        title = when {
+            // The header of the challenge and of its result is the one of Figma 2450:193.
+            uiState.phase == ArenaPhase.Ulti || uiState.phase == ArenaPhase.UltiResult -> stringResource(R.string.social_ulti_attack_title)
+            rival.isEmpty() -> stringResource(R.string.social_battles_title)
+            else -> stringResource(R.string.social_arena_title, rival)
+        },
         onClose = if (uiState.battle?.isOpen == true) viewModel::onLeaveClicked else onClose,
     ) {
         ArenaContent(
@@ -88,6 +93,11 @@ fun ArenaScreen(
             onOption = viewModel::onOptionSelected,
             onNextTurn = viewModel::onNextTurn,
             onRetry = viewModel::onStart,
+            onSaveUlti = viewModel::onSaveUlti,
+            onUseUlti = viewModel::onUseUlti,
+            onCommandChanged = viewModel::onCommandChanged,
+            onSendCommand = viewModel::onSubmitCommand,
+            onContinueUlti = viewModel::onContinueUlti,
         )
     }
     if (uiState.confirmingLeave) {
@@ -107,6 +117,11 @@ internal fun ArenaContent(
     onOption: (Char) -> Unit,
     onNextTurn: () -> Unit,
     onRetry: () -> Unit,
+    onSaveUlti: () -> Unit,
+    onUseUlti: () -> Unit,
+    onCommandChanged: (String) -> Unit,
+    onSendCommand: () -> Unit,
+    onContinueUlti: () -> Unit,
 ) {
     val battle = uiState.battle
     if (battle == null) {
@@ -123,20 +138,29 @@ internal fun ArenaContent(
                 .padding(start = 20.dp, end = 20.dp, bottom = 96.dp),
         ) {
             HpHeader(battle)
-            TurnPill(battle)
+            TurnPill(battle, ulti = uiState.phase == ArenaPhase.Ulti)
             uiState.error?.let { InlineError(it, Modifier.padding(top = 8.dp)) }
             when (uiState.phase) {
                 ArenaPhase.MyQuestion -> MyQuestion(battle, uiState, onOption)
                 ArenaPhase.Feedback -> Feedback(battle, uiState)
                 ArenaPhase.RivalTurn -> RivalTurn(battle)
-                ArenaPhase.Ulti -> SocialBodyText(stringResource(R.string.social_arena_ulti_pending), modifier = Modifier.padding(top = 24.dp))
+                ArenaPhase.UltiChoice -> UltiChoice(enabled = !uiState.submitting, onSave = onSaveUlti, onUse = onUseUlti)
+                ArenaPhase.Ulti -> UltiChallenge(
+                    battle = battle,
+                    command = uiState.command,
+                    wrongCommand = uiState.wrongCommand,
+                    submitting = uiState.submitting,
+                    onCommandChanged = onCommandChanged,
+                    onSend = onSendCommand,
+                )
+                ArenaPhase.UltiResult -> uiState.ultiResult?.let { UltiResultPanel(it, battle.rivalUsername) }
                 ArenaPhase.Finished, ArenaPhase.Loading -> Unit
             }
         }
-        if (uiState.phase == ArenaPhase.Feedback) {
+        if (uiState.phase == ArenaPhase.Feedback || uiState.phase == ArenaPhase.UltiResult) {
             NightWatchButton(
-                text = stringResource(R.string.social_arena_next_turn),
-                onClick = onNextTurn,
+                text = stringResource(if (uiState.phase == ArenaPhase.Feedback) R.string.social_arena_next_turn else R.string.social_ulti_continue),
+                onClick = if (uiState.phase == ArenaPhase.Feedback) onNextTurn else onContinueUlti,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .navigationBarsPadding()
@@ -211,7 +235,7 @@ private fun HpLabel(text: String, modifier: Modifier, align: TextAlign = TextAli
 
 /** "Tu turno · 0:57" or "Turno de Mateo · 0:44", from the server's seconds; and the progress of the ulti. */
 @Composable
-private fun TurnPill(battle: BattleState) {
+private fun TurnPill(battle: BattleState, ulti: Boolean) {
     val turn = battle.turn
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
         if (turn != null) {
@@ -222,16 +246,17 @@ private fun TurnPill(battle: BattleState) {
                 modifier = Modifier
                     .widthIn(min = 140.dp)
                     .height(28.dp)
-                    .background(if (turn.isMine) NightWatchGold else SocialElevated, RoundedCornerShape(100.dp))
+                    .background(if (turn.isMine || ulti) NightWatchGold else SocialElevated, RoundedCornerShape(100.dp))
                     .padding(horizontal = 14.dp),
             ) {
                 Text(
-                    text = if (turn.isMine) {
-                        stringResource(R.string.social_arena_my_turn, time)
-                    } else {
-                        stringResource(R.string.social_arena_rival_turn, battle.rivalUsername, time)
+                    text = when {
+                        // In the ulti both players have their own challenge and the same 2 minutes.
+                        ulti -> stringResource(R.string.social_ulti_time, time)
+                        turn.isMine -> stringResource(R.string.social_arena_my_turn, time)
+                        else -> stringResource(R.string.social_arena_rival_turn, battle.rivalUsername, time)
                     },
-                    color = if (turn.isMine) SocialOnLight else NightWatchOnBackground,
+                    color = if (turn.isMine || ulti) SocialOnLight else NightWatchOnBackground,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 12.sp,
