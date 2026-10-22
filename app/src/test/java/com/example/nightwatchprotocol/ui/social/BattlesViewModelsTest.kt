@@ -92,6 +92,33 @@ class BattlesViewModelsTest {
     }
 
     @Test
+    fun lobby_startingAgainWhileTheReadRuns_doesNotReadTheScoreTwice() = runTest {
+        val vm = lobbyViewModel()
+
+        vm.onStart()
+        vm.onStop()
+        vm.onStart()
+        runCurrent()
+
+        assertEquals(1, fighter.calls)
+        vm.onStop()
+    }
+
+    @Test
+    fun lobby_startingAgainAfterTheReadEnded_readsItAgain() = runTest {
+        val vm = lobbyViewModel()
+        vm.onStart()
+        runCurrent()
+        vm.onStop()
+
+        vm.onStart()
+        runCurrent()
+
+        assertEquals(2, fighter.calls)
+        vm.onStop()
+    }
+
+    @Test
     fun lobby_showsTheCombatantLevelAndXp_ofTheServer() = runTest {
         val vm = lobbyViewModel()
 

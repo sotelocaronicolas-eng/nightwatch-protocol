@@ -80,6 +80,7 @@ class BattlesViewModel(
     val events: Flow<BattlesEvent> = _events.receiveAsFlow()
 
     private var pollJob: Job? = null
+    private var staticJob: Job? = null
     private var openedBattle: String? = null
 
     /** The screen is visible: read the friends and the score, and keep the challenges fresh. */
@@ -105,7 +106,9 @@ class BattlesViewModel(
     }
 
     private fun loadStatic() {
-        viewModelScope.launch {
+        // Coming back to the screen while the last read is still running does not start a second one.
+        if (staticJob?.isActive == true) return
+        staticJob = viewModelScope.launch {
             val fighter = fighterRepository.getSummary()
             val friends = friendsRepository.list()
             _uiState.update { state ->
