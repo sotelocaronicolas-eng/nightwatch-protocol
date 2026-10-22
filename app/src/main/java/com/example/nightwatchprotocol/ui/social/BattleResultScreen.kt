@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -75,7 +74,7 @@ internal fun BattleResultContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(start = 20.dp, end = 20.dp, top = 32.dp, bottom = 150.dp),
+                    .padding(start = 20.dp, end = 20.dp, bottom = 150.dp),
             ) {
                 Headline(uiState, kind)
                 if (kind != EndKind.Cancelled) HpCard(uiState.hpLeft)
@@ -85,7 +84,6 @@ internal fun BattleResultContent(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
                     .padding(horizontal = 20.dp, vertical = 20.dp),
             ) {
                 uiState.actionError?.let { InlineError(it) }

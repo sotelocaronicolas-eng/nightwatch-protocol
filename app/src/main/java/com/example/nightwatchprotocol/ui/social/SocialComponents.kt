@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -70,13 +71,29 @@ internal val SocialOnLight = Color(0xFF162523)
 private val CardShape = RoundedCornerShape(16.dp)
 private val PillShape = RoundedCornerShape(100.dp)
 
-/** A full screen of Social (without the bottom bar): the header with the title and the "X", and the content below it. */
+/**
+ * The gap between the white line under the title and the first element, the same on every screen of Social and of the battle
+ * (also under the header of the Social tab). Screens do not add a top padding of their own to the first element.
+ */
+val SocialContentTopSpacing = 16.dp
+
+/**
+ * A full screen of Social (without the bottom bar): the header with the title and the "X", and the content below it, which gets
+ * [SocialContentTopSpacing] above and stays clear of the navigation bar. The keyboard is handled by [NightWatchScreenBackground].
+ */
 @Composable
 fun SocialScreen(title: String, onClose: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     NightWatchScreenBackground {
         Column(modifier = Modifier.fillMaxSize()) {
             TitleTopBar(title = title, onClose = onClose)
-            content()
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(top = SocialContentTopSpacing),
+                content = content,
+            )
         }
     }
 }

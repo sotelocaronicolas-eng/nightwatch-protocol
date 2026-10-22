@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -163,7 +162,6 @@ internal fun ArenaContent(
                 onClick = if (uiState.phase == ArenaPhase.Feedback) onNextTurn else onContinueUlti,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
                     .padding(horizontal = 20.dp, vertical = 20.dp),
             )
         }
@@ -175,7 +173,7 @@ internal fun ArenaContent(
 private fun HpHeader(battle: BattleState) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         EmojiCircle(stringResource(R.string.social_search_icon_you), size = 48)
         Column(modifier = Modifier.weight(1f).padding(horizontal = 10.dp)) {

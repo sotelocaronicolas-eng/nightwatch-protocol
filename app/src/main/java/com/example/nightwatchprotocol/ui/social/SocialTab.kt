@@ -72,7 +72,11 @@ internal fun SocialTabContent(
         HomeTopBar(title = stringResource(R.string.social_title), titleTop = 25.dp)
         when (val status = uiState.status) {
             SocialHomeStatus.Loading -> SocialLoading()
-            is SocialHomeStatus.Failed -> ErrorNotice(status.error, onRetry, Modifier.padding(horizontal = 20.dp, vertical = 14.dp))
+            is SocialHomeStatus.Failed -> ErrorNotice(
+                status.error,
+                onRetry,
+                Modifier.padding(start = 20.dp, end = 20.dp, top = SocialContentTopSpacing),
+            )
             SocialHomeStatus.NeedsUsername -> CreateUsernameContent(uiState, onUsernameChanged, onCreateUsername)
             SocialHomeStatus.Ready -> ReadyContent(uiState, onRetry, onOpenPairStreaks, onOpenFriends, onOpenBattles)
         }
@@ -96,7 +100,7 @@ private fun ReadyContent(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 24.dp),
+            .padding(start = 20.dp, end = 20.dp, top = SocialContentTopSpacing, bottom = 24.dp),
     ) {
         SocialBodyText(stringResource(R.string.social_intro))
         uiState.tilesError?.let { ErrorNotice(it, onRetry) }
@@ -149,7 +153,7 @@ private fun CreateUsernameContent(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 24.dp),
+            .padding(start = 24.dp, end = 24.dp, top = SocialContentTopSpacing, bottom = 24.dp),
     ) {
         Text(
             text = stringResource(R.string.social_username_title),

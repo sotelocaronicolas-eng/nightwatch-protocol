@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -48,7 +47,6 @@ fun FriendsScreen(
                 onClick = onAddFriends,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
                     .padding(horizontal = 20.dp, vertical = 20.dp),
             )
         }
@@ -63,7 +61,7 @@ internal fun FriendsContent(uiState: FriendsUiState, onRetry: () -> Unit, onOpen
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 100.dp),
+            .padding(start = 20.dp, end = 20.dp, bottom = 100.dp),
     ) {
         uiState.error?.let { ErrorNotice(it, onRetry) }
         when {

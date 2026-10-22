@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -107,15 +106,14 @@ internal fun PairDetailContent(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
-            .padding(bottom = 24.dp)
-            .navigationBarsPadding(),
+            .padding(bottom = 24.dp),
     ) {
         uiState.loadError?.let { ErrorNotice(it, onRetry) }
         if (metrics == null) {
             if (uiState.loading) SocialLoading()
             return@Column
         }
-        Text(text = stringResource(R.string.social_icon_pair), fontSize = 48.sp, modifier = Modifier.padding(top = 8.dp))
+        Text(text = stringResource(R.string.social_icon_pair), fontSize = 48.sp)
         Text(
             text = metrics.currentDays.toString(),
             color = NightWatchGold,

@@ -53,7 +53,7 @@ internal fun FriendRequestsContent(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 24.dp),
+            .padding(start = 20.dp, end = 20.dp, bottom = 24.dp),
     ) {
         uiState.loadError?.let { ErrorNotice(it, onRetry) }
         uiState.actionError?.let { InlineError(it) }

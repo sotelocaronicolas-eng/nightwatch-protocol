@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -94,15 +93,14 @@ internal fun FriendProfileContent(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
-            .padding(bottom = 24.dp)
-            .navigationBarsPadding(),
+            .padding(bottom = 24.dp),
     ) {
         uiState.loadError?.let { ErrorNotice(it, onRetry) }
         if (!uiState.loaded) {
             if (uiState.loading) SocialLoading()
             return@Column
         }
-        EmojiCircle(stringResource(R.string.social_icon_person), size = 100, modifier = Modifier.padding(top = 12.dp))
+        EmojiCircle(stringResource(R.string.social_icon_person), size = 100)
         Text(
             text = uiState.username,
             color = NightWatchOnBackground,
