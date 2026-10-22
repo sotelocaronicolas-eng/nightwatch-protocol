@@ -48,12 +48,13 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 
 /** Figma color of the rival's side of the bar (#C0503E-ish) and of the empty middle. */
-private val RivalRed = Color(0xFFC0503E)
-private val BarGrey = Color(0xFFA1A1A1)
+private val RivalRed = SocialFail
+private val BarGrey = NightWatchSurfaceButtonMuted
 private val CorrectBorder = NightWatchGold
-private val IncorrectBorder = Color(0xFFC0503E)
+private val IncorrectBorder = SocialFail
 
 /** The arena: the question on the person's turn, the wait on the rival's, and the feedback of the turn just played. */
 @Composable

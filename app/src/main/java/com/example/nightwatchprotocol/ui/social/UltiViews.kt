@@ -3,7 +3,6 @@ package com.example.nightwatchprotocol.ui.social
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,9 +34,9 @@ import com.example.nightwatchprotocol.ui.lab.SendButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 
-/** The red of a failure (the same as the arena's rival side and the "Incorrecto" of Figma). */
-private val FailRed = Color(0xFFC0503E)
+private val FailRed = SocialFail
 
 /** "¡Ulti disponible!" (Figma 2449:290): put it aside ("Guardar para después" sends nothing) or use it now. */
 @Composable
@@ -91,7 +90,7 @@ internal fun UltiChallenge(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(top = 12.dp).fillMaxWidth().background(SocialElevated, shape).padding(16.dp),
         ) {
-            Box(modifier = Modifier.size(20.dp).background(if (ulti.myResult == UltiAttemptResult.Solved) NightWatchGold else Color(0xFFA1A1A1), CircleShape))
+            Box(modifier = Modifier.size(20.dp).background(if (ulti.myResult == UltiAttemptResult.Solved) NightWatchGold else NightWatchSurfaceButtonMuted, CircleShape))
             Text(
                 text = ulti.objective,
                 color = NightWatchOnBackground,
@@ -192,7 +191,7 @@ internal fun UltiResultPanel(result: UltiResultView, rival: String) {
     val good = if (result.byMe) hit else !hit || result.shield
     val accent = if (good) NightWatchGold else FailRed
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 36.dp)) {
-        BigIcon(icon, if (good) NightWatchGold else Color(0xFFA1A1A1))
+        BigIcon(icon, if (good) NightWatchGold else NightWatchSurfaceButtonMuted)
         Text(
             text = title,
             color = if (good) NightWatchGold else NightWatchOnBackground,

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,10 +31,10 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
-import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.components.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 
 /** "Buscando oponente" (Figma 2448:223). */
 @Composable
@@ -112,7 +111,7 @@ internal fun QuickSearchContent(
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                 )
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(80.dp).background(Color(0xFFA1A1A1), CircleShape)) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(80.dp).background(NightWatchSurfaceButtonMuted, CircleShape)) {
                     Text(text = stringResource(R.string.social_search_unknown), color = Color.White, fontSize = 36.sp, fontWeight = FontWeight.Bold)
                 }
             }

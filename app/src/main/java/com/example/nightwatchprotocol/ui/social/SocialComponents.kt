@@ -73,6 +73,9 @@ internal val SocialCardTint = Color(0xFF94A6A7)
 /** Figma color/text/on-light (#162523). */
 internal val SocialOnLight = Color(0xFF162523)
 
+/** The red of a failure and of the rival's side in a battle (Figma "Incorrecto" and the arena's bar). */
+internal val SocialFail = Color(0xFFC0503E)
+
 private val CardShape = RoundedCornerShape(16.dp)
 private val PillShape = RoundedCornerShape(100.dp)
 
