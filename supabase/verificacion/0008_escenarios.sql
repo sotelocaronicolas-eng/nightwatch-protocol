@@ -24,6 +24,9 @@
 --     dura el guion y los vuelve a activar al final.
 --   * La sesión se simula con set_config('request.jwt.claims', ...) (como en la verificación de 0006) y las
 --     llamadas se hacen con el rol authenticated (o anon), así se prueban también los permisos reales.
+--   * Todas las comprobaciones y todos los cambios del guion se limitan a las dos cuentas de prueba (v_a y v_b): así
+--     el resultado no depende de que existan parejas, amistades, retos o colas de personas reales, y el guion no
+--     modifica sus filas.
 --   * El paso del tiempo se simula modificando turn_deadline, last_seen1/2, deadline, expires_at, responded_at,
 --     joined_at y accepted_at desde aquí (el dueño sí puede; la app no).
 --
@@ -436,7 +439,8 @@ begin
     -- Rechazo y espera de 24 horas (O7)
     perform pg_temp.chk('2 Rechazo', 'B rechaza', 'declined', pg_temp.s(pg_temp.f(v_b, 'decline', v_code_a)));
     perform pg_temp.chk('2 Rechazo', 'A invita de nuevo dentro de las 24 h: cooldown', 'error:cooldown', pg_temp.s(pg_temp.f(v_a, 'invite', v_code_b)));
-    update public.friendships set responded_at = now() - interval '25 hours' where status = 'declined';
+    update public.friendships set responded_at = now() - interval '25 hours'
+     where status = 'declined' and (user_low in (v_a, v_b) or user_high in (v_a, v_b));
     perform pg_temp.chk('2 Rechazo', 'Pasadas 25 h (simuladas) A puede invitar otra vez', 'sent', pg_temp.s(pg_temp.f(v_a, 'invite', v_code_b)));
 
     -- Aceptar
@@ -507,7 +511,8 @@ begin
       (v -> 'pairs' -> 0 -> 'metrics' ->> 'current') || '|' || (v -> 'pairs' -> 0 -> 'metrics' ->> 'state') || '|' || (v ->> 'top_current'));
 
     -- El día de aceptación se retrasa 10 días para poder probar días anteriores
-    update public.pair_streaks set accepted_at = now() - interval '10 days';
+    update public.pair_streaks set accepted_at = now() - interval '10 days'
+     where user_low in (v_a, v_b) or user_high in (v_a, v_b);
 
     -- Caso 1: hoy, a las 23:30 de Colombia (que en UTC ya es el día siguiente): cuenta como HOY
     perform pg_temp.island(v_a, 'CONTRASENAS', pg_temp.bog(v_today, '23:30'));
@@ -564,7 +569,8 @@ begin
       (v ->> 'state') || '|' || (v ->> 'current'));
 
     -- Caso 8: el día de aceptación cuenta, los anteriores no (O9)
-    update public.pair_streaks set accepted_at = now();
+    update public.pair_streaks set accepted_at = now()
+     where user_low in (v_a, v_b) or user_high in (v_a, v_b);
     v := pg_temp.p(v_a, 'detail', v_code_b) -> 'pair' -> 'metrics';
     perform pg_temp.chk('3 Racha', 'Aceptada hoy: solo cuenta hoy (1 día compartido, racha 1)', '1|1',
       jsonb_array_length(v -> 'shared_days')::text || '|' || (v ->> 'current'));
@@ -574,13 +580,16 @@ begin
     perform pg_temp.chk('3 Pareja', 'A termina la pareja', 'ended', pg_temp.s(pg_temp.p(v_a, 'end', v_code_b)));
     perform pg_temp.chk('3 Pareja', 'Ya no hay parejas', '0', jsonb_array_length(pg_temp.p(v_a, 'overview') -> 'pairs')::text);
     perform pg_temp.chk('3 Pareja', 'Invitar de nuevo', 'sent', pg_temp.s(pg_temp.p(v_a, 'invite', v_code_b)));
-    update public.pair_streaks set expires_at = now() - interval '1 minute';
+    update public.pair_streaks set expires_at = now() - interval '1 minute'
+     where user_low in (v_a, v_b) or user_high in (v_a, v_b);
     perform pg_temp.chk('3 Pareja', 'Una invitación vencida (3 días, simulado) desaparece al consultar', '0',
       jsonb_array_length(pg_temp.p(v_b, 'overview') -> 'pairs')::text);
-    perform pg_temp.chk('3 Pareja', 'y se borra de la tabla', '0', (select count(*)::text from public.pair_streaks));
+    perform pg_temp.chk('3 Pareja', 'y se borra de la tabla', '0',
+      (select count(*)::text from public.pair_streaks where user_low in (v_a, v_b) or user_high in (v_a, v_b)));
     perform pg_temp.chk('3 Pareja', 'B rechaza una invitación nueva: declined y se borra', 'declined',
       (case when pg_temp.s(pg_temp.p(v_a, 'invite', v_code_b)) = 'sent' then pg_temp.s(pg_temp.p(v_b, 'decline', v_code_a)) else 'no se pudo invitar' end));
-    perform pg_temp.chk('3 Pareja', 'Tras rechazar no queda fila', '0', (select count(*)::text from public.pair_streaks));
+    perform pg_temp.chk('3 Pareja', 'Tras rechazar no queda fila', '0',
+      (select count(*)::text from public.pair_streaks where user_low in (v_a, v_b) or user_high in (v_a, v_b)));
 
     -- Limpieza del progreso de prueba
     delete from public.lesson_progress where user_id in (v_a, v_b);
@@ -602,14 +611,16 @@ begin
       (v ->> 'status') || '|' || (v ->> 'suggest_friend'));
     perform pg_temp.chk('4 Cola', 'La búsqueda sigue en la cola', '1', (select count(*)::text from public.matchmaking_queue where user_id = v_a));
     perform pg_temp.chk('4 Cola', 'A cancela la búsqueda', 'cancelled', pg_temp.s(pg_temp.l(v_a, 'quick_cancel')));
-    perform pg_temp.chk('4 Cola', 'La cola queda vacía', '0', (select count(*)::text from public.matchmaking_queue));
+    perform pg_temp.chk('4 Cola', 'La cola queda vacía', '0',
+      (select count(*)::text from public.matchmaking_queue where user_id in (v_a, v_b)));
     perform pg_temp.chk('4 Cola', 'Sin fila en la cola, quick_poll da none', 'none', pg_temp.s(pg_temp.l(v_a, 'quick_poll')));
 
     -- Rango ±3 que se amplía: A (nivel forzado a 15) y B (nivel 1)
     perform pg_temp.l(v_a, 'quick_join');
     update public.matchmaking_queue set fighter_level = 15 where user_id = v_a;
     perform pg_temp.chk('4 Rango', 'B (nivel 1) y A (nivel 15): diferencia 14 > 3, no se emparejan', 'waiting', pg_temp.s(pg_temp.l(v_b, 'quick_join')));
-    update public.matchmaking_queue set joined_at = now() - interval '130 seconds', last_seen_at = now();
+    update public.matchmaking_queue set joined_at = now() - interval '130 seconds', last_seen_at = now()
+     where user_id in (v_a, v_b);
     v := pg_temp.l(v_b, 'quick_poll');
     perform pg_temp.chk('4 Rango', 'Tras 130 s el rango es 3 + 13 = 16: se emparejan', 'matched', pg_temp.s(v));
     bid := (v ->> 'battle_id')::uuid;
@@ -644,7 +655,8 @@ begin
       jsonb_array_length(v -> 'received')::text || '|' || (v -> 'received' -> 0 ->> 'username'));
 
     -- Vencido a los 2 minutos
-    update public.battle_challenges set expires_at = now() - interval '1 second';
+    update public.battle_challenges set expires_at = now() - interval '1 second'
+     where challenger_id in (v_a, v_b) or challenged_id in (v_a, v_b);
     perform pg_temp.chk('5 Reto', 'Un reto vencido no se puede aceptar: challenge_gone', 'error:challenge_gone', pg_temp.s(pg_temp.l(v_b, 'challenge_accept', v_code_a)));
     perform pg_temp.chk('5 Reto', 'A ve su reto como expired', 'expired', pg_temp.l(v_a, 'challenges') -> 'sent' ->> 'status');
 
@@ -1045,8 +1057,12 @@ begin
     perform pg_temp.p(v_b, 'accept', v_code_a);
     perform pg_temp.l(v_a, 'challenge_send', v_code_b);
     perform pg_temp.chk('11 Eliminar', 'A elimina a B', 'removed', pg_temp.s(pg_temp.f(v_a, 'remove', v_code_b)));
-    perform pg_temp.chk('11 Eliminar', 'Termina la pareja de racha (sin filas)', '0', (select count(*)::text from public.pair_streaks));
-    perform pg_temp.chk('11 Eliminar', 'El reto pendiente queda cancelado', 'cancelled', (select status from public.battle_challenges order by id desc limit 1));
+    perform pg_temp.chk('11 Eliminar', 'Termina la pareja de racha (sin filas)', '0',
+      (select count(*)::text from public.pair_streaks where user_low in (v_a, v_b) or user_high in (v_a, v_b)));
+    perform pg_temp.chk('11 Eliminar', 'El reto pendiente queda cancelado', 'cancelled',
+      (select status from public.battle_challenges
+        where challenger_id in (v_a, v_b) or challenged_id in (v_a, v_b)
+        order by id desc limit 1));
     perform pg_temp.chk('11 Eliminar', 'Ya no son amigos: la lista está vacía', '0', jsonb_array_length(pg_temp.f(v_a, 'list') -> 'friends')::text);
     perform pg_temp.chk('11 Eliminar', 'Y el perfil del ex amigo da not_found', 'error:not_found', pg_temp.s(pg_temp.f(v_a, 'profile', v_code_b)));
   exception when others then
