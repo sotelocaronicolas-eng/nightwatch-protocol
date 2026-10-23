@@ -82,10 +82,24 @@ class AvatarRepositorySocialTest {
 
         val result = repo.remove("uid-1")
 
-        assertEquals(AvatarSyncResult.SocialFailed, result)
+        assertEquals(AvatarSyncResult.SocialRemoveFailed, result)
         assertNull(repo.avatar.value)
         assertNull(cache.files["uid-1"])
         assertEquals(1, profile.removeAvatarCallCount)
+    }
+
+    @Test
+    fun remove_whenTheProfileWriteFails_socialIsNotTouched() = runTest {
+        val repo = repository(testScheduler)
+        repo.save("uid-1", photo)
+        social.syncCalls.clear()
+        profile.removeAvatarResult = Result.failure(RuntimeException("sin red"))
+
+        val result = repo.remove("uid-1")
+
+        assertEquals(AvatarSyncResult.LocalOnly, result)
+        assertNull(repo.avatar.value)
+        assertTrue(social.syncCalls.isEmpty())
     }
 
     @Test

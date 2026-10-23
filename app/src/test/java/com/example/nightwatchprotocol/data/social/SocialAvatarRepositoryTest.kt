@@ -171,6 +171,64 @@ class SocialAvatarRepositoryTest {
     }
 
     @Test
+    fun syncMine_withNull_whenTheFileCannotBeDeleted_doesNotTellTheServer_andKeepsTheKey() = runTest {
+        val repo = repository(UnconfinedTestDispatcher(testScheduler))
+        repo.syncMine(fakeJpeg(5))
+        profiles.profile = profiles.profile?.copy(avatarVersion = 1)
+        remote.marks.clear()
+        remote.deleteFailure = SocialError.Offline
+
+        val result = repo.syncMine(null)
+
+        assertEquals(SocialError.Offline, (result as SocialResult.Failure).error)
+        assertEquals(listOf(myKey), remote.deletes)
+        // The server was never asked to rotate the key: the file is still there, under the key the person still has.
+        assertTrue(remote.marks.isEmpty())
+        assertEquals(myKey, remote.myKey)
+        assertEquals(1, remote.version)
+        assertArrayEquals(fakeJpeg(5), remote.files[myKey])
+        // The photo is still theirs in Social, so the caches keep it.
+        assertArrayEquals(fakeJpeg(5), repo.photo(myKey, 1))
+    }
+
+    @Test
+    fun syncMine_withNull_afterAFailedDelete_worksOnTheNextTry() = runTest {
+        val repo = repository(UnconfinedTestDispatcher(testScheduler))
+        repo.syncMine(fakeJpeg(5))
+        profiles.profile = profiles.profile?.copy(avatarVersion = 1)
+        remote.deleteFailure = SocialError.Offline
+        repo.syncMine(null)
+        remote.deleteFailure = null
+
+        val result = repo.syncMine(null)
+
+        assertTrue(result is SocialResult.Success)
+        assertEquals(listOf(myKey, myKey), remote.deletes)
+        assertEquals(listOf(true, false), remote.marks)
+        assertNull(remote.version)
+        assertTrue(remote.files.isEmpty())
+    }
+
+    @Test
+    fun syncMine_withNull_whenTheDeleteWorksButTheMarkFails_keepsTheCaches() = runTest {
+        val repo = repository(UnconfinedTestDispatcher(testScheduler))
+        repo.syncMine(fakeJpeg(5))
+        profiles.profile = profiles.profile?.copy(avatarVersion = 1)
+        remote.markFailure = SocialError.Offline
+
+        val result = repo.syncMine(null)
+
+        assertEquals(SocialError.Offline, (result as SocialResult.Failure).error)
+        assertTrue(remote.files.isEmpty())
+        assertEquals(1, remote.version)
+        // The removal is not finished, so nothing is forgotten; trying again finishes it.
+        assertArrayEquals(fakeJpeg(5), repo.photo(myKey, 1))
+        remote.markFailure = null
+        assertTrue(repo.syncMine(null) is SocialResult.Success)
+        assertNull(remote.version)
+    }
+
+    @Test
     fun syncMine_withNull_whenSocialHasNoPhoto_doesNothing() = runTest {
         val repo = repository(UnconfinedTestDispatcher(testScheduler))
 

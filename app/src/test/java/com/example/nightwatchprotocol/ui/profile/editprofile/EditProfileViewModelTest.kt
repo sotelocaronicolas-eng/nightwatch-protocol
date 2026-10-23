@@ -441,7 +441,7 @@ class EditProfileViewModelTest {
     }
 
     @Test
-    fun removingThePhotoWhenSocialFails_stillRemovesIt_andShowsTheSocialNotice() = runTest {
+    fun removingThePhotoWhenSocialFails_stillRemovesIt_andShowsTheSocialRemoveNotice() = runTest {
         val social = FakeSocialAvatarRepository()
         val vm = EditProfileViewModel(
             auth, account, AvatarRepository(profile, cache, UnconfinedTestDispatcher(), social), processor, extras, today = { today },
@@ -453,7 +453,7 @@ class EditProfileViewModelTest {
         vm.onRemoveAvatar()
         advanceUntilIdle()
 
-        assertEquals(MESSAGE_AVATAR_SOCIAL_FAILED, vm.uiState.value.avatarError)
+        assertEquals(MESSAGE_AVATAR_SOCIAL_REMOVE_FAILED, vm.uiState.value.avatarError)
         assertFalse(vm.uiState.value.hasPhoto)
     }
 

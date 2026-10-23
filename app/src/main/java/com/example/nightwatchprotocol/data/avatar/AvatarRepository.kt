@@ -16,8 +16,9 @@ import kotlinx.coroutines.withContext
 /**
  * [Synced]: the profile photo reached the server (and Social, if the person has it). [LocalOnly]: the server write failed, so
  * the photo is only on this phone. [SocialFailed]: the profile photo is saved, but the copy in Social could not be updated.
+ * [SocialRemoveFailed]: the profile photo is gone, but the copy in Social could not be deleted (it stays there, with its key unchanged).
  */
-enum class AvatarSyncResult { Synced, LocalOnly, SocialFailed }
+enum class AvatarSyncResult { Synced, LocalOnly, SocialFailed, SocialRemoveFailed }
 
 /**
  * Single source of the current user's avatar bytes, shared by every screen that shows it. When [socialAvatars] is given, saving or
@@ -86,7 +87,7 @@ class AvatarRepository(
         _avatar.value = null
         val synced = runCatchingKeepCancellation { profileRepository.removeAvatar(uid) }.isSuccess
         if (!synced) return AvatarSyncResult.LocalOnly
-        return socialResult { socialAvatars.syncMine(null) }
+        return socialResult(AvatarSyncResult.SocialRemoveFailed) { socialAvatars.syncMine(null) }
     }
 
     /**
@@ -99,9 +100,12 @@ class AvatarRepository(
     }
 
     // The copy in Social never decides whether the profile photo was saved: a failure here is only reported.
-    private suspend fun socialResult(sync: suspend () -> SocialResult<Unit>): AvatarSyncResult {
+    private suspend fun socialResult(
+        failure: AvatarSyncResult = AvatarSyncResult.SocialFailed,
+        sync: suspend () -> SocialResult<Unit>,
+    ): AvatarSyncResult {
         val result = runCatchingKeepCancellation { sync() }.getOrNull()
-        return if (result is SocialResult.Success) AvatarSyncResult.Synced else AvatarSyncResult.SocialFailed
+        return if (result is SocialResult.Success) AvatarSyncResult.Synced else failure
     }
 
     // After a local change the local copy is the truth, so a later load must not overwrite it with an older remote one.
