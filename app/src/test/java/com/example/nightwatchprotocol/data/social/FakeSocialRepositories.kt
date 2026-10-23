@@ -161,6 +161,48 @@ class FakeFriendsRepository : FriendsRepository {
                 ?: FriendProfile(friend.username, friend.friendCode, friend.streakDays, friend.trainedToday, false, null, emptyList()),
         )
     }
+
+    // ---- report and block (0011). Set `failure = SocialError.Unavailable` for a server without the script. ----
+
+    data class ReportCall(val target: String, val reason: ReportReason, val note: String)
+
+    val reports = mutableListOf<ReportCall>()
+    val blocked = mutableListOf<PersonRef>()
+    var blockCalls = 0
+    var unblockCalls = 0
+
+    /** Reports can be made against anybody that exists, friend or not, and blocked or not (the script does not look at blocks). */
+    override suspend fun report(target: String, reason: ReportReason, note: String): SocialResult<Unit> {
+        begin()?.let { return it }
+        if (target.trim().length !in 3..40 || note.trim().length > REPORT_NOTE_MAX_LENGTH) return SocialResult.Failure(SocialError.InvalidInput)
+        val person = find(target) ?: return rejected(SocialRejection.NotFound)
+        reports += ReportCall(person.friendCode, reason, note.trim())
+        return ok(Unit)
+    }
+
+    /** Like the script: the friendship and the requests with that person end, and the person goes first in [blocked]. */
+    override suspend fun block(target: String): SocialResult<Unit> {
+        begin()?.let { return it }
+        blockCalls++
+        if (target.trim().length !in 3..40) return SocialResult.Failure(SocialError.InvalidInput)
+        val person = find(target) ?: return rejected(SocialRejection.NotFound)
+        friends.removeAll { it.friendCode == person.friendCode }
+        sent.removeAll { it.friendCode == person.friendCode }
+        received.removeAll { it.friendCode == person.friendCode }
+        blocked.removeAll { it.friendCode == person.friendCode }
+        blocked.add(0, person)
+        return ok(Unit)
+    }
+
+    override suspend fun unblock(target: String): SocialResult<Unit> {
+        begin()?.let { return it }
+        unblockCalls++
+        if (target.trim().length !in 3..40) return SocialResult.Failure(SocialError.InvalidInput)
+        val person = find(target) ?: return rejected(SocialRejection.NotFound)
+        return if (blocked.removeAll { it.friendCode == person.friendCode }) ok(Unit) else rejected(SocialRejection.NotFound)
+    }
+
+    override suspend fun blocks(): SocialResult<List<PersonRef>> = begin() ?: ok(blocked.toList())
 }
 
 /** Pair streaks in memory: the numbers are whatever the test sets (the server calculates them in the real one). */

@@ -30,6 +30,14 @@ sealed interface SocialError {
     /** Anything not classified, including a response the app cannot read. */
     data object Unknown : SocialError
 
+    /**
+     * The server does not have the action the app asked for yet: it answered `bad_action` to report, block, unblock or the list of
+     * blocked people, which exist only after `0011_reportes_bloqueos.sql` is applied. The screens say "Función no disponible por
+     * ahora" and keep working. Only the calls of those actions can produce it (see [SocialRpcClient.callNewAction]); for any other
+     * call `bad_action` stays [Unknown], a bug of the app.
+     */
+    data object Unavailable : SocialError
+
     /** The server understood the request and said no, for a reason the person can act on. */
     data class Rejected(val reason: SocialRejection) : SocialError
 }
@@ -83,6 +91,8 @@ fun socialErrorFromCode(code: String?): SocialError = when (val clean = code?.tr
     "social_not_enabled" -> SocialError.NotEnabled
     "rate_limited" -> SocialError.RateLimited
     "bad_query" -> SocialError.InvalidInput
+    // `report` with a malformed argument (0011): the form checks the same bounds, so this is the same "revisa el texto".
+    "bad_report" -> SocialError.InvalidInput
     else -> SocialRejection.fromCode(clean)?.let { SocialError.Rejected(it) } ?: SocialError.Unknown
 }
 

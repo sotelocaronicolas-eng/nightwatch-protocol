@@ -16,6 +16,13 @@ import kotlinx.serialization.json.JsonObject
 interface SocialRpcClient {
     /** Calls the SQL function [function] with the named [params] and returns its `jsonb` answer, or the classified failure. */
     suspend fun call(function: String, params: JsonObject): SocialResult<JsonElement>
+
+    /**
+     * Like [call], for an action that only exists after `0011_reportes_bloqueos.sql` (report, block, unblock, blocks): a server
+     * without it answers `bad_action`, which here is [SocialError.Unavailable] and not a bug of the app. The default is [call], for
+     * clients that do not tell the two apart.
+     */
+    suspend fun callNewAction(function: String, params: JsonObject): SocialResult<JsonElement> = call(function, params)
 }
 
 /** The own profile (table `social_profile`). Created with INSERT of (user_id, username); only `hide_progress` can be updated. */
@@ -57,6 +64,31 @@ interface FriendsRepository {
     suspend fun remove(friendCode: String): SocialResult<Unit>
 
     suspend fun profile(friendCode: String): SocialResult<FriendProfile>
+
+    /*
+     * Reporting and blocking (`0011_reportes_bloqueos.sql`, not applied yet when this was written). Until it is, the server answers
+     * `bad_action` and every one of these fails as [SocialError.Unavailable]. Nothing else in Social depends on them.
+     */
+
+    /**
+     * Reports any person (not only friends) by exact username or friend code. [note] is optional, at most [REPORT_NOTE_MAX_LENGTH]
+     * characters. Reporting changes nothing for the reporter, and nothing hides the other person's photo by itself: the team reads
+     * the reports and decides. At most 10 a day.
+     */
+    suspend fun report(target: String, reason: ReportReason, note: String): SocialResult<Unit>
+
+    /**
+     * Blocks a person (by exact username or friend code). It ends the friendship and the pair streak and cancels the pending
+     * challenges between the two; it does NOT end a battle in progress. From then on neither of them can find, invite or challenge
+     * the other, and the quick match never pairs them.
+     */
+    suspend fun block(target: String): SocialResult<Unit>
+
+    /** Lifts the person's own block. The friendship and the pair streak that the block ended do not come back. */
+    suspend fun unblock(target: String): SocialResult<Unit>
+
+    /** The people the signed-in person blocked, newest first (never the people who blocked them). */
+    suspend fun blocks(): SocialResult<List<PersonRef>>
 }
 
 /** Pair streaks (`social_pairs`): the server calculates them in Colombian time; they never pass 6 days. */

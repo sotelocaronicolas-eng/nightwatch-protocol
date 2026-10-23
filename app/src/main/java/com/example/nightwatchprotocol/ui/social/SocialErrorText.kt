@@ -18,6 +18,7 @@ fun SocialError.messageRes(): Int = when (this) {
     SocialError.InvalidInput -> R.string.social_error_invalid_input
     SocialError.PermissionDenied -> R.string.social_error_permission_denied
     SocialError.Unknown -> R.string.social_error_unknown
+    SocialError.Unavailable -> R.string.social_error_unavailable
     is SocialError.Rejected -> reason.messageRes()
 }
 

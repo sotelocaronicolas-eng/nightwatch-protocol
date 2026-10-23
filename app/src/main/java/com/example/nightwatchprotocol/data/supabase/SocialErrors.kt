@@ -50,10 +50,29 @@ fun classifySocialFailure(error: Throwable): SocialError {
 }
 
 /**
+ * The same classification for an action that only exists after `0011_reportes_bloqueos.sql` (report, block, unblock, blocks): a
+ * server without the script raises `bad_action`, and that is [SocialError.Unavailable] ("Función no disponible por ahora"), not a
+ * bug of the app. Every other failure is classified as usual.
+ */
+fun classifyNewActionFailure(error: Throwable): SocialError {
+    if (error is PostgrestRestException && error.code == POSTGRES_RAISE_EXCEPTION && error.error.trim() == BAD_ACTION_CODE) {
+        return SocialError.Unavailable
+    }
+    return classifySocialFailure(error)
+}
+
+private const val BAD_ACTION_CODE = "bad_action"
+
+/**
  * Runs a Social call with a time limit and returns its result or a classified failure; nothing is thrown, except the
  * cancellation of the caller (never swallowed). A call that takes longer than [timeoutMillis] is [SocialError.Offline].
+ * [classify] turns the exception into the error: [classifySocialFailure], or [classifyNewActionFailure] for the actions of `0011`.
  */
-suspend fun <T> socialCall(timeoutMillis: Long = DATA_TIMEOUT_MILLIS, block: suspend () -> T): SocialResult<T> =
+suspend fun <T> socialCall(
+    timeoutMillis: Long = DATA_TIMEOUT_MILLIS,
+    classify: (Throwable) -> SocialError = ::classifySocialFailure,
+    block: suspend () -> T,
+): SocialResult<T> =
     try {
         SocialResult.Success(withTimeout(timeoutMillis) { block() })
     } catch (e: TimeoutCancellationException) {
@@ -61,5 +80,5 @@ suspend fun <T> socialCall(timeoutMillis: Long = DATA_TIMEOUT_MILLIS, block: sus
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        SocialResult.Failure(classifySocialFailure(e))
+        SocialResult.Failure(classify(e))
     }

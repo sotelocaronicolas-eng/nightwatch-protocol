@@ -23,8 +23,13 @@ class SupabaseSocialRpcClient(
     private val timeoutMillis: Long = DATA_TIMEOUT_MILLIS,
 ) : SocialRpcClient {
 
-    override suspend fun call(function: String, params: JsonObject): SocialResult<JsonElement> {
+    override suspend fun call(function: String, params: JsonObject): SocialResult<JsonElement> = invoke(function, params, ::classifySocialFailure)
+
+    override suspend fun callNewAction(function: String, params: JsonObject): SocialResult<JsonElement> =
+        invoke(function, params, ::classifyNewActionFailure)
+
+    private suspend fun invoke(function: String, params: JsonObject, classify: (Throwable) -> SocialError): SocialResult<JsonElement> {
         if (currentUserId() == null) return SocialResult.Failure(SocialError.NoSession)
-        return socialCall(timeoutMillis) { Json.parseToJsonElement(postgrest.rpc(function, params).data) }
+        return socialCall(timeoutMillis, classify) { Json.parseToJsonElement(postgrest.rpc(function, params).data) }
     }
 }

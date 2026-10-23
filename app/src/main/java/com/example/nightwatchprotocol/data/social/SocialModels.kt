@@ -77,6 +77,17 @@ data class Friend(
 
 data class FriendRequests(val received: List<PersonRef>, val sent: List<PersonRef>)
 
+/** Why a person is reported (`0011_reportes_bloqueos.sql`). [code] is what the server expects in the second part of the `report` argument. */
+enum class ReportReason(val code: String) {
+    InappropriatePhoto("inappropriate_photo"),
+    OffensiveName("offensive_name"),
+    Harassment("harassment"),
+    Other("other"),
+}
+
+/** The note of a report is optional and at most this long (the server's check; the form shows a counter). */
+const val REPORT_NOTE_MAX_LENGTH = 200
+
 enum class FriendRelation { None, Sent, Received, Friends }
 
 data class FriendSearchHit(

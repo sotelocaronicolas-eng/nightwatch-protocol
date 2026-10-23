@@ -16,7 +16,10 @@ import com.example.nightwatchprotocol.data.social.MonotonicClock
 import com.example.nightwatchprotocol.data.social.PairStreak
 import com.example.nightwatchprotocol.data.social.PairStreakOverview
 import com.example.nightwatchprotocol.data.social.PairStreakRepository
+import com.example.nightwatchprotocol.data.social.PersonRef
 import com.example.nightwatchprotocol.data.social.QuickMatchStatus
+import com.example.nightwatchprotocol.data.social.REPORT_NOTE_MAX_LENGTH
+import com.example.nightwatchprotocol.data.social.ReportReason
 import com.example.nightwatchprotocol.data.social.SOCIAL_FRIENDS_RPC
 import com.example.nightwatchprotocol.data.social.SOCIAL_PAIRS_RPC
 import com.example.nightwatchprotocol.data.social.SocialError
@@ -27,6 +30,7 @@ import com.example.nightwatchprotocol.data.social.actionParams
 import com.example.nightwatchprotocol.data.social.flatMap
 import com.example.nightwatchprotocol.data.social.parseAck
 import com.example.nightwatchprotocol.data.social.parseBattleState
+import com.example.nightwatchprotocol.data.social.parseBlocks
 import com.example.nightwatchprotocol.data.social.parseChallenges
 import com.example.nightwatchprotocol.data.social.parseFriendProfile
 import com.example.nightwatchprotocol.data.social.parseFriendRequests
@@ -37,6 +41,7 @@ import com.example.nightwatchprotocol.data.social.parsePairDetail
 import com.example.nightwatchprotocol.data.social.parsePairOverview
 import com.example.nightwatchprotocol.data.social.parseQuickMatch
 import com.example.nightwatchprotocol.data.social.playParams
+import com.example.nightwatchprotocol.data.social.reportArg
 import com.example.nightwatchprotocol.data.social.syncParams
 import java.util.UUID
 import kotlinx.serialization.json.JsonElement
@@ -99,6 +104,29 @@ class SupabaseFriendsRepository(private val rpc: SocialRpcClient) : FriendsRepos
 
     private suspend fun ack(action: String, arg: String, status: String): SocialResult<Unit> =
         rpc.callAndParse(SOCIAL_FRIENDS_RPC, actionParams(action, arg)) { parseAck(it, status) }
+
+    // ---- 0011: report and block. A server without the script answers bad_action, which is SocialError.Unavailable. ----
+
+    override suspend fun report(target: String, reason: ReportReason, note: String): SocialResult<Unit> {
+        if (!isValidQuery(target) || note.trim().length > REPORT_NOTE_MAX_LENGTH) return invalidInput
+        return newActionAck("report", reportArg(target, reason, note), "reported")
+    }
+
+    override suspend fun block(target: String): SocialResult<Unit> {
+        if (!isValidQuery(target)) return invalidInput
+        return newActionAck("block", target.trim(), "blocked")
+    }
+
+    override suspend fun unblock(target: String): SocialResult<Unit> {
+        if (!isValidQuery(target)) return invalidInput
+        return newActionAck("unblock", target.trim(), "unblocked")
+    }
+
+    override suspend fun blocks(): SocialResult<List<PersonRef>> =
+        rpc.callNewAction(SOCIAL_FRIENDS_RPC, actionParams("blocks")).flatMap(::parseBlocks)
+
+    private suspend fun newActionAck(action: String, arg: String, status: String): SocialResult<Unit> =
+        rpc.callNewAction(SOCIAL_FRIENDS_RPC, actionParams(action, arg)).flatMap { parseAck(it, status) }
 }
 
 class SupabasePairStreakRepository(private val rpc: SocialRpcClient) : PairStreakRepository {

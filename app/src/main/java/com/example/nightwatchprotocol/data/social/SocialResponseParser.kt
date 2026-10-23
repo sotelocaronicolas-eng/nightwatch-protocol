@@ -149,6 +149,17 @@ fun parseFriendRequests(response: JsonElement): SocialResult<FriendRequests> = p
     FriendRequests(received = body.arr("received").people(), sent = body.arr("sent").people())
 }
 
+/** `{"blocked":[{username, friend_code, avatar_key, avatar_version}, ...]}` (0011): the people the person blocked. */
+fun parseBlocks(response: JsonElement): SocialResult<List<PersonRef>> = parseResponse(response) { body ->
+    body.arr("blocked").people()
+}
+
+/**
+ * The argument of the `report` action: `target|reason|note`, three parts always (the note may be empty, and it may contain `|`:
+ * the server takes everything after the second bar). Neither a username nor a friend code can contain a bar.
+ */
+fun reportArg(target: String, reason: ReportReason, note: String): String = "${target.trim()}|${reason.code}|${note.trim()}"
+
 private val RELATIONS = mapOf(
     "none" to FriendRelation.None,
     "sent" to FriendRelation.Sent,
