@@ -26,6 +26,7 @@ fun FriendRequestsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refresh() }
+    val reportBlock = rememberReportBlockState()
 
     SocialScreen(title = stringResource(R.string.social_requests_title), onClose = onClose) {
         FriendRequestsContent(
@@ -34,8 +35,12 @@ fun FriendRequestsScreen(
             onAccept = viewModel::onAccept,
             onDecline = viewModel::onDecline,
             onCancel = viewModel::onCancel,
+            onReport = reportBlock::openReport,
+            onBlock = reportBlock::openBlock,
         )
     }
+    // Blocking someone ends their request: the list is read again.
+    ReportBlockDialogs(reportBlock, onBlocked = { viewModel.refresh() })
 }
 
 @Composable
@@ -45,6 +50,8 @@ internal fun FriendRequestsContent(
     onAccept: (String) -> Unit,
     onDecline: (String) -> Unit,
     onCancel: (String) -> Unit,
+    onReport: (username: String) -> Unit,
+    onBlock: (username: String) -> Unit,
 ) {
     val requests = uiState.requests
     Column(
@@ -81,6 +88,14 @@ internal fun FriendRequestsContent(
                         onAccept = { onAccept(person.friendCode) },
                         onDecline = { onDecline(person.friendCode) },
                         enabled = !busy,
+                    )
+                    // Anybody who sends a request can be reported or blocked, whether or not the request is accepted.
+                    ReportBlockLinks(
+                        username = person.username,
+                        onReport = { onReport(person.username) },
+                        onBlock = { onBlock(person.username) },
+                        color = SocialOnLight,
+                        arrangement = Arrangement.Start,
                     )
                 },
             )

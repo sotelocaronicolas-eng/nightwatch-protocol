@@ -79,6 +79,8 @@ fun ArenaScreen(
     BackHandler(enabled = uiState.battle?.isOpen == true) { viewModel.onLeaveClicked() }
 
     val rival = uiState.battle?.rivalUsername.orEmpty()
+    // Dialogs and not a route: a route would cover the arena and stop the heartbeat of the battle.
+    val reportBlock = rememberReportBlockState()
     SocialScreen(
         title = when {
             // The header of the challenge and of its result is the one of Figma 2450:193.
@@ -98,8 +100,12 @@ fun ArenaScreen(
             onCommandChanged = viewModel::onCommandChanged,
             onSendCommand = viewModel::onSubmitCommand,
             onContinueUlti = viewModel::onContinueUlti,
+            onReport = { reportBlock.openReport(rival) },
+            onBlock = { reportBlock.openBlock(rival) },
         )
     }
+    // Blocking the rival does not end the battle in progress.
+    ReportBlockDialogs(reportBlock)
     if (uiState.confirmingLeave) {
         AlertDialog(
             onDismissRequest = viewModel::onLeaveDismissed,
@@ -122,6 +128,8 @@ internal fun ArenaContent(
     onCommandChanged: (String) -> Unit,
     onSendCommand: () -> Unit,
     onContinueUlti: () -> Unit,
+    onReport: () -> Unit,
+    onBlock: () -> Unit,
 ) {
     val battle = uiState.battle
     if (battle == null) {
@@ -156,6 +164,12 @@ internal fun ArenaContent(
                 ArenaPhase.UltiResult -> uiState.ultiResult?.let { UltiResultPanel(it, battle.rivalUsername) }
                 ArenaPhase.Finished, ArenaPhase.Loading -> Unit
             }
+            ReportBlockLinks(
+                username = battle.rivalUsername,
+                onReport = onReport,
+                onBlock = onBlock,
+                modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 16.dp),
+            )
         }
         if (uiState.phase == ArenaPhase.Feedback || uiState.phase == ArenaPhase.UltiResult) {
             NightWatchButton(

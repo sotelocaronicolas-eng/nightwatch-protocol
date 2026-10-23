@@ -62,6 +62,10 @@ object AddFriend
 @Serializable
 object FriendRequestsRoute
 
+/** "Personas bloqueadas": the people the person blocked, with "Desbloquear" (reached from Amigos). */
+@Serializable
+object BlockedPeopleRoute
+
 /** "Racha en pareja": the list of pairs and invitations. */
 @Serializable
 object PairStreaksRoute

@@ -2,17 +2,13 @@ package com.example.nightwatchprotocol.ui.social
 
 import android.content.ClipData
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -41,10 +36,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.social.FriendRelation
 import com.example.nightwatchprotocol.data.social.FriendSearchHit
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import kotlinx.coroutines.launch
 
 /** "Agregar amigos" (Figma 2446:212, without "Sugerencias"). */
@@ -56,6 +49,7 @@ fun AddFriendScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refresh() }
+    val reportBlock = rememberReportBlockState()
 
     SocialScreen(title = stringResource(R.string.social_add_title), onClose = onClose) {
         AddFriendContent(
@@ -65,8 +59,11 @@ fun AddFriendScreen(
             onInvite = viewModel::onInvite,
             onAcceptIncoming = viewModel::onAcceptIncoming,
             onOpenRequests = onOpenRequests,
+            onReport = reportBlock::openReport,
+            onBlock = reportBlock::openBlock,
         )
     }
+    ReportBlockDialogs(reportBlock, onBlocked = { viewModel.onPersonBlocked() })
 }
 
 @Composable
@@ -77,6 +74,8 @@ internal fun AddFriendContent(
     onInvite: () -> Unit,
     onAcceptIncoming: () -> Unit,
     onOpenRequests: () -> Unit,
+    onReport: (username: String) -> Unit,
+    onBlock: (username: String) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -102,7 +101,15 @@ internal fun AddFriendContent(
             style = PillStyle.Gold,
             enabled = !uiState.searching && uiState.query.isNotBlank(),
         )
-        uiState.hit?.let { hit -> HitRow(hit, uiState.working, onInvite, onAcceptIncoming) }
+        uiState.hit?.let { hit ->
+            HitRow(hit, uiState.working, onInvite, onAcceptIncoming)
+            ReportBlockLinks(
+                username = hit.username,
+                onReport = { onReport(hit.username) },
+                onBlock = { onBlock(hit.username) },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
+        }
         uiState.error?.takeIf { uiState.hit != null }?.let { InlineError(it) }
         uiState.notice?.let { notice -> NoticeText(notice) }
         MyCodeCard(uiState.myFriendCode)
@@ -185,25 +192,5 @@ private fun MyCodeCard(code: String?) {
 /** "📥 Solicitudes de amistad" with the count of requests received. */
 @Composable
 private fun RequestsLink(count: Int, onClick: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(SocialElevated, RoundedCornerShape(16.dp))
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-    ) {
-        Text(
-            text = stringResource(R.string.social_add_requests_link),
-            color = NightWatchOnBackground,
-            fontFamily = NightWatchBodyFontFamily,
-            fontSize = 14.sp,
-            modifier = Modifier.weight(1f),
-        )
-        if (count > 0) {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp).background(NightWatchGold, CircleShape)) {
-                Text(text = count.toString(), color = SocialOnLight, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-            }
-        }
-    }
+    SocialLinkRow(text = stringResource(R.string.social_add_requests_link), onClick = onClick, badge = count)
 }

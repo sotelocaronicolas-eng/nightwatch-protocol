@@ -164,6 +164,11 @@ class BattleResultViewModel(
         _uiState.update { it.copy(rematchFriendCode = friend.friendCode) }
     }
 
+    /** The rival was blocked from this screen: they are not a friend any more, so "Revancha" is no longer offered. */
+    fun onRivalBlocked() {
+        _uiState.update { it.copy(rematchFriendCode = null) }
+    }
+
     /** "Revancha": a new challenge of 2 minutes to the same friend. */
     fun onRematch() {
         val state = _uiState.value

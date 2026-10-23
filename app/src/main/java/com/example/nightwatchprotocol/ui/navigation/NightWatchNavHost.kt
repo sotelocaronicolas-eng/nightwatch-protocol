@@ -47,6 +47,7 @@ import com.example.nightwatchprotocol.ui.quiz.PlacementResultScreen
 import com.example.nightwatchprotocol.ui.social.AddFriendScreen
 import com.example.nightwatchprotocol.ui.social.ArenaScreen
 import com.example.nightwatchprotocol.ui.social.BattleResultScreen
+import com.example.nightwatchprotocol.ui.social.BlockedPeopleScreen
 import com.example.nightwatchprotocol.ui.social.BattlesScreen
 import com.example.nightwatchprotocol.ui.social.QuickSearchScreen
 import com.example.nightwatchprotocol.ui.social.FriendProfileScreen
@@ -234,7 +235,11 @@ fun NightWatchNavHost(
                 onClose = { navController.popBackStack() },
                 onOpenFriend = { friendCode -> navController.navigate(FriendProfileRoute(friendCode)) },
                 onAddFriends = { navController.navigate(AddFriend) },
+                onOpenBlocked = { navController.navigate(BlockedPeopleRoute) },
             )
+        }
+        composable<BlockedPeopleRoute> {
+            BlockedPeopleScreen(onClose = { navController.popBackStack() })
         }
         composable<AddFriend> {
             AddFriendScreen(

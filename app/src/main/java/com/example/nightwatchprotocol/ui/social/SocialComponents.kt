@@ -358,6 +358,32 @@ fun AcceptDeclinePills(
     }
 }
 
+/** A full-width row that opens another screen ("📥 Solicitudes de amistad", "🚫 Personas bloqueadas"), with an optional count [badge]. */
+@Composable
+fun SocialLinkRow(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, badge: Int = 0) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(SocialElevated, CardShape)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+    ) {
+        Text(
+            text = text,
+            color = NightWatchOnBackground,
+            fontFamily = NightWatchBodyFontFamily,
+            fontSize = 14.sp,
+            modifier = Modifier.weight(1f),
+        )
+        if (badge > 0) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp).background(NightWatchGold, CircleShape)) {
+                Text(text = badge.toString(), color = SocialOnLight, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+            }
+        }
+    }
+}
+
 /** The error of a call: its own message (never the code) and "Reintentar". */
 @Composable
 fun ErrorNotice(error: SocialError, onRetry: (() -> Unit)?, modifier: Modifier = Modifier) {

@@ -85,6 +85,12 @@ class AddFriendViewModel(
         }
     }
 
+    /** The person found was blocked from here: the result goes away (a blocked person is not found any more) and the count is read again. */
+    fun onPersonBlocked() {
+        _uiState.update { it.copy(hit = null, error = null, notice = null) }
+        refresh()
+    }
+
     /** "Agregar +": sends the request to the person found. The server tells if they are already friends or there is a request. */
     fun onInvite() {
         val hit = _uiState.value.hit ?: return

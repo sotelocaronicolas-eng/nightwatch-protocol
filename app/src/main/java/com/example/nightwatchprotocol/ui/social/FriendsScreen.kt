@@ -33,6 +33,7 @@ fun FriendsScreen(
     onClose: () -> Unit,
     onOpenFriend: (friendCode: String) -> Unit,
     onAddFriends: () -> Unit,
+    onOpenBlocked: () -> Unit,
     viewModel: FriendsViewModel = viewModel(factory = FriendsViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -40,7 +41,7 @@ fun FriendsScreen(
 
     SocialScreen(title = stringResource(R.string.social_friends_title), onClose = onClose) {
         Box(modifier = Modifier.fillMaxSize()) {
-            FriendsContent(uiState, viewModel::refresh, onOpenFriend)
+            FriendsContent(uiState, viewModel::refresh, onOpenFriend, onOpenBlocked)
             NightWatchButton(
                 text = stringResource(R.string.social_friends_add),
                 onClick = onAddFriends,
@@ -53,7 +54,7 @@ fun FriendsScreen(
 }
 
 @Composable
-internal fun FriendsContent(uiState: FriendsUiState, onRetry: () -> Unit, onOpenFriend: (String) -> Unit) {
+internal fun FriendsContent(uiState: FriendsUiState, onRetry: () -> Unit, onOpenFriend: (String) -> Unit, onOpenBlocked: () -> Unit) {
     val friends = uiState.friends
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -79,6 +80,8 @@ internal fun FriendsContent(uiState: FriendsUiState, onRetry: () -> Unit, onOpen
                 friends.forEach { friend -> FriendRow(friend, onClick = { onOpenFriend(friend.friendCode) }) }
             }
         }
+        // Reachable even with no friends: blocking ends a friendship, so the list of the blocked is where they come back from.
+        SocialLinkRow(text = stringResource(R.string.social_blocked_link), onClick = onOpenBlocked)
     }
 }
 

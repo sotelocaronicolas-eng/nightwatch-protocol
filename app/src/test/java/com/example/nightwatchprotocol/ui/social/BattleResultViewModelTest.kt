@@ -212,6 +212,17 @@ class BattleResultViewModelTest {
     }
 
     @Test
+    fun rematch_goesAwayWhenTheRivalIsBlockedFromTheResult() = runTest {
+        val vm = viewModel(finished(BattleOutcome.Loss, mode = BattleMode.Friend))
+        vm.load()
+        advanceUntilIdle()
+
+        vm.onRivalBlocked()
+
+        assertNull(vm.uiState.value.rematchFriendCode)
+    }
+
+    @Test
     fun rematch_isNotOfferedAfterAQuickMatch() = runTest {
         val vm = viewModel(finished(BattleOutcome.Win, mode = BattleMode.Quick))
 

@@ -61,6 +61,8 @@ fun FriendProfileScreen(
         }
     }
 
+    val reportBlock = rememberReportBlockState()
+
     SocialScreen(title = uiState.username.ifEmpty { stringResource(R.string.social_friends_title) }, onClose = onClose) {
         FriendProfileContent(
             uiState = uiState,
@@ -68,6 +70,8 @@ fun FriendProfileScreen(
             onInvitePair = viewModel::onInvitePairClicked,
             onBattle = viewModel::onBattleClicked,
             onRemove = viewModel::onRemoveClicked,
+            onReport = { reportBlock.openReport(uiState.username) },
+            onBlock = { reportBlock.openBlock(uiState.username) },
         )
     }
     if (uiState.confirmingRemove) {
@@ -77,6 +81,8 @@ fun FriendProfileScreen(
             onDismiss = viewModel::onRemoveDismissed,
         )
     }
+    // Blocking a friend ends the friendship: there is no profile left to show.
+    ReportBlockDialogs(reportBlock, onBlocked = { onClose() })
 }
 
 @Composable
@@ -86,6 +92,8 @@ internal fun FriendProfileContent(
     onInvitePair: () -> Unit,
     onBattle: () -> Unit,
     onRemove: () -> Unit,
+    onReport: () -> Unit,
+    onBlock: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -182,6 +190,7 @@ internal fun FriendProfileContent(
                 .clickable(enabled = !uiState.removing, role = Role.Button, onClick = onRemove)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
         )
+        ReportBlockLinks(username = uiState.username, onReport = onReport, onBlock = onBlock)
     }
 }
 

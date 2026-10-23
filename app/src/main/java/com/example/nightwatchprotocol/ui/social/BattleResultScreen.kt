@@ -49,10 +49,20 @@ fun BattleResultScreen(
     }
     // The battle is over: back goes to Social, never into it.
     BackHandler(onBack = onBack)
+    val reportBlock = rememberReportBlockState()
 
     SocialScreen(title = stringResource(R.string.social_end_title), onClose = onBack) {
-        BattleResultContent(uiState = uiState, onRetry = viewModel::load, onRematch = viewModel::onRematch, onBack = onBack)
+        BattleResultContent(
+            uiState = uiState,
+            onRetry = viewModel::load,
+            onRematch = viewModel::onRematch,
+            onBack = onBack,
+            onReport = { reportBlock.openReport(uiState.rival) },
+            onBlock = { reportBlock.openBlock(uiState.rival) },
+        )
     }
+    // A blocked rival is not a friend any more: "Revancha" goes away.
+    ReportBlockDialogs(reportBlock, onBlocked = { viewModel.onRivalBlocked() })
 }
 
 @Composable
@@ -61,6 +71,8 @@ internal fun BattleResultContent(
     onRetry: () -> Unit,
     onRematch: () -> Unit,
     onBack: () -> Unit,
+    onReport: () -> Unit,
+    onBlock: () -> Unit,
 ) {
     val kind = uiState.kind
     Box(modifier = Modifier.fillMaxSize()) {
@@ -79,6 +91,10 @@ internal fun BattleResultContent(
                 Headline(uiState, kind)
                 if (kind != EndKind.Cancelled) HpCard(uiState.hpLeft)
                 Details(uiState, kind)
+                // Any rival can be reported or blocked, in a quick match too (a stranger).
+                if (uiState.rival.isNotEmpty()) {
+                    ReportBlockLinks(username = uiState.rival, onReport = onReport, onBlock = onBlock, modifier = Modifier.padding(top = 12.dp))
+                }
             }
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
