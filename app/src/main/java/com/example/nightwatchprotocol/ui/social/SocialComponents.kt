@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
@@ -300,6 +301,9 @@ fun PersonRow(
 
 enum class PillStyle { Light, Gold, Outlined }
 
+/** The pills are drawn 36 dp tall inside a 48 dp touch target: 6 dp of touch area above and below. */
+private val PillTouchInset = 6.dp
+
 /** The small pills of the lists: "Aceptar", "Retar", "Cancelar solicitud" (Figma 2446:252, 2448:207). */
 @Composable
 fun SocialPill(
@@ -317,11 +321,13 @@ fun SocialPill(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .heightIn(min = 36.dp)
             .alpha(if (enabled) 1f else 0.5f)
+            // 48 dp touch target (R-04); the pill is drawn inside it with the same 36 dp height as before, like "Reenviar".
+            .minimumInteractiveComponentSize()
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .padding(vertical = PillTouchInset)
             .background(container, PillShape)
             .let { if (style == PillStyle.Outlined) it.border(1.5.dp, SocialOnLight, PillShape) else it.shadow(2.dp, PillShape) }
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 6.dp),
     ) {
         Text(
