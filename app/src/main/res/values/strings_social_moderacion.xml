@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Reportar y bloquear (módulo 4, script 0011). Aparte de strings_social.xml: ese archivo solo lleva los mensajes de los errores. -->
+
+    <!-- Error: el servidor todavía no tiene las acciones nuevas (0011 sin aplicar) -->
+    <string name="social_error_unavailable">Función no disponible por ahora.</string>
+
+    <!-- Enlaces de reportar y bloquear (perfil del amigo, búsqueda, solicitudes, arena y fin de batalla) -->
+    <string name="social_report_link">Reportar</string>
+    <string name="social_block_link">Bloquear</string>
+    <string name="social_report_link_desc">Reportar a %1$s</string>
+    <string name="social_block_link_desc">Bloquear a %1$s</string>
+
+    <!-- Reportar -->
+    <string name="social_report_title">Reportar a %1$s</string>
+    <string name="social_report_intro">Elige el motivo. El equipo de NightWatch revisará el reporte; la persona reportada no sabrá quién lo envió.</string>
+    <string name="social_report_reason_inappropriate_photo">Foto inapropiada</string>
+    <string name="social_report_reason_offensive_name">Nombre de usuario ofensivo</string>
+    <string name="social_report_reason_harassment">Acoso o mal comportamiento</string>
+    <string name="social_report_reason_other">Otro motivo</string>
+    <string name="social_report_note_label">Nota (opcional)</string>
+    <string name="social_report_note_counter">%1$d/%2$d</string>
+    <string name="social_report_send">Enviar reporte</string>
+    <string name="social_report_sending">Enviando…</string>
+    <string name="social_report_cancel">Cancelar</string>
+    <string name="social_report_done_title">Reporte enviado</string>
+    <string name="social_report_done_body">Gracias. El equipo lo revisará. Reportar no bloquea a %1$s: si quieres dejar de interactuar con esa persona, también puedes bloquearla.</string>
+    <string name="social_report_done_close">Listo</string>
+
+    <!-- Bloquear (confirmación) -->
+    <string name="social_block_title">¿Bloquear a %1$s?</string>
+    <string name="social_block_body">Dejarán de ser amigos, se terminará su racha en pareja y se cancelarán los retos pendientes. Ninguno de los dos podrá buscar, invitar ni retar al otro. Si hay una batalla en curso, no se termina. Puedes desbloquear desde Amigos > Personas bloqueadas.</string>
+    <string name="social_block_confirm">Bloquear</string>
+    <string name="social_block_blocking">Bloqueando…</string>
+    <string name="social_block_cancel">Cancelar</string>
+    <string name="social_block_done_title">Persona bloqueada</string>
+    <string name="social_block_done_body">Bloqueaste a %1$s. Puedes desbloquear desde Amigos > Personas bloqueadas.</string>
+    <string name="social_block_done_close">Listo</string>
+
+    <!-- Personas bloqueadas -->
+    <string name="social_blocked_link">🚫 Personas bloqueadas</string>
+    <string name="social_blocked_title">Personas bloqueadas</string>
+    <string name="social_blocked_intro">Ninguno de los dos puede buscar, invitar ni retar al otro. Al desbloquear no se recupera la amistad ni la racha en pareja.</string>
+    <string name="social_blocked_empty">No has bloqueado a nadie.</string>
+    <string name="social_blocked_unblock">Desbloquear</string>
+</resources>

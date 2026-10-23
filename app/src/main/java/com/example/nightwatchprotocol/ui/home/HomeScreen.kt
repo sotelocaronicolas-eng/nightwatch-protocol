@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -66,6 +65,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.ui.labs.LabsTab
 import com.example.nightwatchprotocol.ui.path.LearningPathTab
+import com.example.nightwatchprotocol.ui.social.SocialTab
 
 /** Figma 49:15 "MAIN MENU": the colours of the bar line, the panel behind the pill and the sheet border/handle (113:145, 113:150). */
 private val SheetBorderColor = Color(0xFF204143)
@@ -85,6 +85,9 @@ fun HomeScreen(
     onOpenLesson: (LearningTopic) -> Unit,
     onOpenLab: (LearningTopic) -> Unit,
     onOpenExam: () -> Unit,
+    onOpenFriends: () -> Unit,
+    onOpenPairStreaks: () -> Unit,
+    onOpenBattles: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -118,7 +121,9 @@ fun HomeScreen(
         onOpenExam = onOpenExam,
         onDailyLessonClick = viewModel::onDailyLessonClicked,
         onTabSelected = viewModel::onTabSelected,
-        onSocialClick = viewModel::onSocialClicked,
+        onOpenPairStreaks = onOpenPairStreaks,
+        onOpenFriends = onOpenFriends,
+        onOpenBattles = onOpenBattles,
         onProfileClick = viewModel::onProfileClicked,
         onComingSoonCardClick = viewModel::onComingSoonCardClicked,
         onSignOut = viewModel::onSignOutClicked,
@@ -135,7 +140,9 @@ private fun HomeContent(
     onOpenExam: () -> Unit,
     onDailyLessonClick: () -> Unit,
     onTabSelected: (HomeTab) -> Unit,
-    onSocialClick: () -> Unit,
+    onOpenPairStreaks: () -> Unit,
+    onOpenFriends: () -> Unit,
+    onOpenBattles: () -> Unit,
     onProfileClick: () -> Unit,
     onComingSoonCardClick: () -> Unit,
     onSignOut: () -> Unit,
@@ -151,7 +158,6 @@ private fun HomeContent(
                 NightWatchBottomBar(
                     selected = uiState.selectedTab,
                     onTabSelected = onTabSelected,
-                    onSocialClick = onSocialClick,
                     onProfileClick = onProfileClick,
                 )
             },
@@ -174,6 +180,11 @@ private fun HomeContent(
                         snackbarHostState = snackbarHostState,
                         onOpenLab = onOpenLab,
                         onOpenExam = onOpenExam,
+                    )
+                    HomeTab.Social -> SocialTab(
+                        onOpenPairStreaks = onOpenPairStreaks,
+                        onOpenFriends = onOpenFriends,
+                        onOpenBattles = onOpenBattles,
                     )
                 }
             }

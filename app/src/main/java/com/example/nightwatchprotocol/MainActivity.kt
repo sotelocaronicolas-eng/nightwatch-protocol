@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -28,6 +29,8 @@ import com.example.nightwatchprotocol.ui.navigation.Login
 import com.example.nightwatchprotocol.ui.navigation.NightWatchNavHost
 import com.example.nightwatchprotocol.ui.navigation.PostAuthGate
 import com.example.nightwatchprotocol.ui.session.DeviceSessionViewModel
+import com.example.nightwatchprotocol.ui.social.LocalSocialPhotoSource
+import com.example.nightwatchprotocol.ui.social.RepositorySocialPhotoSource
 import com.example.nightwatchprotocol.ui.startup.StartRoute
 import com.example.nightwatchprotocol.ui.startup.StartupViewModel
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
@@ -40,6 +43,11 @@ class MainActivity : FragmentActivity() {
     private val deviceSessionViewModel: DeviceSessionViewModel by viewModels { DeviceSessionViewModel.Factory }
     private val startupViewModel: StartupViewModel by viewModels { StartupViewModel.Factory }
     private var isUnlockPromptShowing = false
+
+    // How the screens of Social get the photos of the people (the repository keeps them in memory and on disk).
+    private val socialPhotoSource by lazy {
+        RepositorySocialPhotoSource((application as NightWatchApplication).container.socialAvatarRepository)
+    }
 
     // The view models that read the session in their init are only touched once the session is ready.
     private var sessionReady = false
@@ -88,14 +96,16 @@ class MainActivity : FragmentActivity() {
                     )
                 }
 
-                Box(modifier = Modifier.fillMaxSize()) {
-                    if (lockState.showContent) {
-                        NightWatchNavHost(navController = navController, startDestination = startDestination)
-                    }
-                    if (lockState.isLocked) {
-                        // Back leaves the app instead of reaching the screens under the lock.
-                        BackHandler { finish() }
-                        AppLockScreen(onRequestUnlock = ::showUnlockPrompt)
+                CompositionLocalProvider(LocalSocialPhotoSource provides socialPhotoSource) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        if (lockState.showContent) {
+                            NightWatchNavHost(navController = navController, startDestination = startDestination)
+                        }
+                        if (lockState.isLocked) {
+                            // Back leaves the app instead of reaching the screens under the lock.
+                            BackHandler { finish() }
+                            AppLockScreen(onRequestUnlock = ::showUnlockPrompt)
+                        }
                     }
                 }
             }

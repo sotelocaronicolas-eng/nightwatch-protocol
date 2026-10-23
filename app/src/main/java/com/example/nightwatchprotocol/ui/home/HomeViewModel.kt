@@ -20,6 +20,7 @@ import com.example.nightwatchprotocol.data.device.SessionCheck
 import com.example.nightwatchprotocol.data.learning.LearningContentRepository
 import com.example.nightwatchprotocol.data.learning.LearningProgressRepository
 import com.example.nightwatchprotocol.data.learning.StreakState
+import com.example.nightwatchprotocol.data.learning.colombiaClock
 import com.example.nightwatchprotocol.data.learning.computeStreak
 import com.example.nightwatchprotocol.data.learning.deriveLearningProgress
 import com.example.nightwatchprotocol.data.learning.practiceMoments
@@ -53,7 +54,7 @@ class HomeViewModel(
     private val learningProgressRepository: LearningProgressRepository,
     private val learningContentRepository: LearningContentRepository,
     private val sessionManager: DeviceSessionManager,
-    private val clock: Clock = Clock.systemDefaultZone(),
+    private val clock: Clock = colombiaClock(),
 ) : ViewModel() {
 
     private var account = accountRepository.currentProfile()
@@ -94,11 +95,6 @@ class HomeViewModel(
     fun onTabSelected(tab: HomeTab) {
         savedStateHandle[KEY_SELECTED_TAB] = tab.name
         _uiState.update { it.copy(selectedTab = tab) }
-    }
-
-    /** Social is not built (module 4): it does not change the tab; it only says "Próximamente". */
-    fun onSocialClicked() {
-        viewModelScope.launch { _events.send(HomeEvent.ShowComingSoon) }
     }
 
     /** "Concepto nuevo" and "Prepárate con CiberMynd". */

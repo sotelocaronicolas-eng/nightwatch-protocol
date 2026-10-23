@@ -51,6 +51,49 @@ object Exam
 @Serializable
 data class ExamResult(val answers: List<Int>)
 
+/** "Amigos" of Social: the list of friends, full screen and without the bottom bar. */
+@Serializable
+object Friends
+
+/** "Agregar amigos": search by username or friend code, the own code and the way to the requests. */
+@Serializable
+object AddFriend
+
+@Serializable
+object FriendRequestsRoute
+
+/** "Personas bloqueadas": the people the person blocked, with "Desbloquear" (reached from Amigos). */
+@Serializable
+object BlockedPeopleRoute
+
+/** "Racha en pareja": the list of pairs and invitations. */
+@Serializable
+object PairStreaksRoute
+
+/** "Batallas": the score, the quick match, the challenges and the friends to challenge. Full screen, without the bottom bar. */
+@Serializable
+object BattlesRoute
+
+/** "Buscando oponente": the quick match queue. */
+@Serializable
+object QuickSearchRoute
+
+/** One battle, full screen. [battleId] is the id the server gave (a battle is only readable by its two players). */
+@Serializable
+data class BattleRoute(val battleId: String)
+
+/** The end of one battle: the result, the XP and the way back. Full screen. */
+@Serializable
+data class BattleResultRoute(val battleId: String)
+
+/** The detail of the pair with the friend whose public code is [friendCode]. */
+@Serializable
+data class PairDetailRoute(val friendCode: String)
+
+/** The profile of one friend. [friendCode] is the public code of the friend (never an internal id). */
+@Serializable
+data class FriendProfileRoute(val friendCode: String)
+
 @Serializable
 object UserMenu
 

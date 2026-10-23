@@ -16,6 +16,9 @@ import com.example.nightwatchprotocol.data.profile.DataExportWriter
 import com.example.nightwatchprotocol.data.profile.ProfileDataExporter
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
+import com.example.nightwatchprotocol.data.social.SocialError
+import com.example.nightwatchprotocol.data.social.SocialProfileRepository
+import com.example.nightwatchprotocol.data.social.SocialResult
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +33,10 @@ data class PrivacySecurityUiState(
     val recoveryEmail: String? = null,
     /** Devices with an open session in the cooperative registry; null while loading or when it cannot be read. */
     val activeDevices: Int? = null,
+    /** With Social enabled this is `social_profile.hide_progress` (what the friends see); otherwise the local setting. */
     val hidePublicProgress: Boolean = false,
+    /** The server did not take the change of [hidePublicProgress]: nothing changed, and the switch shows the real value. */
+    val hideProgressError: SocialError? = null,
     val biometricLockEnabled: Boolean = false,
     val biometricError: String? = null,
     val exportStatus: ExportStatus = ExportStatus.Idle,
@@ -59,7 +65,12 @@ class PrivacySecurityViewModel(
     private val dataExporter: ProfileDataExporter,
     private val dataExportWriter: DataExportWriter,
     private val deviceRepository: DeviceRepository,
+    /** With a username (Social enabled) "ocultar mi progreso" lives in the server, where the friends' profiles read it. */
+    private val socialProfileRepository: SocialProfileRepository? = null,
 ) : ViewModel() {
+
+    /** The value in `social_profile`, or null while Social is not enabled (or not read yet): then the local setting rules. */
+    private var serverHide: Boolean? = null
 
     private val _uiState = MutableStateFlow(PrivacySecurityUiState())
     val uiState: StateFlow<PrivacySecurityUiState> = _uiState.asStateFlow()
@@ -72,7 +83,7 @@ class PrivacySecurityViewModel(
             userPreferences.settings.collect { settings ->
                 _uiState.update {
                     it.copy(
-                        hidePublicProgress = settings[UserSetting.HIDE_PUBLIC_PROGRESS],
+                        hidePublicProgress = serverHide ?: settings[UserSetting.HIDE_PUBLIC_PROGRESS],
                         biometricLockEnabled = settings[UserSetting.BIOMETRIC_LOCK],
                     )
                 }
@@ -80,6 +91,17 @@ class PrivacySecurityViewModel(
         }
         refreshRecoveryEmail()
         refreshDevices()
+        refreshSocialHide()
+    }
+
+    /** With Social enabled, shows the value the server holds (it is what the friends see). */
+    private fun refreshSocialHide() {
+        val repository = socialProfileRepository ?: return
+        viewModelScope.launch {
+            val profile = (repository.getMyProfile() as? SocialResult.Success)?.value ?: return@launch
+            serverHide = profile.hideProgress
+            _uiState.update { it.copy(hidePublicProgress = profile.hideProgress) }
+        }
     }
 
     /** Counts the devices that have not been asked to sign out. */
@@ -101,8 +123,36 @@ class PrivacySecurityViewModel(
         }
     }
 
+    /**
+     * With a username the change goes to the server first (`social_profile.hide_progress`) and the switch only moves when it was
+     * saved; if it cannot be saved, nothing changes and the error says so. Without Social it is the local setting, as before.
+     */
     fun onHidePublicProgressChanged(hide: Boolean) {
-        viewModelScope.launch { userPreferences.set(UserSetting.HIDE_PUBLIC_PROGRESS, hide) }
+        val repository = socialProfileRepository
+        viewModelScope.launch {
+            if (repository == null) {
+                userPreferences.set(UserSetting.HIDE_PUBLIC_PROGRESS, hide)
+                return@launch
+            }
+            _uiState.update { it.copy(hideProgressError = null) }
+            when (val read = repository.getMyProfile()) {
+                is SocialResult.Failure -> _uiState.update { it.copy(hideProgressError = read.error) }
+                is SocialResult.Success ->
+                    if (read.value == null) {
+                        userPreferences.set(UserSetting.HIDE_PUBLIC_PROGRESS, hide)
+                    } else {
+                        when (val saved = repository.setHideProgress(hide)) {
+                            is SocialResult.Failure -> _uiState.update { it.copy(hideProgressError = saved.error) }
+                            is SocialResult.Success -> {
+                                serverHide = hide
+                                // The local copy follows, so the setting is the same if Social is ever not available.
+                                userPreferences.set(UserSetting.HIDE_PUBLIC_PROGRESS, hide)
+                                _uiState.update { it.copy(hidePublicProgress = hide) }
+                            }
+                        }
+                    }
+            }
+        }
     }
 
     /**
@@ -163,6 +213,7 @@ class PrivacySecurityViewModel(
                     container.profileDataExporter,
                     container.dataExportWriter,
                     container.deviceRepository,
+                    container.socialProfileRepository,
                 )
             }
         }

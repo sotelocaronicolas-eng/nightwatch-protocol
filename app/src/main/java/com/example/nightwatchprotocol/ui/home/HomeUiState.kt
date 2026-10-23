@@ -6,13 +6,14 @@ import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.StreakState
 import kotlinx.serialization.Serializable
 
-/** The three tabs that live inside Home. "Social" and "Perfil" of the bar are not tabs: one is "Próximamente", the other opens the user menu. */
+/** The four tabs that live inside Home (module 4 enabled Social). "Perfil" of the bar is not a tab: it opens the user menu. */
 @Keep
 @Serializable
 enum class HomeTab {
     Inicio,
     Ruta,
     Labs,
+    Social,
     ;
 
     companion object {
@@ -51,7 +52,7 @@ sealed interface HomeEvent {
     /** "Perfil" of the bar: opens the existing user menu on top of Home. */
     data object OpenUserMenu : HomeEvent
 
-    /** Social and the two cards that are not built yet: one Snackbar "Próximamente". */
+    /** The two cards of Inicio that are not built yet ("Concepto nuevo" and CiberMynd): one Snackbar "Próximamente". */
     data object ShowComingSoon : HomeEvent
 
     /** "Lección diaria" with a pending lesson: opens it. */

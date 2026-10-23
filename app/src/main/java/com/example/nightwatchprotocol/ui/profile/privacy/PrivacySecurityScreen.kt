@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -30,6 +31,7 @@ import com.example.nightwatchprotocol.ui.components.SectionLabel
 import com.example.nightwatchprotocol.ui.components.SettingsRow
 import com.example.nightwatchprotocol.ui.components.SettingsSwitch
 import com.example.nightwatchprotocol.ui.components.TitleTopBar
+import com.example.nightwatchprotocol.ui.social.messageRes
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
@@ -152,6 +154,9 @@ private fun PrivacySecurityContent(
                     },
                     onClick = { onHidePublicProgressChange(!uiState.hidePublicProgress) },
                 )
+                uiState.hideProgressError?.let { error ->
+                    Text(text = stringResource(error.messageRes()), color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+                }
                 SettingsRow(
                     emoji = "⬇️",
                     label = "Descargar mis datos",

@@ -18,6 +18,9 @@ import com.example.nightwatchprotocol.data.profile.Gender
 import com.example.nightwatchprotocol.data.profile.ProfileExtras
 import com.example.nightwatchprotocol.data.profile.ProfileExtrasRepository
 import com.example.nightwatchprotocol.data.profile.RemoteProfile
+import com.example.nightwatchprotocol.data.social.FakeSocialAvatarRepository
+import com.example.nightwatchprotocol.data.social.SocialError
+import com.example.nightwatchprotocol.data.social.SocialResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -419,6 +422,39 @@ class EditProfileViewModelTest {
 
         assertEquals(MESSAGE_AVATAR_LOCAL_ONLY, vm.uiState.value.avatarError)
         assertTrue(vm.uiState.value.hasPhoto)
+    }
+
+    @Test
+    fun photoWhenSocialFails_isSavedAnyway_andTheNoticeSaysSocialWasNotUpdated() = runTest {
+        val social = FakeSocialAvatarRepository().apply { syncResult = SocialResult.Failure(SocialError.Offline) }
+        val vm = EditProfileViewModel(
+            auth, account, AvatarRepository(profile, cache, UnconfinedTestDispatcher(), social), processor, extras, today = { today },
+        )
+
+        vm.onAvatarPicked("content://foto")
+        advanceUntilIdle()
+
+        assertEquals(MESSAGE_AVATAR_SOCIAL_FAILED, vm.uiState.value.avatarError)
+        assertTrue(vm.uiState.value.hasPhoto)
+        assertEquals(1, profile.savedAvatars.size)
+        assertFalse(vm.uiState.value.isAvatarBusy)
+    }
+
+    @Test
+    fun removingThePhotoWhenSocialFails_stillRemovesIt_andShowsTheSocialRemoveNotice() = runTest {
+        val social = FakeSocialAvatarRepository()
+        val vm = EditProfileViewModel(
+            auth, account, AvatarRepository(profile, cache, UnconfinedTestDispatcher(), social), processor, extras, today = { today },
+        )
+        vm.onAvatarPicked("content://foto")
+        advanceUntilIdle()
+        social.syncResult = SocialResult.Failure(SocialError.PermissionDenied)
+
+        vm.onRemoveAvatar()
+        advanceUntilIdle()
+
+        assertEquals(MESSAGE_AVATAR_SOCIAL_REMOVE_FAILED, vm.uiState.value.avatarError)
+        assertFalse(vm.uiState.value.hasPhoto)
     }
 
     @Test

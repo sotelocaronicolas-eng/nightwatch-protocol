@@ -45,8 +45,30 @@ import com.example.nightwatchprotocol.data.quiz.QuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.SupabasePlacementRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.data.session.sessionDataStore
+import com.example.nightwatchprotocol.data.social.BattleLobbyRepository
+import com.example.nightwatchprotocol.data.social.BattlePoller
+import com.example.nightwatchprotocol.data.social.BattleRepository
+import com.example.nightwatchprotocol.data.social.ChallengesPoller
+import com.example.nightwatchprotocol.data.social.DefaultSocialAvatarRepository
+import com.example.nightwatchprotocol.data.social.FighterRepository
+import com.example.nightwatchprotocol.data.social.FileSocialPhotoDiskCache
+import com.example.nightwatchprotocol.data.social.FriendsRepository
+import com.example.nightwatchprotocol.data.social.PairStreakRepository
+import com.example.nightwatchprotocol.data.social.QuickMatchPoller
+import com.example.nightwatchprotocol.data.social.SocialAvatarRepository
+import com.example.nightwatchprotocol.data.social.SocialProfileRepository
+import com.example.nightwatchprotocol.data.social.SocialRpcClient
+import com.example.nightwatchprotocol.data.supabase.SupabaseBattleLobbyRepository
+import com.example.nightwatchprotocol.data.supabase.SupabaseBattleRepository
+import com.example.nightwatchprotocol.data.supabase.SupabaseFighterRepository
+import com.example.nightwatchprotocol.data.supabase.SupabaseFriendsRepository
 import com.example.nightwatchprotocol.data.supabase.SupabaseLearningProgressRepository
+import com.example.nightwatchprotocol.data.supabase.SupabasePairStreakRepository
+import com.example.nightwatchprotocol.data.supabase.SOCIAL_AVATAR_BUCKET
 import com.example.nightwatchprotocol.data.supabase.SupabaseRecoveryEmailCodeApi
+import com.example.nightwatchprotocol.data.supabase.SupabaseSocialAvatarRemote
+import com.example.nightwatchprotocol.data.supabase.SupabaseSocialProfileRepository
+import com.example.nightwatchprotocol.data.supabase.SupabaseSocialRpcClient
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.auth
@@ -57,6 +79,7 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.Storage
 import io.github.jan.supabase.storage.storage
+import java.io.File
 
 interface AppContainer {
     val googleWebClientId: String
@@ -85,6 +108,22 @@ interface AppContainer {
 
     /** The streak and the badges, derived from the progress (nothing of them is stored). */
     val progressSummaryProvider: ProgressSummaryProvider
+
+    // Social (module 4). The server decides everything about the game; these only ask and show.
+    val socialProfileRepository: SocialProfileRepository
+
+    /** The photos of the people of Social (bucket `social-avatars`), with a memory and a disk cache. */
+    val socialAvatarRepository: SocialAvatarRepository
+    val fighterRepository: FighterRepository
+    val friendsRepository: FriendsRepository
+    val pairStreakRepository: PairStreakRepository
+    val battleLobbyRepository: BattleLobbyRepository
+    val battleRepository: BattleRepository
+
+    /** Polling (decision D18): `battle_sync` every 2 to 3 seconds while a battle is open, the queue while looking for a rival. */
+    val battlePoller: BattlePoller
+    val quickMatchPoller: QuickMatchPoller
+    val challengesPoller: ChallengesPoller
 }
 
 /**
@@ -131,8 +170,22 @@ class DefaultAppContainer(context: Context) : AppContainer {
             sessionUserId,
             SupabaseRecoveryEmailCodeApi(supabaseClient.functions, supabaseClient.postgrest),
         )
+
+    // Social: the SQL functions travel through one client; the person always comes from the session (no id is sent). It is built
+    // before the avatars because saving the profile photo also updates the photo in Social.
+    private val socialRpcClient: SocialRpcClient = SupabaseSocialRpcClient(supabaseClient.postgrest, sessionUserId)
+
+    override val socialProfileRepository: SocialProfileRepository =
+        SupabaseSocialProfileRepository(supabaseClient.postgrest, sessionUserId)
+    override val socialAvatarRepository: SocialAvatarRepository = DefaultSocialAvatarRepository(
+        remote = SupabaseSocialAvatarRemote(supabaseClient.storage[SOCIAL_AVATAR_BUCKET], socialRpcClient),
+        profiles = socialProfileRepository,
+        disk = FileSocialPhotoDiskCache(File(context.cacheDir, "social_avatars")),
+        hasSession = { sessionUserId() != null },
+    )
+
     override val avatarRepository: AvatarRepository =
-        AvatarRepository(profileRepository, FileAvatarCache(context.filesDir))
+        AvatarRepository(profileRepository, FileAvatarCache(context.filesDir), socialAvatars = socialAvatarRepository)
     override val avatarImageProcessor: AvatarImageProcessor = BitmapAvatarImageProcessor(context.contentResolver)
     override val userPreferences: UserPreferences = UserPreferences(context.userDataStore)
     override val biometricCapabilities: BiometricCapabilities = AndroidBiometricCapabilities(context)
@@ -156,4 +209,13 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val learningProgressRepository: LearningProgressRepository =
         SupabaseLearningProgressRepository(supabaseClient.postgrest, sessionUserId)
     override val progressSummaryProvider: ProgressSummaryProvider = ProgressSummaryProvider(learningProgressRepository)
+
+    override val fighterRepository: FighterRepository = SupabaseFighterRepository(supabaseClient.postgrest, sessionUserId)
+    override val friendsRepository: FriendsRepository = SupabaseFriendsRepository(socialRpcClient)
+    override val pairStreakRepository: PairStreakRepository = SupabasePairStreakRepository(socialRpcClient)
+    override val battleLobbyRepository: BattleLobbyRepository = SupabaseBattleLobbyRepository(socialRpcClient)
+    override val battleRepository: BattleRepository = SupabaseBattleRepository(socialRpcClient)
+    override val battlePoller: BattlePoller = BattlePoller(battleRepository)
+    override val quickMatchPoller: QuickMatchPoller = QuickMatchPoller(battleLobbyRepository)
+    override val challengesPoller: ChallengesPoller = ChallengesPoller(battleLobbyRepository)
 }

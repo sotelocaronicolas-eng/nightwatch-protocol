@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Textos de las pantallas de Social (módulo 4), prefijo social_. Los de Figma dicen su nodo; los demás son "propuestos" (no están
+    en Figma: diferencia F13 de la spec). Los mensajes de error están en strings_social.xml.
+-->
+<resources>
+    <string name="social_retry">Reintentar</string>
+    <string name="social_loading_dots">…</string>
+    <string name="social_unavailable_value">—</string>
+
+    <!-- Emojis de las tarjetas y de las filas -->
+    <string name="social_icon_pair">🔥</string>
+    <string name="social_icon_friends">🧑‍🤝‍🧑</string>
+    <string name="social_icon_battles">⚔️</string>
+    <string name="social_icon_person">🧑</string>
+
+    <!-- Descripción del avatar para los lectores de pantalla (propuestos; solo donde el nombre no está justo al lado) -->
+    <string name="social_avatar_mine">Tu foto de perfil</string>
+    <string name="social_avatar_of">Foto de perfil de %1$s</string>
+
+    <!-- Social - Inicio. Figma 2440:163, 2440:167 -->
+    <string name="social_title">Social</string>
+    <string name="social_intro">Mantén tu racha con amigos y demuestra lo que sabes en batallas de preguntas.</string>
+    <!-- La tarjeta se llama "Racha en pareja" (decisión D19; Figma dice "Racha grupal") -->
+    <string name="social_card_pair_title">Racha en pareja</string>
+    <string name="social_card_pair_none">Sin racha</string>
+    <string name="social_card_pair_button">Ver racha →</string>
+    <string name="social_card_friends_title">Amigos</string>
+    <string name="social_card_friends_button">Ver amigos →</string>
+    <string name="social_card_battles_title">Batallas</string>
+    <string name="social_card_battles_button">Batallar →</string>
+    <string name="social_score">%1$dV · %2$dD</string>
+    <string name="social_score_with_draws">%1$dV · %2$dD · %3$dE</string>
+    <plurals name="social_days">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <plurals name="social_friends_count">
+        <item quantity="one">%d amigo</item>
+        <item quantity="other">%d amigos</item>
+    </plurals>
+
+    <!-- Crear nombre de usuario (pantalla que falta en Figma, M1) -->
+    <string name="social_username_title">Crea tu nombre de usuario</string>
+    <string name="social_username_body">Es el nombre con el que te verán tus amigos. Tiene de 3 a 20 letras, números o guion bajo (_) y no podrás cambiarlo después.</string>
+    <string name="social_username_label">Nombre de usuario</string>
+    <string name="social_username_hint">Por ejemplo: valeNightwatch</string>
+    <string name="social_username_create">CREAR USUARIO</string>
+    <string name="social_username_creating">CREANDO…</string>
+
+    <!-- Compartidos -->
+    <string name="social_cancel">Cancelar</string>
+
+    <!-- Amigos. Figma 2446:181 -->
+    <string name="social_friends_title">Amigos</string>
+    <string name="social_friends_summary">%1$s · %2$s</string>
+    <plurals name="social_friends_keeping_today">
+        <item quantity="one">%d mantiene la racha hoy</item>
+        <item quantity="other">%d mantienen la racha hoy</item>
+    </plurals>
+    <string name="social_friends_empty">Aún no tienes amigos. Agrega a alguien con su nombre de usuario o con su código.</string>
+    <string name="social_friend_streak_active">🔥 %1$s</string>
+    <string name="social_friend_no_streak">Sin racha activa</string>
+    <string name="social_friend_trained_today">✅ Ya entrenó hoy</string>
+    <string name="social_friend_pending_today">⏳ Pendiente hoy</string>
+    <string name="social_friends_add">+ Agregar amigos</string>
+
+    <!-- Agregar amigos. Figma 2446:212 (se quita "Sugerencias", D12) -->
+    <string name="social_add_title">Agregar amigos</string>
+    <string name="social_add_intro">Busca a tus amigos por usuario o comparte tu código.</string>
+    <string name="social_add_search_label">Buscar por usuario o código</string>
+    <string name="social_add_search_hint">ej. valeNightwatch o NIGHT-7F3K2A</string>
+    <string name="social_add_search_button">Buscar</string>
+    <string name="social_add_my_code">Tu código de amigo</string>
+    <string name="social_add_copy">Copiar</string>
+    <string name="social_add_copied">¡Copiado!</string>
+    <string name="social_add_requests_link">📥 Solicitudes de amistad</string>
+    <string name="social_add_invite">Agregar +</string>
+    <string name="social_add_sent">Solicitud enviada</string>
+    <string name="social_add_already_friends">Ya son amigos</string>
+    <string name="social_add_accept_request">Aceptar</string>
+    <string name="social_add_invited_ok">Enviamos la solicitud a %1$s.</string>
+    <string name="social_add_accepted_ok">Ahora %1$s es tu amigo.</string>
+
+    <!-- Solicitudes. Figma 2446:242 -->
+    <string name="social_requests_title">Solicitudes</string>
+    <plurals name="social_requests_pending">
+        <item quantity="one">Tienes %d solicitud de amistad pendiente.</item>
+        <item quantity="other">Tienes %d solicitudes de amistad pendientes.</item>
+    </plurals>
+    <string name="social_requests_none">No tienes solicitudes de amistad pendientes.</string>
+    <string name="social_requests_wants_friend">Quiere ser tu amigo</string>
+    <string name="social_requests_accept">Aceptar</string>
+    <string name="social_requests_decline">Rechazar</string>
+    <string name="social_requests_sent_title">Solicitudes enviadas</string>
+    <string name="social_requests_sent_label">Solicitud enviada</string>
+    <string name="social_requests_cancel">Cancelar solicitud</string>
+
+    <!-- Perfil de un amigo. Figma 2446:265 -->
+    <string name="social_profile_streak">🔥 %1$s de racha</string>
+    <string name="social_profile_level">Nivel de combatiente %1$d</string>
+    <string name="social_profile_exercises">Ejercicios</string>
+    <string name="social_profile_labs">Labs superados</string>
+    <string name="social_profile_badges">Insignias</string>
+    <string name="social_profile_no_badges">Aún no tiene insignias.</string>
+    <string name="social_profile_hidden">%1$s oculta su progreso.</string>
+    <string name="social_profile_history">Historial de batallas</string>
+    <string name="social_profile_history_empty">Aún no han peleado entre ustedes.</string>
+    <string name="social_profile_won">🏆 Ganaste vs %1$s</string>
+    <string name="social_profile_lost">💀 Perdiste vs %1$s</string>
+    <string name="social_profile_draw">🤝 Empate vs %1$s</string>
+    <string name="social_profile_remove">Eliminar amigo</string>
+    <string name="social_profile_remove_title">¿Eliminar a %1$s?</string>
+    <string name="social_profile_remove_body">Dejarán de ser amigos. Podrán volver a agregarse más adelante.</string>
+    <string name="social_profile_remove_confirm">Eliminar</string>
+    <string name="social_profile_trained_today">✅ Ya entrenó hoy</string>
+    <string name="social_profile_pending_today">⏳ Pendiente hoy</string>
+
+    <string name="social_profile_invite_pair">🔥 Invitar a una racha en pareja</string>
+    <string name="social_profile_battle">⚔️ Batallar</string>
+    <string name="social_profile_invite_pair_sent">Enviamos la invitación de racha en pareja a %1$s.</string>
+
+    <!-- Racha en pareja: lista (D15). La pantalla de Figma 2447:186 era "Racha grupal" -->
+    <string name="social_pairs_title">Racha en pareja</string>
+    <string name="social_pairs_intro">Entrenen el mismo día y sumen días seguidos juntos. Cada día cuenta cuando los dos completan su ejercicio, en hora de Colombia.</string>
+    <string name="social_pairs_empty">Aún no tienes ninguna racha en pareja. Invita a un amigo para empezar una.</string>
+    <string name="social_pairs_pending_received">Te invitó a una racha en pareja</string>
+    <string name="social_pairs_pending_sent">Invitación enviada</string>
+    <string name="social_pairs_accept">Aceptar</string>
+    <string name="social_pairs_decline">Rechazar</string>
+    <string name="social_pairs_cancel">Cancelar invitación</string>
+    <string name="social_pairs_invite_title">Invitar a un amigo</string>
+    <string name="social_pairs_invite_none">No tienes amigos a quienes invitar. Primero agrega amigos.</string>
+    <string name="social_pairs_invite_button">Invitar</string>
+    <string name="social_pairs_state_active">Entrenaron los dos hoy</string>
+    <string name="social_pairs_state_at_risk">En riesgo: falta entrenar hoy</string>
+    <string name="social_pairs_state_none">Sin racha por ahora</string>
+    <string name="social_pairs_state_route_complete">Ruta completa: la racha se detiene</string>
+    <string name="social_pairs_best">Mejor racha: %1$s</string>
+
+    <!-- Racha en pareja: detalle (frame 2447:186 con una sola persona en "hoy") -->
+    <string name="social_pair_title">Racha con %1$s</string>
+    <string name="social_pair_days_label">días seguidos entrenando</string>
+    <string name="social_pair_week_label">Esta semana (hora de Colombia)</string>
+    <string-array name="social_week_initials">
+        <item>L</item>
+        <item>M</item>
+        <item>M</item>
+        <item>J</item>
+        <item>V</item>
+        <item>S</item>
+        <item>D</item>
+    </string-array>
+    <string name="social_pair_today_title">Hoy</string>
+    <string name="social_pair_me">Tú</string>
+    <string name="social_pair_done">✅</string>
+    <string name="social_pair_pending">⏳</string>
+    <string name="social_pair_check">✓</string>
+    <string name="social_pair_banner_me_missing">⚠️ Aún no entrenas hoy. ¡No pierdas tu racha!</string>
+    <string name="social_pair_banner_partner_missing">⏳ %1$s aún no entrena hoy. ¡Anímalo!</string>
+    <string name="social_pair_banner_none">Empiecen una racha: completen los dos su ejercicio del día.</string>
+    <string name="social_pair_banner_done">¡Los dos entrenaron hoy! Vuelvan mañana.</string>
+    <string name="social_pair_banner_route_complete">Alguno de los dos ya completó las 6 islas, así que la racha se detiene aquí.</string>
+    <string name="social_pair_exercise_lesson">Hacer mi ejercicio de hoy →</string>
+    <string name="social_pair_exercise_done">Ya hiciste tu ejercicio de hoy</string>
+    <string name="social_pair_exercise_all_done">Ya completaste las 6 islas</string>
+    <string name="social_pair_end">Terminar racha en pareja</string>
+    <string name="social_pair_end_title">¿Terminar la racha con %1$s?</string>
+    <string name="social_pair_end_body">Se borra para los dos y no se conserva la racha. Seguirán siendo amigos.</string>
+    <string name="social_pair_end_confirm">Terminar</string>
+
+    <!-- Batallas: lobby. Figma 2448:187 -->
+    <string name="social_battles_title">Batallas</string>
+    <string name="social_battles_wins">Victorias</string>
+    <string name="social_battles_losses">Derrotas</string>
+    <string name="social_battles_quick_title">🎲 Partida rápida</string>
+    <string name="social_battles_quick_body">Emparejamiento contra un rival de tu nivel</string>
+    <string name="social_battles_quick_button">Buscar oponente →</string>
+    <string name="social_battles_friends_title">Retar a un amigo</string>
+    <string name="social_battles_friends_empty">Aún no tienes amigos a quienes retar. Agrega amigos desde Social.</string>
+    <string name="social_battles_challenge">⚔️ Retar</string>
+    <string name="social_battles_received_title">Retos recibidos</string>
+    <string name="social_battles_received_body">Te retó a una batalla</string>
+    <string name="social_battles_accept">Aceptar</string>
+    <string name="social_battles_decline">Rechazar</string>
+    <string name="social_battles_waiting_title">Esperando a %1$s…</string>
+    <string name="social_battles_waiting_body">Tiene 2 minutos para aceptar. Si sales de esta pantalla, el reto se cancela.</string>
+    <string name="social_battles_waiting_cancel">Cancelar reto</string>
+    <string name="social_battles_declined">%1$s rechazó tu reto.</string>
+    <string name="social_battles_expired">%1$s no respondió a tiempo.</string>
+    <string name="social_countdown">%1$d:%2$02d</string>
+
+    <!-- Buscando oponente. Figma 2448:223 -->
+    <string name="social_search_title">Partida rápida</string>
+    <string name="social_search_searching">Buscando oponente…</string>
+    <string name="social_search_body">Esto puede tardar unos segundos. La búsqueda sigue mientras tengas esta pantalla abierta.</string>
+    <string name="social_search_vs">VS</string>
+    <string name="social_search_unknown">?</string>
+    <string name="social_search_icon_you">🧙</string>
+    <string name="social_search_icon_search">🔍</string>
+    <string name="social_search_cancel">Cancelar búsqueda</string>
+    <string name="social_search_suggest">Aún no aparece un rival. Mientras tanto puedes retar a un amigo.</string>
+    <string name="social_search_challenge_friend">Retar a un amigo</string>
+    <string name="social_search_stopped">La búsqueda se detuvo porque saliste de la pantalla.</string>
+    <string name="social_search_again">Buscar de nuevo</string>
+
+    <!-- Fin de batalla. Figma 2451:195 y 2451:209 -->
+    <string name="social_end_title">Resultado</string>
+    <string name="social_end_victory_icon">🏆</string>
+    <string name="social_end_victory">¡Victoria!</string>
+    <string name="social_end_victory_body">Derrotaste a %1$s en la batalla de preguntas.</string>
+    <string name="social_end_victory_forfeit_body">%1$s salió de la batalla o perdió la conexión. ¡La victoria es tuya!</string>
+    <string name="social_end_defeat_icon">💀</string>
+    <string name="social_end_defeat">Derrota</string>
+    <string name="social_end_defeat_body">%1$s ganó esta batalla. ¡Sigue practicando y vuelve más fuerte!</string>
+    <string name="social_end_defeat_disconnect_body">Perdiste porque pasó más de 1 minuto sin conexión con la batalla. Mantén la app abierta mientras peleas.</string>
+    <string name="social_end_defeat_abandon_body">Saliste de la batalla, así que la perdiste.</string>
+    <string name="social_end_draw_icon">🤝</string>
+    <string name="social_end_draw">Empate</string>
+    <string name="social_end_draw_body">Nadie ganó contra %1$s: se acabaron los 20 turnos con la misma vida.</string>
+    <string name="social_end_cancelled_icon">🚫</string>
+    <string name="social_end_cancelled">Batalla cancelada</string>
+    <string name="social_end_cancelled_body">Los dos salieron antes de empezar a jugar. Nadie gana ni pierde XP.</string>
+    <string name="social_end_hp_left">HP restante</string>
+    <string name="social_end_hp_value">%1$d/100</string>
+    <string name="social_end_xp">🎁 +%1$d XP</string>
+    <string name="social_end_xp_none">🎁 Sin XP en esta batalla</string>
+    <string name="social_end_level">⭐ Nivel de combatiente %1$d · %2$d XP</string>
+    <string name="social_end_level_next">⭐ Nivel de combatiente %1$d · %2$d de %3$d XP</string>
+    <string name="social_end_battle_streak">🔥 Racha de batallas: %1$d</string>
+    <string name="social_end_review">📚 Repasa %1$s</string>
+    <string name="social_end_review_join">%1$s y %2$s</string>
+    <string name="social_end_streak_safe">🔥 Tu racha de entrenamiento sigue intacta</string>
+    <string name="social_end_score">⚔️ %1$d Victorias · %2$d Derrotas</string>
+    <string name="social_end_score_draws">⚔️ %1$d Victorias · %2$d Derrotas · %3$d Empates</string>
+    <string name="social_end_rematch">Revancha</string>
+    <string name="social_end_back">Volver a Social</string>
+
+    <!-- Arena. Figma 2449:189, 2449:255 y la espera de turno (M2) -->
+    <string name="social_arena_title">Batalla vs %1$s</string>
+    <string name="social_arena_you">Tú</string>
+    <string name="social_arena_hp">%1$d/100 HP</string>
+    <string name="social_arena_my_turn">Tu turno</string>
+    <string name="social_arena_rival_turn">Turno de %1$s</string>
+    <string name="social_arena_turn_time">· %1$s</string>
+    <string name="social_arena_ulti_progress">Racha para tu Ulti: %1$d de 3 aciertos</string>
+    <string name="social_arena_ulti_ready">⚡ ¡Tu Ulti está cargada!</string>
+    <string name="social_arena_waiting_rival">%1$s está respondiendo…</string>
+    <string name="social_arena_waiting_hint">Mantén la app abierta: si pasas más de 1 minuto fuera, pierdes la batalla.</string>
+    <string name="social_arena_rival_away">%1$s parece desconectado. Si no vuelve en un minuto, ganas.</string>
+    <string name="social_arena_wrong_mark">✗</string>
+    <string name="social_arena_correct">✅ ¡Correcto!</string>
+    <string name="social_arena_correct_detail">-%1$d HP a %2$s</string>
+    <string name="social_arena_incorrect">❌ Incorrecto</string>
+    <string name="social_arena_timeout">⏰ Se acabó el tiempo</string>
+    <string name="social_arena_no_damage">Sin daño. %1$s toma su turno.</string>
+    <string name="social_arena_ulti_hit">⚡ ¡Ulti!</string>
+    <string name="social_arena_next_turn">Siguiente turno →</string>
+    <string name="social_arena_rival_correct">%1$s acertó: -%2$d HP para ti.</string>
+    <string name="social_arena_rival_incorrect">%1$s falló. Sin daño.</string>
+    <string name="social_arena_rival_timeout">A %1$s se le acabó el tiempo.</string>
+    <string name="social_arena_rival_ulti">%1$s lanzó su Ulti: -%2$d HP para ti.</string>
+    <!-- Ulti. Figma 2449:290, 2450:193, 2450:223 y la defensa con escudo (M4). El comando NO se muestra (O10) -->
+    <string name="social_ulti_choice_icon">🔥</string>
+    <string name="social_ulti_choice_title">¡Ulti disponible!</string>
+    <string name="social_ulti_choice_body">Respondiste 3 preguntas seguidas. Puedes lanzar tu Ulti ahora, pero necesitas resolver un reto de terminal para que sea efectiva.</string>
+    <string name="social_ulti_save">Guardar para después</string>
+    <string name="social_ulti_use">🔥 Usar Ulti ahora</string>
+    <string name="social_ulti_time">Reto de Ulti</string>
+    <string name="social_ulti_attack_title">Desafío de tu Ulti</string>
+    <string name="social_ulti_attack_intro">🔥 Resuelve esto para que tu Ulti impacte a %1$s.</string>
+    <string name="social_ulti_attack_box">Tu Ulti solo será efectiva si escribes el comando correcto antes de que termine el tiempo. El comando no se muestra: escríbelo de memoria.</string>
+    <string name="social_ulti_defend_intro">🛡️ %1$s lanzó su Ulti. Resuelve tu reto de defensa antes que él para activar el escudo.</string>
+    <string name="social_ulti_defend_box">Si resuelves tu reto antes de que %1$s resuelva el suyo, recibirás solo la mitad del daño. El comando no se muestra: escríbelo de memoria.</string>
+    <string name="social_ulti_attempts">Intentos: %1$d de 3</string>
+    <string name="social_ulti_wrong">Comando incorrecto. Usaste un intento.</string>
+    <string name="social_ulti_solved">✅ Resolviste el reto. Esperando a %1$s…</string>
+    <string name="social_ulti_failed">Sin intentos. Esperando a %1$s…</string>
+    <string name="social_ulti_done_icon">💥</string>
+    <string name="social_ulti_fail_icon">💨</string>
+    <string name="social_ulti_shield_icon">🛡️</string>
+    <string name="social_ulti_ok_title">¡Ulti efectiva!</string>
+    <string name="social_ulti_ok_body">Resolviste el comando a tiempo. Tu Ulti impacta con fuerza total.</string>
+    <string name="social_ulti_ok_shield_body">%1$s se defendió con escudo: tu Ulti hizo la mitad del daño.</string>
+    <string name="social_ulti_ok_damage">-%1$d HP a %2$s</string>
+    <string name="social_ulti_fail_title">Tu Ulti falló</string>
+    <string name="social_ulti_fail_body">No resolviste el comando a tiempo. Tu Ulti no causó daño.</string>
+    <string name="social_ulti_fail_damage">0 HP de daño</string>
+    <string name="social_ulti_hit_title">Ulti recibida</string>
+    <string name="social_ulti_hit_body">%1$s lanzó su Ulti y no resolviste tu reto de defensa a tiempo.</string>
+    <string name="social_ulti_shield_title">Escudo activo</string>
+    <string name="social_ulti_shield_body">Resolviste tu reto antes que %1$s: el daño de su Ulti se reduce a la mitad.</string>
+    <string name="social_ulti_received_damage">Recibiste %1$d HP</string>
+    <string name="social_ulti_rival_failed_title">La Ulti de %1$s falló</string>
+    <string name="social_ulti_rival_failed_body">No resolvió su reto a tiempo y no te causó daño.</string>
+    <string name="social_ulti_continue">Continuar →</string>
+    <string name="social_arena_leave_title">¿Salir de la batalla?</string>
+    <string name="social_arena_leave_body">Si sales ahora, pierdes la batalla y no ganas XP.</string>
+    <string name="social_arena_leave_confirm">Salir y perder</string>
+    <string name="social_arena_keep_playing">Seguir jugando</string>
+
+    <!-- Hace cuánto (solo para mostrar: el servidor decide los plazos) -->
+    <string name="social_ago_today">hoy</string>
+    <plurals name="social_ago_days">
+        <item quantity="one">hace %d día</item>
+        <item quantity="other">hace %d días</item>
+    </plurals>
+</resources>

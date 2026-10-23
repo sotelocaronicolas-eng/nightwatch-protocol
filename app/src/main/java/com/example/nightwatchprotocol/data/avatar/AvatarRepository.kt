@@ -2,6 +2,9 @@ package com.example.nightwatchprotocol.data.avatar
 
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
+import com.example.nightwatchprotocol.data.social.NoSocialAvatarRepository
+import com.example.nightwatchprotocol.data.social.SocialAvatarRepository
+import com.example.nightwatchprotocol.data.social.SocialResult
 import kotlin.io.encoding.Base64
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -10,13 +13,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 
-enum class AvatarSyncResult { Synced, LocalOnly }
+/**
+ * [Synced]: the profile photo reached the server (and Social, if the person has it). [LocalOnly]: the server write failed, so
+ * the photo is only on this phone. [SocialFailed]: the profile photo is saved, but the copy in Social could not be updated.
+ * [SocialRemoveFailed]: the profile photo is gone, but the copy in Social could not be deleted (it stays there, with its key unchanged).
+ */
+enum class AvatarSyncResult { Synced, LocalOnly, SocialFailed, SocialRemoveFailed }
 
-/** Single source of the current user's avatar bytes, shared by every screen that shows it. */
+/**
+ * Single source of the current user's avatar bytes, shared by every screen that shows it. When [socialAvatars] is given, saving or
+ * removing the photo also updates the person's photo in Social; if that fails the profile photo is still saved.
+ */
 class AvatarRepository(
     private val profileRepository: ProfileRepository,
     private val cache: AvatarCache,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val socialAvatars: SocialAvatarRepository = NoSocialAvatarRepository,
 ) {
     private val _avatar = MutableStateFlow<ByteArray?>(null)
     val avatar: StateFlow<ByteArray?> = _avatar.asStateFlow()
@@ -64,7 +76,8 @@ class AvatarRepository(
         val synced = runCatchingKeepCancellation {
             profileRepository.saveAvatar(uid, Base64.Default.encode(jpegBytes))
         }.isSuccess
-        return if (synced) AvatarSyncResult.Synced else AvatarSyncResult.LocalOnly
+        if (!synced) return AvatarSyncResult.LocalOnly
+        return socialResult { socialAvatars.syncMine(jpegBytes) }
     }
 
     /** Removes the photo locally and on the server; the avatar goes back to the initial either way. */
@@ -73,7 +86,26 @@ class AvatarRepository(
         withContext(ioDispatcher) { cache.delete(uid) }
         _avatar.value = null
         val synced = runCatchingKeepCancellation { profileRepository.removeAvatar(uid) }.isSuccess
-        return if (synced) AvatarSyncResult.Synced else AvatarSyncResult.LocalOnly
+        if (!synced) return AvatarSyncResult.LocalOnly
+        return socialResult(AvatarSyncResult.SocialRemoveFailed) { socialAvatars.syncMine(null) }
+    }
+
+    /**
+     * Puts into Social a photo that was saved before the person had Social (or before Social had photos). Quiet: it does nothing
+     * without a photo or when Social already has one, and a failure changes nothing (it is tried again the next time).
+     */
+    suspend fun syncSocialIfMissing() {
+        val photo = _avatar.value ?: return
+        runCatchingKeepCancellation { socialAvatars.ensureMine(photo) }
+    }
+
+    // The copy in Social never decides whether the profile photo was saved: a failure here is only reported.
+    private suspend fun socialResult(
+        failure: AvatarSyncResult = AvatarSyncResult.SocialFailed,
+        sync: suspend () -> SocialResult<Unit>,
+    ): AvatarSyncResult {
+        val result = runCatchingKeepCancellation { sync() }.getOrNull()
+        return if (result is SocialResult.Success) AvatarSyncResult.Synced else failure
     }
 
     // After a local change the local copy is the truth, so a later load must not overwrite it with an older remote one.

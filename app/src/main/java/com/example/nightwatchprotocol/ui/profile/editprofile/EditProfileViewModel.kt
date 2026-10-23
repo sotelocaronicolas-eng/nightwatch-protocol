@@ -40,6 +40,15 @@ const val MESSAGE_ENTER_NAME = "Ingresa tu nombre"
 const val MESSAGE_INVALID_EMAIL = "Correo electrónico inválido"
 const val MESSAGE_AVATAR_UNREADABLE = "No pudimos leer esa imagen"
 const val MESSAGE_AVATAR_LOCAL_ONLY = "No se pudo guardar la foto en tu cuenta. Quedó guardada en este teléfono."
+const val MESSAGE_AVATAR_SOCIAL_FAILED = "Tu foto se guardó, pero no se pudo actualizar en Social. Vuelve a elegirla para reintentarlo."
+const val MESSAGE_AVATAR_SOCIAL_REMOVE_FAILED = "Tu foto se quitó de tu perfil, pero sigue visible en Social. Elige una foto y quítala de nuevo para reintentarlo."
+
+private fun AvatarSyncResult.toMessage(): String? = when (this) {
+    AvatarSyncResult.Synced -> null
+    AvatarSyncResult.LocalOnly -> MESSAGE_AVATAR_LOCAL_ONLY
+    AvatarSyncResult.SocialFailed -> MESSAGE_AVATAR_SOCIAL_FAILED
+    AvatarSyncResult.SocialRemoveFailed -> MESSAGE_AVATAR_SOCIAL_REMOVE_FAILED
+}
 
 data class EditProfileUiState(
     val name: String = "",
@@ -254,7 +263,7 @@ class EditProfileViewModel(
             _uiState.update {
                 it.copy(
                     isAvatarBusy = false,
-                    avatarError = if (result == AvatarSyncResult.LocalOnly) MESSAGE_AVATAR_LOCAL_ONLY else null,
+                    avatarError = result.toMessage(),
                 )
             }
         }
@@ -269,7 +278,7 @@ class EditProfileViewModel(
             _uiState.update {
                 it.copy(
                     isAvatarBusy = false,
-                    avatarError = if (result == AvatarSyncResult.LocalOnly) MESSAGE_AVATAR_LOCAL_ONLY else null,
+                    avatarError = result.toMessage(),
                 )
             }
         }

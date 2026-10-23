@@ -44,6 +44,17 @@ import com.example.nightwatchprotocol.ui.profile.recoveryemail.RecoveryEmailScre
 import com.example.nightwatchprotocol.ui.profile.usermenu.UserMenuScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementQuizScreen
 import com.example.nightwatchprotocol.ui.quiz.PlacementResultScreen
+import com.example.nightwatchprotocol.ui.social.AddFriendScreen
+import com.example.nightwatchprotocol.ui.social.ArenaScreen
+import com.example.nightwatchprotocol.ui.social.BattleResultScreen
+import com.example.nightwatchprotocol.ui.social.BlockedPeopleScreen
+import com.example.nightwatchprotocol.ui.social.BattlesScreen
+import com.example.nightwatchprotocol.ui.social.QuickSearchScreen
+import com.example.nightwatchprotocol.ui.social.FriendProfileScreen
+import com.example.nightwatchprotocol.ui.social.FriendRequestsScreen
+import com.example.nightwatchprotocol.ui.social.FriendsScreen
+import com.example.nightwatchprotocol.ui.social.PairDetailScreen
+import com.example.nightwatchprotocol.ui.social.PairStreaksScreen
 import com.example.nightwatchprotocol.ui.verifycode.CodePurpose
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeScreen
 
@@ -165,6 +176,85 @@ fun NightWatchNavHost(
                 onOpenLab = { topic -> navController.navigate(Lab(topic)) },
                 // From the "Prueba Final" island or the "Examen Final" card, when it is unlocked.
                 onOpenExam = { navController.navigate(ExamIntro) },
+                onOpenFriends = { navController.navigate(Friends) },
+                onOpenPairStreaks = { navController.navigate(PairStreaksRoute) },
+                onOpenBattles = { navController.navigate(BattlesRoute) },
+            )
+        }
+        composable<BattlesRoute> {
+            BattlesScreen(
+                onClose = { navController.popBackStack() },
+                onQuickSearch = { navController.navigate(QuickSearchRoute) },
+                onOpenBattle = { battleId -> navController.navigate(BattleRoute(battleId)) },
+            )
+        }
+        composable<QuickSearchRoute> {
+            QuickSearchScreen(
+                onClose = { navController.popBackStack() },
+                // The battle replaces the search: going back from it does not return to a search that is over.
+                onOpenBattle = { battleId ->
+                    navController.navigate(BattleRoute(battleId)) { popUpTo<QuickSearchRoute> { inclusive = true } }
+                },
+                onChallengeFriend = { navController.popBackStack() },
+            )
+        }
+        composable<BattleRoute> {
+            ArenaScreen(
+                onClose = { navController.popBackStack<Home>(inclusive = false) },
+                // The battle leaves the stack: back from the result goes to Social, never into a battle that is over.
+                onFinished = { battleId ->
+                    navController.navigate(BattleResultRoute(battleId)) { popUpTo<BattleRoute> { inclusive = true } }
+                },
+            )
+        }
+        composable<BattleResultRoute> {
+            BattleResultScreen(
+                onBack = { navController.popBackStack<Home>(inclusive = false) },
+                // "Revancha": the lobby shows the wait for the friend's answer, with Home (Social) below it.
+                onRematchSent = {
+                    navController.navigate(BattlesRoute) { popUpTo<BattleResultRoute> { inclusive = true } }
+                },
+            )
+        }
+        composable<PairStreaksRoute> {
+            PairStreaksScreen(
+                onClose = { navController.popBackStack() },
+                onOpenPair = { friendCode -> navController.navigate(PairDetailRoute(friendCode)) },
+            )
+        }
+        composable<PairDetailRoute> {
+            PairDetailScreen(
+                onClose = { navController.popBackStack() },
+                // "Hacer mi ejercicio de hoy": the lesson (or the lab) of the next island, full screen like from the map.
+                onOpenLesson = { topic -> navController.navigate(Lesson(topic)) },
+                onOpenLab = { topic -> navController.navigate(Lab(topic)) },
+            )
+        }
+        composable<Friends> {
+            FriendsScreen(
+                onClose = { navController.popBackStack() },
+                onOpenFriend = { friendCode -> navController.navigate(FriendProfileRoute(friendCode)) },
+                onAddFriends = { navController.navigate(AddFriend) },
+                onOpenBlocked = { navController.navigate(BlockedPeopleRoute) },
+            )
+        }
+        composable<BlockedPeopleRoute> {
+            BlockedPeopleScreen(onClose = { navController.popBackStack() })
+        }
+        composable<AddFriend> {
+            AddFriendScreen(
+                onClose = { navController.popBackStack() },
+                onOpenRequests = { navController.navigate(FriendRequestsRoute) },
+            )
+        }
+        composable<FriendRequestsRoute> {
+            FriendRequestsScreen(onClose = { navController.popBackStack() })
+        }
+        composable<FriendProfileRoute> {
+            FriendProfileScreen(
+                onClose = { navController.popBackStack() },
+                // The wait for the answer is shown in the lobby, on top of the list of friends.
+                onChallengeSent = { navController.navigate(BattlesRoute) },
             )
         }
         composable<ExamIntro> {

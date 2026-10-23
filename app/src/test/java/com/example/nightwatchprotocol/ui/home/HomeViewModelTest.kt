@@ -251,33 +251,35 @@ class HomeViewModelTest {
         assertEquals(HomeTab.Labs, recreated.uiState.value.selectedTab)
     }
 
+    // Module 4 enabled Social: it is a tab now (it used to be dimmed and only said "Próximamente").
+
     @Test
-    fun social_doesNotChangeTheTab_andEmitsTheNoticeOnce() = runTest {
+    fun social_isATab_itChangesTheTab_andEmitsNoNotice() = runTest {
         val vm = viewModel(initialTab = HomeTab.Ruta)
         advanceUntilIdle()
 
         vm.events.test {
-            vm.onSocialClicked()
-            assertEquals(HomeEvent.ShowComingSoon, awaitItem())
+            vm.onTabSelected(HomeTab.Social)
             advanceUntilIdle()
             expectNoEvents()
         }
-        assertEquals(HomeTab.Ruta, vm.uiState.value.selectedTab)
+        assertEquals(HomeTab.Social, vm.uiState.value.selectedTab)
     }
 
     @Test
-    fun eachTapOnSocial_emitsOneNotice() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
+    fun theSocialTab_survivesARecreation() = runTest {
+        val handle = SavedStateHandle()
+        viewModel(initialTab = HomeTab.Inicio, savedStateHandle = handle).onTabSelected(HomeTab.Social)
 
-        vm.events.test {
-            vm.onSocialClicked()
-            vm.onSocialClicked()
-            assertEquals(HomeEvent.ShowComingSoon, awaitItem())
-            assertEquals(HomeEvent.ShowComingSoon, awaitItem())
-            advanceUntilIdle()
-            expectNoEvents()
-        }
+        val recreated = viewModel(initialTab = HomeTab.Inicio, savedStateHandle = handle)
+
+        assertEquals(HomeTab.Social, recreated.uiState.value.selectedTab)
+    }
+
+    @Test
+    fun theHomeRoute_canOpenOnTheSocialTab() = runTest {
+        assertEquals(HomeTab.Social, viewModel(initialTab = HomeTab.Social).uiState.value.selectedTab)
+        assertEquals(HomeTab.Social, HomeTab.fromName("Social"))
     }
 
     @Test
