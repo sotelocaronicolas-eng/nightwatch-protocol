@@ -8,10 +8,10 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
   nivelación (BAJO, MEDIO, ALTO), recorre una ruta de aprendizaje (lecciones, laboratorios y examen final) y administra su
   perfil y sus ajustes. Kotlin + Jetpack Compose + **Supabase**, con el diseño de Figma del proyecto y los patrones del
   curso *Android Basics with Compose*.
-- **Módulos 1, 2 y 3 terminados (el 4, Social, en curso: ver más abajo)** (autenticación, onboarding, quiz de nivelación, perfil y ajustes; ruta de aprendizaje,
-  lecciones, laboratorios, examen final, racha e insignias). El módulo 3 está en la rama `modulo-3`, listo para abrir su
-  Pull Request.
-- **v2.1.0** (`versionName` 2.1.0, `versionCode` 4). La migración de Firebase a Supabase fue la v2.0.0: **Firebase ya no
+- **Módulos 1, 2, 3 y 4 terminados** (autenticación, onboarding, quiz de nivelación, perfil y ajustes; ruta de aprendizaje,
+  lecciones, laboratorios, examen final, racha e insignias; Social: amigos, racha en pareja, batallas, fotos, reportar y bloquear).
+  Los módulos 1 a 3 ya están en `main`. El módulo 4 está en la rama `modulo-4`, listo para abrir su Pull Request.
+- **v2.2.0** (`versionName` 2.2.0, `versionCode` 5; la v2.1.0 fue el módulo 3). La migración de Firebase a Supabase fue la v2.0.0: **Firebase ya no
   existe** (no hay código, dependencias ni plugin) y `google-services.json` no se usa. Historial de la migración:
   `docs/superpowers/reports/migracion-supabase.md`.
 - **Módulo 3, lo que hay que saber:**
@@ -33,7 +33,9 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
     condición de una insignia es editar una línea de `BadgeCatalog` (`data/learning/Badges.kt`).
   - **Pruebas:** **951** pruebas unitarias (0 fallos) al cerrar el módulo; el recuento y el detalle por etapa están en
     `docs/superpowers/reports/modulo-3-diagnostico.md`.
-- **Módulo 4 (Social), en la rama `modulo-4`, aún sin cerrar** (falta el merge, la versión 2.2.0, el informe final y el PR):
+- **Módulo 4 (Social), en la rama `modulo-4`, terminado y listo para su Pull Request.** Scripts `0008` a `0011` **aplicados y verificados**
+  (guion de `0008`: 219 de 219; guion de `0011`: 187 de 187; Security Advisor: 10 advertencias, 0 errores, 14 sugerencias); probado por el
+  grupo en dos teléfonos. Informe de cierre: `docs/superpowers/reports/modulo-4-informe.md`; descripción del PR: `reports/modulo-4-pr.md`.
   - **Qué hay:** amigos (búsqueda exacta por nombre o código, solicitudes, perfil del amigo), racha en pareja, batallas
     (partida rápida y retos a un amigo, arena con ulti), fotos de perfil en Social, y reportar y bloquear. La spec es
     `docs/superpowers/specs/2026-10-21-modulo-4-design.md` (decisiones D1 a D20 y O1 a O15; **O15 fue reemplazada el 2026-10-22**).
@@ -44,7 +46,7 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
     pierde la batalla). Por eso **Reportar y Bloquear son diálogos y no rutas**: una ruta que tape la arena detiene el sondeo.
   - **Código:** `data/social` (modelos, parser, repositorios, sondeo, fotos), `data/supabase/Supabase*` (única parte que conoce la
     librería), `ui/social` (pantallas y ViewModels), textos en `strings_social*.xml`. `SocialBoundaryTest` vigila las capas.
-  - **Pruebas:** 1334 al cerrar la segunda tanda de correcciones (el recuento vigente está en el informe de revisión).
+  - **Pruebas:** **1334** pruebas unitarias (0 fallos) al cerrar el módulo; lint en 0 errores (45 advertencias, las mismas de antes).
   - **Fuera del módulo 4:** la tabla de actividad por día para que repetir cuente en la racha (sería `0012`), la corrección del
     examen en el servidor si hay ranking o XP, las notificaciones push y una pantalla de moderación.
 
@@ -109,12 +111,12 @@ Todo el servidor vive en `supabase/` y **se despliega a mano** desde el panel (n
 | `0008_social.sql` | **Aplicada y verificada (2026-10-21).** 14 tablas de Social (11 cerradas, sin políticas ni `GRANT`) y 5 funciones públicas `SECURITY DEFINER` más 20 internas `sx_*` |
 | `0009_banco_batallas.sql` | **Aplicada y verificada (2026-10-21).** 72 preguntas de batalla, 12 retos de ulti y la curva de XP (20 niveles) |
 | `0010_fotos_social.sql` | **Aplicada y verificada (2026-10-22).** `avatar_key` y `avatar_version` en `social_profile`, `social_set_avatar` y el bucket privado `social-avatars` con 4 políticas |
-| `0011_reportes_bloqueos.sql` | **BORRADOR, sin aplicar.** Tablas cerradas `social_reports` y `social_blocks`, columna `avatar_hidden` (solo la cambia el equipo), acciones `report`, `block`, `unblock` y `blocks` dentro de `social_friends`, `sx_is_blocked`. Su guion es `supabase/verificacion/0011_escenarios.sql` (tampoco ejecutado). Hasta que se aplique, la app muestra "Función no disponible por ahora" |
+| `0011_reportes_bloqueos.sql` | **Aplicada y verificada (2026-10-23).** Tablas cerradas `social_reports` y `social_blocks`, columna `avatar_hidden` (solo la cambia el equipo), acciones `report`, `block`, `unblock` y `blocks` dentro de `social_friends`, `sx_is_blocked`. Su guion `supabase/verificacion/0011_escenarios.sql` dio 187 de 187. En un servidor sin ella, la app muestra "Función no disponible por ahora" |
 
-- **Una migración ya aplicada NO se edita.** Cualquier cambio va en una migración nueva con el siguiente número (`0012`...; `0011` sigue
-  siendo borrador hasta que se aplique). `0007` conserva en su encabezado la palabra "BORRADOR" y un comentario sobre la racha fija: es lo
-  que se ejecutó; `0008`, `0009` y `0010` tampoco se editan.
-- Guiones de comprobación con dos cuentas de prueba: `supabase/verificacion/0008_escenarios.sql` (219 de 219) y `0011_escenarios.sql`. Todas sus
+- **Una migración ya aplicada NO se edita.** Cualquier cambio va en una migración nueva con el siguiente número (`0012`...).
+  `0007` conserva en su encabezado la palabra "BORRADOR" y un comentario sobre la racha fija: es lo
+  que se ejecutó; `0008` a `0011` tampoco se editan.
+- Guiones de comprobación con dos cuentas de prueba: `supabase/verificacion/0008_escenarios.sql` (219 de 219) y `0011_escenarios.sql` (187 de 187). Todas sus
   comprobaciones y cambios se limitan a esas dos cuentas.
 - **Moderación manual:** no hay pantalla de moderación. El equipo revisa `social_reports` en el Table Editor y oculta una foto con
   `update public.social_profile set avatar_hidden = true where username = '...'` (consultas en el final de `0011`). Ningún número de reportes
@@ -124,7 +126,7 @@ Todo el servidor vive en `supabase/` y **se despliega a mano** desde el panel (n
   privilegio por columna; funciones `SECURITY DEFINER` con `search_path` vacío.
 - **Security Advisor:** las advertencias aceptadas y su motivo están en la sección "Advertencias aceptadas del Security
   Advisor" de `docs/superpowers/supabase-configuracion.md`. Una advertencia nueva se corrige o se documenta ahí antes de
-  fusionar a `main`. Las de Social (módulo 4, `0008` y `0010`; `0011` no suma advertencias de función) están en "Advertencias aceptadas del Security Advisor (Social)" del
+  fusionar a `main`. Las de Social (módulo 4, `0008` y `0010`; `0011` no suma advertencias de función; estado final: 10 advertencias, 0 errores, 14 sugerencias) están en "Advertencias aceptadas del Security Advisor (Social)" del
   mismo documento.
 - **Edge Function `send-recovery-email-code`** (`supabase/functions/`, Deno/TypeScript): envía el código del correo de
   recuperación por la API de Brevo. Su `README.md` explica el despliegue a mano. Los correos de Auth salen por el SMTP de
@@ -192,7 +194,7 @@ Aceptado por decisión del equipo:
   registrado no suma un día a la racha** (haría falta una tabla de actividad, `0012`); un intento de examen cuyo guardado
   expiró pero llegó puede quedar duplicado al reintentar; "Lección diaria" no menciona un lab pendiente (decisión Q3).
 - **Módulo 4 (Social):**
-  - La moderación es manual y mínima: reportar y bloquear (`0011`, aún sin aplicar) y ocultar una foto a mano; **no hay pantalla de
+  - La moderación es manual y mínima: reportar y bloquear (`0011`, aplicado) y ocultar una foto a mano; **no hay pantalla de
     moderación**, nadie recibe aviso de un reporte y un nombre de usuario ofensivo no se puede cambiar (O3). Los nombres son texto libre.
   - La partida rápida empareja desconocidos; ganar por abandono da +50 XP, así que dos cuentas podrían farmear XP (sin ranking, impacto bajo).
   - Las fotos de Social las puede leer y listar cualquier persona con sesión (claves aleatorias, sin ids de Auth); el CDN puede tardar en
@@ -233,3 +235,5 @@ Pendiente (IDs de `docs/superpowers/reports/revision-codigo-experimento-supabase
 9. `docs/superpowers/specs/2026-10-21-modulo-4-design.md`: la spec del módulo 4 (decisiones del grupo; O15 reemplazada el 2026-10-22).
 10. `docs/superpowers/reports/revision-codigo-modulo-4.md`: revisión de código del módulo 4 (R-01 a R-22) y su estado.
 11. `supabase/verificacion/`: guiones de escenarios de `0008` y `0011` (no son migraciones; no se aplican a un proyecto nuevo).
+12. `docs/superpowers/reports/modulo-4-informe.md`: cierre del módulo 4 (alcance, decisiones, seguridad, pruebas, limitaciones y guion de prueba manual) y
+    `modulo-4-pr.md`: la descripción del Pull Request.

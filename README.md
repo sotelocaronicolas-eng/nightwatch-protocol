@@ -1,8 +1,9 @@
 # NightWatch Protocol
 
-Aplicación Android para aprender ciberseguridad (**versión 2.1.0**). La persona se registra (con un código de 6 dígitos
+Aplicación Android para aprender ciberseguridad (**versión 2.2.0**). La persona se registra (con un código de 6 dígitos
 que llega a su correo) o inicia sesión (también con Google), hace un cuestionario de nivelación (BAJO, MEDIO o ALTO),
-recorre una ruta de aprendizaje con lecciones, laboratorios y un examen final, y administra su perfil y sus ajustes. Está
+recorre una ruta de aprendizaje con lecciones, laboratorios y un examen final, se conecta con amigos (rachas en pareja y
+batallas) y administra su perfil y sus ajustes. Está
 hecha en Kotlin con Jetpack Compose y **Supabase**, siguiendo los patrones del curso
 *Android Basics with Compose* (MVVM, `UiState`, `ViewModel`, inyección de dependencias manual) y el diseño de Figma del
 proyecto.
@@ -66,7 +67,16 @@ Pantalla (Compose)  →  ViewModel (UiState + eventos)  →  Repositorio (interf
   - **Examen Final** de 6 preguntas (se aprueba con 5 o más aciertos, sin límite de intentos), con el resultado guardado; no
     cambia el nivel del quiz.
   - **Logros e insignias reales** (9) y racha actual, calculadas del progreso guardado.
-  - **Social** (pestaña atenuada con "Próximamente"), "Concepto nuevo" y "Prepárate con CiberMynd" quedan para el módulo 4.
+  - "Concepto nuevo" y "Prepárate con CiberMynd" siguen sin hacerse.
+- **Social (módulo 4):**
+  - **Amigos:** búsqueda por nombre de usuario exacto o por código (`NIGHT-XXXXXX`), solicitudes, perfil del amigo (racha,
+    insignias e historial entre los dos; se puede ocultar el progreso) y foto de perfil.
+  - **Racha en pareja:** con un amigo, hasta 6 días (hay 6 islas), calculada por el servidor con hora de Colombia.
+  - **Batallas:** partida rápida contra desconocidos o reto a un amigo, preguntas por turnos, "Ulti" con un reto de
+    terminal, XP y nivel de combatiente. **El servidor decide todo** (aciertos, daño, turnos y plazos); la app solo sondea
+    el estado cada 2 a 3 segundos mientras la arena está visible.
+  - **Reportar y bloquear** personas, y "Personas bloqueadas" en Amigos. No hay pantalla de moderación: el equipo revisa los
+    reportes en el panel de Supabase.
 - Solo visuales o con datos fijos: Apariencia, Idioma, Ayuda, Acerca de; los interruptores de notificaciones de "Logros" y
   "Nuevos laboratorios" no tienen efecto (necesitan notificaciones push).
 
@@ -115,10 +125,13 @@ Desde la terminal:
 
 Todo el servidor está en `supabase/` y **se despliega a mano** desde el panel (no se usa la CLI de Supabase):
 
-- **Migraciones** (`supabase/migrations/0001` a `0007`; `0007` crea las tablas de progreso `lesson_progress`, `lab_progress`
-  y `exam_attempts`): se ejecutan **en orden numérico, una sola vez por proyecto**, a
-  mano en el **SQL Editor** del panel. **Una migración ya aplicada no se edita**: cualquier cambio va en una migración
-  nueva con el siguiente número. Cada archivo explica qué hace y trae consultas de verificación comentadas al final.
+- **Migraciones** (`supabase/migrations/0001` a `0011`; `0007` crea las tablas de progreso del módulo 3 y `0008` a `0011` las de
+  Social: tablas y funciones de amigos, parejas y batallas, el banco de preguntas, las fotos y los reportes y bloqueos): se
+  ejecutan **en orden numérico, una sola vez por proyecto**, a mano en el **SQL Editor** del panel. **Una migración ya
+  aplicada no se edita**: cualquier cambio va en una migración nueva con el siguiente número (`0012`...). Cada archivo
+  explica qué hace y trae consultas de verificación comentadas al final.
+- **Guiones de comprobación** (`supabase/verificacion/0008_escenarios.sql` y `0011_escenarios.sql`): no son migraciones. Se
+  corren a mano con dos cuentas de prueba y dejan una tabla de comprobaciones (OK o FALLA); se limpian solos.
 - **Edge Function** `send-recovery-email-code` (`supabase/functions/`): envía el código del correo de recuperación por la
   API de Brevo. Su `README.md` explica cómo desplegarla (*Edge Functions > Deploy a new function*) y los tres secretos
   que necesita (`BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME`).
@@ -182,24 +195,26 @@ NightWatchProtocol/
 │       │       ├── NightWatchApplication.kt  # contenedor de dependencias, canales y recordatorios
 │       │       ├── di/                       # AppContainer (DI manual) y validación de local.properties
 │       │       ├── data/                     # repositorios e interfaces
-│       │       │   ├── auth/  account/  session/  quiz/  profile/  avatar/  device/  learning/
+│       │       │   ├── auth/  account/  session/  quiz/  profile/  avatar/  device/  learning/  social/
 │       │       │   ├── supabase/             # errores y llamadas comunes a Supabase
 │       │       │   ├── common/  preferences/  biometric/  notifications/
 │       │       └── ui/                       # pantallas (Compose) y ViewModels
 │       │           ├── auth/  verifycode/  quiz/  postauth/  navigation/  startup/  theme/
 │       │           ├── home/  path/  lesson/  labs/  lab/  labreport/  exam/  examresult/   # módulo 3
+│       │           ├── social/                # módulo 4: amigos, parejas, batallas, reportar y bloquear
 │       │           ├── components/           # componentes compartidos
 │       │           ├── profile/              # las pantallas de perfil y ajustes
 │       │           └── applock/  biometric/  session/
 │       ├── test/                             # pruebas unitarias (JVM)
 │       └── androidTest/                      # pruebas instrumentadas (dispositivo)
 ├── supabase/
-│   ├── migrations/                   # 0001 a 0007: SQL que se ejecuta a mano, en orden y una sola vez
+│   ├── migrations/                   # 0001 a 0011: SQL que se ejecuta a mano, en orden y una sola vez
+│   ├── verificacion/                 # guiones de escenarios de 0008 y 0011 (no son migraciones)
 │   └── functions/send-recovery-email-code/   # Edge Function (Deno/TypeScript) y su README
 ├── docs/superpowers/
 │   ├── supabase-configuracion.md     # guía técnica: ajustes del panel, flujos, limitaciones
-│   ├── specs/  plans/                # diseños y planes (los módulos 1 y 2 son históricos; la spec del módulo 3 está vigente)
-│   └── reports/                      # informes: migración a Supabase, revisión de código y cierres de módulo (incluye el del módulo 3)
+│   ├── specs/  plans/                # diseños y planes (los módulos 1 y 2 son históricos; las specs de los módulos 3 y 4 están vigentes)
+│   └── reports/                      # informes: migración a Supabase, revisión de código y cierres de módulo (módulos 3 y 4)
 ├── local.properties.example          # plantilla de tu local.properties
 ├── gradle/libs.versions.toml         # catálogo de versiones
 ├── build.gradle.kts  settings.gradle.kts  gradle.properties
