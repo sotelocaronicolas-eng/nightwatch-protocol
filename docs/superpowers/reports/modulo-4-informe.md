@@ -104,7 +104,7 @@ Qué cubren las unitarias: ViewModels con Turbine y `MainDispatcherRule` donde h
 - **Sin notificaciones push:** invitaciones, retos y batallas se ven al abrir Social; los interruptores de notificaciones de "Logros" y "Nuevos laboratorios" siguen sin efecto.
 - **La batalla exige la app abierta:** el sondeo corre solo mientras la arena está visible; más de 60 s sin llamadas pierde la batalla. Un reto vale 2 minutos y una búsqueda de partida rápida avanza solo con Social abierto.
 - **Plan gratuito de Supabase:** pausa el proyecto tras **7 días sin actividad** (la app y el login dejan de funcionar hasta *Restore project*; se restaura durante ~90 días).
-- **Correos de Brevo:** plan gratuito con límite de envíos compartido con la Edge Function. El grupo anotó **30 correos por hora**; `README.md` y `CLAUDE.md` dicen unos 300 al día. Conviene confirmar la cifra en el panel de Brevo y unificar los documentos; el remitente `@gmail.com` puede caer en spam.
+- **Correos de Brevo:** plan gratuito con un límite de **300 correos al día** (confirmado en el panel de Brevo el 2026-10-23), compartido con la Edge Function; el remitente `@gmail.com` puede caer en spam.
 - Sin modo sin conexión (una escritura sin internet falla como "sin conexión").
 - La partida rápida empareja desconocidos y la moderación es manual (ver la sección 4).
 - "Hoy" de la tira de la semana de la pareja viene del reloj del teléfono (R-05, aceptado).

@@ -68,7 +68,7 @@ Las migraciones ya aplicadas **no se editan**; el siguiente número libre es `00
 - **Fotos:** cualquier persona con sesión puede leer y listar el bucket `social-avatars` (claves aleatorias, sin ids de Auth); la CDN puede tardar en mostrar una foto reemplazada.
 - **XP:** ganar por abandono da +50 XP; con dos cuentas se podría farmear XP (sin ranking, impacto bajo).
 - **Reportar confirma existencia** de una cuenta aunque haya bloqueado a quien reporta (10 intentos por día).
-- **Plan gratuito:** Supabase pausa el proyecto a los 7 días sin actividad; los correos de Brevo tienen límite (el grupo anotó 30 por hora; el README dice ~300 al día: confirmar).
+- **Plan gratuito:** Supabase pausa el proyecto a los 7 días sin actividad; los correos de Brevo tienen un límite de 300 al día (confirmado en el panel de Brevo el 2026-10-23).
 - **Sondeo:** una batalla se pierde si pasan más de 60 s sin llamadas; por eso Reportar y Bloquear son diálogos y no pantallas nuevas.
 - **Cambia lo que se ve:** las píldoras de Social ocupan 12 dp más de alto (área táctil de 48 dp) y el aspecto final de los diálogos y de las fotos no se ha comparado con Figma.
 
