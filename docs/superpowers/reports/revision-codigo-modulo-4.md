@@ -15,7 +15,8 @@ navegación). No se ejecutó nada contra Supabase ni en un teléfono: lo que dep
 4. **El resto son detalles bajos:** imports sin usar, colores repetidos, un bloque duplicado tres veces, un literal fuera de `strings.xml`, un
    `Modifier` que falta y un refresco sin guardia. Los que cuestan poco se corrigen en esta tanda; los demás quedan anotados.
 5. **Sondeo, ciclo de vida y seguridad están bien resueltos** (ver sección 3), con las pruebas que lo demuestran. Las pruebas pasan (1294, 0 fallos)
-   y `lintDebug` no añade ninguna advertencia nueva. Se corrigieron 8 de los 22 hallazgos (el alto, uno medio y seis bajos); 7 quedan pendientes y 7 aceptados.
+   y `lintDebug` no añade ninguna advertencia nueva. Se corrigieron 8 de los 22 hallazgos en la primera tanda; **estado final al cierre del módulo (2026-10-23):
+   11 corregidos, 8 aceptados y 3 pendientes** (R-06, R-14 y R-15; ver la sección 6).
 
 ## 2. Hallazgos
 
@@ -41,7 +42,7 @@ Gravedad: Crítico, Alto, Medio, Bajo. Esfuerzo: S (menos de una hora), M (unas 
 | R-16 | Bajo | Sondeo | `SocialPolling.kt:59`, `:88`, `:123` | El intervalo de 2,5 s se cuenta desde que termina cada llamada: con red lenta el hueco real puede pasar de 3 s. El servidor da la batalla por perdida a los 60 s, así que no hay riesgo, pero el comentario promete "2 a 3 segundos". | El código y su comentario deben decir lo mismo. | Aclarar el comentario (no cambia el comportamiento). | S | Aceptado: es correcto contra la regla de 60 s; solo el comentario es optimista. |
 | R-17 | Bajo | Compose | `FriendsScreen.kt`, `PairStreaksScreen.kt`, `FriendRequestsScreen.kt` | Las listas son `Column` con `forEach` dentro de un `verticalScroll`, no `LazyColumn` con claves. | En listas largas, `LazyColumn` con `key` evita trabajo de más. | Ninguna: el servidor limita a 50 amigos y 20 solicitudes. | S | Aceptado: los topes del servidor mantienen las listas cortas. |
 | R-18 | Bajo | Accesibilidad | `SocialComponents.kt:172` (`Chip`, 10 sp); `NightWatchGold` sobre `NightWatchBackground` | El texto de las etiquetas mide 10 sp y el dorado sobre el verde de fondo da unos 4,1:1 de contraste (el mínimo para texto pequeño es 4,5:1). Viene de Figma y de componentes del módulo 3. | Contraste y tamaño mínimos del texto. | Subir a 12 sp y oscurecer el fondo o aclarar el dorado: lo decide el diseño. | M | Aceptado: es el diseño de Figma; se revisa con el grupo. |
-| R-19 | Bajo | Documentación | `docs/superpowers/supabase-configuracion.md`, `CLAUDE.md` | No mencionan el script `0010` (columnas de la foto, `social_set_avatar`, bucket `social-avatars`) ni su fila del Security Advisor. | Documentación al día antes de fusionar. | Añadir la sección y las advertencias al aplicar `0010` y al cerrar el módulo. | S | **Corregido** (commit "Documenta el script 0010 y la regla de edición de archivos"): `supabase-configuracion.md` describe `0010`, su verificación del 2026-10-22, la advertencia S7 (10 advertencias, 0 errores), los riesgos aceptados y la limitación de moderación. `CLAUDE.md` se pone al día por completo en el cierre del módulo. |
+| R-19 | Bajo | Documentación | `docs/superpowers/supabase-configuracion.md`, `CLAUDE.md` | No mencionan el script `0010` (columnas de la foto, `social_set_avatar`, bucket `social-avatars`) ni su fila del Security Advisor. | Documentación al día antes de fusionar. | Añadir la sección y las advertencias al aplicar `0010` y al cerrar el módulo. | S | **Corregido** (commit "Documenta el script 0010 y la regla de edición de archivos"): `supabase-configuracion.md` describe `0010`, su verificación del 2026-10-22, la advertencia S7 (10 advertencias, 0 errores), los riesgos aceptados y la limitación de moderación. `CLAUDE.md` quedó al día en el cierre del módulo (describe el módulo 4 y los scripts `0008` a `0011`). |
 | R-20 | Bajo | Fotos | `SocialAvatarRepository.kt` | Una foto que falla no deja caché negativa: se vuelve a pedir cuando la pantalla se compone de nuevo (no en cada recomposición). | Evita reintentos repetidos en una red mala. | Guardar el fallo durante unos segundos (necesita un reloj inyectable). | S | Aceptado: es poco frecuente y un reintento al volver a la pantalla es lo esperado. |
 | R-21 | Bajo | Fotos | `SocialPhotoCache.kt` | La caché de disco saca primero los archivos más antiguos por fecha de escritura (FIFO), no los menos usados, porque el código de Social no puede leer la hora del teléfono. | Una caché LRU aprovecha mejor el espacio. | Ninguna. | S | Aceptado: con 16 MB caben cientos de fotos de unos 100 KB. |
 | R-22 | Bajo | Arena | `ArenaScreen.kt:94` (`onRetry = viewModel::onStart`) | "Reintentar" llama a `onStart`, que no hace nada mientras el sondeo sigue vivo, y el sondeo ya reintenta solo cada 2,5 s. | Un botón que no hace nada confunde. | Ocultar el botón mientras el sondeo corre. | S | Aceptado: el error se borra solo en cuanto una lectura sale bien. |
@@ -77,7 +78,7 @@ Los hallazgos de la sección 2 son 22 (0 críticos, 1 alto, 4 medios y 17 bajos)
 ## 5. No comprobado desde aquí
 
 - Nada se probó en un teléfono: ni el gorro y la varita (se dibujan con paths y se comprobó que compilan; su aspecto a 56 dp falta verlo), ni el margen superior, ni TalkBack.
-- `0010` no está aplicado: las fotos de Social, la sincronización y las claves nuevas solo se probaron con fakes y con el parser. El comportamiento real de las políticas de Storage está por verificar con las consultas del final del script.
+- (Al momento de la revisión) `0010` no estaba aplicado. **Actualización 2026-10-23:** `0008` a `0011` están aplicados y verificados (guion de `0008`: 219 de 219; guion de `0011`: 187 de 187; permisos por columna y políticas de `social-avatars`), y el grupo probó la app en dos teléfonos.
 - La corrección de R-01 se probó por razonamiento (no hay pruebas de Compose ni de Activity para la rotación).
 
 ## 6. Estado final de la tanda de correcciones
@@ -92,6 +93,17 @@ Segunda tanda (2026-10-22): R-03 (`ee504c2`), R-04 (`1bb7818`) y R-19 (documenta
 Además: el aviso al quitar la foto de Social cuando falla el borrado del archivo (`0423013`) y reportar y bloquear (`0011`, borrador sin aplicar, y su
 app: `b861cef` y `5addcdd`). Resultado: `assembleDebug testDebugUnitTest lintDebug` en verde, **1334 pruebas, 0 fallos** (antes 1294), lint con 0 errores y
 las mismas 45 advertencias. No comprobado: nada contra Supabase (ni `0011` ni su guion de escenarios), nada en el teléfono ni con TalkBack.
+
+**Estado final al cierre (2026-10-23).** Los tres pendientes quedan abiertos a propósito y ninguno bloquea el Pull Request:
+- **R-06** (Bajo): los contadores `lastMineHandled` y `lastRivalHandled` se modifican dentro del lambda de `update`. Hoy no falla porque todo corre en el hilo
+  principal; arreglarlo es un refactor del `ArenaViewModel` con 46 pruebas encima.
+- **R-14** (Bajo): las 13 pantallas de Social no tienen `@Preview` (sí tienen un `…Content` sin estado que se puede previsualizar).
+- **R-15** (Bajo): no hay pruebas de Compose de las pantallas de Social ni de las llamadas reales de Storage (ya conocido como F-03 y F-15). La lógica de
+  ViewModels, repositorios, parser y cachés sí está probada, y el servidor se comprobó con los guiones SQL.
+
+Todo hallazgo tiene hoy un estado con su razón: Corregido (con su commit), Aceptado (razón en la tabla) o Pendiente (los tres de arriba).
+Después de la tanda 2, el grupo probó la app en **dos teléfonos** con `0008` a `0011` aplicados y reporta todo funcional; no consta una prueba específica con
+TalkBack, así que R-02 y R-03 siguen "sin comprobar con lector de pantalla".
 
 Resultado al cerrar la tanda: `./gradlew assembleDebug testDebugUnitTest lintDebug` en verde, **1294 pruebas, 0 fallos**, sin errores ni advertencias
 de lint nuevas. Commits de las correcciones: `6863b9c` (R-01), `5028f6f` (R-02), `d48b402` (R-07), `5a3a8a3` (R-12 y R-13) y `fd03653` (R-09,
