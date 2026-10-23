@@ -71,17 +71,22 @@ private val CompletedRing = Color(0xFF3E6E71)
 private const val DESIGN_WIDTH = 412f
 private const val DESIGN_MAP_HEIGHT = 1440f
 
+/** Aesthetic nudges (island and label move together): "Bahía del Phishing" goes up, "Prueba final" goes up and left. */
+private val PhishingBayLift = 12.dp
+private val FinalTestShiftLeft = 16.dp
+private val FinalTestLift = 12.dp
+
 /** Island positions (left, top) and sizes in the 412 x 1440 map, in the order of the topics (Figma 2266:97 to 2266:122). */
 private val IslandPositions = listOf(
     28.dp to 13.dp,
-    254.dp to 214.dp,
+    254.dp to (214.dp - PhishingBayLift),
     34.dp to 394.dp,
     254.dp to 597.dp,
     25.dp to 816.dp,
     244.dp to 995.dp,
 )
 private val IslandSize = 92.dp
-private val FinalTestPosition = 207.dp to 1310.dp
+private val FinalTestPosition = (207.dp - FinalTestShiftLeft) to (1310.dp - FinalTestLift)
 private val FinalTestSize = 108.dp
 
 /**
