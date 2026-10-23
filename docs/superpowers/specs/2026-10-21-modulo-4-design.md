@@ -13,6 +13,9 @@ Lo que no está en Figma ni en las decisiones no se inventó: está marcado **P*
 
 ## Estado
 
+- **Estado al cierre (2026-10-23):** el módulo está implementado. Scripts `0008` a `0011` **aplicados y verificados** en Supabase (guion de `0008`: 219 de 219; guion
+  de `0011`: 187 de 187; Security Advisor: 10 advertencias, 0 errores, 14 sugerencias), versión 2.2.0, y probado por el grupo en dos teléfonos. El informe de cierre es
+  `docs/superpowers/reports/modulo-4-informe.md`. Lo que sigue de este documento es la especificación original, con las decisiones posteriores marcadas (O15, fotos, D20).
 - La spec no cambia nada del módulo 3 ni de `CLAUDE.md`. `CLAUDE.md` se actualiza en la etapa de cierre (sección 10).
 - Se verificó en esta etapa: la lectura de los documentos del repo, el texto de las capas y las capturas de los frames de Social en Figma, y los
   límites actuales del plan gratuito en la documentación oficial de Supabase (consultada el 2026-10-21; ver la sección 5).
@@ -68,10 +71,10 @@ Lo que no está en Figma ni en las decisiones no se inventó: está marcado **P*
 | O12 | Escalones de dificultad: niveles de combatiente 1 a 7, 8 a 14 y 15 a 20; no hace falta haber visto la lección de un tema; ampliar el banco después si se repite |
 | O13 | "Revancha" envía un reto de 2 minutos al mismo rival (solo si es amigo; en partida rápida no aparece). La "X" de la arena pide confirmación y abandonar da la derrota |
 | O14 | "Nivel" en D11 oculta el de nivelación y el de combatiente en el perfil (el de combatiente se sigue usando en el emparejamiento sin mostrarse). Solo emojis, sin fotos de amigos |
-| O15 (**reemplazada el 2026-10-22**) | Se **puede reportar a cualquier persona** (búsqueda, solicitudes, perfil del amigo y rival de una batalla, también la partida rápida) y **bloquear**. Ningún número de reportes oculta una foto solo: el equipo lo hace a mano (`avatar_hidden`). Bloquear no termina una batalla en curso. Sin pantalla de moderación: el equipo revisa `social_reports` en el Table Editor. Script `0011` (borrador sin aplicar). Antes: "fuera del módulo" |
+| O15 (**reemplazada el 2026-10-22**) | Se **puede reportar a cualquier persona** (búsqueda, solicitudes, perfil del amigo y rival de una batalla, también la partida rápida) y **bloquear**. Ningún número de reportes oculta una foto solo: el equipo lo hace a mano (`avatar_hidden`). Bloquear no termina una batalla en curso. Sin pantalla de moderación: el equipo revisa `social_reports` en el Table Editor. Script `0011` (**aplicado y verificado el 2026-10-23**, guion 187 de 187). Antes: "fuera del módulo" |
 | D18 | Tiempo real: **se empieza con sondeo**, sin dependencia nueva. `realtime-kt` solo se agrega si el equipo lo aprueba después de una prueba de concepto; queda como **mejora opcional posterior** |
 | D19 | El rótulo de la tarjeta "Racha grupal" de SOCIAL - INICIO pasa a **"Racha en pareja"** |
-| D20 | Versión del cierre del módulo: **2.2.0**, `versionCode` 5 (a confirmar al cierre) |
+| D20 | Versión del cierre del módulo: **2.2.0**, `versionCode` 5 (**confirmada y aplicada el 2026-10-23**: el valor anterior era `versionCode` 4) |
 
 ## 1. Inventario de pantallas del Figma y pantallas que faltan
 

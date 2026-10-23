@@ -75,7 +75,7 @@ todas, en orden) y tres más **ya aplicadas** (`0008`, `0009` y `0010`, Social; 
    (18 respuestas correctas de cada letra) y 12 retos de ulti. Se aplicó a mano **después** de `0008`.
 10. `0010_fotos_social.sql` (**aplicada y verificada el 2026-10-22**): fotos de perfil en Social (dos columnas en `social_profile`, la función
     `social_set_avatar`, el bucket privado `social-avatars` y sus 4 políticas). Se aplicó a mano **después** de `0009`; ver la Parte F.
-11. `0011_reportes_bloqueos.sql` (**borrador, sin aplicar**): reportar y bloquear personas, y ocultar una foto desde el SQL Editor (`avatar_hidden`). Ver la Parte F.
+11. `0011_reportes_bloqueos.sql` (**aplicada y verificada el 2026-10-23**; guion de escenarios 187 de 187): reportar y bloquear personas, y ocultar una foto desde el SQL Editor (`avatar_hidden`). Ver la Parte F.
 
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
@@ -381,7 +381,7 @@ completar un lab o terminar un examen falla al guardar (la app lo muestra como e
 **Estado: `0008` aplicado en Supabase y verificado** (rama `modulo-4`; el guion dio 219 comprobaciones con 0 fallas el 2026-10-21 y el
 Security Advisor no mostró errores; ver "Resultado de la verificación"). El script es `supabase/migrations/0008_social.sql` y su guion de
 verificación `supabase/verificacion/0008_escenarios.sql`. La especificación está en `docs/superpowers/specs/2026-10-21-modulo-4-design.md`.
-**`0008`, `0009` y `0010` ya no se editan:** cualquier cambio va en un script nuevo (`0010`, las fotos, está descrito más abajo en "Qué crea el 0010"). El banco de preguntas, los retos de ulti y la curva de XP
+**`0008` a `0011` ya no se editan:** cualquier cambio va en un script nuevo (`0010`, las fotos, y `0011`, los reportes y bloqueos, están descritos más abajo). El banco de preguntas, los retos de ulti y la curva de XP
 están en `0009` (**aplicado y verificado el 2026-10-21**: 72 preguntas, 18 respuestas correctas de cada letra, 12 retos y 20 niveles con un
 máximo de 1.900 XP). El guion de escenarios se repitió **con el banco real** y dio **219 de 219 comprobaciones, 0 fallas**.
 
@@ -431,14 +431,15 @@ máximo de 1.900 XP). El guion de escenarios se repitió **con el banco real** y
     bytes pueden tardar en actualizarse en otros teléfonos.
 - **Limitación: moderación.** Las fotos no se revisan antes de publicarse y cualquier persona con sesión puede ver cualquier archivo del
   bucket. Hoy no hay forma de ocultar una foto ofensiva desde la app. La respuesta del grupo es el script `0011` (reportes, bloqueos y
-  `avatar_hidden`, en preparación): el equipo revisará los reportes en el Table Editor y ocultará la foto desde el SQL Editor.
+  `avatar_hidden`, ya aplicado): el equipo revisa los reportes en el Table Editor y oculta la foto desde el SQL Editor.
 
-### Qué crea el 0011 (reportar y bloquear) — borrador, sin aplicar
+### Qué crea el 0011 (reportar y bloquear)
 
-**Estado: borrador sin aplicar** (`supabase/migrations/0011_reportes_bloqueos.sql`; su guion de comprobación es `supabase/verificacion/0011_escenarios.sql`
-y tampoco se ha ejecutado). Reemplaza la decisión O15 ("fuera del módulo") por la del grupo del 2026-10-22. Se aplica a mano **después** de `0010`.
-Mientras no esté aplicado, la app sigue funcionando: el servidor responde `bad_action` a las acciones nuevas y las pantallas de Reportar y Bloquear
-muestran «Función no disponible por ahora».
+**Estado: aplicado y verificado el 2026-10-23** (`supabase/migrations/0011_reportes_bloqueos.sql`). Su guion de comprobación
+`supabase/verificacion/0011_escenarios.sql` dio **187 de 187 comprobaciones, 0 fallas**, y el guion de `0008` sigue dando **219 de 219**. El grupo probó
+la app en dos teléfonos con `0008` a `0011` aplicados y reporta todo funcional. Reemplaza la decisión O15 ("fuera del módulo") por la del grupo del
+2026-10-22. Se aplica a mano **después** de `0010`. Un servidor sin `0011` (un proyecto nuevo a medias) responde `bad_action` a las acciones nuevas y las
+pantallas de Reportar y Bloquear muestran «Función no disponible por ahora» sin romper nada.
 
 | Qué | Detalle |
 |---|---|
@@ -460,10 +461,11 @@ muestran «Función no disponible por ahora».
 - **Limitación honesta: no hay pantalla de moderación.** El equipo revisa los reportes en el Table Editor de Supabase (tabla `social_reports`) o con la consulta del script,
   y decide a mano. Nadie recibe un aviso cuando llega un reporte. Los reportes repetidos del mismo par no se unifican. Un nombre de usuario ofensivo no se puede cambiar
   desde la app (O3): hoy solo se puede ocultar la foto; para una cuenta abusiva el equipo debe actuar desde el panel de Supabase.
-- **Advertencias esperadas del Security Advisor:** ninguna advertencia de función nueva (no hay funciones públicas nuevas); **2 sugerencias informativas** nuevas "RLS Enabled
-  No Policy" (`social_reports` y `social_blocks`). Siguen **10 advertencias y 0 errores**. Tabla completa al final del script.
-- **No comprobado:** el script no se ha ejecutado contra Supabase. Se comprueba con el guion `0011_escenarios.sql` (dos cuentas de prueba) y las consultas del final del script.
-  Hay un punto por confirmar al aplicarlo: que el rol del SQL Editor pueda borrar y recrear las dos políticas de `storage.objects` (si no, el script entero se deshace sin dejar nada).
+- **Security Advisor tras aplicar `0011` (estado final):** **10 advertencias, 0 errores y 14 sugerencias** (informativas, "RLS Enabled No Policy"). `0011` no suma
+  advertencias de función (no hay funciones públicas nuevas) y suma 2 sugerencias (`social_reports` y `social_blocks`). Tabla completa al final del script.
+- **Guion de escenarios:** el bloque que borra los archivos de prueba de `storage.objects` necesita `set_config('storage.allow_delete_query', 'true', true)` (Supabase
+  bloquea los `DELETE` directos sobre esa tabla; el permiso vale solo dentro de la transacción del guion).
+- **Sin comprobar desde el código:** TalkBack (lector de pantalla) y los tiempos reales de la CDN para una foto reemplazada.
 
 ### Orden de aplicación
 
@@ -473,7 +475,8 @@ muestran «Función no disponible por ahora».
 4. **Revisar el Security Advisor** y documentar las advertencias aceptadas (**hecho**: ver "Advertencias aceptadas del Security Advisor (Social)").
 5. **Aplicar `0009`** (banco de 72 preguntas, retos de ulti y curva de XP) **después** del `0008` (**hecho el 2026-10-21**, con sus consultas de conteo: 72 preguntas, 18 por letra, 12 retos, 20 niveles, máximo 1.900 XP). Antes de aplicarlo las tablas de contenido están vacías: una batalla no puede empezar (`bank_empty`) y todos son nivel 1.
 6. **Aplicar `0010`** (fotos) **después** de `0009` (**hecho el 2026-10-22**, con sus consultas de verificación: permisos por columna y las 4 políticas de `social-avatars`). Sin `0010` la app sigue funcionando y muestra el emoji de siempre.
-7. **Instalar la versión de la app** de las etapas de Social **después** de `0008` y `0009`: sin las tablas, Social falla al cargar y muestra el error con "Reintentar".
+7. **Aplicar `0011`** (reportes y bloqueos) **después** de `0010` (**hecho el 2026-10-23**). Luego, el guion `0011_escenarios.sql` (187 de 187) y, de nuevo, el de `0008` (219 de 219). Sin `0011` la app sigue funcionando y muestra «Función no disponible por ahora» en Reportar y Bloquear.
+8. **Instalar la versión de la app** (2.2.0) **después** de `0008` y `0009` (y, para las fotos y los reportes, de `0010` y `0011`): sin las tablas, Social falla al cargar y muestra el error con "Reintentar".
 
 ### Cómo verificar
 
@@ -484,7 +487,7 @@ muestran «Función no disponible por ahora».
   3. Ejecuta **todo el archivo** de una vez, con el rol `postgres` del SQL Editor.
   4. El resultado es una tabla con una fila por comprobación (esperado, obtenido, OK o FALLA); la primera fila resume y debe decir **0 fallas**.
   - El bloque de escenarios es **una sola sentencia atómica**: si falla con un error inesperado, se deshace todo. Si termina, **borra** lo que creó y **restaura** el banco, los retos y la curva reales (si ya existían). Cubre permisos, perfiles, búsqueda, invitaciones, ritmo, parejas, partida rápida, retos, respuestas, daño, ulti (éxito, escudo, tres intentos fallidos, por tiempo), turno vencido, desconexión (de uno y de los dos), abandono, fin por HP y por 20 turnos, XP, nivel y "ocultar progreso". **No cubre** parejas múltiples ni los topes de 5, 20 y 50 (necesitan más cuentas).
-- **Pruebas desde un teléfono:** no hay pruebas automáticas contra el servidor real (F-03); lo que se verifica a mano está en la lista del informe de cierre del módulo 4 (aún por escribir).
+- **Pruebas desde un teléfono:** no hay pruebas automáticas contra el servidor real (F-03); lo que se verifica a mano está en el guion de prueba manual de `docs/superpowers/reports/modulo-4-informe.md`.
 
 ### Resultado de la verificación
 
@@ -494,6 +497,11 @@ muestran «Función no disponible por ahora».
 | Mismo guion **con el banco real** (después de aplicar `0009`) | **219 de 219 comprobaciones, 0 fallas** (2026-10-21). El guion aparta el banco real mientras corre y lo vuelve a activar al terminar |
 | Conteos de `0009` | 72 preguntas (12 por tema, 4 por escalón en cada tema), 18 respuestas correctas de cada letra, 12 retos de ulti (6 de ataque y 6 de defensa) y 20 niveles con un máximo de 1.900 XP |
 | Security Advisor tras aplicar `0008` | **0 errores** y las advertencias esperadas (tabla "Advertencias aceptadas del Security Advisor (Social)") |
+| Fotos de Social (`0010`) | Aplicada y verificada el **2026-10-22**: permisos por columna y las 4 políticas de `social-avatars` |
+| Guion `supabase/verificacion/0011_escenarios.sql` (después de aplicar `0011`) | **187 de 187 comprobaciones, 0 fallas** (2026-10-23) |
+| Guion de `0008` después de `0011` | Sigue en **219 de 219** (las funciones que `0011` reemplaza no cambiaron su lógica) |
+| Security Advisor tras aplicar `0011` | **10 advertencias, 0 errores y 14 sugerencias** (estado final del módulo 4) |
+| Prueba en dos teléfonos (2026-10-23) | El grupo recorrió Social con `0008` a `0011` aplicados: todo funcional |
 | Corrección del guion tras la primera corrida | El bloque 9 crea la segunda batalla con la partida rápida y no con `new_battle`, porque `new_battle` borra las batallas anteriores de los dos jugadores. Es un cambio del guion, no del script `0008` |
 
 ### Advertencias esperadas del Security Advisor (0008)
@@ -547,6 +555,11 @@ El detalle del diseño está en la Parte F y en el encabezado de `0008_social.sq
 | S5 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.battle_play(uuid, text, integer, text)` | Es la única vía de escritura de la batalla: compara la respuesta con `battle_questions` y el comando con `ulti_challenges`, tablas sin permiso para la app | El servidor decide aciertos, daños, turnos, plazos, escudo y XP con la hora de la base de datos. Solo opera sobre `auth.uid()` y sobre batallas donde esa persona participa | Si se agrega una acción nueva |
 | S6 | (Info) "RLS Enabled No Policy" | 11 tablas: `friendships`, `pair_streaks`, `battle_questions`, `ulti_challenges`, `matchmaking_queue`, `battle_challenges`, `battles`, `battle_active`, `battle_turns`, `battle_ultis`, `social_rate_limit` | No aplica (son tablas) | Intencional: RLS activo sin políticas y sin `GRANT` niega todo acceso directo desde la app; solo las leen las funciones de arriba. Es la misma configuración de `recovery_email_codes` (`0006`, fila 5 de la tabla anterior) | Solo si una tabla cambia de uso |
 | S7 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.social_set_avatar(boolean)` | Script `0010`. La app no puede escribir `avatar_key` ni `avatar_version` (sin permiso de columna): solo esta función las cambia | Identidad solo desde `auth.uid()`, sin parámetros de usuario más que "tengo / no tengo foto", 30 llamadas por hora, sin acceso para `public` ni `anon`. Repetir la llamada es inofensivo | Si cambia lo que escribe |
+| S8 | (Info) "RLS Enabled No Policy" | 2 tablas: `social_reports` y `social_blocks` | No aplica (son tablas) | Script `0011`. Intencional, igual que S6: RLS activo sin políticas y sin `GRANT`; solo las usan `social_friends`, `social_pairs`, `battle_lobby` y `sx_try_match`, y el equipo lee `social_reports` desde el panel | Solo si una tabla cambia de uso |
+
+**Estado final tras aplicar `0011` (2026-10-23): 10 advertencias, 0 errores y 14 sugerencias.** Las 10 advertencias son las 4 de la primera tabla (filas 1 a 4) más
+S1 a S5 y S7. Las 14 sugerencias (nivel info, "RLS Enabled No Policy") son `recovery_email_codes` (1), las 11 tablas de S6 y las 2 de S8. `0011` no suma advertencias
+de función porque no crea funciones públicas.
 
 Tras aplicar `0010` (2026-10-22): **10 advertencias y 0 errores** (las 4 de la primera tabla, S1 a S5 y S7; S6 es solo informativa). Las cuatro
 funciones que `0010` reemplaza (`social_friends`, `social_pairs`, `battle_lobby` y la interna `sx_battle_state`, que se muestra a través de
