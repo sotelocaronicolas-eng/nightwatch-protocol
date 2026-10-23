@@ -254,6 +254,10 @@ begin
     raise exception 'Falta aplicar 0011_reportes_bloqueos.sql: no existen social_blocks ni social_reports.';
   end if;
 
+  -- Supabase bloquea los DELETE directos sobre storage.objects (hay un disparador que los rechaza). Esto los permite SOLO dentro de
+  -- esta transacción (el tercer argumento, true, lo limita a ella): el guion necesita borrar los archivos de prueba de social-avatars.
+  perform set_config('storage.allow_delete_query', 'true', true);
+
   -- Restos de una corrida anterior (solo datos de Social de estas dos cuentas)
   perform pg_temp.reset_social(v_a, v_b);
   delete from storage.objects
