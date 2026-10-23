@@ -249,6 +249,18 @@ private fun HpLabel(text: String, modifier: Modifier, align: TextAlign = TextAli
     )
 }
 
+@Composable
+private fun TurnPillText(text: String, color: Color, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        color = color,
+        fontFamily = NightWatchBodyFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 12.sp,
+        modifier = modifier,
+    )
+}
+
 /** "Tu turno · 0:57" or "Turno de Mateo · 0:44", from the server's seconds; and the progress of the ulti. */
 @Composable
 private fun TurnPill(battle: BattleState, ulti: Boolean) {
@@ -257,26 +269,29 @@ private fun TurnPill(battle: BattleState, ulti: Boolean) {
         if (turn != null) {
             val seconds by rememberSecondsLeft(turn.timeLeft)
             val time = stringResource(R.string.social_countdown, seconds / 60, seconds % 60)
-            Box(
-                contentAlignment = Alignment.Center,
+            val textColor = if (turn.isMine || ulti) SocialOnLight else NightWatchOnBackground
+            // R-03: the turn ("Tu turno") and the seconds are two texts. Only the turn is a live region, so a screen reader announces
+            // the change of turn and not the countdown, which is redrawn four times a second.
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
                 modifier = Modifier
                     .widthIn(min = 140.dp)
                     .height(28.dp)
                     .background(if (turn.isMine || ulti) NightWatchGold else SocialElevated, RoundedCornerShape(100.dp))
                     .padding(horizontal = 14.dp),
             ) {
-                Text(
+                TurnPillText(
                     text = when {
                         // In the ulti both players have their own challenge and the same 2 minutes.
-                        ulti -> stringResource(R.string.social_ulti_time, time)
-                        turn.isMine -> stringResource(R.string.social_arena_my_turn, time)
-                        else -> stringResource(R.string.social_arena_rival_turn, battle.rivalUsername, time)
+                        ulti -> stringResource(R.string.social_ulti_time)
+                        turn.isMine -> stringResource(R.string.social_arena_my_turn)
+                        else -> stringResource(R.string.social_arena_rival_turn, battle.rivalUsername)
                     },
-                    color = if (turn.isMine || ulti) SocialOnLight else NightWatchOnBackground,
-                    fontFamily = NightWatchBodyFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 12.sp,
+                    color = textColor,
+                    modifier = Modifier.politeAnnouncement(),
                 )
+                TurnPillText(text = stringResource(R.string.social_arena_turn_time, time), color = textColor)
             }
         }
         SocialBodyText(

@@ -240,8 +240,9 @@
     <string name="social_arena_title">Batalla vs %1$s</string>
     <string name="social_arena_you">Tú</string>
     <string name="social_arena_hp">%1$d/100 HP</string>
-    <string name="social_arena_my_turn">Tu turno · %1$s</string>
-    <string name="social_arena_rival_turn">Turno de %1$s · %2$s</string>
+    <string name="social_arena_my_turn">Tu turno</string>
+    <string name="social_arena_rival_turn">Turno de %1$s</string>
+    <string name="social_arena_turn_time">· %1$s</string>
     <string name="social_arena_ulti_progress">Racha para tu Ulti: %1$d de 3 aciertos</string>
     <string name="social_arena_ulti_ready">⚡ ¡Tu Ulti está cargada!</string>
     <string name="social_arena_waiting_rival">%1$s está respondiendo…</string>
@@ -265,7 +266,7 @@
     <string name="social_ulti_choice_body">Respondiste 3 preguntas seguidas. Puedes lanzar tu Ulti ahora, pero necesitas resolver un reto de terminal para que sea efectiva.</string>
     <string name="social_ulti_save">Guardar para después</string>
     <string name="social_ulti_use">🔥 Usar Ulti ahora</string>
-    <string name="social_ulti_time">Reto de Ulti · %1$s</string>
+    <string name="social_ulti_time">Reto de Ulti</string>
     <string name="social_ulti_attack_title">Desafío de tu Ulti</string>
     <string name="social_ulti_attack_intro">🔥 Resuelve esto para que tu Ulti impacte a %1$s.</string>
     <string name="social_ulti_attack_box">Tu Ulti solo será efectiva si escribes el comando correcto antes de que termine el tiempo. El comando no se muestra: escríbelo de memoria.</string>
