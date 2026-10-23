@@ -68,7 +68,7 @@ Lo que no está en Figma ni en las decisiones no se inventó: está marcado **P*
 | O12 | Escalones de dificultad: niveles de combatiente 1 a 7, 8 a 14 y 15 a 20; no hace falta haber visto la lección de un tema; ampliar el banco después si se repite |
 | O13 | "Revancha" envía un reto de 2 minutos al mismo rival (solo si es amigo; en partida rápida no aparece). La "X" de la arena pide confirmación y abandonar da la derrota |
 | O14 | "Nivel" en D11 oculta el de nivelación y el de combatiente en el perfil (el de combatiente se sigue usando en el emparejamiento sin mostrarse). Solo emojis, sin fotos de amigos |
-| O15 | **Fuera del módulo.** Limitación conocida: los nombres de usuario son texto libre y no hay reportar ni bloquear (R12) |
+| O15 (**reemplazada el 2026-10-22**) | Se **puede reportar a cualquier persona** (búsqueda, solicitudes, perfil del amigo y rival de una batalla, también la partida rápida) y **bloquear**. Ningún número de reportes oculta una foto solo: el equipo lo hace a mano (`avatar_hidden`). Bloquear no termina una batalla en curso. Sin pantalla de moderación: el equipo revisa `social_reports` en el Table Editor. Script `0011` (borrador sin aplicar). Antes: "fuera del módulo" |
 | D18 | Tiempo real: **se empieza con sondeo**, sin dependencia nueva. `realtime-kt` solo se agrega si el equipo lo aprueba después de una prueba de concepto; queda como **mejora opcional posterior** |
 | D19 | El rótulo de la tarjeta "Racha grupal" de SOCIAL - INICIO pasa a **"Racha en pareja"** |
 | D20 | Versión del cierre del módulo: **2.2.0**, `versionCode` 5 (a confirmar al cierre) |
@@ -716,7 +716,7 @@ Cada etapa es **un commit** (o uno por tema si es grande) en la rama `modulo-4`,
 | R9 | **Complejidad del script:** `0008` es grande y se ejecuta a mano; un error ya aplicado se arregla en un script nuevo, no se edita | Revisión por el grupo antes de ejecutar; verificaciones comentadas; entrega en un solo archivo pero revisable por bloques |
 | R10 | **Advertencias del Security Advisor:** 5 de "Signed-In Users Can Execute SECURITY DEFINER Function" (antes de agrupar iban a ser 32) y 11 de "RLS Enabled No Policy" | Documentarlas por grupo (4.6); cualquiera inesperada se corrige antes de fusionar |
 | R11 | **Dependencia `realtime-kt` (mejora opcional posterior, D18):** no verificada con Kotlin 2.2.10 y Ktor 3.3.0 | No se agrega ahora. Solo con aprobación del equipo y tras una prueba de concepto; si falla, se queda el sondeo |
-| R12 | **Limitación conocida (O15, fuera del módulo): moderación y menores.** Los **nombres de usuario son texto libre** (solo se limita el largo y los caracteres, sin lista de palabras prohibidas) y **no hay forma de reportar ni de bloquear** a otra persona. La partida rápida empareja desconocidos (el análisis previo lo marcó) | Aceptada por el grupo; se documenta en `CLAUDE.md` al cierre. Si más adelante se abre a un público amplio, hay que resolverlo antes |
+| R12 | **Moderación y menores (O15, reemplazada el 2026-10-22).** Los **nombres de usuario son texto libre** (solo se limita el largo y los caracteres, sin lista de palabras prohibidas) y la partida rápida empareja desconocidos (el análisis previo lo marcó). Desde `0011` (borrador) hay **reportar y bloquear** y el equipo puede **ocultar una foto**. **Limitación que queda:** no hay pantalla de moderación (se revisa `social_reports` en el Table Editor), nadie recibe un aviso cuando llega un reporte, el nombre de usuario ofensivo no se puede cambiar (O3) y no hay verificación de edad | El grupo acepta que la moderación sea manual; se documenta en `CLAUDE.md` al cierre. Si más adelante se abre a un público amplio, hay que automatizarla (lista de palabras, cola de revisión, pantalla) antes |
 | R13 | **Enumeración parcial:** se puede comprobar si un nombre de usuario existe | Límite de ritmo, coincidencia exacta, sin listados; documentado (4.4) |
 | R14 | **Pausa de la racha de pareja por límite de contenido (D14):** con 6 islas la racha no pasa de 6 días | Aceptado por el grupo (D14) |
 | R15 | **Sin pruebas automáticas contra Supabase (F-03)** del juego, las rachas ni los permisos | Guion manual por etapa y lista de verificación en el cierre |
@@ -725,7 +725,7 @@ Cada etapa es **un commit** (o uno por tema si es grande) en la rama `modulo-4`,
 ## 12. Decidido por el grupo (antes, preguntas abiertas)
 
 El 2026-10-21 el grupo respondió las preguntas abiertas de la v1: **aceptó tal cual las propuestas de O1 a O9 y de O11 a O14**, **cambió O10** y dejó **O15 fuera del
-módulo**. La columna "Decisión" es lo que se implementa; las filas O10 y O15 reemplazan a la propuesta original. Los mismos acuerdos están resumidos en la tabla de decisiones del
+módulo** (el 2026-10-22 el grupo **reemplazó** O15: se agregan reportar y bloquear, script `0011`). La columna "Decisión" es lo que se implementa; las filas O10 y O15 reemplazan a la propuesta original. Los mismos acuerdos están resumidos en la tabla de decisiones del
 inicio.
 
 ### O1 a O5 (pedidas por el grupo)
@@ -751,7 +751,7 @@ inicio.
 | **O12** | **Banco:** equivalencia de niveles de combatiente con los tres escalones, ¿hace falta haber visto la lección de un tema para recibir sus preguntas?, ¿12 por tema alcanzan? | Escalones 1 a 7, 8 a 14 y 15 a 20; no hace falta haber visto la lección; ampliar a 20 por tema después si se repiten |
 | **O13** | **"Revancha"** de las pantallas de fin: ¿a quién reta y vale en partida rápida? Y la "X" de la arena: ¿abandona? | Revancha envía un reto de 2 minutos al mismo rival (solo si es amigo; en partida rápida el botón no aparece). "X" pide confirmación y abandonar da la derrota |
 | **O14** | **Qué es "nivel" en D11** (¿nivel de nivelación, de combatiente o ambos?) y si se ven **fotos reales** de los amigos (bucket privado) o solo los emojis de Figma | "Nivel" oculta ambos en el perfil; el de combatiente se sigue usando en el emparejamiento sin mostrarse. Solo emojis, sin fotos de amigos |
-| **O15** | **Moderación y menores:** reportar o bloquear usuarios, y si la partida rápida entre desconocidos se abre a toda la base de usuarios | **Fuera del módulo.** Limitación conocida (R12): los nombres de usuario son texto libre y no hay reportar ni bloquear |
+| **O15** | **Moderación y menores:** reportar o bloquear usuarios, y si la partida rápida entre desconocidos se abre a toda la base de usuarios | **Reemplazada el 2026-10-22** (antes: "fuera del módulo", R12). **Reportar a cualquier persona** (desde la búsqueda, las solicitudes, el perfil del amigo y el rival de una batalla, partida rápida incluida) y **bloquear**. Ningún número de reportes oculta una foto automáticamente: solo el equipo, a mano, con `social_profile.avatar_hidden` desde el SQL Editor. **Bloquear no termina una batalla en curso**, solo impide las nuevas; elimina la amistad y la pareja y cancela los retos pendientes, y vale en los dos sentidos (búsqueda, invitaciones, retos y partida rápida). **Sin pantalla de moderación:** el equipo revisa `social_reports` en el Table Editor (limitación honesta). Límite: 10 reportes por día. Script `0011` (borrador sin aplicar) |
 
 ### Otras decisiones del 2026-10-21
 

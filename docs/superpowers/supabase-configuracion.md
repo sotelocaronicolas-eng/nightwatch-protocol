@@ -75,6 +75,7 @@ todas, en orden) y tres más **ya aplicadas** (`0008`, `0009` y `0010`, Social; 
    (18 respuestas correctas de cada letra) y 12 retos de ulti. Se aplicó a mano **después** de `0008`.
 10. `0010_fotos_social.sql` (**aplicada y verificada el 2026-10-22**): fotos de perfil en Social (dos columnas en `social_profile`, la función
     `social_set_avatar`, el bucket privado `social-avatars` y sus 4 políticas). Se aplicó a mano **después** de `0009`; ver la Parte F.
+11. `0011_reportes_bloqueos.sql` (**borrador, sin aplicar**): reportar y bloquear personas, y ocultar una foto desde el SQL Editor (`avatar_hidden`). Ver la Parte F.
 
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
@@ -401,7 +402,7 @@ máximo de 1.900 XP). El guion de escenarios se repitió **con el banco real** y
 - **Racha de pareja y racha personal de los amigos** con **hora de Colombia** (`America/Bogota`), calculadas en el servidor con la fecha de completado de cada isla. Se calculan, no se guardan.
 - **Respuestas de error.** Las funciones de negocio devuelven `{"status":"error","code":"..."}` **sin lanzar excepción**, para que el contador del límite de ritmo no se deshaga; las excepciones quedan para `no_session`, `social_not_enabled`, `bad_action`, `bad_query` y `rate_limited` (lista completa en el encabezado del script). Ninguna respuesta distingue una cuenta que existe de una que no, salvo que la acción ya sea legítima (la persona está en mis amigos).
 - **Límites de ritmo:** 20 búsquedas cada 10 minutos; 20 invitaciones de amistad, 20 de pareja y 20 retos por hora.
-- **Limitaciones conocidas:** ganar por abandono o desconexión da **+50 XP**, así que una persona con **dos cuentas** podría farmear XP (sin ranking el impacto es bajo; se revisa si se agrega uno). El orden de los aciertos de la ulti es el de llegada al servidor. Los comandos de la ulti son los de los laboratorios y viajan en el APK. Buscar por usuario permite comprobar que un nombre existe (con límite de ritmo y sin listados). No hay reportar ni bloquear usuarios (O15, fuera del módulo).
+- **Limitaciones conocidas:** ganar por abandono o desconexión da **+50 XP**, así que una persona con **dos cuentas** podría farmear XP (sin ranking el impacto es bajo; se revisa si se agrega uno). El orden de los aciertos de la ulti es el de llegada al servidor. Los comandos de la ulti son los de los laboratorios y viajan en el APK. Buscar por usuario permite comprobar que un nombre existe (con límite de ritmo y sin listados). Reportar y bloquear no estaban en `0008` (O15, fuera del módulo); el grupo decidió el 2026-10-22 resolverlo en `0011` (más abajo).
 
 ### Qué crea el 0010 (fotos de perfil en Social)
 
@@ -431,6 +432,38 @@ máximo de 1.900 XP). El guion de escenarios se repitió **con el banco real** y
 - **Limitación: moderación.** Las fotos no se revisan antes de publicarse y cualquier persona con sesión puede ver cualquier archivo del
   bucket. Hoy no hay forma de ocultar una foto ofensiva desde la app. La respuesta del grupo es el script `0011` (reportes, bloqueos y
   `avatar_hidden`, en preparación): el equipo revisará los reportes en el Table Editor y ocultará la foto desde el SQL Editor.
+
+### Qué crea el 0011 (reportar y bloquear) — borrador, sin aplicar
+
+**Estado: borrador sin aplicar** (`supabase/migrations/0011_reportes_bloqueos.sql`; su guion de comprobación es `supabase/verificacion/0011_escenarios.sql`
+y tampoco se ha ejecutado). Reemplaza la decisión O15 ("fuera del módulo") por la del grupo del 2026-10-22. Se aplica a mano **después** de `0010`.
+Mientras no esté aplicado, la app sigue funcionando: el servidor responde `bad_action` a las acciones nuevas y las pantallas de Reportar y Bloquear
+muestran «Función no disponible por ahora».
+
+| Qué | Detalle |
+|---|---|
+| **2 tablas cerradas** | `social_reports` (quién reporta, a quién, motivo, nota de hasta 200 caracteres, fecha y estado `open`/`reviewed`) y `social_blocks` (quién bloquea a quién, clave primaria compuesta). RLS activo, **sin políticas y sin `GRANT`** para `anon` y `authenticated` |
+| **1 columna nueva** | `social_profile.avatar_hidden` (booleano, `false` por defecto). El cliente **no puede escribirla**: solo el equipo, como dueño de la tabla |
+| **0 funciones públicas nuevas** | Acciones nuevas dentro de `social_friends`: `report`, `block`, `unblock` y `blocks`. Formato de `report`: `destino|motivo|nota` (motivos `inappropriate_photo`, `offensive_name`, `harassment`, `other`; la nota puede llevar `|`, siempre van las dos barras) |
+| **1 función interna nueva** | `sx_is_blocked(a, b)`, sin `EXECUTE` para `anon` ni `authenticated` |
+| **6 funciones reemplazadas** | `social_friends`, `social_pairs`, `battle_lobby`, `sx_battle_state`, `sx_try_match` y `social_set_avatar` (mismas firmas) |
+| **2 políticas de Storage recreadas** | `INSERT` y `UPDATE` de `social-avatars` con la condición `not avatar_hidden` |
+
+- **Bloquear (A bloquea a B).** Se borran la amistad y la pareja de racha y se cancelan los retos pendientes entre los dos. **No termina una batalla en curso.**
+  Mientras dure el bloqueo, **en los dos sentidos**: la búsqueda, invitar a amistad, invitar a pareja y retar responden `not_found` (lo mismo que "no existe"), aceptar
+  responde como si ya no existiera y la partida rápida no los empareja.
+- **Reportar** es posible a **cualquier persona** y no depende del bloqueo. Límite: **10 reportes por día**. No cambia nada para quien reporta. **Ningún número de reportes
+  oculta una foto solo.**
+- **Ocultar una foto** (`avatar_hidden = true`, lo hace el equipo desde el SQL Editor): las funciones devuelven `avatar_key` y `avatar_version` en `null` para esa persona,
+  no puede subir otra foto y `social_set_avatar(true)` responde `{"status":"error","code":"avatar_hidden"}`. El archivo sigue en el bucket: para retirarlo de verdad se borra
+  también en Storage. Las consultas para activar y levantar la ocultación, y para revisar los reportes, están en la sección "Operación del equipo" al final del script.
+- **Limitación honesta: no hay pantalla de moderación.** El equipo revisa los reportes en el Table Editor de Supabase (tabla `social_reports`) o con la consulta del script,
+  y decide a mano. Nadie recibe un aviso cuando llega un reporte. Los reportes repetidos del mismo par no se unifican. Un nombre de usuario ofensivo no se puede cambiar
+  desde la app (O3): hoy solo se puede ocultar la foto; para una cuenta abusiva el equipo debe actuar desde el panel de Supabase.
+- **Advertencias esperadas del Security Advisor:** ninguna advertencia de función nueva (no hay funciones públicas nuevas); **2 sugerencias informativas** nuevas "RLS Enabled
+  No Policy" (`social_reports` y `social_blocks`). Siguen **10 advertencias y 0 errores**. Tabla completa al final del script.
+- **No comprobado:** el script no se ha ejecutado contra Supabase. Se comprueba con el guion `0011_escenarios.sql` (dos cuentas de prueba) y las consultas del final del script.
+  Hay un punto por confirmar al aplicarlo: que el rol del SQL Editor pueda borrar y recrear las dos políticas de `storage.objects` (si no, el script entero se deshace sin dejar nada).
 
 ### Orden de aplicación
 
