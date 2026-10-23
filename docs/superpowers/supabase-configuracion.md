@@ -53,7 +53,7 @@ El esquema está en `supabase/migrations/0001_esquema_inicial.sql`. **Nada lo ej
 Los archivos de `supabase/migrations/` se ejecutan **en orden numérico** (`0001`, `0002`, ...) y **una sola vez
 por proyecto**. Una migración que ya se aplicó **no se edita**: cualquier cambio posterior va en una migración
 nueva con el siguiente número. Hoy hay siete **ya aplicadas** en el proyecto del equipo (un proyecto nuevo las necesita
-todas, en orden) y una octava y una novena **ya aplicadas** (`0008` y `0009`, Social; ver la Parte F):
+todas, en orden) y tres más **ya aplicadas** (`0008`, `0009` y `0010`, Social; ver la Parte F):
 
 1. `0001_esquema_inicial.sql`: tablas, RLS, políticas y grants.
 2. `0002_minimo_privilegio.sql`: quita a `authenticated` los privilegios `TRUNCATE`, `REFERENCES` y `TRIGGER`,
@@ -73,6 +73,8 @@ todas, en orden) y una octava y una novena **ya aplicadas** (`0008` y `0009`, So
    No toca ninguna tabla anterior; ver la Parte F.
 9. `0009_banco_batallas.sql` (**aplicada y verificada el 2026-10-21**): curva de XP (20 niveles, máximo 1.900 XP), 72 preguntas de batalla
    (18 respuestas correctas de cada letra) y 12 retos de ulti. Se aplicó a mano **después** de `0008`.
+10. `0010_fotos_social.sql` (**aplicada y verificada el 2026-10-22**): fotos de perfil en Social (dos columnas en `social_profile`, la función
+    `social_set_avatar`, el bucket privado `social-avatars` y sus 4 políticas). Se aplicó a mano **después** de `0009`; ver la Parte F.
 
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
@@ -378,7 +380,7 @@ completar un lab o terminar un examen falla al guardar (la app lo muestra como e
 **Estado: `0008` aplicado en Supabase y verificado** (rama `modulo-4`; el guion dio 219 comprobaciones con 0 fallas el 2026-10-21 y el
 Security Advisor no mostró errores; ver "Resultado de la verificación"). El script es `supabase/migrations/0008_social.sql` y su guion de
 verificación `supabase/verificacion/0008_escenarios.sql`. La especificación está en `docs/superpowers/specs/2026-10-21-modulo-4-design.md`.
-**`0008` y `0009` ya no se editan:** cualquier cambio va en un script nuevo. El banco de preguntas, los retos de ulti y la curva de XP
+**`0008`, `0009` y `0010` ya no se editan:** cualquier cambio va en un script nuevo (`0010`, las fotos, está descrito más abajo en "Qué crea el 0010"). El banco de preguntas, los retos de ulti y la curva de XP
 están en `0009` (**aplicado y verificado el 2026-10-21**: 72 preguntas, 18 respuestas correctas de cada letra, 12 retos y 20 niveles con un
 máximo de 1.900 XP). El guion de escenarios se repitió **con el banco real** y dio **219 de 219 comprobaciones, 0 fallas**.
 
@@ -401,6 +403,35 @@ máximo de 1.900 XP). El guion de escenarios se repitió **con el banco real** y
 - **Límites de ritmo:** 20 búsquedas cada 10 minutos; 20 invitaciones de amistad, 20 de pareja y 20 retos por hora.
 - **Limitaciones conocidas:** ganar por abandono o desconexión da **+50 XP**, así que una persona con **dos cuentas** podría farmear XP (sin ranking el impacto es bajo; se revisa si se agrega uno). El orden de los aciertos de la ulti es el de llegada al servidor. Los comandos de la ulti son los de los laboratorios y viajan en el APK. Buscar por usuario permite comprobar que un nombre existe (con límite de ritmo y sin listados). No hay reportar ni bloquear usuarios (O15, fuera del módulo).
 
+### Qué crea el 0010 (fotos de perfil en Social)
+
+**Estado: aplicado y verificado el 2026-10-22** (permisos por columna y las 4 políticas de `social-avatars`). El script es
+`supabase/migrations/0010_fotos_social.sql`. Ya no se edita.
+
+| Qué | Detalle |
+|---|---|
+| **2 columnas en `social_profile`** | `avatar_key` (uuid, no nulo, único, `gen_random_uuid()`: la **clave aleatoria** que da nombre al archivo `<avatar_key>.jpg`; no es el id de Auth) y `avatar_version` (entero, nulo = sin foto; sube con cada cambio y la app lo usa para su caché). El cliente **no puede escribirlas**: el `GRANT` por columna de `0008` solo da `INSERT` (`user_id`, `username`) y `UPDATE` (`hide_progress`) |
+| **1 función pública nueva** | `social_set_avatar(p_has_photo boolean)`, `SECURITY DEFINER`, `search_path` vacío, `revoke` de `public` y `anon`, `grant` a `authenticated`, 30 llamadas por hora. `true` sube `avatar_version`; `false` lo deja nulo **y cambia `avatar_key`** por una clave nueva |
+| **4 funciones reemplazadas** | `social_friends`, `social_pairs`, `battle_lobby` y la interna `sx_battle_state` (mismas firmas): devuelven además `avatar_key` y `avatar_version` de cada persona que ya devolvían |
+| **Bucket `social-avatars`** | Privado, solo `image/jpeg`, máximo 256 KB, con **4 políticas** en `storage.objects`: leer (cualquier persona con sesión; `anon` nada) y subir, reemplazar y borrar solo el archivo `<avatar_key de la persona>.jpg` |
+| Lo que **no** hace | No toca el bucket `avatars` de `0004` ni `profile.avatar_path` (la foto de Editar perfil sigue donde estaba; la app sube **además** una copia al bucket nuevo). Sin tablas nuevas ni `GRANT` nuevos sobre tablas |
+
+- **Orden al borrar la foto.** La app borra primero el archivo del bucket y **solo si salió bien** llama a `social_set_avatar(false)`: después
+  de rotar la clave la política ya no reconocería el nombre viejo. Si el borrado falla, no se rota nada y la app lo avisa.
+- **Advertencias del Security Advisor.** Queda **1 advertencia nueva**: «Signed-In Users Can Execute SECURITY DEFINER Function» sobre
+  `public.social_set_avatar(boolean)` (fila S7 de «Advertencias aceptadas del Security Advisor (Social)»). Con las 9 anteriores quedan
+  **10 advertencias y 0 errores**. Las cuatro funciones reemplazadas ya estaban aceptadas (S1 a S4) y no suman otra.
+- **Riesgos aceptados** (decisión del grupo):
+  - **Listado del bucket.** Como cualquier persona con sesión puede leer el bucket, también puede **listarlo** y ver todas las claves. Son
+    uuid aleatorios: no revelan ids de Auth, nombres ni cuentas, porque una clave solo se une a una persona a través de las funciones de
+    Social, que ya limitan quién ve a quién. Lo único que se obtiene es la imagen sin nombre. La alternativa (una política por amistad)
+    obligaría a consultar `friendships` desde `storage.objects` en cada descarga.
+  - **CDN.** Supabase puede servir una copia en caché de un archivo reemplazado (mismo nombre) durante un rato: la versión cambia pero los
+    bytes pueden tardar en actualizarse en otros teléfonos.
+- **Limitación: moderación.** Las fotos no se revisan antes de publicarse y cualquier persona con sesión puede ver cualquier archivo del
+  bucket. Hoy no hay forma de ocultar una foto ofensiva desde la app. La respuesta del grupo es el script `0011` (reportes, bloqueos y
+  `avatar_hidden`, en preparación): el equipo revisará los reportes en el Table Editor y ocultará la foto desde el SQL Editor.
+
 ### Orden de aplicación
 
 1. **Antes:** `0001` a `0007` ya aplicadas. Comprobar que el proyecto no esté pausado (plan gratuito: pausa a los 7 días sin actividad).
@@ -408,7 +439,8 @@ máximo de 1.900 XP). El guion de escenarios se repitió **con el banco real** y
 3. **Correr las consultas de verificación** del final del archivo (a a i) y el **guion de escenarios** (más abajo) (**hecho**: ver "Resultado de la verificación").
 4. **Revisar el Security Advisor** y documentar las advertencias aceptadas (**hecho**: ver "Advertencias aceptadas del Security Advisor (Social)").
 5. **Aplicar `0009`** (banco de 72 preguntas, retos de ulti y curva de XP) **después** del `0008` (**hecho el 2026-10-21**, con sus consultas de conteo: 72 preguntas, 18 por letra, 12 retos, 20 niveles, máximo 1.900 XP). Antes de aplicarlo las tablas de contenido están vacías: una batalla no puede empezar (`bank_empty`) y todos son nivel 1.
-6. **Instalar la versión de la app** de las etapas de Social **después** de `0008` y `0009`: sin las tablas, Social falla al cargar y muestra el error con "Reintentar".
+6. **Aplicar `0010`** (fotos) **después** de `0009` (**hecho el 2026-10-22**, con sus consultas de verificación: permisos por columna y las 4 políticas de `social-avatars`). Sin `0010` la app sigue funcionando y muestra el emoji de siempre.
+7. **Instalar la versión de la app** de las etapas de Social **después** de `0008` y `0009`: sin las tablas, Social falla al cargar y muestra el error con "Reintentar".
 
 ### Cómo verificar
 
@@ -481,6 +513,12 @@ El detalle del diseño está en la Parte F y en el encabezado de `0008_social.sq
 | S4 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.battle_sync(uuid)` | Lee `battles` (cerrada, con ids de Auth) y `battle_questions` (sin ningún permiso para la app, con la respuesta correcta) | Devuelve la vista **personal** de la batalla: la pregunta sin su respuesta y solo el título del reto de ulti de quien llama. Solo los dos jugadores reciben algo; cualquier otra persona recibe `not_found` | Si cambia la vista que devuelve |
 | S5 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.battle_play(uuid, text, integer, text)` | Es la única vía de escritura de la batalla: compara la respuesta con `battle_questions` y el comando con `ulti_challenges`, tablas sin permiso para la app | El servidor decide aciertos, daños, turnos, plazos, escudo y XP con la hora de la base de datos. Solo opera sobre `auth.uid()` y sobre batallas donde esa persona participa | Si se agrega una acción nueva |
 | S6 | (Info) "RLS Enabled No Policy" | 11 tablas: `friendships`, `pair_streaks`, `battle_questions`, `ulti_challenges`, `matchmaking_queue`, `battle_challenges`, `battles`, `battle_active`, `battle_turns`, `battle_ultis`, `social_rate_limit` | No aplica (son tablas) | Intencional: RLS activo sin políticas y sin `GRANT` niega todo acceso directo desde la app; solo las leen las funciones de arriba. Es la misma configuración de `recovery_email_codes` (`0006`, fila 5 de la tabla anterior) | Solo si una tabla cambia de uso |
+| S7 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.social_set_avatar(boolean)` | Script `0010`. La app no puede escribir `avatar_key` ni `avatar_version` (sin permiso de columna): solo esta función las cambia | Identidad solo desde `auth.uid()`, sin parámetros de usuario más que "tengo / no tengo foto", 30 llamadas por hora, sin acceso para `public` ni `anon`. Repetir la llamada es inofensivo | Si cambia lo que escribe |
+
+Tras aplicar `0010` (2026-10-22): **10 advertencias y 0 errores** (las 4 de la primera tabla, S1 a S5 y S7; S6 es solo informativa). Las cuatro
+funciones que `0010` reemplaza (`social_friends`, `social_pairs`, `battle_lobby` y la interna `sx_battle_state`, que se muestra a través de
+`battle_sync` y `battle_play`) conservan su aceptación (S1 a S5). Nota: la tabla del final de `0010` dice «las 4 filas de 0008» y nombra cinco
+funciones; las filas aceptadas son cinco (S1 a S5).
 
 No hay advertencias de "Public Can Execute SECURITY DEFINER Function" ni de "Function Search Path Mutable" para Social: ninguna función se puede
 llamar sin sesión y todas declaran `set search_path = ''`. `social_new_code()` es `SECURITY INVOKER` y las 20 funciones internas `sx_*` no

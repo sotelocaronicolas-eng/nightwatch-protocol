@@ -148,7 +148,9 @@ Todo el servidor vive en `supabase/` y **se despliega a mano** desde el panel (n
    pruebas existentes deben seguir pasando; no las borres para "arreglar" un fallo.
 6. No toques lo que la tarea no pide ni módulos terminados, salvo lo mínimo para conectar el cambio.
 7. Ante secretos en cualquier archivo, **detente y avisa sin imprimirlos**.
-8. **Diagnóstico final siempre:** qué cambió, qué no pudiste verificar (nada se ve en un teléfono desde aquí), cuántas
+8. **Editar archivos solo con Write y Edit; nunca `sed`, `awk`, `echo`, `cat`, heredoc ni scripts** (con ellos ya se perdieron
+   comillas y se rompieron archivos). Leer, con Read, Grep y Glob.
+9. **Diagnóstico final siempre:** qué cambió, qué no pudiste verificar (nada se ve en un teléfono desde aquí), cuántas
    pruebas pasan, estado de compilación y confirmación de que no hubo push ni se tocó `main`.
 
 ## 8. Limitaciones aceptadas y pendientes
