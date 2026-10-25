@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -38,9 +38,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,6 +50,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.Lesson
+import com.example.nightwatchprotocol.data.learning.LessonCard
 import com.example.nightwatchprotocol.ui.components.NightWatchGold
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.home.PillColor
@@ -210,64 +213,164 @@ private fun LessonHeader(title: String, moduleNumber: Int, moduleTotal: Int, onC
     }
 }
 
+/**
+ * LECCION UPDATE (Figma 2621:252 to 2621:337): the icon circle and the lab button stay fixed; only the cards scroll, in
+ * the area between them (412 x 552 from y = 248 in the design). The scroll position is saved by [rememberScrollState],
+ * so it survives a rotation or a theme change.
+ */
 @Composable
 private fun LessonBody(lesson: Lesson, onGoToLab: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
-            .navigationBarsPadding(),
+        modifier = Modifier.fillMaxSize(),
     ) {
-        // The icon circle (2294:117): gold with a teal ring, 96 dp, 68 dp below the line.
+        // The icon circle (2621:255): gold with a teal ring, 96 dp, 42 dp below the header (y = 114 in the design).
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .padding(top = 68.dp)
+                .padding(top = 42.dp)
                 .size(96.dp)
                 .background(NightWatchGold, CircleShape)
                 .border(4.dp, IconRing, CircleShape),
         ) {
             Text(text = lesson.emoji, fontSize = 42.sp, color = Color.Black, modifier = Modifier.clearAndSetSemantics {})
         }
+        // The cards (2621:386): 38 dp below the circle, 14 dp of margin above the first card, 24 dp between cards.
         Column(
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-            modifier = Modifier.padding(top = 22.dp).fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(top = 38.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(start = 20.dp, top = 14.dp, end = 20.dp, bottom = 14.dp),
         ) {
             lesson.cards.forEach { card ->
-                LessonCardView(heading = "${card.emoji} ${card.title}", text = card.text)
+                LessonCardView(emoji = card.emoji, title = card.title, text = card.text)
             }
         }
-        GoToLabButton(onClick = onGoToLab, modifier = Modifier.padding(top = 20.dp, bottom = 24.dp))
+        GoToLabButton(
+            onClick = onGoToLab,
+            modifier = Modifier.padding(horizontal = 20.dp).padding(top = 12.dp, bottom = 24.dp).navigationBarsPadding(),
+        )
     }
 }
 
-/** A card of the lesson (2294:119): 372 wide, 128 tall in the design (taller if the text needs it), radius 16. */
+/**
+ * A card of the lesson (2621:257): 372 wide, radius 16, as tall as its text needs. The text has paragraphs separated by a
+ * blank line; a paragraph that starts with "• " is a bullet.
+ */
 @Composable
-private fun LessonCardView(heading: String, text: String) {
+private fun LessonCardView(emoji: String, title: String, text: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 128.dp)
             .background(PillColor, RoundedCornerShape(16.dp))
             .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 14.dp),
     ) {
         Text(
-            text = heading,
+            text = "$emoji $title",
             color = NightWatchOnBackground,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 16.sp,
+            modifier = Modifier.semantics {
+                heading()
+                contentDescription = title
+            },
         )
+        Column(verticalArrangement = Arrangement.spacedBy(LessonParagraphGap), modifier = Modifier.padding(top = 8.dp)) {
+            text.split(PARAGRAPH_SEPARATOR).forEach { paragraph ->
+                if (paragraph.startsWith(BULLET_PREFIX)) {
+                    LessonBullet(paragraph.removePrefix(BULLET_PREFIX))
+                } else {
+                    LessonParagraph(paragraph)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LessonParagraph(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        color = NightWatchOnBackground,
+        fontFamily = NightWatchBodyFontFamily,
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
+        modifier = modifier,
+    )
+}
+
+/** A bullet (2621:265): the dot hangs 19.5 dp from the edge, so a second line lines up with the first. */
+@Composable
+private fun LessonBullet(text: String) {
+    Row(modifier = Modifier.semantics(mergeDescendants = true) {}) {
         Text(
-            text = text,
+            text = "•",
             color = NightWatchOnBackground,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 13.sp,
             lineHeight = 18.sp,
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.width(19.5.dp).clearAndSetSemantics {},
         )
+        LessonParagraph(text, modifier = Modifier.weight(1f))
     }
+}
+
+/** Figma separates the paragraphs with an empty line of the card's text (13 sp, 1.38 of line height). */
+private val LessonParagraphGap = 18.dp
+private const val PARAGRAPH_SEPARATOR = "\n\n"
+private const val BULLET_PREFIX = "• "
+
+@Preview(showBackground = true, backgroundColor = 0xFF2C595D, widthDp = 412, heightDp = 892)
+@Composable
+private fun LessonScreenFirewallPreview() {
+    val lesson = Lesson(
+        topic = LearningTopic.FIREWALL,
+        title = "Fortaleza del Firewall",
+        islandName = "Fortaleza del Firewall",
+        emoji = "🧱",
+        cards = listOf(
+            LessonCard(
+                "🧭",
+                "¿Qué es?",
+                "Un firewall o cortafuegos es un sistema de seguridad que controla el tráfico de red según reglas establecidas.\n\n" +
+                    "Puede funcionar como un programa instalado en un equipo o como un dispositivo que protege una red.\n\n" +
+                    "Un puerto es un número que identifica un servicio de red. Por ejemplo, HTTPS utiliza normalmente el puerto 443.",
+            ),
+            LessonCard(
+                "⚠️",
+                "¿Por qué importa?",
+                "Sin un firewall correctamente configurado, servicios innecesarios podrían quedar expuestos a conexiones externas.\n\n" +
+                    "Un atacante puede buscar puertos abiertos para identificar servicios vulnerables.",
+            ),
+            LessonCard(
+                "🔍",
+                "Tipos y técnicas",
+                "Denegar por defecto: política que bloquea todo tráfico que no haya sido autorizado explícitamente.\n\n" +
+                    "DROP: descarta silenciosamente un paquete sin responder al origen.\n\n" +
+                    "REJECT: rechaza un paquete y comunica al origen que fue rechazado.",
+            ),
+            LessonCard(
+                "🛡️",
+                "¿Cómo protegerte?",
+                "• Mantén activado el firewall del sistema.\n\n" +
+                    "• Permite únicamente los puertos y servicios necesarios.\n\n" +
+                    "Por ejemplo, estos comandos de UFW permiten configurar reglas específicas:\n\n" +
+                    "• ufw allow 22/tcp: permite conexiones entrantes al puerto 22, normalmente utilizado por SSH.\n\n" +
+                    "• ufw deny from 198.51.100.9: bloquea el tráfico procedente de esa dirección IP.",
+            ),
+        ),
+        source = "vista previa",
+    )
+    LessonContent(
+        uiState = LessonUiState(moduleNumber = 6, moduleTotal = 6, status = LessonStatus.Ready(lesson)),
+        snackbarHostState = remember { SnackbarHostState() },
+        onClose = {},
+        onGoToLab = {},
+        onRetry = {},
+    )
 }
 
 /** "🧪 Ir al laboratorio →" (2294:128): light pill, 48 dp tall, full width. */
