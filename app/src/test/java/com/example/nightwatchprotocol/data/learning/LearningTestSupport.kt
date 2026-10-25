@@ -28,7 +28,7 @@ fun sampleLearningContent(): LearningContent = LearningContent(
             title = "Lección ${topic.name}",
             islandName = "Isla ${topic.name}",
             emoji = "📘",
-            cards = listOf(LessonCard("🧭", "¿Qué es?", "texto"), LessonCard("⚠️", "¿Por qué importa?", "texto"), LessonCard("🛡️", "¿Cómo protegerte?", "texto")),
+            cards = listOf(LessonCard("🧭", "¿Qué es?", "texto"), LessonCard("⚠️", "¿Por qué importa?", "texto"), LessonCard("🔍", "Tipos y técnicas", "texto"), LessonCard("🛡️", "¿Cómo protegerte?", "texto")),
             source = "prueba",
         )
     },

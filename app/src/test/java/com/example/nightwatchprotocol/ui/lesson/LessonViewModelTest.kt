@@ -32,13 +32,16 @@ class LessonViewModelTest {
     }
 
     @Test
-    fun showsTheLessonOfTheTopic_withItsThreeCards() = runTest {
+    fun showsTheLessonOfTheTopic_withItsFourCards() = runTest {
         val vm = viewModel(LearningTopic.MALWARE)
         advanceUntilIdle()
 
         val status = vm.uiState.value.status as LessonStatus.Ready
         assertEquals(LearningTopic.MALWARE, status.lesson.topic)
-        assertEquals(listOf("¿Qué es?", "¿Por qué importa?", "¿Cómo protegerte?"), status.lesson.cards.map { it.title })
+        assertEquals(
+            listOf("¿Qué es?", "¿Por qué importa?", "Tipos y técnicas", "¿Cómo protegerte?"),
+            status.lesson.cards.map { it.title },
+        )
     }
 
     @Test

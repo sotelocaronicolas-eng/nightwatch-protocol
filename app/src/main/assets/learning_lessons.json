@@ -5,11 +5,12 @@
     "islandName": "Isla de las Contraseñas",
     "emoji": "🔑",
     "cards": [
-      { "emoji": "🧭", "title": "¿Qué es?", "text": "Una contraseña segura es la primera barrera contra accesos no autorizados a tus cuentas." },
-      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Las contraseñas débiles o reutilizadas son la causa más común de robo de cuentas." },
-      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "Usa un gestor de contraseñas, activa la autenticación de dos factores (2FA) y nunca reutilices la misma contraseña en varios sitios." }
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "Las contraseñas son claves que protegen nuestras cuentas y dispositivos frente a accesos no autorizados.\n\nUna contraseña segura debe ser larga, difícil de adivinar y diferente para cada cuenta. Puede combinar letras, números y símbolos, aunque una frase larga y poco predecible también puede ser muy segura.\n\nLa autenticación de dos factores (2FA) añade una segunda verificación, como un código temporal o una llave de seguridad." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Las contraseñas débiles o reutilizadas facilitan el robo de cuentas.\n\nSi utilizas la misma contraseña en diferentes sitios y uno de ellos sufre una filtración, los atacantes pueden intentar acceder a tus demás cuentas utilizando esos mismos datos.\n\nIncluso una contraseña compleja puede ser vulnerable si aparece en una filtración o es obtenida mediante engaños." },
+      { "emoji": "🔍", "title": "Tipos y técnicas", "text": "Ataque de diccionario: consiste en probar contraseñas comunes o palabras conocidas hasta encontrar una coincidencia.\n\nPassword spraying: consiste en probar unas pocas contraseñas comunes contra muchas cuentas, intentando evitar bloqueos por intentos fallidos.\n\nHash con sal: método utilizado por sistemas seguros para almacenar contraseñas. La contraseña se transforma mediante un algoritmo de hash lento y una sal aleatoria, sin guardar su texto original.\n\nLlaves FIDO2: dispositivos físicos de autenticación que ofrecen protección contra el phishing al verificar el sitio donde se utilizan." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "• Utiliza contraseñas largas, únicas y difíciles de predecir.\n\n• Usa un gestor de contraseñas para almacenarlas de forma segura.\n\n• Activa la autenticación de dos factores (2FA).\n\n• Nunca compartas tus contraseñas, ni siquiera con alguien que diga ser de soporte técnico.\n\n• Si una contraseña aparece en una filtración, cámbiala en todas las cuentas donde la utilizaste.\n\n• Prefiere llaves FIDO2 o métodos resistentes al phishing cuando estén disponibles." }
     ],
-    "source": "Figma LECCION - Contraseñas y Autenticación (2294:112); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+    "source": "Figma LECCION UPDATE - Contraseñas y Autenticación (2621:252); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
   },
   {
     "topic": "PHISHING",
@@ -17,11 +18,12 @@
     "islandName": "Bahía del Phishing",
     "emoji": "🎣",
     "cards": [
-      { "emoji": "🧭", "title": "¿Qué es?", "text": "Intentos de engañarte para que reveles información sensible, haciéndose pasar por una fuente confiable." },
-      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Es el vector de ataque más usado porque no explota software — te explota a ti." },
-      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "Verifica el remitente real, pasa el cursor sobre los enlaces antes de hacer clic y nunca compartas contraseñas por correo." }
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "El phishing es una técnica de engaño en la que un atacante se hace pasar por una persona, empresa o institución confiable para obtener contraseñas, información personal o dinero.\n\nSuele presentarse mediante correos electrónicos, mensajes, páginas falsas o enlaces maliciosos.\n\nLos atacantes pueden copiar logotipos, nombres y diseños de empresas reales para hacer que sus mensajes parezcan legítimos." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "El phishing es uno de los métodos de ataque más utilizados porque aprovecha los errores humanos.\n\nUn solo enlace malicioso puede llevarte a una página falsa donde entregues tus credenciales.\n\nLos atacantes suelen crear situaciones de urgencia, como advertencias sobre cuentas bloqueadas, pagos pendientes o premios que están por vencer." },
+      { "emoji": "🔍", "title": "Tipos y técnicas", "text": "Spear phishing: ataque personalizado dirigido a una persona específica, utilizando información sobre ella para generar confianza.\n\nSmishing: phishing realizado mediante mensajes de texto (SMS).\n\nBEC (Business Email Compromise): fraude en el que alguien suplanta a un directivo, empleado o proveedor para solicitar transferencias de dinero o información.\n\nSuplantación de dominios: creación de direcciones parecidas a las originales. Por ejemplo, banco-ejemp1o.com utiliza el número 1 en lugar de la letra l.\n\nArchivos disfrazados: un archivo llamado factura.pdf.exe puede parecer un documento PDF, pero realmente es un programa ejecutable.\n\nSPF, DKIM y DMARC: mecanismos que ayudan a verificar la autenticidad de los correos electrónicos y dificultan la suplantación de dominios." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "• Comprueba la dirección real del remitente.\n\n• Revisa los enlaces antes de abrirlos; en el celular puedes mantenerlos presionados para ver su destino.\n\n• No abras archivos adjuntos sospechosos.\n\n• Desconfía de mensajes que exijan actuar inmediatamente.\n\n• Reporta o elimina correos sospechosos.\n\n• Utiliza un gestor de contraseñas: si no reconoce el dominio y no autocompleta tus datos, podría ser una señal de alerta.\n\n• Recuerda que HTTPS cifra la conexión, pero no garantiza que una página sea legítima." }
     ],
-    "source": "Figma LECCION - Phishing (2294:130); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+    "source": "Figma LECCION UPDATE - Phishing (2621:269); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
   },
   {
     "topic": "MALWARE",
@@ -29,11 +31,12 @@
     "islandName": "Arrecife del Malware",
     "emoji": "🦠",
     "cards": [
-      { "emoji": "🧭", "title": "¿Qué es?", "text": "Software diseñado para dañar, espiar o tomar control de un dispositivo sin permiso." },
-      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Un solo archivo infectado puede comprometer toda una red en minutos." },
-      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "No ejecutes archivos de fuentes desconocidas, mantén tu sistema actualizado y usa un antivirus activo." }
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "El malware es cualquier software diseñado para dañar, espiar, robar información o tomar el control de un dispositivo sin autorización.\n\nPuede llegar mediante archivos descargados, aplicaciones falsas, enlaces maliciosos o vulnerabilidades de seguridad.\n\nAlgunos programas maliciosos se ocultan dentro de aplicaciones aparentemente legítimas." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Una infección puede provocar pérdida de información, robo de contraseñas, bloqueo de archivos o acceso no autorizado a otros dispositivos de una red.\n\nAlgunos tipos de malware pueden propagarse rápidamente sin intervención del usuario.\n\nTambién pueden permitir que un atacante controle el dispositivo de forma remota." },
+      { "emoji": "🔍", "title": "Tipos y técnicas", "text": "Ransomware: cifra archivos y exige un pago para intentar recuperarlos.\n\nSpyware: programa espía que recopila información del usuario sin su consentimiento.\n\nTroyano: programa que aparenta ser legítimo, pero introduce funciones maliciosas.\n\nGusano (worm): malware capaz de propagarse automáticamente por una red.\n\nKeylogger: herramienta maliciosa que registra lo que escribes, incluyendo posibles contraseñas.\n\nBotnet: conjunto de dispositivos infectados controlados remotamente por un atacante.\n\nRootkit: malware diseñado para ocultar su presencia y mantener acceso privilegiado al sistema.\n\nSandbox: entorno aislado utilizado para ejecutar y observar archivos sospechosos, reduciendo el riesgo para el equipo principal." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "• Descarga aplicaciones desde fuentes oficiales y confiables.\n\n• Mantén actualizado el sistema operativo y los programas.\n\n• Utiliza un antivirus activo y actualizado.\n\n• Evita instalar programas pirateados o archivos de procedencia desconocida.\n\n• Realiza copias de seguridad periódicas, incluyendo copias desconectadas de la red.\n\n• Si sospechas de una infección, desconecta el equipo de la red y realiza un análisis de seguridad.\n\n• No ejecutes archivos sospechosos directamente en tu equipo." }
     ],
-    "source": "Figma LECCION - Malware (2294:148); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+    "source": "Figma LECCION UPDATE - Malware (2621:286); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
   },
   {
     "topic": "INGENIERIA_SOCIAL",
@@ -41,11 +44,12 @@
     "islandName": "Cueva del Engaño Social",
     "emoji": "🎭",
     "cards": [
-      { "emoji": "🧭", "title": "¿Qué es?", "text": "Manipulación psicológica para que una persona revele información o haga algo inseguro." },
-      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Ataca la confianza humana, el eslabón más difícil de \"parchar\" en cualquier sistema." },
-      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "Verifica la identidad por un canal alterno, desconfía de la urgencia y sigue el protocolo aunque \"parezca\" tu jefe." }
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "La ingeniería social consiste en manipular psicológicamente a las personas para obtener información, acceder a sistemas o conseguir que realicen acciones inseguras.\n\nA diferencia de otros ataques, no necesita explotar directamente una vulnerabilidad informática.\n\nLos atacantes pueden utilizar confianza, miedo, autoridad, curiosidad o urgencia para convencer a sus víctimas." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Incluso un sistema con buenas medidas de seguridad puede verse comprometido si una persona entrega información confidencial o permite un acceso indebido.\n\nLos atacantes pueden hacerse pasar por compañeros, familiares, técnicos o superiores.\n\nTambién pueden aprovechar información publicada en redes sociales para crear engaños más creíbles." },
+      { "emoji": "🔍", "title": "Tipos y técnicas", "text": "Pretexting: inventar una historia o identidad convincente para ganar confianza y obtener información.\n\nBaiting (cebo): ofrecer algo atractivo para provocar una acción insegura, como dejar memorias USB infectadas en lugares públicos.\n\nTailgating: ingresar a una zona restringida siguiendo de cerca a una persona autorizada.\n\nShoulder surfing: observar por encima del hombro para descubrir contraseñas o información mostrada en una pantalla.\n\nVishing: phishing realizado mediante llamadas telefónicas.\n\nQuishing: phishing que utiliza códigos QR maliciosos para dirigir a páginas fraudulentas.\n\nManipulación por urgencia: presionar a la víctima con plazos cortos para que actúe sin verificar." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "• Verifica solicitudes sospechosas utilizando otro canal de comunicación conocido.\n\n• Nunca entregues contraseñas a supuestos técnicos de soporte.\n\n• No conectes memorias USB desconocidas.\n\n• Evita mostrar información confidencial en lugares públicos.\n\n• Desconfía de órdenes urgentes o inusuales, incluso si parecen venir de un superior.\n\n• Evita publicar información que pueda utilizarse para responder preguntas de seguridad, como nombres de mascotas, colegios o ciudades de origen.\n\n• Respeta los protocolos de acceso físico a instalaciones restringidas." }
     ],
-    "source": "Figma LECCION - Ingeniería Social (2294:166); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+    "source": "Figma LECCION UPDATE - Ingeniería Social (2621:303); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
   },
   {
     "topic": "REDES_SEGURAS",
@@ -53,11 +57,12 @@
     "islandName": "Islas de Redes Seguras",
     "emoji": "📡",
     "cards": [
-      { "emoji": "🧭", "title": "¿Qué es?", "text": "Proteger la comunicación entre dispositivos de accesos no autorizados." },
-      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Una red Wi-Fi pública sin cifrar expone todo lo que envías y recibes." },
-      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "Usa VPN en redes públicas, cierra puertos que no uses y verifica el cifrado WPA3." }
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "La seguridad de redes consiste en proteger la comunicación entre dispositivos e impedir accesos no autorizados.\n\nUna red segura utiliza mecanismos de cifrado, autenticación y separación de dispositivos para reducir riesgos.\n\nPor ejemplo, WPA3 y WPA2 son protocolos de seguridad utilizados para proteger redes Wi-Fi.\n\nTambién existen tecnologías como las VPN, que crean túneles cifrados para transmitir información." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Las redes públicas o mal configuradas pueden facilitar la interceptación de información.\n\nEn una red Wi-Fi abierta, un atacante podría observar comunicaciones que no estén protegidas mediante cifrado.\n\nAdemás, si todos los dispositivos comparten una misma red sin separación, un equipo comprometido podría facilitar ataques contra otros." },
+      { "emoji": "🔍", "title": "Tipos y técnicas", "text": "Man-in-the-middle (MITM): ataque en el que un tercero se interpone entre dos dispositivos para observar o modificar sus comunicaciones.\n\nEvil twin: red Wi-Fi falsa que imita el nombre de una red legítima para engañar a los usuarios.\n\nDNS spoofing: falsificación de respuestas DNS para redirigir a una persona hacia una página fraudulenta.\n\nWPS: sistema que facilita la conexión al router, pero cuyo método de PIN presenta debilidades conocidas.\n\nSSH: protocolo que permite administrar equipos remotamente mediante comunicaciones cifradas, a diferencia de Telnet.\n\nEscaneo de puertos: análisis de los servicios accesibles en una red. Herramientas como Nmap permiten identificar puertos abiertos.\n\nRed de invitados: red separada que ayuda a impedir que dispositivos de visitantes accedan a los equipos principales." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "• Utiliza WPA3 o WPA2 con una contraseña robusta.\n\n• Cambia la contraseña de administración predeterminada del router.\n\n• Desactiva WPS cuando no sea necesario.\n\n• Utiliza una VPN confiable en redes públicas cuando necesites protección adicional.\n\n• Comprueba que las páginas sensibles utilicen HTTPS.\n\n• Configura una red de invitados separada.\n\n• Cierra puertos y servicios que no utilices.\n\n• Utiliza SSH en lugar de Telnet para administración remota.\n\n• Revisa periódicamente qué servicios están expuestos en tu propia red." }
     ],
-    "source": "Figma LECCION - Islas de Redes Seguras (2294:184); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72). SUPUESTO: el mapa muestra 🔒 (bloqueada) en vez del ícono de esta isla, así que se usa el de la lección"
+    "source": "Figma LECCION UPDATE - Islas de Redes Seguras (2621:320); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72). SUPUESTO: el mapa muestra 🔒 (bloqueada) en vez del ícono de esta isla, así que se usa el de la lección"
   },
   {
     "topic": "FIREWALL",
@@ -65,10 +70,11 @@
     "islandName": "Fortaleza del Firewall",
     "emoji": "🧱",
     "cards": [
-      { "emoji": "🧭", "title": "¿Qué es?", "text": "Una barrera que filtra el tráfico de red según reglas de seguridad definidas." },
-      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Bloquea conexiones no autorizadas antes de que lleguen a tus sistemas." },
-      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "Define reglas explícitas de entrada/salida: bloquea todo por defecto y permite solo lo necesario." }
+      { "emoji": "🧭", "title": "¿Qué es?", "text": "Un firewall o cortafuegos es un sistema de seguridad que controla el tráfico de red según reglas establecidas.\n\nPuede funcionar como un programa instalado en un equipo o como un dispositivo que protege una red.\n\nLos firewalls permiten autorizar o bloquear conexiones según características como direcciones IP, puertos y protocolos.\n\nUn puerto es un número que identifica un servicio de red. Por ejemplo, HTTPS utiliza normalmente el puerto 443." },
+      { "emoji": "⚠️", "title": "¿Por qué importa?", "text": "Sin un firewall correctamente configurado, servicios innecesarios podrían quedar expuestos a conexiones externas.\n\nUn atacante puede buscar puertos abiertos para identificar servicios vulnerables.\n\nEl firewall ayuda a reducir las oportunidades de acceso no autorizado, aunque no reemplaza otras medidas como actualizaciones, contraseñas seguras y antivirus." },
+      { "emoji": "🔍", "title": "Tipos y técnicas", "text": "Firewall con estado (stateful): supervisa el estado de las conexiones para distinguir tráfico perteneciente a comunicaciones existentes.\n\nDenegar por defecto: política que bloquea todo tráfico que no haya sido autorizado explícitamente.\n\nDMZ (zona desmilitarizada): segmento de red separado donde se ubican servicios expuestos a Internet, manteniéndolos aislados de la red interna.\n\nWAF (Web Application Firewall): firewall especializado que inspecciona tráfico HTTP para proteger aplicaciones web contra ataques como inyección SQL y XSS.\n\nDROP: descarta silenciosamente un paquete sin responder al origen.\n\nREJECT: rechaza un paquete y comunica al origen que fue rechazado.\n\nOrden de reglas: en muchos firewalls las reglas se evalúan secuencialmente y se aplica la primera que coincida." },
+      { "emoji": "🛡️", "title": "¿Cómo protegerte?", "text": "• Mantén activado el firewall del sistema.\n\n• Aplica una política de denegar por defecto cuando sea apropiada.\n\n• Permite únicamente los puertos y servicios necesarios.\n\n• No desactives el firewall porque un programa desconocido lo solicite.\n\n• Revisa periódicamente las reglas configuradas.\n\n• Separa los servicios públicos de los equipos internos mediante una DMZ cuando sea necesario.\n\n• Utiliza herramientas como UFW en Linux para administrar reglas de seguridad.\n\nPor ejemplo, estos comandos de UFW permiten configurar reglas específicas:\n\n• ufw allow 22/tcp: permite conexiones entrantes al puerto 22, normalmente utilizado por SSH.\n\n• ufw deny from 198.51.100.9: bloquea el tráfico procedente de esa dirección IP." }
     ],
-    "source": "Figma LECCION - Fortaleza del Firewall (2294:202); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72). SUPUESTO: el mapa muestra 🔒 (bloqueada) en vez del ícono de esta isla, así que se usa el de la lección"
+    "source": "Figma LECCION UPDATE - Fortaleza del Firewall (2621:337); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72). SUPUESTO: el mapa muestra 🔒 (bloqueada) en vez del ícono de esta isla, así que se usa el de la lección"
   }
 ]

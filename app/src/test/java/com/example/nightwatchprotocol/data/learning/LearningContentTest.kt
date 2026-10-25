@@ -34,11 +34,40 @@ class LearningContentTest {
     }
 
     @Test
-    fun lessons_areSix_oneCardTriplePerTopic_inOrder() {
+    fun lessons_areSix_fourCardsPerTopic_inOrder() {
+        // LECCION UPDATE (Figma 2621:252 to 2621:337): the lesson went from three cards to four ("Tipos y técnicas").
         assertEquals(figmaTopicsInOrder, content.lessons.map { it.topic })
         content.lessons.forEach { lesson ->
-            assertEquals(lesson.topic.name, listOf("¿Qué es?", "¿Por qué importa?", "¿Cómo protegerte?"), lesson.cards.map { it.title })
-            assertEquals(lesson.topic.name, listOf("🧭", "⚠️", "🛡️"), lesson.cards.map { it.emoji })
+            assertEquals(
+                lesson.topic.name,
+                listOf("¿Qué es?", "¿Por qué importa?", "Tipos y técnicas", "¿Cómo protegerte?"),
+                lesson.cards.map { it.title },
+            )
+            assertEquals(lesson.topic.name, listOf("🧭", "⚠️", "🔍", "🛡️"), lesson.cards.map { it.emoji })
+        }
+    }
+
+    @Test
+    fun lessonCards_haveParagraphsSeparatedByABlankLine_andNoEmptyParagraph() {
+        content.lessons.forEach { lesson ->
+            lesson.cards.forEach { card ->
+                val paragraphs = card.text.split("\n\n")
+                assertTrue("${lesson.topic.name} ${card.title}", paragraphs.size >= 2)
+                paragraphs.forEach { assertTrue("${lesson.topic.name} ${card.title}", it.isNotBlank() && it == it.trim()) }
+            }
+        }
+    }
+
+    @Test
+    fun protectionCards_areBulletLists_exceptTheFirewallIntroLine() {
+        content.lessons.forEach { lesson ->
+            val paragraphs = lesson.cards.last().text.split("\n\n")
+            val withoutBullet = paragraphs.filterNot { it.startsWith("• ") }
+            if (lesson.topic == LearningTopic.FIREWALL) {
+                assertEquals(listOf("Por ejemplo, estos comandos de UFW permiten configurar reglas específicas:"), withoutBullet)
+            } else {
+                assertTrue(lesson.topic.name, withoutBullet.isEmpty())
+            }
         }
     }
 
