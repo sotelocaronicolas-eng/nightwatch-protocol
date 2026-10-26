@@ -176,6 +176,8 @@ fun SocialCard(
     buttonText: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Replaces the emoji circle (the "Tu Perfil" card shows the photo of the person). */
+    icon: (@Composable () -> Unit)? = null,
 ) {
     Row(
         modifier = modifier
@@ -188,7 +190,7 @@ fun SocialCard(
             .semantics(mergeDescendants = true) {}
             .padding(14.dp),
     ) {
-        EmojiCircle(emoji)
+        if (icon != null) icon() else EmojiCircle(emoji)
         Column(modifier = Modifier.padding(start = 12.dp).weight(1f)) {
             Text(
                 text = title,

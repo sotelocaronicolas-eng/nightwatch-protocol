@@ -20,6 +20,9 @@ data class ProgressSummary(
     val badges: List<BadgeState>,
     /** Whether there is a practice day today (the zone of the read), for "Ya entrenó hoy" of the own social profile. */
     val trainedToday: Boolean = false,
+    /** The lessons seen and the labs completed ("Ejercicios" and "Labs superados" of the own social profile). */
+    val viewedLessonCount: Int = 0,
+    val completedLabCount: Int = 0,
 ) {
     val unlockedCount: Int get() = badges.count { it.unlocked }
     val totalCount: Int get() = badges.size
@@ -38,7 +41,13 @@ fun summarizeProgress(snapshot: LearningSnapshot, now: Instant, zone: ZoneId): P
         examPerfect = attempts.any { it.correctCount == EXAM_QUESTION_COUNT },
         bestStreak = streak.best,
     )
-    return ProgressSummary(streak, evaluateBadges(facts), trainedToday = moments.any { it.atZone(zone).toLocalDate() == today })
+    return ProgressSummary(
+        streak = streak,
+        badges = evaluateBadges(facts),
+        trainedToday = moments.any { it.atZone(zone).toLocalDate() == today },
+        viewedLessonCount = snapshot.viewedLessons.size,
+        completedLabCount = snapshot.completedLabs.size,
+    )
 }
 
 /**

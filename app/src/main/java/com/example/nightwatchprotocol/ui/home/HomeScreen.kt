@@ -88,6 +88,7 @@ fun HomeScreen(
     onOpenFriends: () -> Unit,
     onOpenPairStreaks: () -> Unit,
     onOpenBattles: () -> Unit,
+    onOpenMyProfile: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -124,6 +125,7 @@ fun HomeScreen(
         onOpenPairStreaks = onOpenPairStreaks,
         onOpenFriends = onOpenFriends,
         onOpenBattles = onOpenBattles,
+        onOpenMyProfile = onOpenMyProfile,
         onProfileClick = viewModel::onProfileClicked,
         onComingSoonCardClick = viewModel::onComingSoonCardClicked,
         onSignOut = viewModel::onSignOutClicked,
@@ -143,6 +145,7 @@ private fun HomeContent(
     onOpenPairStreaks: () -> Unit,
     onOpenFriends: () -> Unit,
     onOpenBattles: () -> Unit,
+    onOpenMyProfile: () -> Unit,
     onProfileClick: () -> Unit,
     onComingSoonCardClick: () -> Unit,
     onSignOut: () -> Unit,
@@ -185,6 +188,7 @@ private fun HomeContent(
                         onOpenPairStreaks = onOpenPairStreaks,
                         onOpenFriends = onOpenFriends,
                         onOpenBattles = onOpenBattles,
+                        onOpenMyProfile = onOpenMyProfile,
                     )
                 }
             }

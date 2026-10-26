@@ -54,6 +54,10 @@ data class SocialHomeUiState(
     val losses: Int? = null,
     val draws: Int = 0,
     val tilesError: SocialError? = null,
+    /** The combatant level and the photo of the person, for the "Tu Perfil" card. The level is null until read or when its read failed. */
+    val level: Int? = null,
+    val avatarKey: String? = null,
+    val avatarVersion: Int? = null,
 )
 
 /**
@@ -94,7 +98,10 @@ class SocialHomeViewModel(
                     if (profile.value == null) {
                         _uiState.update { it.copy(status = SocialHomeStatus.NeedsUsername) }
                     } else {
-                        _uiState.update { it.copy(status = SocialHomeStatus.Ready) }
+                        val me = profile.value
+                        _uiState.update {
+                            it.copy(status = SocialHomeStatus.Ready, avatarKey = me.avatarKey, avatarVersion = me.avatarVersion)
+                        }
                         syncPhotoOnce()
                         loadTiles()
                     }
@@ -123,6 +130,7 @@ class SocialHomeViewModel(
                 wins = (fighter as? SocialResult.Success)?.value?.wins ?: state.wins,
                 losses = (fighter as? SocialResult.Success)?.value?.losses ?: state.losses,
                 draws = (fighter as? SocialResult.Success)?.value?.draws ?: state.draws,
+                level = (fighter as? SocialResult.Success)?.value?.level ?: state.level,
                 tilesError = errors.firstOrNull(),
                 status = if (errors.contains(SocialError.NotEnabled)) SocialHomeStatus.NeedsUsername else state.status,
             )
