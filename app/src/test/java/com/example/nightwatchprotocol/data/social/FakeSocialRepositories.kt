@@ -20,6 +20,15 @@ class FakeSocialProfileRepository(var profile: SocialProfile? = null) : SocialPr
     var getCalls = 0
     var createCalls = 0
     var hideCalls = 0
+    var displayCalls = 0
+
+    override suspend fun updateDisplaySettings(settings: ProfileDisplaySettings): SocialResult<Unit> {
+        displayCalls++
+        failure?.let { return SocialResult.Failure(it) }
+        val current = profile ?: return SocialResult.Failure(SocialError.NotEnabled)
+        profile = current.copy(display = settings)
+        return ok(Unit)
+    }
 
     override suspend fun getMyProfile(): SocialResult<SocialProfile?> {
         getCalls++

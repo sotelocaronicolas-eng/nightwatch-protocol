@@ -18,6 +18,8 @@ sealed interface StreakState {
 data class ProgressSummary(
     val streak: Streak,
     val badges: List<BadgeState>,
+    /** Whether there is a practice day today (the zone of the read), for "Ya entrenó hoy" of the own social profile. */
+    val trainedToday: Boolean = false,
 ) {
     val unlockedCount: Int get() = badges.count { it.unlocked }
     val totalCount: Int get() = badges.size
@@ -25,7 +27,9 @@ data class ProgressSummary(
 
 /** Derives the streak and the badges from a snapshot. Pure: the clock and the zone come from the caller. */
 fun summarizeProgress(snapshot: LearningSnapshot, now: Instant, zone: ZoneId): ProgressSummary {
-    val streak = computeStreak(practiceMoments(snapshot), now, zone)
+    val moments = practiceMoments(snapshot)
+    val streak = computeStreak(moments, now, zone)
+    val today = now.atZone(zone).toLocalDate()
     val attempts = snapshot.examAttempts
     val facts = BadgeFacts(
         viewedLessons = snapshot.viewedLessons,
@@ -34,7 +38,7 @@ fun summarizeProgress(snapshot: LearningSnapshot, now: Instant, zone: ZoneId): P
         examPerfect = attempts.any { it.correctCount == EXAM_QUESTION_COUNT },
         bestStreak = streak.best,
     )
-    return ProgressSummary(streak, evaluateBadges(facts))
+    return ProgressSummary(streak, evaluateBadges(facts), trainedToday = moments.any { it.atZone(zone).toLocalDate() == today })
 }
 
 /**

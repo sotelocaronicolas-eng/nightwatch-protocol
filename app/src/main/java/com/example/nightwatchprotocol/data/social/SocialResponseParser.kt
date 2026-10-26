@@ -198,12 +198,33 @@ fun parseFriendProfile(response: JsonElement): SocialResult<FriendProfile> = par
                 fighterLevel = it.int("fighter_level"),
             )
         },
-        history = body.arr("history").objects().map {
+        // 0012 leaves the key out when the friend hides the history.
+        history = (body["history"] as? JsonArray)?.objects().orEmpty().map {
             FriendBattleEntry(it.str("result").word(OUTCOMES), instantOrNull(it.strOrNull("finished_at")))
         },
         avatarKey = body.photoKey(),
         avatarVersion = body.photoVersion(),
+        display = body.displaySettings(),
+        stats = body.statsOrNull(),
+        extrasAvailable = body.containsKey("profile_bg"),
     )
+}
+
+/** The choices of `0012`; a missing or unreadable value is the default (no background, everything visible). Never throws. */
+private fun JsonObject.displaySettings(): ProfileDisplaySettings = ProfileDisplaySettings(
+    profileBg = normalizeProfileBg((this["profile_bg"] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull),
+    showBadges = boolOrTrue("show_badges"),
+    showStats = boolOrTrue("show_stats"),
+    showHistory = boolOrTrue("show_history"),
+)
+
+private fun JsonObject.boolOrTrue(key: String): Boolean =
+    (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.booleanOrNull ?: true
+
+/** The totals of `0012`, or null when the key is absent (hidden or an older server) or unreadable: stats are never worth failing the profile. */
+private fun JsonObject.statsOrNull(): BattleStats? {
+    val stats = this["stats"] as? JsonObject ?: return null
+    return runCatching { BattleStats(stats.int("played"), stats.int("wins"), stats.int("losses"), stats.int("draws")) }.getOrNull()
 }
 
 // ---- pair streaks ----

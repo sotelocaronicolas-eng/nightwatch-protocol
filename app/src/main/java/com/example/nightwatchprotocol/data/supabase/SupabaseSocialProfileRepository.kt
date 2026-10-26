@@ -4,8 +4,10 @@ import com.example.nightwatchprotocol.data.social.BattleHistoryEntry
 import com.example.nightwatchprotocol.data.social.BattleOutcome
 import com.example.nightwatchprotocol.data.social.FighterRepository
 import com.example.nightwatchprotocol.data.social.FighterSummary
+import com.example.nightwatchprotocol.data.social.ProfileDisplaySettings
 import com.example.nightwatchprotocol.data.social.SocialError
 import com.example.nightwatchprotocol.data.social.SocialProfile
+import com.example.nightwatchprotocol.data.social.normalizeProfileBg
 import com.example.nightwatchprotocol.data.social.SocialProfileRepository
 import com.example.nightwatchprotocol.data.social.SocialRejection
 import com.example.nightwatchprotocol.data.social.SocialResult
@@ -13,6 +15,7 @@ import com.example.nightwatchprotocol.data.social.flatMap
 import com.example.nightwatchprotocol.data.social.isValidAvatarKey
 import com.example.nightwatchprotocol.data.social.isValidUsername
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.postgrest.exception.PostgrestRestException
 import io.github.jan.supabase.postgrest.query.Order
 import java.time.OffsetDateTime
 import kotlinx.coroutines.async
@@ -35,6 +38,15 @@ data class SocialProfileInsert(@SerialName("user_id") val userId: String, val us
 @Serializable
 data class HideProgressUpdate(@SerialName("hide_progress") val hideProgress: Boolean)
 
+/** The four columns of `0012_perfil_social.sql` the client may update, always sent together (no default values, as above). */
+@Serializable
+data class ProfileDisplayUpdate(
+    @SerialName("profile_bg") val profileBg: Int,
+    @SerialName("show_badges") val showBadges: Boolean,
+    @SerialName("show_stats") val showStats: Boolean,
+    @SerialName("show_history") val showHistory: Boolean,
+)
+
 @Serializable
 data class SocialProfileRow(
     @SerialName("user_id") val userId: String? = null,
@@ -44,6 +56,11 @@ data class SocialProfileRow(
     // Default values: the columns exist only once `0010_fotos_social.sql` is applied, and the row is only ever read.
     @SerialName("avatar_key") val avatarKey: String? = null,
     @SerialName("avatar_version") val avatarVersion: Int? = null,
+    // The same for the columns of `0012_perfil_social.sql`: a server without it sends none and the defaults apply.
+    @SerialName("profile_bg") val profileBg: Int = 0,
+    @SerialName("show_badges") val showBadges: Boolean = true,
+    @SerialName("show_stats") val showStats: Boolean = true,
+    @SerialName("show_history") val showHistory: Boolean = true,
 )
 
 @Serializable
@@ -60,8 +77,21 @@ data class BattleResultRow(
 @Serializable
 data class LevelCurveRow(val level: Int, @SerialName("min_xp") val minXp: Int)
 
-fun SocialProfileRow.toDomain(): SocialProfile =
-    SocialProfile(username, friendCode, hideProgress, avatarKey?.takeIf(::isValidAvatarKey), avatarVersion?.takeIf { it >= 1 })
+fun SocialProfileRow.toDomain(): SocialProfile = SocialProfile(
+    username,
+    friendCode,
+    hideProgress,
+    avatarKey?.takeIf(::isValidAvatarKey),
+    avatarVersion?.takeIf { it >= 1 },
+    ProfileDisplaySettings(normalizeProfileBg(profileBg), showBadges, showStats, showHistory),
+)
+
+/** PostgREST answers these when a column does not exist yet (`42703` from Postgres, `PGRST204` from the schema cache). */
+private val MISSING_COLUMN_CODES = setOf("42703", "PGRST204")
+
+/** A server without `0012` has no such columns: that is "función no disponible", not a bug of the app. */
+fun classifyDisplayFailure(error: Throwable): SocialError =
+    if (error is PostgrestRestException && error.code in MISSING_COLUMN_CODES) SocialError.Unavailable else classifySocialFailure(error)
 
 /** Own Social profile (table `social_profile`). The row is the session's: it is filtered by the session id, never by a screen's. */
 class SupabaseSocialProfileRepository(
@@ -95,6 +125,15 @@ class SupabaseSocialProfileRepository(
         val userId = currentUserId() ?: return SocialResult.Failure(SocialError.NoSession)
         return socialCall {
             postgrest.from(PROFILE).update(HideProgressUpdate(hide)) { filter { eq("user_id", userId) } }
+            Unit
+        }
+    }
+
+    override suspend fun updateDisplaySettings(settings: ProfileDisplaySettings): SocialResult<Unit> {
+        val userId = currentUserId() ?: return SocialResult.Failure(SocialError.NoSession)
+        val update = ProfileDisplayUpdate(normalizeProfileBg(settings.profileBg), settings.showBadges, settings.showStats, settings.showHistory)
+        return socialCall(classify = ::classifyDisplayFailure) {
+            postgrest.from(PROFILE).update(update) { filter { eq("user_id", userId) } }
             Unit
         }
     }

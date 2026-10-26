@@ -19,6 +19,26 @@ import java.time.LocalDate
  * (`0010_fotos_social.sql` not applied yet): the screens then show the emoji. See [SocialAvatarRepository].
  */
 
+/*
+ * How a person shows their Social profile (`0012_perfil_social.sql`): the background picture and which sections stay visible.
+ * The server keeps only a number for the background (0 = none, 1 to 5 = the pictures `profile_bg_1` to `profile_bg_5`) and one
+ * boolean per section; a number the app does not know is "no background".
+ */
+
+/** How many background pictures the app has. */
+const val PROFILE_BG_COUNT = 5
+
+/** [value] if it is a background the app has (0 to [PROFILE_BG_COUNT]), otherwise 0 ("sin fondo"). */
+fun normalizeProfileBg(value: Int?): Int = if (value != null && value in 0..PROFILE_BG_COUNT) value else 0
+
+/** The four choices of "Editar tu perfil". Badges, stats and history are the sections that can be hidden (the eyes). */
+data class ProfileDisplaySettings(
+    val profileBg: Int = 0,
+    val showBadges: Boolean = true,
+    val showStats: Boolean = true,
+    val showHistory: Boolean = true,
+)
+
 /** The signed-in person's Social profile. There is none until they create a username. */
 data class SocialProfile(
     val username: String,
@@ -26,7 +46,16 @@ data class SocialProfile(
     val hideProgress: Boolean,
     val avatarKey: String? = null,
     val avatarVersion: Int? = null,
+    val display: ProfileDisplaySettings = ProfileDisplaySettings(),
 )
+
+/**
+ * The totals of a person's finished battles against anyone. [winratePercent] is wins over played rounded to a whole number, or
+ * null when nothing was played (the screen shows "-"; there is no division by zero).
+ */
+data class BattleStats(val played: Int, val wins: Int, val losses: Int, val draws: Int) {
+    val winratePercent: Int? get() = if (played <= 0) null else Math.round(wins * 100.0 / played).toInt()
+}
 
 /** One finished battle of the signed-in person (a row of `battle_results`). */
 data class BattleHistoryEntry(
@@ -52,7 +81,10 @@ data class FighterSummary(
     val draws: Int,
     val battleStreak: Int,
     val history: List<BattleHistoryEntry>,
-)
+) {
+    /** The totals of the profile ("Estadísticas"): every finished battle of the person, whoever the rival was. */
+    fun toBattleStats(): BattleStats = BattleStats(wins + losses + draws, wins, losses, draws)
+}
 
 enum class BattleOutcome { Win, Loss, Draw }
 
@@ -113,7 +145,12 @@ data class FriendProgress(
 /** A battle between the signed-in person and this friend, seen from the signed-in person. */
 data class FriendBattleEntry(val outcome: BattleOutcome, val finishedAt: Instant?)
 
-/** [progress] is null when the friend hides it ([hidden], decision D11); streak, history and username stay visible. */
+/**
+ * [progress] is null when the friend hides it ([hidden], decision D11) or closed the eye of the badges ([display]); streak and
+ * username stay visible. With `0012_perfil_social.sql` the server also sends the [display] choices and omits what the friend
+ * hid: [stats] is null when the stats are hidden and [history] is empty when the history is. [extrasAvailable] is false when the
+ * server answered without them (the script is not applied yet): the screen then says the feature is not available for now.
+ */
 data class FriendProfile(
     val username: String,
     val friendCode: String,
@@ -124,6 +161,9 @@ data class FriendProfile(
     val history: List<FriendBattleEntry>,
     val avatarKey: String? = null,
     val avatarVersion: Int? = null,
+    val display: ProfileDisplaySettings = ProfileDisplaySettings(),
+    val stats: BattleStats? = null,
+    val extrasAvailable: Boolean = true,
 )
 
 // ---- pair streaks (social_pairs) ----
