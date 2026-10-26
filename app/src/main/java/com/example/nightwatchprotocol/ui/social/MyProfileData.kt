@@ -40,7 +40,6 @@ data class MyProfileData(
  * "Ocultar mi progreso público" (Privacidad) is for what OTHER people see and does not change the own profile: only the eyes do.
  */
 internal fun MyProfileData.toProfileContent(display: ProfileDisplaySettings = this.display, forEditor: Boolean = false): ProfileContent {
-    val badgesShown = forEditor || display.showBadges
     return ProfileContent(
         username = username,
         isOwn = true,
@@ -48,10 +47,11 @@ internal fun MyProfileData.toProfileContent(display: ProfileDisplaySettings = th
         avatarVersion = avatarVersion,
         streakDays = streakDays,
         trainedToday = trainedToday,
-        fighterLevel = fighterLevel.takeIf { badgesShown },
-        exercises = exercises.takeIf { badgesShown },
-        labs = labs.takeIf { badgesShown },
-        badges = badges.takeIf { badgesShown },
+        // The eye of the badges only takes the badges out: the level and the counters are always there.
+        fighterLevel = fighterLevel,
+        exercises = exercises,
+        labs = labs,
+        badges = badges.takeIf { forEditor || display.showBadges },
         stats = stats.takeIf { forEditor || display.showStats },
         history = history.takeIf { forEditor || display.showHistory },
     )

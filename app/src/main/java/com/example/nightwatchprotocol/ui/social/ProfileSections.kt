@@ -152,7 +152,8 @@ enum class ProfileSection { Badges, Stats, History }
 
 /**
  * Everything one profile draws. A section that is null is not drawn at all (the server did not send it, or the person hid it).
- * [fighterLevel], [exercises] and [labs] belong to the progress block: they go away together with the badges.
+ * [fighterLevel], [exercises] and [labs] belong to the progress block, which only "Ocultar mi progreso público" hides; the eye of the
+ * badges only takes [badges] out.
  */
 data class ProfileContent(
     val username: String,
@@ -202,13 +203,12 @@ fun ProfileSections(
         content.hiddenNotice?.let {
             SocialBodyText(it, alpha = 1f, modifier = Modifier.padding(top = 12.dp).align(Alignment.CenterHorizontally))
         }
-        val dimProgress = eyes != null && !eyes.badgesVisible
         if (content.exercises != null && content.labs != null) {
-            ProfileCounters(content.exercises, content.labs, modifier = Modifier.padding(top = 12.dp).alpha(if (dimProgress) DimmedAlpha else 1f))
+            ProfileCounters(content.exercises, content.labs, modifier = Modifier.padding(top = 12.dp))
         }
         content.badges?.let { badges ->
             ProfileSectionTitle(stringResource(R.string.social_profile_badges), ProfileSection.Badges, eyes)
-            ProfileBadges(badges, modifier = Modifier.alpha(if (dimProgress) DimmedAlpha else 1f))
+            ProfileBadges(badges, modifier = Modifier.alpha(if (eyes != null && !eyes.badgesVisible) DimmedAlpha else 1f))
         }
         content.stats?.let { stats ->
             ProfileSectionTitle(stringResource(R.string.social_profile_stats), ProfileSection.Stats, eyes)

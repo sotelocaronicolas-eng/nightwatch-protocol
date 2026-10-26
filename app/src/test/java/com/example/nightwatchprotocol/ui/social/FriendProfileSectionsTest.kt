@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.social
 
 import androidx.lifecycle.SavedStateHandle
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.data.learning.BadgeFacts
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.social.BattleOutcome
 import com.example.nightwatchprotocol.data.social.BattleStats
@@ -45,14 +46,14 @@ class FriendProfileSectionsTest {
         clock,
     )
 
-    private val progress = FriendProgress(
+    private val facts = BadgeFacts(
         viewedLessons = setOf(LearningTopic.CONTRASENAS),
         completedLabs = setOf(LearningTopic.CONTRASENAS),
         examPassed = false,
         examPerfect = false,
         bestStreak = 2,
-        fighterLevel = 4,
     )
+    private val progress = FriendProgress(fighterLevel = 4, viewedCount = 1, labsCount = 1, badgeFacts = facts)
 
     private fun battles(count: Int) = List(count) { FriendBattleEntry(BattleOutcome.Win, Instant.parse("2026-10-19T10:00:00Z")) }
 
@@ -71,7 +72,8 @@ class FriendProfileSectionsTest {
             streakDays = 2,
             trainedToday = true,
             hidden = hidden,
-            progress = progress.takeUnless { hidden || !display.showBadges },
+            // What the server sends: nothing when hidden; the counters always; the badge facts only with the eye open.
+            progress = progress?.takeUnless { hidden }?.let { if (display.showBadges) it else it.copy(badgeFacts = null) },
             history = history,
             display = display,
             stats = stats.takeIf { display.showStats },
@@ -155,8 +157,49 @@ class FriendProfileSectionsTest {
     }
 
     @Test
-    fun theClosedEyeOfTheBadges_leavesOutTheBadgesAndTheProgressBlock() = runTest {
+    fun theClosedEyeOfTheBadges_leavesOutOnlyTheBadges_andKeepsTheLevelAndTheCounters() = runTest {
         addFriend(display = ProfileDisplaySettings(showBadges = false))
+
+        val content = loaded().toProfileContent("oculta")
+
+        assertNull(content.badges)
+        assertEquals(4, content.fighterLevel)
+        assertEquals(1, content.exercises)
+        assertEquals(1, content.labs)
+        assertNull(content.hiddenNotice)
+        assertNotNull(content.stats)
+        assertNotNull(content.history)
+    }
+
+    @Test
+    fun theBadgesAreNotShown_whenTheFactsDoNotCome_evenWithTheEyeOpen() = runTest {
+        addFriend(progress = progress.copy(badgeFacts = null))
+
+        val state = loaded()
+        val content = state.toProfileContent("oculta")
+
+        assertTrue(state.showBadges)
+        assertNull(state.unlockedBadges)
+        assertNull(content.badges)
+        assertEquals(4, content.fighterLevel)
+        assertEquals(1, content.exercises)
+    }
+
+    @Test
+    fun anOlderServerWithoutCounters_hidesTheCountersButKeepsTheLevel() = runTest {
+        addFriend(progress = progress.copy(viewedCount = null, labsCount = null, badgeFacts = null))
+
+        val content = loaded().toProfileContent("oculta")
+
+        assertEquals(4, content.fighterLevel)
+        assertNull(content.exercises)
+        assertNull(content.labs)
+        assertNull(content.badges)
+    }
+
+    @Test
+    fun hidingTheProgress_hidesEverythingOfIt_evenWithTheBadgesEyeOpen_butNotTheStatsOrTheHistory() = runTest {
+        addFriend(hidden = true, display = ProfileDisplaySettings(showBadges = true))
 
         val content = loaded().toProfileContent("oculta")
 
@@ -164,19 +207,6 @@ class FriendProfileSectionsTest {
         assertNull(content.fighterLevel)
         assertNull(content.exercises)
         assertNull(content.labs)
-        assertNull(content.hiddenNotice)
-        assertNotNull(content.stats)
-        assertNotNull(content.history)
-    }
-
-    @Test
-    fun hidingTheProgress_stillRulesOverTheBadges_butNotOverTheStatsOrTheHistory() = runTest {
-        addFriend(hidden = true)
-
-        val content = loaded().toProfileContent("oculta")
-
-        assertNull(content.badges)
-        assertNull(content.fighterLevel)
         assertEquals("oculta", content.hiddenNotice)
         assertNotNull(content.stats)
         assertEquals(3, content.history!!.size)

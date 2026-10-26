@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.data.social
 
+import com.example.nightwatchprotocol.data.learning.BadgeFacts
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import java.time.Instant
 import java.time.LocalDate
@@ -181,6 +182,29 @@ fun parseFriendSearch(response: JsonElement): SocialResult<FriendSearchHit> = pa
 /** Topics this version does not know (a newer server) are dropped, like in the progress of the learning path. */
 private fun JsonArray.topics(): Set<LearningTopic> = strings().mapNotNull { LearningTopic.fromName(it) }.toSet()
 
+private val BADGE_FACT_KEYS = listOf("viewed_lessons", "completed_labs", "exam_passed", "exam_perfect", "best_streak")
+
+/**
+ * `0012`: the level and the two counters always come when the friend shares the progress; the badge facts only when the eye of the
+ * badges is open (otherwise the keys are absent and [FriendProgress.badgeFacts] is null). An older server sends no counters: the size
+ * of the lists stands in for them, and without lists the counter is null (the screen hides it).
+ */
+private fun JsonObject.friendProgress(): FriendProgress {
+    val facts = if (BADGE_FACT_KEYS.all { containsKey(it) }) {
+        BadgeFacts(arr("viewed_lessons").topics(), arr("completed_labs").topics(), bool("exam_passed"), bool("exam_perfect"), int("best_streak"))
+    } else {
+        null
+    }
+    return FriendProgress(
+        fighterLevel = int("fighter_level"),
+        viewedCount = intOrNullKey("viewed_count") ?: facts?.viewedLessons?.size,
+        labsCount = intOrNullKey("labs_count") ?: facts?.completedLabs?.size,
+        badgeFacts = facts,
+    )
+}
+
+private fun JsonObject.intOrNullKey(key: String): Int? = (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull
+
 fun parseFriendProfile(response: JsonElement): SocialResult<FriendProfile> = parseResponse(response) { body ->
     FriendProfile(
         username = body.str("username"),
@@ -188,16 +212,7 @@ fun parseFriendProfile(response: JsonElement): SocialResult<FriendProfile> = par
         streakDays = body.int("streak"),
         trainedToday = body.bool("trained_today"),
         hidden = body.bool("hidden"),
-        progress = body.objOrNull("progress")?.let {
-            FriendProgress(
-                viewedLessons = it.arr("viewed_lessons").topics(),
-                completedLabs = it.arr("completed_labs").topics(),
-                examPassed = it.bool("exam_passed"),
-                examPerfect = it.bool("exam_perfect"),
-                bestStreak = it.int("best_streak"),
-                fighterLevel = it.int("fighter_level"),
-            )
-        },
+        progress = body.objOrNull("progress")?.friendProgress(),
         // 0012 leaves the key out when the friend hides the history.
         history = (body["history"] as? JsonArray)?.objects().orEmpty().map {
             FriendBattleEntry(it.str("result").word(OUTCOMES), instantOrNull(it.strOrNull("finished_at")))

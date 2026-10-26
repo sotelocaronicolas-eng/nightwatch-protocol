@@ -130,24 +130,24 @@ data class FriendSearchHit(
     val avatarVersion: Int? = null,
 )
 
-/** The fields of [BadgeFacts] plus the combatant level: the app evaluates the 9 badges with them (no badge rules in SQL). */
+/**
+ * What a friend shares of their progress: the combatant level and the two counters ([viewedCount], [labsCount]; null when an older
+ * server sent neither them nor the lists), and, only when the eye of the badges is open, the [badgeFacts] with which the app
+ * evaluates the 9 badges (no badge rules in SQL).
+ */
 data class FriendProgress(
-    val viewedLessons: Set<LearningTopic>,
-    val completedLabs: Set<LearningTopic>,
-    val examPassed: Boolean,
-    val examPerfect: Boolean,
-    val bestStreak: Int,
     val fighterLevel: Int,
-) {
-    fun toBadgeFacts(): BadgeFacts = BadgeFacts(viewedLessons, completedLabs, examPassed, examPerfect, bestStreak)
-}
+    val viewedCount: Int?,
+    val labsCount: Int?,
+    val badgeFacts: BadgeFacts? = null,
+)
 
 /** A battle between the signed-in person and this friend, seen from the signed-in person. */
 data class FriendBattleEntry(val outcome: BattleOutcome, val finishedAt: Instant?)
 
 /**
- * [progress] is null when the friend hides it ([hidden], decision D11) or closed the eye of the badges ([display]); streak and
- * username stay visible. With `0012_perfil_social.sql` the server also sends the [display] choices and omits what the friend
+ * [progress] is null when the friend hides it ([hidden], decision D11); the eye of the badges only takes the badge facts out of it
+ * ([FriendProgress.badgeFacts]); streak and username stay visible. With `0012_perfil_social.sql` the server also sends the [display] choices and omits what the friend
  * hid: [stats] is null when the stats are hidden and [history] is empty when the history is. [extrasAvailable] is false when the
  * server answered without them (the script is not applied yet): the screen then says the feature is not available for now.
  */

@@ -142,9 +142,10 @@ class MyProfileTest {
 
         val noBadges = data.toProfileContent(ProfileDisplaySettings(showBadges = false))
         assertNull(noBadges.badges)
-        assertNull(noBadges.exercises)
-        assertNull(noBadges.labs)
-        assertNull(noBadges.fighterLevel)
+        // The eye of the badges only takes the badges out: the level and the counters stay.
+        assertEquals(47, noBadges.exercises)
+        assertEquals(5, noBadges.labs)
+        assertEquals(2, noBadges.fighterLevel)
         assertNotNull(noBadges.stats)
     }
 

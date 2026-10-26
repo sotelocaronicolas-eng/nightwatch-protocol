@@ -128,11 +128,12 @@ class SocialResponseParserTest {
 
         assertFalse(profile.hidden)
         val progress = profile.progress!!
-        assertEquals(setOf(LearningTopic.CONTRASENAS, LearningTopic.PHISHING), progress.viewedLessons)
-        assertEquals(setOf(LearningTopic.CONTRASENAS), progress.completedLabs)
-        assertTrue(progress.examPassed)
-        assertFalse(progress.examPerfect)
-        assertEquals(4, progress.bestStreak)
+        val facts = progress.badgeFacts!!
+        assertEquals(setOf(LearningTopic.CONTRASENAS, LearningTopic.PHISHING), facts.viewedLessons)
+        assertEquals(setOf(LearningTopic.CONTRASENAS), facts.completedLabs)
+        assertTrue(facts.examPassed)
+        assertFalse(facts.examPerfect)
+        assertEquals(4, facts.bestStreak)
         assertEquals(3, progress.fighterLevel)
         assertEquals(2, profile.streakDays)
         assertEquals(BattleOutcome.Win, profile.history[0].outcome)
@@ -144,13 +145,52 @@ class SocialResponseParserTest {
 
     @Test
     fun friendProgress_feedsTheBadges_withoutDuplicatingTheRules() {
-        val facts = parseFriendProfile(json(FRIEND_PROFILE_VISIBLE)).value().progress!!.toBadgeFacts()
+        val facts = parseFriendProfile(json(FRIEND_PROFILE_VISIBLE)).value().progress!!.badgeFacts!!
 
         assertEquals(setOf(LearningTopic.CONTRASENAS, LearningTopic.PHISHING), facts.viewedLessons)
         assertTrue(facts.islandCompleted(LearningTopic.CONTRASENAS))
         assertFalse(facts.islandCompleted(LearningTopic.PHISHING))
         assertEquals(4, facts.bestStreak)
         assertTrue(facts.examPassed)
+    }
+
+    @Test
+    fun friendProgress_withTheCountersAndTheFacts_usesTheCountersNotTheLists() {
+        val progress = parseFriendProfile(json(FRIEND_PROFILE_COUNTERS_AND_FACTS)).value().progress!!
+
+        assertEquals(5, progress.viewedCount)
+        assertEquals(4, progress.labsCount)
+        assertEquals(2, progress.badgeFacts!!.viewedLessons.size)
+        assertEquals(3, progress.fighterLevel)
+    }
+
+    @Test
+    fun friendProgress_withTheBadgesEyeClosed_hasTheLevelAndTheCounters_butNoFacts() {
+        val progress = parseFriendProfile(json(FRIEND_PROFILE_COUNTERS_ONLY)).value().progress!!
+
+        assertEquals(3, progress.fighterLevel)
+        assertEquals(5, progress.viewedCount)
+        assertEquals(4, progress.labsCount)
+        assertNull(progress.badgeFacts)
+    }
+
+    @Test
+    fun friendProgress_ofAnOlderServerWithLists_countsTheLists() {
+        val progress = parseFriendProfile(json(FRIEND_PROFILE_VISIBLE)).value().progress!!
+
+        // TEMA_NUEVO is dropped, so two lessons and one lab.
+        assertEquals(2, progress.viewedCount)
+        assertEquals(1, progress.labsCount)
+    }
+
+    @Test
+    fun friendProgress_withoutCountersNorLists_hasNullCounters_andStillTheLevel() {
+        val progress = parseFriendProfile(json(FRIEND_PROFILE_LEVEL_ONLY)).value().progress!!
+
+        assertEquals(3, progress.fighterLevel)
+        assertNull(progress.viewedCount)
+        assertNull(progress.labsCount)
+        assertNull(progress.badgeFacts)
     }
 
     @Test

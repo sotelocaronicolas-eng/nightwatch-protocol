@@ -3,6 +3,7 @@ package com.example.nightwatchprotocol.ui.social
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.data.learning.BadgeFacts
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.social.BattleOutcome
 import com.example.nightwatchprotocol.data.social.FakeBattleLobbyRepository
@@ -366,12 +367,16 @@ class FriendsViewModelsTest {
                 null
             } else {
                 FriendProgress(
-                    viewedLessons = setOf(LearningTopic.CONTRASENAS, LearningTopic.PHISHING),
-                    completedLabs = setOf(LearningTopic.CONTRASENAS),
-                    examPassed = false,
-                    examPerfect = false,
-                    bestStreak = 12,
                     fighterLevel = 3,
+                    viewedCount = 2,
+                    labsCount = 1,
+                    badgeFacts = BadgeFacts(
+                        viewedLessons = setOf(LearningTopic.CONTRASENAS, LearningTopic.PHISHING),
+                        completedLabs = setOf(LearningTopic.CONTRASENAS),
+                        examPassed = false,
+                        examPerfect = false,
+                        bestStreak = 12,
+                    ),
                 )
             },
             history = listOf(
@@ -399,7 +404,7 @@ class FriendsViewModelsTest {
         // "Primeros pasos" (a lesson seen), "Racha de 7 días" (best streak 12) and "Maestro de Contraseñas" (island done).
         assertEquals(
             listOf("Primeros pasos", "Racha de 7 días", "Maestro de Contraseñas"),
-            state.unlockedBadges.map { it.definition.name },
+            state.unlockedBadges!!.map { it.definition.name },
         )
         assertFalse(state.hidden)
     }
@@ -435,7 +440,7 @@ class FriendsViewModelsTest {
         assertNull(state.fighterLevel)
         assertNull(state.exercises)
         assertNull(state.labs)
-        assertTrue(state.unlockedBadges.isEmpty())
+        assertNull(state.unlockedBadges)
         assertEquals(12, state.streakDays)
         assertEquals(3, state.history.size)
     }

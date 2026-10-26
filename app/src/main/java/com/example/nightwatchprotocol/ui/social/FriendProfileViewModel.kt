@@ -48,7 +48,8 @@ data class FriendProfileUiState(
     val fighterLevel: Int? = null,
     val exercises: Int? = null,
     val labs: Int? = null,
-    val unlockedBadges: List<BadgeState> = emptyList(),
+    /** The unlocked badges; null when the badges are not shown (the friend closed their eye, hides the progress or the server sent no facts). */
+    val unlockedBadges: List<BadgeState>? = null,
     val history: List<FriendBattleRow> = emptyList(),
     /** What the friend chose for their profile (`0012`): the background and the three eyes. The defaults are "sin fondo" and all open. */
     val profileBg: Int = 0,
@@ -83,7 +84,8 @@ sealed interface FriendProfileEvent {
  * below move up. The history is the last [PROFILE_HISTORY_LIMIT] battles between the two, the rival being the friend.
  */
 internal fun FriendProfileUiState.toProfileContent(hiddenNotice: String?): ProfileContent {
-    val progressShown = !hidden && showBadges && exercises != null && labs != null
+    // The eye of the badges only takes the badges out: the level and the counters follow the progress ([hidden]) alone.
+    val progressShown = !hidden
     return ProfileContent(
         username = username,
         isOwn = false,
@@ -94,7 +96,7 @@ internal fun FriendProfileUiState.toProfileContent(hiddenNotice: String?): Profi
         fighterLevel = fighterLevel.takeIf { progressShown },
         exercises = exercises.takeIf { progressShown },
         labs = labs.takeIf { progressShown },
-        badges = unlockedBadges.takeIf { progressShown },
+        badges = unlockedBadges.takeIf { progressShown && showBadges },
         stats = stats.takeIf { showStats },
         history = history.takeIf { showHistory }?.take(PROFILE_HISTORY_LIMIT)?.map { ProfileBattleRow(it.outcome, username, it.daysAgo) },
         hiddenNotice = hiddenNotice.takeIf { hidden },
@@ -130,8 +132,10 @@ class FriendProfileViewModel(
     }
 
     private fun show(profile: FriendProfile): FriendProfileUiState {
-        // The server already leaves the progress out when the friend hides it or closed the eye of the badges; this keeps it so even if not.
-        val progress = profile.progress.takeUnless { profile.hidden || !profile.display.showBadges }
+        // The server already leaves the progress out when the friend hides it, and the badge facts when they closed the eye of the badges;
+        // this keeps it so even if not. The badges are only evaluated when the facts came.
+        val progress = profile.progress.takeUnless { profile.hidden }
+        val badgeFacts = progress?.badgeFacts?.takeIf { profile.display.showBadges }
         val now = clock.instant()
         return _uiState.value.copy(
             loading = false,
@@ -144,9 +148,9 @@ class FriendProfileViewModel(
             trainedToday = profile.trainedToday,
             hidden = profile.hidden,
             fighterLevel = progress?.fighterLevel,
-            exercises = progress?.viewedLessons?.size,
-            labs = progress?.completedLabs?.size,
-            unlockedBadges = progress?.let { evaluateBadges(it.toBadgeFacts()).filter { badge -> badge.unlocked } }.orEmpty(),
+            exercises = progress?.viewedCount,
+            labs = progress?.labsCount,
+            unlockedBadges = badgeFacts?.let { evaluateBadges(it).filter { badge -> badge.unlocked } },
             history = profile.history.map { FriendBattleRow(it.outcome, daysAgo(it.finishedAt, now)) },
             profileBg = profile.display.profileBg,
             showBadges = profile.display.showBadges,
