@@ -769,6 +769,75 @@ inicio.
 - La versión 2.2.0 / `versionCode` 5 se confirma en la Etapa 11.
 - El título de la pantalla de lista de parejas (D15) no estaba decidido: la spec supone **"Racha en pareja"**, como la tarjeta de Inicio.
 
+## 13. Perfil social editable (rama `social-perfil`, script `0012`)
+
+Seguimiento del módulo 4 pedido el 2026-10-25. **Estado: implementado en la rama `social-perfil`; `0012` es un BORRADOR sin aplicar** y nada de esto se ha comprobado contra
+un servidor real ni en un teléfono. Figma: SOCIAL UPDATE - INICIO (2638:258, reemplaza a 2440:163), PERFIL AMIGO (2638:374, reemplaza a 2446:265), TU PERFIL (2653:543),
+EDITAR TU PERFIL (2653:611) y el componente "Editar fondo" (2653:701).
+
+### 13.1 Decisiones (cerradas por el grupo)
+
+- **Propósito:** cada persona ve y edita **su propio** perfil social (antes solo se veía el de los amigos).
+- **Inicio:** tarjeta nueva "Tu Perfil" arriba (foto o emoji, chip "LVL n" con el nivel de combatiente, "Ver Perfil →"). La tarjeta de la pareja **sigue llamándose "Racha en pareja"** (D19).
+- **Perfil del amigo y Tu perfil:** la pantalla no se desplaza; orden: cabecera (foto de 130 dp, nombre, nivel de combatiente, "Ya entrenó hoy", racha), Ejercicios / Labs superados,
+  Insignias, Estadísticas e Historial de batallas. Los botones del fondo quedan fijos; si algo se oculta, lo de abajo sube; si no cabe (pantalla pequeña o fuente grande) solo el
+  área central se desplaza. El historial es una caja con desplazamiento propio con **máximo 3** batallas ("Aún no hay batallas" si no hay).
+- **Estadísticas:** "Batallas jugadas", "Victorias" y "Winrate" (victorias / jugadas redondeado a entero; con 0 jugadas muestra "-", nunca se divide). Son **los totales de la persona dueña
+  del perfil contra cualquier rival** (todas sus batallas terminadas, abandonos y desconexiones incluidos; las canceladas no tienen fila). En Tu perfil salen de `battle_results` por
+  `FighterRepository` (la misma lectura de Inicio, sin consulta nueva). En el perfil del amigo las calcula el servidor con las filas del amigo (`0012`).
+- **Historial:** en Tu perfil, tus 3 últimas contra cualquier rival ("🏆 Ganaste vs X", "hace N días"); en el perfil del amigo, las 3 últimas **entre ustedes dos**.
+- **Editar tu perfil:** un ojo (16 dp, área táctil de 48 dp, con descripción y estado) junto a Insignias, Estadísticas e Historial de batallas; un lápiz (32 dp) que abre el selector de
+  fondo; GUARDAR CAMBIOS y CANCELAR fijos abajo. Es un **borrador local** hasta guardar: CANCELAR, la "X" y Atrás lo descartan. Un guardado fallido conserva el borrador.
+- **Efecto de los ojos:** un apartado oculto **no sale** en el perfil del amigo ni en Tu perfil (solo en el editor, atenuado). **El servidor lo omite** de la respuesta. "Ocultar mi progreso
+  público" (D11) sigue mandando sobre Insignias, Ejercicios/Labs y nivel **en lo que ven los demás**; Estadísticas e Historial solo dependen de su propio ojo.
+- **Fondos:** 5 imágenes (`profile_bg_1` a `profile_bg_5`, 412 x 844, ya en `drawable-nodpi`) más "sin fondo". El servidor guarda **solo un número 0 a 5**; uno desconocido es "sin fondo".
+  El fondo cubre toda la pantalla de Tu perfil, Editar y Perfil amigo **detrás** del contenido, salvo la barra superior (título y "X", por encima de la línea blanca), con capa oscura suave
+  y recorte al centro.
+- **Sin el `0012` aplicado:** el perfil del amigo se sigue mostrando con lo que hay y avisa "Función no disponible por ahora"; guardar en Editar falla con el mismo aviso.
+
+### 13.2 Qué agrega el borrador `0012_perfil_social.sql`
+
+- `social_profile`: `profile_bg smallint 0..5`, `show_badges`, `show_stats`, `show_history` (todas `not null`, con valor por defecto). El cliente las cambia **solo** con `UPDATE` por columna (como `hide_progress`);
+  no hay `INSERT` de ellas; la RLS de dueño limita el `UPDATE` a la fila propia.
+- `social_friends` (`create or replace`, misma firma, partiendo de la versión de `0011`): la acción `profile` devuelve además `profile_bg`, `show_badges`, `show_stats` y `show_history`;
+  `stats` = `{played, wins, losses, draws}` con el conteo total de **todas** las batallas del amigo (sin el límite de 10); `history` = las 3 últimas **entre quien llama y el amigo**.
+  **Omitir = clave ausente** en `stats` e `history`; `progress` conserva su contrato (la clave existe y vale `null` si se omite por `hide_progress` o por `show_badges = false`).
+- Ninguna función pública ni tabla nuevas: ningún cambio en el Security Advisor (siguen 10 advertencias, 0 errores y 14 sugerencias, a confirmar al aplicarlo).
+- Guion `supabase/verificacion/0012_escenarios.sql` (**no ejecutado**): permisos por columna, fondo y ojos, omisión, estadísticas con más de 10 batallas, historial de 3, `hide_progress`, bloqueo y `avatar_hidden`.
+
+### 13.3 Código
+
+`data/social` (`ProfileDisplaySettings`, `BattleStats`, parser tolerante, `SocialProfileRepository.updateDisplaySettings`), `ui/social/ProfileSections.kt` (cabecera, apartados, ojo, selector y
+`SocialProfileScreen` con el fondo), `FriendProfile*`, `MyProfile*`, `EditMyProfile*`, tarjeta en `SocialTab`, textos en `strings_social_perfil.xml` (prefijo `social_`; `strings_social.xml` es solo de errores).
+
+### 13.4 Decisiones de implementación (no estaban en el pedido)
+
+1. **El ojo de Insignias oculta todo el bloque de progreso** (nivel de combatiente, Ejercicios y Labs, además de las insignias), porque el contrato `progress` los envía juntos (`BadgeFacts` + `fighter_level`).
+2. En **Tu perfil**, `hide_progress` no oculta nada propio (solo afecta a lo que ven los demás): mandan solo los ojos.
+3. Los textos nuevos van en `strings_social_perfil.xml` y no en `strings_social.xml`, que por su encabezado es solo de mensajes de error.
+4. Las estadísticas e historial propios reutilizan `FighterRepository.getSummary()` (trae las filas de `battle_results` de la persona, hasta hoy sin límite): es la lectura que ya usa Inicio y evita una consulta nueva.
+5. `ProgressSummary` (módulo 3) ganó tres campos con valor por defecto: `trainedToday`, `viewedLessonCount` y `completedLabCount`.
+6. Los ojos hacen que la fila del título mida 48 dp **solo en el editor** (en los perfiles el título mide lo normal).
+7. Tu perfil y Editar tu perfil entraron en un solo commit: Editar reutiliza el cargador y las rutas, y los dos se cablean juntos en la navegación.
+
+### 13.5 Diferencias con Figma
+
+| # | Figma | Aplicación |
+|---|---|---|
+| F1 | La tarjeta se llama "Racha grupal" | **"Racha en pareja"** (decisión del grupo, D19) |
+| F2 | Tarjeta "Tu Perfil" con el emoji 🧑 | Muestra la foto de la persona si la tiene y el emoji si no |
+| F3 | Lápiz e iconos como imágenes del diseño | El lápiz es el carácter "✎" y el ojo se dibuja con líneas (ojo tachado propio), sin imágenes con derechos |
+| F4 | Selector 200 x 82 con casillas de unos 57 x 30 | Igual de medidas; las casillas son más bajas que 48 dp (solo los ojos cumplen los 48 dp) |
+| F5 | El editor cabe en 917 dp | Con los ojos de 48 dp el editor mide unos 50 dp más; si no cabe, el área central se desplaza y los botones siguen fijos |
+| F6 | Textos sin tildes ("Ya entreno hoy", "dias") | Con tildes; en Tu perfil "Ya entrenaste hoy" |
+| F7 | "Nivel de combatiente: 1" | "Nivel de combatiente 1" (el texto que ya existía) |
+| F8 | Tres insignias fijas | Las insignias desbloqueadas en una fila que se desplaza de lado si no caben |
+| F9 | Posiciones absolutas en una pantalla de 412 x 917 | Distribución flexible; la cabecera, los apartados y el historial siguen el orden y las medidas del diseño, ajustadas al ancho |
+
+### 13.6 Qué no se pudo comprobar
+
+Nada en un teléfono (el aspecto exacto, el contraste del texto sobre cada fondo, el selector y su zona táctil, TalkBack) ni contra un Supabase real (`0012` sin aplicar, su guion sin ejecutar).
+
 ## Diagnóstico de la Etapa 0 (v1)
 
 - **Qué se hizo:** esta spec (un solo archivo nuevo). Ningún código de la app, prueba, recurso, `gradle`, `CLAUDE.md` ni script SQL se tocó. No se editó `supabase/migrations/`.

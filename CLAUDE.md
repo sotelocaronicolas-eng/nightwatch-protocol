@@ -47,6 +47,11 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
   - **Código:** `data/social` (modelos, parser, repositorios, sondeo, fotos), `data/supabase/Supabase*` (única parte que conoce la
     librería), `ui/social` (pantallas y ViewModels), textos en `strings_social*.xml`. `SocialBoundaryTest` vigila las capas.
   - **Pruebas:** **1334** pruebas unitarias (0 fallos) al cerrar el módulo; lint en 0 errores (45 advertencias, las mismas de antes).
+  - **Seguimiento en la rama `social-perfil` (perfil social editable, sin cerrar):** cada persona ve y edita su propio perfil social. Nueva tarjeta "Tu Perfil" en Inicio, pantallas
+    "Tu perfil" y "Editar tu perfil" (`ui/social/MyProfile*`, `EditMyProfile*`), el perfil del amigo rediseñado (sin scroll general, botones fijos, Estadísticas, historial de 3) y un fondo
+    elegible (`profile_bg_1` a `profile_bg_5`, o "sin fondo"; el servidor guarda solo un número 0 a 5) con ojos que ocultan Insignias, Estadísticas e Historial. El apartado compartido es
+    `ui/social/ProfileSections.kt`. **El script `0012_perfil_social.sql` es un BORRADOR sin aplicar** (y su guion `supabase/verificacion/0012_escenarios.sql` no se ha ejecutado): sin él la
+    app muestra "Función no disponible por ahora" en lo nuevo. Spec: sección 13 de la spec del módulo 4. Pruebas: **1393** unitarias, 0 fallos; lint 0 errores. **Sin comprobar en un teléfono ni contra el servidor real.**
   - **Fuera del módulo 4:** la tabla de actividad por día para que repetir cuente en la racha (sería `0012`), la corrección del
     examen en el servidor si hay ranking o XP, las notificaciones push y una pantalla de moderación.
 
@@ -112,6 +117,7 @@ Todo el servidor vive en `supabase/` y **se despliega a mano** desde el panel (n
 | `0009_banco_batallas.sql` | **Aplicada y verificada (2026-10-21).** 72 preguntas de batalla, 12 retos de ulti y la curva de XP (20 niveles) |
 | `0010_fotos_social.sql` | **Aplicada y verificada (2026-10-22).** `avatar_key` y `avatar_version` en `social_profile`, `social_set_avatar` y el bucket privado `social-avatars` con 4 políticas |
 | `0011_reportes_bloqueos.sql` | **Aplicada y verificada (2026-10-23).** Tablas cerradas `social_reports` y `social_blocks`, columna `avatar_hidden` (solo la cambia el equipo), acciones `report`, `block`, `unblock` y `blocks` dentro de `social_friends`, `sx_is_blocked`. Su guion `supabase/verificacion/0011_escenarios.sql` dio 187 de 187. En un servidor sin ella, la app muestra "Función no disponible por ahora" |
+| `0012_perfil_social.sql` | **BORRADOR sin aplicar** (rama `social-perfil`). Columnas `profile_bg` (0 a 5), `show_badges`, `show_stats` y `show_history` en `social_profile` (el cliente las actualiza por `GRANT UPDATE` de columna) y `social_friends` reemplazada: la acción `profile` devuelve fondo y ojos, y `stats` e `history` (3 últimas entre los dos), omitiendo como clave ausente lo que el amigo oculta. Sin funciones ni tablas nuevas. Mientras sea borrador puede editarse; al aplicarse deja de editarse |
 
 - **Una migración ya aplicada NO se edita.** Cualquier cambio va en una migración nueva con el siguiente número (`0012`...).
   `0007` conserva en su encabezado la palabra "BORRADOR" y un comentario sobre la racha fija: es lo
@@ -202,6 +208,8 @@ Aceptado por decisión del equipo:
   - "Hoy" en la tira de la semana de la pareja sale del reloj del teléfono (R-05, aceptado: todos los usuarios están en Colombia).
   - Sin pruebas de Compose de las pantallas de Social (R-15), sin vistas previas (R-14), y nada del servidor real ni de TalkBack se ha
     comprobado desde el código: lo hace el grupo con los guiones de `supabase/verificacion/`.
+- **Perfil social editable (rama `social-perfil`, borrador):** el ojo de Insignias oculta todo el bloque de progreso (nivel, Ejercicios, Labs e insignias) porque el servidor lo envía junto; las estadísticas
+  y el historial propios reutilizan la lectura completa de `battle_results` que ya hace Inicio (sin límite de filas); el selector de fondo tiene casillas de unos 30 dp de alto; nada se ha visto en un teléfono.
 - **Datos fijos o solo visuales:** Apariencia, Idioma, Ayuda y Acerca de, y los interruptores de notificaciones de "Logros" y
   "Nuevos laboratorios" (sin efecto: necesitan push). La racha y las insignias **ya son reales**.
 
