@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Perfil social propio y editable (módulo 4, script 0012). Aparte de strings_social.xml (solo errores) y strings_social_pantallas.xml. -->
+
+    <!-- Social - Inicio: tarjeta "Tu Perfil" (Figma 2643:294) -->
+    <string name="social_card_profile_title">Tu Perfil</string>
+    <string name="social_card_profile_button">Ver Perfil →</string>
+    <string name="social_level_chip">LVL %1$d</string>
+    <string name="social_card_profile_unavailable">LVL -</string>
+
+    <!-- Tu perfil / Editar tu perfil (Figma 2653:543 y 2653:611) -->
+    <string name="social_myprofile_title">Tu perfil</string>
+    <string name="social_myprofile_edit">EDITAR PERFIL</string>
+    <string name="social_myprofile_save">GUARDAR CAMBIOS</string>
+    <string name="social_myprofile_saving">GUARDANDO…</string>
+    <string name="social_myprofile_cancel">CANCELAR</string>
+    <string name="social_myprofile_you_trained_today">✅ Ya entrenaste hoy</string>
+    <string name="social_myprofile_pending_today">⏳ Pendiente hoy</string>
+
+    <!-- Apartados del perfil (el del amigo y el propio) -->
+    <string name="social_profile_stats">Estadísticas</string>
+    <string name="social_profile_stat_played">Batallas jugadas</string>
+    <string name="social_profile_stat_wins">Victorias</string>
+    <string name="social_profile_stat_winrate">Winrate</string>
+    <string name="social_profile_winrate_none">-</string>
+    <string name="social_profile_percent">%1$d%%</string>
+    <string name="social_profile_history_none">Aún no hay batallas</string>
+    <string name="social_profile_won_plain">Ganaste contra %1$s</string>
+    <string name="social_profile_lost_plain">Perdiste contra %1$s</string>
+    <string name="social_profile_draw_plain">Empataste con %1$s</string>
+    <string name="social_profile_row_age">%1$s, %2$s</string>
+
+    <!-- Ojos de visibilidad (editor) -->
+    <string name="social_eye_desc">Visibilidad de %1$s</string>
+    <string name="social_eye_visible">Visible para tus amigos</string>
+    <string name="social_eye_hidden">Oculto para tus amigos</string>
+
+    <!-- Fondo del perfil -->
+    <string name="social_bg_change">Cambiar fondo</string>
+    <string name="social_bg_none">Sin fondo</string>
+    <string name="social_bg_option">Fondo %1$d</string>
+    <string name="social_bg_selected">Seleccionado</string>
+    <string name="social_bg_not_selected">No seleccionado</string>
+
+    <!-- Aviso de la función nueva sin el servidor al día (0012 sin aplicar) -->
+    <string name="social_profile_extras_unavailable">Fondo, estadísticas y apartados: función no disponible por ahora.</string>
+</resources>
