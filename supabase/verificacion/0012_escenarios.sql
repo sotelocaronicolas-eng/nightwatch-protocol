@@ -29,11 +29,14 @@
 --     otra persona; valores fuera de rango o nulos rechazados; username, friend_code y avatar_hidden siguen sin
 --     permiso; sin INSERT de las nuevas; anon sin acceso; nadie lee la fila de otra persona.
 --   2 El perfil del amigo devuelve el fondo y los ojos (y los valores por defecto de un perfil sin editar).
---   3 Los apartados ocultos se omiten en el servidor: stats e history AUSENTES, progress null.
+--   3 Los apartados ocultos se omiten en el servidor: stats e history AUSENTES; con el ojo de Insignias cerrado,
+--     progress sigue (solo fighter_level, viewed_count y labs_count; los hechos de insignias AUSENTES).
 --   4 Estadísticas del AMIGO: 0 jugadas; victorias, derrotas y empates; más de 10 batallas (no se corta en 10);
 --     no dependen del rival; las filas de quien mira no cuentan.
 --   5 Historial entre los dos: máximo 3, de la más nueva a la más vieja, solo batallas compartidas.
---   6 hide_progress sigue mandando sobre insignias y progreso, y NO sobre estadísticas ni historial.
+--   6 hide_progress sigue mandando sobre TODO el progreso (null aunque show_badges sea true), y NO sobre
+--     estadísticas ni historial. 6b: los contadores coinciden con las filas reales de la cuenta B (0 y más de 0;
+--     el guion inserta filas de lesson_progress y lab_progress de B y borra solo las que puso).
 --   7 Regresión: bloqueo, avatar_hidden, no_found indistinguible, bad_action y list.
 --
 -- QUÉ NO CUBRE
@@ -351,18 +354,23 @@ begin
       pg_temp.has(v, 'stats') || '|' || pg_temp.has(v, 'history'));
     perform pg_temp.run('authenticated', v_b, format('update public.social_profile set show_history = true where user_id = %L', v_b));
 
-    -- Insignias (y el bloque de progreso)
+    -- Insignias (SOLO las insignias: el nivel y los contadores siguen)
     perform pg_temp.run('authenticated', v_b, format('update public.social_profile set show_badges = false where user_id = %L', v_b));
     v := pg_temp.f(v_a, 'profile', v_code_b);
-    perform pg_temp.chk('3 Omitir', 'Sin ojo de Insignias: progress es null (la clave existe, contrato de 0011) y hidden sigue false', 'null|true|false',
+    perform pg_temp.chk('3 Omitir', 'Sin ojo de Insignias: progress SIGUE siendo un objeto (la clave existe) y hidden sigue false', 'object|true|false',
       jsonb_typeof(v -> 'progress') || '|' || pg_temp.has(v, 'progress') || '|' || (v ->> 'hidden'));
+    perform pg_temp.chk('3 Omitir', 'y trae solo fighter_level, labs_count y viewed_count', 'fighter_level,labs_count,viewed_count',
+      (select string_agg(k, ',' order by k) from jsonb_object_keys(v -> 'progress') k));
+    perform pg_temp.chk('3 Omitir', 'sin los hechos de insignias (viewed_lessons, completed_labs, exam_passed, exam_perfect, best_streak AUSENTES)', 'false|false|false|false|false',
+      pg_temp.has(v -> 'progress', 'viewed_lessons') || '|' || pg_temp.has(v -> 'progress', 'completed_labs') || '|' ||
+      pg_temp.has(v -> 'progress', 'exam_passed') || '|' || pg_temp.has(v -> 'progress', 'exam_perfect') || '|' || pg_temp.has(v -> 'progress', 'best_streak'));
     perform pg_temp.chk('3 Omitir', 'y nada de eso quita stats ni history', 'true|true',
       pg_temp.has(v, 'stats') || '|' || pg_temp.has(v, 'history'));
 
     -- Los tres cerrados a la vez
     perform pg_temp.run('authenticated', v_b, format('update public.social_profile set show_stats = false, show_history = false where user_id = %L', v_b));
     v := pg_temp.f(v_a, 'profile', v_code_b);
-    perform pg_temp.chk('3 Omitir', 'Los tres ojos cerrados: ni progress con datos, ni stats, ni history; sigue el nombre, la racha y el fondo', 'null|false|false|tst0012_b|3',
+    perform pg_temp.chk('3 Omitir', 'Los tres ojos cerrados: progress solo con contadores (objeto), sin stats ni history; sigue el nombre, la racha y el fondo', 'object|false|false|tst0012_b|3',
       jsonb_typeof(v -> 'progress') || '|' || pg_temp.has(v, 'stats') || '|' || pg_temp.has(v, 'history') || '|' || (v ->> 'username') || '|' || pg_temp.nz(v ->> 'profile_bg'));
     perform pg_temp.chk('3 Omitir', 'y los tres interruptores se reportan en false', 'false|false|false',
       pg_temp.nz(v ->> 'show_badges') || '|' || pg_temp.nz(v ->> 'show_stats') || '|' || pg_temp.nz(v ->> 'show_history'));
@@ -469,14 +477,68 @@ begin
     perform pg_temp.chk('6 Ocultar progreso', 'hide_progress + los tres ojos cerrados: nada con datos', 'true|null|false|false',
       (v ->> 'hidden') || '|' || jsonb_typeof(v -> 'progress') || '|' || pg_temp.has(v, 'stats') || '|' || pg_temp.has(v, 'history'));
 
+    -- hide_progress = true con show_badges = true: progress sigue null (hide_progress manda sobre todo el progreso)
+    perform pg_temp.run('authenticated', v_b, format('update public.social_profile set show_badges = true where user_id = %L', v_b));
+    v := pg_temp.f(v_a, 'profile', v_code_b);
+    perform pg_temp.chk('6 Ocultar progreso', 'hide_progress = true aunque show_badges sea true: progress null y la clave existe', 'true|null|true|true',
+      (v ->> 'hidden') || '|' || jsonb_typeof(v -> 'progress') || '|' || pg_temp.has(v, 'progress') || '|' || pg_temp.nz(v ->> 'show_badges'));
+
     perform pg_temp.run('authenticated', v_b, format('update public.social_profile set hide_progress = false, show_badges = true, show_stats = true, show_history = true where user_id = %L', v_b));
     v := pg_temp.f(v_a, 'profile', v_code_b);
-    perform pg_temp.chk('6 Ocultar progreso', 'Sin hide_progress y con el ojo de Insignias abierto, el bloque de progreso vuelve con sus 6 campos', 'object|6|true',
+    perform pg_temp.chk('6 Ocultar progreso', 'Sin hide_progress y con el ojo de Insignias abierto, progress trae sus 8 campos', 'object|8|true',
       jsonb_typeof(v -> 'progress') || '|' || (select count(*)::text from jsonb_object_keys(v -> 'progress')) || '|' || pg_temp.has(v -> 'progress', 'fighter_level'));
-    perform pg_temp.chk('6 Ocultar progreso', 'Los campos de BadgeFacts no cambiaron', 'best_streak,completed_labs,exam_passed,exam_perfect,fighter_level,viewed_lessons',
+    perform pg_temp.chk('6 Ocultar progreso', 'Los campos de BadgeFacts más los tres del bloque base', 'best_streak,completed_labs,exam_passed,exam_perfect,fighter_level,labs_count,viewed_count,viewed_lessons',
       (select string_agg(k, ',' order by k) from jsonb_object_keys(v -> 'progress') k));
   exception when others then
     perform pg_temp.chk('6', 'EXCEPCIÓN INESPERADA EN EL GUION', 'sin excepción', sqlerrm || ' (' || sqlstate || ')');
+  end;
+
+  -- ===================================================================================================
+  -- BLOQUE 6b. Los contadores (viewed_count, labs_count) coinciden con las filas reales de la cuenta de prueba
+  --            B, con el ojo de Insignias cerrado y abierto. Solo se borran las filas que el guion insertó.
+  -- ===================================================================================================
+  declare
+    v_les_prev text[];
+    v_lab_prev text[];
+  begin
+    perform pg_temp.run('authenticated', v_b, format('update public.social_profile set show_badges = false where user_id = %L', v_b));
+
+    -- Con lo que B tenga hoy (normalmente 0 y 0 en una cuenta de prueba limpia)
+    v := pg_temp.f(v_a, 'profile', v_code_b);
+    perform pg_temp.chk('6b Contadores', 'Sin tocar nada, los contadores son el número real de filas de B',
+      (select count(*) from public.lesson_progress where user_id = v_b)::text || '|' || (select count(*) from public.lab_progress where user_id = v_b)::text,
+      pg_temp.nz(v -> 'progress' ->> 'viewed_count') || '|' || pg_temp.nz(v -> 'progress' ->> 'labs_count'));
+    perform pg_temp.chk('6b Contadores', 'y son números (no texto ni null)', 'number|number',
+      jsonb_typeof(v -> 'progress' -> 'viewed_count') || '|' || jsonb_typeof(v -> 'progress' -> 'labs_count'));
+
+    -- Más de 0: se insertan 3 lecciones y 2 labs (sin duplicar lo que B ya tenga)
+    v_les_prev := coalesce((select array_agg(topic) from public.lesson_progress where user_id = v_b), '{}');
+    v_lab_prev := coalesce((select array_agg(lab) from public.lab_progress where user_id = v_b), '{}');
+    insert into public.lesson_progress (user_id, topic)
+      select v_b, x from unnest(array['CONTRASENAS', 'PHISHING', 'MALWARE']) x on conflict do nothing;
+    insert into public.lab_progress (user_id, lab)
+      select v_b, x from unnest(array['CONTRASENAS', 'PHISHING']) x on conflict do nothing;
+
+    v := pg_temp.f(v_a, 'profile', v_code_b);
+    perform pg_temp.chk('6b Contadores', 'Con el ojo de Insignias cerrado, los contadores reflejan las filas reales (y son más de 0)',
+      (select count(*) from public.lesson_progress where user_id = v_b)::text || '|' || (select count(*) from public.lab_progress where user_id = v_b)::text || '|true|true',
+      pg_temp.nz(v -> 'progress' ->> 'viewed_count') || '|' || pg_temp.nz(v -> 'progress' ->> 'labs_count') || '|' ||
+      ((v -> 'progress' ->> 'viewed_count')::int >= 3)::text || '|' || ((v -> 'progress' ->> 'labs_count')::int >= 2)::text);
+    perform pg_temp.chk('6b Contadores', 'y siguen sin viewed_lessons ni completed_labs', 'false|false',
+      pg_temp.has(v -> 'progress', 'viewed_lessons') || '|' || pg_temp.has(v -> 'progress', 'completed_labs'));
+
+    perform pg_temp.run('authenticated', v_b, format('update public.social_profile set show_badges = true where user_id = %L', v_b));
+    v := pg_temp.f(v_a, 'profile', v_code_b);
+    perform pg_temp.chk('6b Contadores', 'Con el ojo abierto, los contadores valen lo mismo que el tamaño de las listas', 'true|true',
+      ((v -> 'progress' ->> 'viewed_count')::int = jsonb_array_length(v -> 'progress' -> 'viewed_lessons'))::text || '|' ||
+      ((v -> 'progress' ->> 'labs_count')::int = jsonb_array_length(v -> 'progress' -> 'completed_labs'))::text);
+
+    -- Se quitan solo las filas que puso el guion
+    delete from public.lesson_progress where user_id = v_b and not (topic = any (v_les_prev));
+    delete from public.lab_progress where user_id = v_b and not (lab = any (v_lab_prev));
+    perform pg_temp.run('authenticated', v_b, format('update public.social_profile set hide_progress = false, show_badges = true where user_id = %L', v_b));
+  exception when others then
+    perform pg_temp.chk('6b','EXCEPCIÓN INESPERADA EN EL GUION', 'sin excepción', sqlerrm || ' (' || sqlstate || ')');
   end;
 
   -- ===================================================================================================
