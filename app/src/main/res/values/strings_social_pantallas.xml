@@ -105,7 +105,6 @@
     <string name="social_profile_no_badges">Aún no tiene insignias.</string>
     <string name="social_profile_hidden">%1$s oculta su progreso.</string>
     <string name="social_profile_history">Historial de batallas</string>
-    <string name="social_profile_history_empty">Aún no han peleado entre ustedes.</string>
     <string name="social_profile_won">🏆 Ganaste vs %1$s</string>
     <string name="social_profile_lost">💀 Perdiste vs %1$s</string>
     <string name="social_profile_draw">🤝 Empate vs %1$s</string>

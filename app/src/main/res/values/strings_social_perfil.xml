@@ -41,7 +41,4 @@
     <string name="social_bg_option">Fondo %1$d</string>
     <string name="social_bg_selected">Seleccionado</string>
     <string name="social_bg_not_selected">No seleccionado</string>
-
-    <!-- Aviso de la función nueva sin el servidor al día (0012 sin aplicar) -->
-    <string name="social_profile_extras_unavailable">Fondo, estadísticas y apartados: función no disponible por ahora.</string>
 </resources>
