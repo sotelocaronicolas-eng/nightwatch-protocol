@@ -16,7 +16,7 @@
 -- QUÉ INCLUYE
 --   * social_profile: cuatro columnas nuevas, todas "no nulo" y con valor por defecto:
 --       profile_bg    smallint  default 0     check (profile_bg between 0 and 5)   0 = sin fondo; 1 a 5 = fondo predeterminado
---       show_badges   boolean   default true  Insignias (y el bloque de progreso: nivel, ejercicios y labs, ver abajo)
+--       show_badges   boolean   default true  Insignias (solo las insignias; el nivel y los contadores no dependen de este ojo)
 --       show_stats    boolean   default true  Estadísticas
 --       show_history  boolean   default true  Historial de batallas
 --     El cliente las cambia SOLO con UPDATE por columna (GRANT UPDATE de esas cuatro a authenticated, el mismo
@@ -36,11 +36,16 @@
 --       "stats":        {"played":n,"wins":n,"losses":n,"draws":n}   SOLO si show_stats; AUSENTE (sin clave) si no
 --       "history":      [{"result","finished_at"}, ...]              SOLO si show_history; AUSENTE (sin clave) si no
 --   * OMITIR = AUSENTE en 'stats' y 'history' (la clave no existe), para que ningún cliente tome un "null" o una
---     lista vacía por datos. 'progress' conserva su contrato de 0011: la clave siempre existe y vale null cuando
---     se omite (por hide_progress O por not show_badges); el contrato del bloque (los campos de BadgeFacts más
---     fighter_level) no cambia, solo cambia CUÁNDO se envía.
---   * 'hidden' sigue siendo hide_progress ("Ocultar mi progreso público", D11). Cuando es false pero show_badges
---     es false, progress también es null: la app lo distingue por show_badges.
+--     lista vacía por datos.
+--   * 'progress' CAMBIA respecto al contrato de 0011 (decisión del grupo: el ojo de Insignias oculta SOLO las
+--     insignias). La clave siempre existe:
+--       - hide_progress = true  -> "progress": null (nivel, Ejercicios, Labs e insignias ocultos).
+--       - hide_progress = false -> "progress" SIEMPRE trae {"fighter_level":n, "viewed_count":n, "labs_count":n}
+--         (viewed_count = filas de lesson_progress del amigo; labs_count = filas de lab_progress del amigo).
+--       - ademas, SOLO si show_badges = true, trae los hechos de insignias de 0011: viewed_lessons, completed_labs,
+--         exam_passed, exam_perfect y best_streak. Con show_badges = false esas cinco claves quedan AUSENTES.
+--   * 'hidden' sigue siendo hide_progress ("Ocultar mi progreso público", D11). Con hide_progress en false y
+--     show_badges en false, progress NO es null: trae solo los contadores y la app no muestra Insignias.
 --   * stats: el CONTEO TOTAL de TODAS las batallas terminadas DEL AMIGO contra cualquier rival (su fila de
 --     battle_results, sin el límite de 10 y sin depender de quién mira). Las canceladas no cuentan porque no
 --     tienen fila; las perdidas por abandono o desconexión sí. played = wins + losses + draws (result tiene un
@@ -48,7 +53,7 @@
 --   * history: las 3 últimas batallas ENTRE QUIEN LLAMA Y EL AMIGO (antes 10), de la más nueva a la más vieja,
 --     vistas desde quien llama. Solo esas dos personas las ven.
 --   * Estadísticas e Historial solo dependen de su propio ojo; hide_progress NO las oculta (decisión del grupo).
---     Insignias y el bloque de progreso dependen de hide_progress Y de show_badges.
+--     El nivel y los contadores dependen solo de hide_progress; las insignias, de hide_progress Y de show_badges.
 --   * Errores: sin cambios. "No existe" y "no es mi amigo" devuelven el mismo not_found. Los efectos de bloqueo
 --     (un bloqueo termina la amistad, así que el perfil responde not_found) y de avatar_hidden (avatar_key y
 --     avatar_version en null) siguen igual.
@@ -374,18 +379,26 @@ begin
 
     -- D11: con "ocultar mi progreso público" no sale nivel, insignias ni islas. Los campos del bloque son los
     -- de BadgeFacts (módulo 3): la app evalúa las 9 insignias con ellos y no se duplican las reglas en SQL.
-    -- 0012: el ojo de Insignias (show_badges = false) lo omite igual que hide_progress.
-    if v_sp.hide_progress or not v_sp.show_badges then
+    -- 0012: progress se parte en dos. Con hide_progress es null. Si no, SIEMPRE lleva fighter_level, viewed_count y
+    -- labs_count (contadores); los hechos de insignias de 0011 se suman SOLO si show_badges (con el ojo cerrado
+    -- esas claves quedan ausentes).
+    if v_sp.hide_progress then
       v_prog := null;
     else
       v_prog := jsonb_build_object(
-        'viewed_lessons', coalesce((select jsonb_agg(l.topic order by l.topic) from public.lesson_progress l where l.user_id = v_other), '[]'::jsonb),
-        'completed_labs', coalesce((select jsonb_agg(b.lab order by b.lab) from public.lab_progress b where b.user_id = v_other), '[]'::jsonb),
-        'exam_passed', exists (select 1 from public.exam_attempts e where e.user_id = v_other and e.passed),
-        'exam_perfect', exists (select 1 from public.exam_attempts e where e.user_id = v_other and e.correct_count = 6),
-        'best_streak', v_st -> 'best',
-        'fighter_level', public.sx_user_level(v_other)
+        'fighter_level', public.sx_user_level(v_other),
+        'viewed_count', (select count(*) from public.lesson_progress l where l.user_id = v_other),
+        'labs_count', (select count(*) from public.lab_progress b where b.user_id = v_other)
       );
+      if v_sp.show_badges then
+        v_prog := v_prog || jsonb_build_object(
+          'viewed_lessons', coalesce((select jsonb_agg(l.topic order by l.topic) from public.lesson_progress l where l.user_id = v_other), '[]'::jsonb),
+          'completed_labs', coalesce((select jsonb_agg(b.lab order by b.lab) from public.lab_progress b where b.user_id = v_other), '[]'::jsonb),
+          'exam_passed', exists (select 1 from public.exam_attempts e where e.user_id = v_other and e.passed),
+          'exam_perfect', exists (select 1 from public.exam_attempts e where e.user_id = v_other and e.correct_count = 6),
+          'best_streak', v_st -> 'best'
+        );
+      end if;
     end if;
 
     v_out := jsonb_build_object(
@@ -499,3 +512,8 @@ commit;
 
 -- e) El cliente no puede escribir las columnas de otra persona ni avatar_hidden (debe dar "permission denied for table social_profile"):
 -- update public.social_profile set avatar_hidden = true where user_id = auth.uid();   -- ejecutado como authenticated
+
+-- f) Contrato de progress (ejecutado como una cuenta con un amigo): con hide_progress = false y show_badges = false,
+--    progress trae fighter_level, viewed_count y labs_count y NO trae viewed_lessons, completed_labs, exam_passed,
+--    exam_perfect ni best_streak; con show_badges = true trae las ocho claves; con hide_progress = true es null.
+-- select public.social_friends('profile', '<nombre o código del amigo>') -> 'progress';
