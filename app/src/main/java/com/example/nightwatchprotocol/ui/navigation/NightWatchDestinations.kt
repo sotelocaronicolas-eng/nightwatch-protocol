@@ -94,6 +94,14 @@ data class PairDetailRoute(val friendCode: String)
 @Serializable
 data class FriendProfileRoute(val friendCode: String)
 
+/** "Tu perfil": the signed-in person's own social profile, opened from the first card of Social. Full screen. */
+@Serializable
+object MyProfileRoute
+
+/** "Editar tu perfil": the eyes and the background of the own social profile, opened from [MyProfileRoute]. */
+@Serializable
+object EditMyProfileRoute
+
 @Serializable
 object UserMenu
 

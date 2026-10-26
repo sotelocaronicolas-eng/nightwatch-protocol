@@ -35,6 +35,12 @@ interface SocialProfileRepository {
 
     /** "Ocultar mi progreso público": saved on the server (decision D11). */
     suspend fun setHideProgress(hide: Boolean): SocialResult<Unit>
+
+    /**
+     * "GUARDAR CAMBIOS" of "Editar tu perfil" (`0012_perfil_social.sql`): the background and the three eyes in one update of the
+     * person's own row. A server without the script fails as [SocialError.Unavailable]. The read side is [getMyProfile].
+     */
+    suspend fun updateDisplaySettings(settings: ProfileDisplaySettings): SocialResult<Unit>
 }
 
 /** XP, level, score and streak of battles, from the person's own `battle_results` rows and the XP curve (read only). */

@@ -40,6 +40,7 @@ fun SocialTab(
     onOpenPairStreaks: () -> Unit,
     onOpenFriends: () -> Unit,
     onOpenBattles: () -> Unit,
+    onOpenMyProfile: () -> Unit,
     viewModel: SocialHomeViewModel = viewModel(factory = SocialHomeViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -55,6 +56,7 @@ fun SocialTab(
         onOpenPairStreaks = onOpenPairStreaks,
         onOpenFriends = onOpenFriends,
         onOpenBattles = onOpenBattles,
+        onOpenMyProfile = onOpenMyProfile,
     )
 }
 
@@ -67,6 +69,7 @@ internal fun SocialTabContent(
     onOpenPairStreaks: () -> Unit,
     onOpenFriends: () -> Unit,
     onOpenBattles: () -> Unit,
+    onOpenMyProfile: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         HomeTopBar(title = stringResource(R.string.social_title), titleTop = 25.dp)
@@ -78,7 +81,7 @@ internal fun SocialTabContent(
                 Modifier.padding(start = 20.dp, end = 20.dp, top = SocialContentTopSpacing),
             )
             SocialHomeStatus.NeedsUsername -> CreateUsernameContent(uiState, onUsernameChanged, onCreateUsername)
-            SocialHomeStatus.Ready -> ReadyContent(uiState, onRetry, onOpenPairStreaks, onOpenFriends, onOpenBattles)
+            SocialHomeStatus.Ready -> ReadyContent(uiState, onRetry, onOpenPairStreaks, onOpenFriends, onOpenBattles, onOpenMyProfile)
         }
     }
 }
@@ -90,6 +93,7 @@ private fun ReadyContent(
     onOpenPairStreaks: () -> Unit,
     onOpenFriends: () -> Unit,
     onOpenBattles: () -> Unit,
+    onOpenMyProfile: () -> Unit,
 ) {
     val loading = stringResource(R.string.social_loading_dots)
     val unavailable = stringResource(R.string.social_unavailable_value)
@@ -104,6 +108,25 @@ private fun ReadyContent(
     ) {
         SocialBodyText(stringResource(R.string.social_intro))
         uiState.tilesError?.let { ErrorNotice(it, onRetry) }
+        SocialCard(
+            emoji = stringResource(R.string.social_icon_person),
+            title = stringResource(R.string.social_card_profile_title),
+            chip = uiState.level?.let { stringResource(R.string.social_level_chip, it) }
+                ?: if (failed) stringResource(R.string.social_card_profile_unavailable) else loading,
+            buttonText = stringResource(R.string.social_card_profile_button),
+            onClick = onOpenMyProfile,
+            // The photo is decoration: the title next to it says whose profile it is.
+            icon = {
+                SocialPhotoAvatar(
+                    avatarKey = uiState.avatarKey,
+                    avatarVersion = uiState.avatarVersion,
+                    emoji = stringResource(R.string.social_icon_person),
+                    size = 48.dp,
+                    withWizardGear = false,
+                    contentDescription = null,
+                )
+            },
+        )
         SocialCard(
             emoji = stringResource(R.string.social_icon_pair),
             title = stringResource(R.string.social_card_pair_title),

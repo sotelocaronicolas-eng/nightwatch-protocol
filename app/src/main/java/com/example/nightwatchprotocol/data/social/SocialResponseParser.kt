@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.data.social
 
+import com.example.nightwatchprotocol.data.learning.BadgeFacts
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import java.time.Instant
 import java.time.LocalDate
@@ -181,6 +182,29 @@ fun parseFriendSearch(response: JsonElement): SocialResult<FriendSearchHit> = pa
 /** Topics this version does not know (a newer server) are dropped, like in the progress of the learning path. */
 private fun JsonArray.topics(): Set<LearningTopic> = strings().mapNotNull { LearningTopic.fromName(it) }.toSet()
 
+private val BADGE_FACT_KEYS = listOf("viewed_lessons", "completed_labs", "exam_passed", "exam_perfect", "best_streak")
+
+/**
+ * `0012`: the level and the two counters always come when the friend shares the progress; the badge facts only when the eye of the
+ * badges is open (otherwise the keys are absent and [FriendProgress.badgeFacts] is null). An older server sends no counters: the size
+ * of the lists stands in for them, and without lists the counter is null (the screen hides it).
+ */
+private fun JsonObject.friendProgress(): FriendProgress {
+    val facts = if (BADGE_FACT_KEYS.all { containsKey(it) }) {
+        BadgeFacts(arr("viewed_lessons").topics(), arr("completed_labs").topics(), bool("exam_passed"), bool("exam_perfect"), int("best_streak"))
+    } else {
+        null
+    }
+    return FriendProgress(
+        fighterLevel = int("fighter_level"),
+        viewedCount = intOrNullKey("viewed_count") ?: facts?.viewedLessons?.size,
+        labsCount = intOrNullKey("labs_count") ?: facts?.completedLabs?.size,
+        badgeFacts = facts,
+    )
+}
+
+private fun JsonObject.intOrNullKey(key: String): Int? = (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull
+
 fun parseFriendProfile(response: JsonElement): SocialResult<FriendProfile> = parseResponse(response) { body ->
     FriendProfile(
         username = body.str("username"),
@@ -188,22 +212,34 @@ fun parseFriendProfile(response: JsonElement): SocialResult<FriendProfile> = par
         streakDays = body.int("streak"),
         trainedToday = body.bool("trained_today"),
         hidden = body.bool("hidden"),
-        progress = body.objOrNull("progress")?.let {
-            FriendProgress(
-                viewedLessons = it.arr("viewed_lessons").topics(),
-                completedLabs = it.arr("completed_labs").topics(),
-                examPassed = it.bool("exam_passed"),
-                examPerfect = it.bool("exam_perfect"),
-                bestStreak = it.int("best_streak"),
-                fighterLevel = it.int("fighter_level"),
-            )
-        },
-        history = body.arr("history").objects().map {
+        progress = body.objOrNull("progress")?.friendProgress(),
+        // 0012 leaves the key out when the friend hides the history.
+        history = (body["history"] as? JsonArray)?.objects().orEmpty().map {
             FriendBattleEntry(it.str("result").word(OUTCOMES), instantOrNull(it.strOrNull("finished_at")))
         },
         avatarKey = body.photoKey(),
         avatarVersion = body.photoVersion(),
+        display = body.displaySettings(),
+        stats = body.statsOrNull(),
+        extrasAvailable = body.containsKey("profile_bg"),
     )
+}
+
+/** The choices of `0012`; a missing or unreadable value is the default (no background, everything visible). Never throws. */
+private fun JsonObject.displaySettings(): ProfileDisplaySettings = ProfileDisplaySettings(
+    profileBg = normalizeProfileBg((this["profile_bg"] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull),
+    showBadges = boolOrTrue("show_badges"),
+    showStats = boolOrTrue("show_stats"),
+    showHistory = boolOrTrue("show_history"),
+)
+
+private fun JsonObject.boolOrTrue(key: String): Boolean =
+    (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.booleanOrNull ?: true
+
+/** The totals of `0012`, or null when the key is absent (hidden or an older server) or unreadable: stats are never worth failing the profile. */
+private fun JsonObject.statsOrNull(): BattleStats? {
+    val stats = this["stats"] as? JsonObject ?: return null
+    return runCatching { BattleStats(stats.int("played"), stats.int("wins"), stats.int("losses"), stats.int("draws")) }.getOrNull()
 }
 
 // ---- pair streaks ----

@@ -13,6 +13,7 @@ import com.example.nightwatchprotocol.data.learning.BadgeState
 import com.example.nightwatchprotocol.data.learning.evaluateBadges
 import com.example.nightwatchprotocol.data.social.BattleLobbyRepository
 import com.example.nightwatchprotocol.data.social.BattleOutcome
+import com.example.nightwatchprotocol.data.social.BattleStats
 import com.example.nightwatchprotocol.data.social.FriendProfile
 import com.example.nightwatchprotocol.data.social.FriendsRepository
 import com.example.nightwatchprotocol.data.social.PairStreakRepository
@@ -47,8 +48,18 @@ data class FriendProfileUiState(
     val fighterLevel: Int? = null,
     val exercises: Int? = null,
     val labs: Int? = null,
-    val unlockedBadges: List<BadgeState> = emptyList(),
+    /** The unlocked badges; null when the badges are not shown (the friend closed their eye, hides the progress or the server sent no facts). */
+    val unlockedBadges: List<BadgeState>? = null,
     val history: List<FriendBattleRow> = emptyList(),
+    /** What the friend chose for their profile (`0012`): the background and the three eyes. The defaults are "sin fondo" and all open. */
+    val profileBg: Int = 0,
+    val showBadges: Boolean = true,
+    val showStats: Boolean = true,
+    val showHistory: Boolean = true,
+    /** The totals of the friend against anyone; null when they hide them or the server does not send them. */
+    val stats: BattleStats? = null,
+    /** False when the server answered without the fields of `0012`: the screen says "Función no disponible por ahora". */
+    val extrasAvailable: Boolean = true,
     val loaded: Boolean = false,
     val loadError: SocialError? = null,
     val confirmingRemove: Boolean = false,
@@ -67,7 +78,32 @@ sealed interface FriendProfileEvent {
     data object ChallengeSent : FriendProfileEvent
 }
 
-/** "Perfil amigo" (Figma 2446:265). The badges are evaluated here with the same catalog as the own ones. */
+/**
+ * What the shared profile sections draw for this friend ([hiddenNotice] is "X oculta su progreso." when the friend hides it). A
+ * section that the friend closed (the server leaves it out) or that the server did not send is null, so it is not drawn and the ones
+ * below move up. The history is the last [PROFILE_HISTORY_LIMIT] battles between the two, the rival being the friend.
+ */
+internal fun FriendProfileUiState.toProfileContent(hiddenNotice: String?): ProfileContent {
+    // The eye of the badges only takes the badges out: the level and the counters follow the progress ([hidden]) alone.
+    val progressShown = !hidden
+    return ProfileContent(
+        username = username,
+        isOwn = false,
+        avatarKey = avatarKey,
+        avatarVersion = avatarVersion,
+        streakDays = streakDays,
+        trainedToday = trainedToday,
+        fighterLevel = fighterLevel.takeIf { progressShown },
+        exercises = exercises.takeIf { progressShown },
+        labs = labs.takeIf { progressShown },
+        badges = unlockedBadges.takeIf { progressShown && showBadges },
+        stats = stats.takeIf { showStats },
+        history = history.takeIf { showHistory }?.take(PROFILE_HISTORY_LIMIT)?.map { ProfileBattleRow(it.outcome, username, it.daysAgo) },
+        hiddenNotice = hiddenNotice.takeIf { hidden },
+    )
+}
+
+/** "Perfil amigo" (Figma 2446:265, updated in 2638:374). The badges are evaluated here with the same catalog as the own ones. */
 class FriendProfileViewModel(
     savedStateHandle: SavedStateHandle,
     private val friendsRepository: FriendsRepository,
@@ -96,7 +132,10 @@ class FriendProfileViewModel(
     }
 
     private fun show(profile: FriendProfile): FriendProfileUiState {
+        // The server already leaves the progress out when the friend hides it, and the badge facts when they closed the eye of the badges;
+        // this keeps it so even if not. The badges are only evaluated when the facts came.
         val progress = profile.progress.takeUnless { profile.hidden }
+        val badgeFacts = progress?.badgeFacts?.takeIf { profile.display.showBadges }
         val now = clock.instant()
         return _uiState.value.copy(
             loading = false,
@@ -109,10 +148,16 @@ class FriendProfileViewModel(
             trainedToday = profile.trainedToday,
             hidden = profile.hidden,
             fighterLevel = progress?.fighterLevel,
-            exercises = progress?.viewedLessons?.size,
-            labs = progress?.completedLabs?.size,
-            unlockedBadges = progress?.let { evaluateBadges(it.toBadgeFacts()).filter { badge -> badge.unlocked } }.orEmpty(),
+            exercises = progress?.viewedCount,
+            labs = progress?.labsCount,
+            unlockedBadges = badgeFacts?.let { evaluateBadges(it).filter { badge -> badge.unlocked } },
             history = profile.history.map { FriendBattleRow(it.outcome, daysAgo(it.finishedAt, now)) },
+            profileBg = profile.display.profileBg,
+            showBadges = profile.display.showBadges,
+            showStats = profile.display.showStats,
+            showHistory = profile.display.showHistory,
+            stats = profile.stats.takeIf { profile.display.showStats },
+            extrasAvailable = profile.extrasAvailable,
         )
     }
 

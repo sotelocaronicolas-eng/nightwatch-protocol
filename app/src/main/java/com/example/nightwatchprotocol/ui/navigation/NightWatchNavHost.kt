@@ -50,7 +50,9 @@ import com.example.nightwatchprotocol.ui.social.BattleResultScreen
 import com.example.nightwatchprotocol.ui.social.BlockedPeopleScreen
 import com.example.nightwatchprotocol.ui.social.BattlesScreen
 import com.example.nightwatchprotocol.ui.social.QuickSearchScreen
+import com.example.nightwatchprotocol.ui.social.EditMyProfileScreen
 import com.example.nightwatchprotocol.ui.social.FriendProfileScreen
+import com.example.nightwatchprotocol.ui.social.MyProfileScreen
 import com.example.nightwatchprotocol.ui.social.FriendRequestsScreen
 import com.example.nightwatchprotocol.ui.social.FriendsScreen
 import com.example.nightwatchprotocol.ui.social.PairDetailScreen
@@ -179,6 +181,7 @@ fun NightWatchNavHost(
                 onOpenFriends = { navController.navigate(Friends) },
                 onOpenPairStreaks = { navController.navigate(PairStreaksRoute) },
                 onOpenBattles = { navController.navigate(BattlesRoute) },
+                onOpenMyProfile = { navController.navigate(MyProfileRoute) },
             )
         }
         composable<BattlesRoute> {
@@ -249,6 +252,16 @@ fun NightWatchNavHost(
         }
         composable<FriendRequestsRoute> {
             FriendRequestsScreen(onClose = { navController.popBackStack() })
+        }
+        composable<MyProfileRoute> {
+            MyProfileScreen(
+                onClose = { navController.popBackStack() },
+                onEdit = { navController.navigate(EditMyProfileRoute) },
+            )
+        }
+        composable<EditMyProfileRoute> {
+            // Saved or cancelled: back to "Tu perfil", which reads the profile again.
+            EditMyProfileScreen(onClose = { navController.popBackStack() })
         }
         composable<FriendProfileRoute> {
             FriendProfileScreen(

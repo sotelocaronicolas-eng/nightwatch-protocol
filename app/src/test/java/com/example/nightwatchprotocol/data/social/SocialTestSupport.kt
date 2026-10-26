@@ -69,6 +69,27 @@ val FRIEND_PROFILE_VISIBLE = """
      "history":[{"result":"win","finished_at":"2026-10-21T15:30:00.123456+00:00"},{"result":"loss","finished_at":"no es fecha"}]}
 """.trimIndent()
 
+/** `0012` with the eye of the badges open: the counters plus the facts. */
+val FRIEND_PROFILE_COUNTERS_AND_FACTS = """
+    {"username":"valeNightwatch","friend_code":"NIGHT-7F3K2A","streak":2,"trained_today":true,"hidden":false,
+     "progress":{"fighter_level":3,"viewed_count":5,"labs_count":4,
+                 "viewed_lessons":["CONTRASENAS","PHISHING"],"completed_labs":["CONTRASENAS"],
+                 "exam_passed":true,"exam_perfect":false,"best_streak":4},
+     "history":[]}
+""".trimIndent()
+
+/** `0012` with the eye of the badges closed: only the level and the counters. */
+val FRIEND_PROFILE_COUNTERS_ONLY = """
+    {"username":"valeNightwatch","friend_code":"NIGHT-7F3K2A","streak":2,"trained_today":true,"hidden":false,
+     "progress":{"fighter_level":3,"viewed_count":5,"labs_count":4},"show_badges":false,"profile_bg":0,
+     "history":[]}
+""".trimIndent()
+
+val FRIEND_PROFILE_LEVEL_ONLY = """
+    {"username":"valeNightwatch","friend_code":"NIGHT-7F3K2A","streak":2,"trained_today":true,"hidden":false,
+     "progress":{"fighter_level":3},"history":[]}
+""".trimIndent()
+
 val FRIEND_PROFILE_HIDDEN = """
     {"username":"valeNightwatch","friend_code":"NIGHT-7F3K2A","streak":2,"trained_today":false,"hidden":true,
      "progress":null,"history":[]}

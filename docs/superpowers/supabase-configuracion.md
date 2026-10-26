@@ -76,6 +76,7 @@ todas, en orden) y tres más **ya aplicadas** (`0008`, `0009` y `0010`, Social; 
 10. `0010_fotos_social.sql` (**aplicada y verificada el 2026-10-22**): fotos de perfil en Social (dos columnas en `social_profile`, la función
     `social_set_avatar`, el bucket privado `social-avatars` y sus 4 políticas). Se aplicó a mano **después** de `0009`; ver la Parte F.
 11. `0011_reportes_bloqueos.sql` (**aplicada y verificada el 2026-10-23**; guion de escenarios 187 de 187): reportar y bloquear personas, y ocultar una foto desde el SQL Editor (`avatar_hidden`). Ver la Parte F.
+12. `0012_perfil_social.sql` (**BORRADOR sin aplicar**; su guion `supabase/verificacion/0012_escenarios.sql` no se ha ejecutado): perfil social editable (fondo y ojos de visibilidad en `social_profile`, y las estadísticas y el historial de 3 en la acción `profile` de `social_friends`). Ver "Qué crea el 0012" en la Parte F.
 
 El proyecto debe tener "Automatically expose new tables" desactivado y "Automatic RLS" activado; por eso el
 script incluye `GRANT` explícitos al rol `authenticated`.
@@ -467,6 +468,21 @@ pantallas de Reportar y Bloquear muestran «Función no disponible por ahora» s
   bloquea los `DELETE` directos sobre esa tabla; el permiso vale solo dentro de la transacción del guion).
 - **Sin comprobar desde el código:** TalkBack (lector de pantalla) y los tiempos reales de la CDN para una foto reemplazada.
 
+### Qué crea el 0012 (perfil social editable)
+
+**Estado: BORRADOR sin aplicar** (`supabase/migrations/0012_perfil_social.sql`). Se aplica a mano **después** de `0011`, una sola vez, y entonces deja de editarse. Su guion
+`supabase/verificacion/0012_escenarios.sql` **no se ha ejecutado**.
+
+- **Columnas nuevas de `social_profile`:** `profile_bg` (`smallint`, 0 a 5; 0 = sin fondo), `show_badges`, `show_stats` y `show_history` (`boolean`, por defecto `true`). El cliente las cambia solo con
+  `UPDATE` por columna (`GRANT UPDATE` de esas cuatro a `authenticated`, como `hide_progress`); sin `INSERT`; la RLS de dueño (`user_id = auth.uid()`) limita el `UPDATE` a la fila propia.
+- **`social_friends` (`create or replace`, misma firma):** la acción `profile` devuelve además `profile_bg`, `show_badges`, `show_stats` y `show_history`. `stats` (`{played, wins, losses, draws}`,
+  el total de **todas** las batallas del amigo contra cualquier rival) y `history` (las 3 últimas entre quien llama y el amigo) **no aparecen como clave** cuando su ojo está cerrado.
+  `progress` **cambia respecto a `0011`** (clave siempre presente): `null` solo si el amigo oculta su progreso (`hide_progress`); si no, siempre trae `fighter_level`, `viewed_count` y `labs_count`, y
+  solo con el ojo de Insignias abierto (`show_badges`) suma `viewed_lessons`, `completed_labs`, `exam_passed`, `exam_perfect` y `best_streak` (con el ojo cerrado esas cinco claves quedan ausentes).
+- **Sin funciones públicas ni tablas nuevas.** Un servidor sin `0012` no devuelve `profile_bg`: la app lo toma como "función no disponible por ahora" y sigue mostrando el perfil con lo que hay.
+- **Security Advisor:** ninguna advertencia nueva esperada (siguen **10 advertencias, 0 errores y 14 sugerencias**), porque no hay objetos nuevos. Confirmarlo después de aplicarlo y, si aparece algo, corregirlo o documentarlo aquí.
+- **Después de aplicarlo:** correr `0012_escenarios.sql` y, de nuevo, `0008_escenarios.sql` (219 de 219) y `0011_escenarios.sql` (187 de 187).
+
 ### Orden de aplicación
 
 1. **Antes:** `0001` a `0007` ya aplicadas. Comprobar que el proyecto no esté pausado (plan gratuito: pausa a los 7 días sin actividad).
@@ -476,7 +492,8 @@ pantallas de Reportar y Bloquear muestran «Función no disponible por ahora» s
 5. **Aplicar `0009`** (banco de 72 preguntas, retos de ulti y curva de XP) **después** del `0008` (**hecho el 2026-10-21**, con sus consultas de conteo: 72 preguntas, 18 por letra, 12 retos, 20 niveles, máximo 1.900 XP). Antes de aplicarlo las tablas de contenido están vacías: una batalla no puede empezar (`bank_empty`) y todos son nivel 1.
 6. **Aplicar `0010`** (fotos) **después** de `0009` (**hecho el 2026-10-22**, con sus consultas de verificación: permisos por columna y las 4 políticas de `social-avatars`). Sin `0010` la app sigue funcionando y muestra el emoji de siempre.
 7. **Aplicar `0011`** (reportes y bloqueos) **después** de `0010` (**hecho el 2026-10-23**). Luego, el guion `0011_escenarios.sql` (187 de 187) y, de nuevo, el de `0008` (219 de 219). Sin `0011` la app sigue funcionando y muestra «Función no disponible por ahora» en Reportar y Bloquear.
-8. **Instalar la versión de la app** (2.2.0) **después** de `0008` y `0009` (y, para las fotos y los reportes, de `0010` y `0011`): sin las tablas, Social falla al cargar y muestra el error con "Reintentar".
+8. **Aplicar `0012`** (perfil social editable) **después** de `0011` (**pendiente: borrador sin aplicar**). Luego, el guion `0012_escenarios.sql` y los de `0008` y `0011`. Sin `0012` la app sigue funcionando y muestra «Función no disponible por ahora» en lo nuevo del perfil.
+9. **Instalar la versión de la app** (2.2.0) **después** de `0008` y `0009` (y, para las fotos y los reportes, de `0010` y `0011`): sin las tablas, Social falla al cargar y muestra el error con "Reintentar".
 
 ### Cómo verificar
 
