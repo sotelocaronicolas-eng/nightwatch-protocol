@@ -477,7 +477,8 @@ pantallas de Reportar y Bloquear muestran «Función no disponible por ahora» s
   `UPDATE` por columna (`GRANT UPDATE` de esas cuatro a `authenticated`, como `hide_progress`); sin `INSERT`; la RLS de dueño (`user_id = auth.uid()`) limita el `UPDATE` a la fila propia.
 - **`social_friends` (`create or replace`, misma firma):** la acción `profile` devuelve además `profile_bg`, `show_badges`, `show_stats` y `show_history`. `stats` (`{played, wins, losses, draws}`,
   el total de **todas** las batallas del amigo contra cualquier rival) y `history` (las 3 últimas entre quien llama y el amigo) **no aparecen como clave** cuando su ojo está cerrado.
-  `progress` sigue como en `0011` (clave siempre presente; `null` si el amigo oculta su progreso o cerró el ojo de Insignias).
+  `progress` **cambia respecto a `0011`** (clave siempre presente): `null` solo si el amigo oculta su progreso (`hide_progress`); si no, siempre trae `fighter_level`, `viewed_count` y `labs_count`, y
+  solo con el ojo de Insignias abierto (`show_badges`) suma `viewed_lessons`, `completed_labs`, `exam_passed`, `exam_perfect` y `best_streak` (con el ojo cerrado esas cinco claves quedan ausentes).
 - **Sin funciones públicas ni tablas nuevas.** Un servidor sin `0012` no devuelve `profile_bg`: la app lo toma como "función no disponible por ahora" y sigue mostrando el perfil con lo que hay.
 - **Security Advisor:** ninguna advertencia nueva esperada (siguen **10 advertencias, 0 errores y 14 sugerencias**), porque no hay objetos nuevos. Confirmarlo después de aplicarlo y, si aparece algo, corregirlo o documentarlo aquí.
 - **Después de aplicarlo:** correr `0012_escenarios.sql` y, de nuevo, `0008_escenarios.sql` (219 de 219) y `0011_escenarios.sql` (187 de 187).

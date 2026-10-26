@@ -788,8 +788,8 @@ EDITAR TU PERFIL (2653:611) y el componente "Editar fondo" (2653:701).
 - **Historial:** en Tu perfil, tus 3 últimas contra cualquier rival ("🏆 Ganaste vs X", "hace N días"); en el perfil del amigo, las 3 últimas **entre ustedes dos**.
 - **Editar tu perfil:** un ojo (16 dp, área táctil de 48 dp, con descripción y estado) junto a Insignias, Estadísticas e Historial de batallas; un lápiz (32 dp) que abre el selector de
   fondo; GUARDAR CAMBIOS y CANCELAR fijos abajo. Es un **borrador local** hasta guardar: CANCELAR, la "X" y Atrás lo descartan. Un guardado fallido conserva el borrador.
-- **Efecto de los ojos:** un apartado oculto **no sale** en el perfil del amigo ni en Tu perfil (solo en el editor, atenuado). **El servidor lo omite** de la respuesta. "Ocultar mi progreso
-  público" (D11) sigue mandando sobre Insignias, Ejercicios/Labs y nivel **en lo que ven los demás**; Estadísticas e Historial solo dependen de su propio ojo.
+- **Efecto de los ojos:** un apartado oculto **no sale** en el perfil del amigo ni en Tu perfil (solo en el editor, atenuado). **El servidor lo omite** de la respuesta. El ojo de Insignias oculta solo las
+  insignias (el nivel y los contadores Ejercicios y Labs se quedan). "Ocultar mi progreso público" (D11) sigue mandando sobre nivel, Ejercicios/Labs e Insignias **en lo que ven los demás**; Estadísticas e Historial solo dependen de su propio ojo.
 - **Fondos:** 5 imágenes (`profile_bg_1` a `profile_bg_5`, 412 x 844, ya en `drawable-nodpi`) más "sin fondo". El servidor guarda **solo un número 0 a 5**; uno desconocido es "sin fondo".
   El fondo cubre toda la pantalla de Tu perfil, Editar y Perfil amigo **detrás** del contenido, salvo la barra superior (título y "X", por encima de la línea blanca), con capa oscura suave
   y recorte al centro.
@@ -801,7 +801,9 @@ EDITAR TU PERFIL (2653:611) y el componente "Editar fondo" (2653:701).
   no hay `INSERT` de ellas; la RLS de dueño limita el `UPDATE` a la fila propia.
 - `social_friends` (`create or replace`, misma firma, partiendo de la versión de `0011`): la acción `profile` devuelve además `profile_bg`, `show_badges`, `show_stats` y `show_history`;
   `stats` = `{played, wins, losses, draws}` con el conteo total de **todas** las batallas del amigo (sin el límite de 10); `history` = las 3 últimas **entre quien llama y el amigo**.
-  **Omitir = clave ausente** en `stats` e `history`; `progress` conserva su contrato (la clave existe y vale `null` si se omite por `hide_progress` o por `show_badges = false`).
+  **Omitir = clave ausente** en `stats` e `history`. **`progress` CAMBIA respecto a `0011`** (la clave siempre existe): con `hide_progress` vale `null`; si no, **siempre** trae `fighter_level`, `viewed_count`
+  (filas de `lesson_progress` del amigo) y `labs_count` (filas de `lab_progress`); y **solo con `show_badges`** trae además los hechos de insignias de `0011` (`viewed_lessons`, `completed_labs`, `exam_passed`,
+  `exam_perfect`, `best_streak`), que con el ojo cerrado quedan ausentes. La app tolera un servidor anterior: sin contadores usa el tamaño de las listas y, sin listas, oculta el contador; sin los hechos no muestra Insignias.
 - Ninguna función pública ni tabla nuevas: ningún cambio en el Security Advisor (siguen 10 advertencias, 0 errores y 14 sugerencias, a confirmar al aplicarlo).
 - Guion `supabase/verificacion/0012_escenarios.sql` (**no ejecutado**): permisos por columna, fondo y ojos, omisión, estadísticas con más de 10 batallas, historial de 3, `hide_progress`, bloqueo y `avatar_hidden`.
 
@@ -812,7 +814,8 @@ EDITAR TU PERFIL (2653:611) y el componente "Editar fondo" (2653:701).
 
 ### 13.4 Decisiones de implementación (no estaban en el pedido)
 
-1. **El ojo de Insignias oculta todo el bloque de progreso** (nivel de combatiente, Ejercicios y Labs, además de las insignias), porque el contrato `progress` los envía juntos (`BadgeFacts` + `fighter_level`).
+1. **El ojo de Insignias oculta SOLO las insignias** (decisión del grupo del 2026-10-25, que reemplaza la primera decisión de implementación, la de ocultar todo el bloque). El nivel de combatiente y los contadores
+   Ejercicios y Labs superados no dependen de ese ojo; "Ocultar mi progreso público" sigue ocultando todo el progreso. Para eso el contrato `progress` se parte en dos (ver 13.2).
 2. En **Tu perfil**, `hide_progress` no oculta nada propio (solo afecta a lo que ven los demás): mandan solo los ojos.
 3. Los textos nuevos van en `strings_social_perfil.xml` y no en `strings_social.xml`, que por su encabezado es solo de mensajes de error.
 4. Las estadísticas e historial propios reutilizan `FighterRepository.getSummary()` (trae las filas de `battle_results` de la persona, hasta hoy sin límite): es la lectura que ya usa Inicio y evita una consulta nueva.
