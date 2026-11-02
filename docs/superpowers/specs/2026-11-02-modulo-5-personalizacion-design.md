@@ -1,6 +1,6 @@
 # Módulo 5 · Personalización (tema claro/oscuro e idioma inglés) — Especificación y plan
 
-Fecha: 2026-11-02 · Estado: **BORRADOR para aprobación del grupo** · Rama de documentación: `docs/modulo-5-spec`
+Fecha: 2026-11-02 · Estado: **BORRADOR; el grupo respondió las 5 preguntas abiertas (sección 11)** · Rama de documentación: `docs/modulo-5-spec`
 Base: v2.2.0 (módulos 1 a 4 en `main`). Versiones objetivo: **v2.3.0** (5A, tema) y **v2.4.0** (5B, idioma).
 
 Fuentes: `modulo-5-figma-referencia.md` (Figma `wd3fQTzF5NqsfGfdR4I1lb`), `inventario-app-modulo-5.md` (estado real del código), `CLAUDE.md`,
@@ -49,10 +49,10 @@ futuro módulo), preferencia por cuenta (se guarda por dispositivo), hacer funci
 | Id | Decisión | Motivo |
 |---|---|---|
 | A1 | En **oscuro** el texto de error de los campos sigue como hoy (rojo `#FF2E16` de `errorSupportingTextColor`); la regla "texto de error con el color de texto + icono ⚠" de D4 aplica **solo al claro** | D4 en oscuro cambiaría lo que existe hoy; choca con la regla 1 |
-| A2 | La selección clara usa `#926A1B` (ajuste mínimo del `#B2842C` del Figma, que da 2.39:1 y 2.70:1) para el borde de 3 px **y** el ✓ | D6 exige ≥ 3:1 en componentes; el Figma dibuja el ✓ en `#1C2B29`, ver 2.1-f |
+| A2 | **Decidido por el grupo:** la selección clara usa `#926A1B` (ajuste mínimo del `#B2842C` del Figma, que da 2.39:1 y 2.70:1) para el **borde** de 3 px, y el **✓ usa `#1C2B29`** (como el Figma, 10.43:1 sobre `#D9D9D9`) | D6 exige ≥ 3:1 en componentes; el ✓ gana contraste y coincide con el Figma |
 | A3 | El idioma se guarda en un solo lugar: el de `AppCompatDelegate` (en Android 13+ lo comparte con los ajustes del sistema); el DataStore guarda solo el tema y un indicador "primer arranque ya resuelto" | Evita dos fuentes de verdad |
-| A4 | Al primer arranque, si no hay idioma guardado, la app fija **español** de forma explícita, aunque el teléfono esté en inglés | Con `values-en` presente, un teléfono en inglés mostraría inglés por sí solo y rompería D2 |
-| A5 | Las preguntas de batalla y los retos de ulti seguirán en español en la app en inglés (D1) | Se acepta la mezcla; ver riesgo 8.9 y pregunta 11.2 |
+| A4 | **Decidido por el grupo:** al primer arranque la app fija **español** de forma explícita, aunque el teléfono esté en inglés; la persona cambia el idioma en la pantalla Idioma | Con `values-en` presente, un teléfono en inglés mostraría inglés por sí solo y rompería D2 |
+| A5 | **Decidido por el grupo:** las preguntas de batalla y los retos de ulti siguen en español en v2.4.0, y la arena muestra un **aviso corto traducido** ("Las preguntas están disponibles solo en español" / "Questions are only available in Spanish") | Se acepta la mezcla y se avisa; ver riesgo 8.9 |
 | A6 | El splash conserva `#2C595D` en ambos aspectos | El splash de Android 12+ lo dibuja el sistema antes de leer la preferencia |
 | A7 | El interruptor (toggle) claro es PROPUESTA: el Figma solo trae un SVG (`2286:106`) sin colores definidos | Ver 4.2 |
 
@@ -68,7 +68,7 @@ futuro módulo), preferencia por cuenta (se guarda por dispositivo), hacer funci
 | c | Los 23 frames claros cubren Perfil y Ajustes; **no** hay frame claro para **Confirmar identidad** (`ConfirmIdentity`, pantalla de perfil de la app), el diálogo de recuperación de contraseña ni el resto de la app (login, quiz, inicio, ruta, labs, lecciones, examen, Social) | Referencia §2 y §3 | Paleta **derivada** (sección 4.3), PROPUESTA |
 | d | Confirmaciones claras: el frame tiene fondo `#AEF5D5` pero un rectángulo blanco 412×844 desde top 72/73 | Capturas y código de 2458:624, 642, 675 (leídos en esta tarea) | **Verificado:** el área es **blanca**, la cabecera queda verde y las ruedas dentadas decorativas van al 25 %. Token `confirmationPanel` claro = `#FFFFFF` (equivale al `#447579` oscuro, `ConfirmationContent.kt:40`) |
 | e | Tres rojos: `#FF2E16` (oscuro y borde del código incorrecto en claro), `#B85947` (borde de contraseña en claro) | Referencia §5 | Un solo token `error`: oscuro `#FF2E16` (como hoy), claro `#B85947` en bordes (4.19:1 sobre `#F7F4EC`). Texto de error: color de texto + ⚠ (solo claro, A1) |
-| f | Dorado: borde de selección `#B2842C` (claro) vs `#E3B54F` (oscuro); el ✓ es `#1C2B29` en claro (Figma) y dorado en oscuro | Referencia §5; contrastes de 4.2 | Token `selection`: oscuro `#E3B54F`, claro **`#926A1B`** (ajuste mínimo, A2) para borde y ✓. **El Figma pinta el ✓ claro en `#1C2B29`: se pide al grupo elegir** (pregunta 11.1) |
+| f | Dorado: borde de selección `#B2842C` (claro) vs `#E3B54F` (oscuro); el ✓ es `#1C2B29` en claro (Figma) y dorado en oscuro | Referencia §5; contrastes de 4.2 | Token `selection`: oscuro `#E3B54F`, claro **`#926A1B`** (ajuste mínimo, A2) para el **borde**; el **✓ claro usa `#1C2B29`** como el Figma (decisión del grupo, 11.1) |
 | g | Botón blanco radio 20 (47×299) vs pill `#D9D9D9` (48×372) | **Nuevo:** blanco en 2458:515, 642, 675 y en 2472:259 ("Guardar cambios"); `#D9D9D9` en 2458:624 ("Listo"), 2458:559 y "Contactar a soporte" | D4: CTA primario claro = blanco con texto `#1C2B29`; oscuro se queda `#D9D9D9` (`NightWatchButton.kt:37`). Filas y tarjetas de opción siguen `#D9D9D9` en ambos |
 | h | Figma: "Reenviar el código de 6 digitos" (sin tilde); app: "Ingrese el código de 6 dígitos" | `VerifyCodeScreen.kt:235` | **Gana la app** (con tilde) |
 
@@ -158,7 +158,8 @@ Valores del oscuro = los de hoy (`ui/theme/Color.kt`, Figma). Valores claros = F
 | `onButton` | texto del CTA | `#000000` | `#1C2B29` | 14.88 (sobre `#D9D9D9`) | 14.72 (sobre blanco) |
 | `ctaSurface` | botón primario | `#D9D9D9` | `#FFFFFF` | — | — |
 | `borderAccent` | borde de campos y tarjetas | `#597F82` | `#597F82` | 1.78 s/ `#2C595D` (decorativo) | 3.52 s/ `#AEF5D5`; 3.99 s/ `#F7F4EC` |
-| `selection` | borde de selección (3 px) y ✓ | `#E3B54F` | **`#926A1B` (ajuste de `#B2842C`)** | 4.08 s/ `#2C595D`; 1.35 s/ `#D9D9D9` | 3.46 s/ `#D9D9D9`; 3.91 s/ `#AEF5D5` (Figma `#B2842C`: 2.39 y 2.70) |
+| `selection` | borde de selección (3 px) | `#E3B54F` | **`#926A1B` (ajuste de `#B2842C`)** | 4.08 s/ `#2C595D`; 1.35 s/ `#D9D9D9` | 3.46 s/ `#D9D9D9`; 3.91 s/ `#AEF5D5` (Figma `#B2842C`: 2.39 y 2.70) |
+| `selectionCheck` | ✓ de la fila seleccionada | `#E3B54F` | `#1C2B29` (Figma) | 1.35 s/ `#D9D9D9` (reportado) | 10.43 s/ `#D9D9D9` |
 | `divider` | divisores | `#808080` (hoy, `MyProfileScreen.kt:50`) | `#3F4A44` | 2.80 s/ `#D9D9D9` (decorativo) | 7.40 s/ `#AEF5D5` |
 | `error` | borde y énfasis de error | `#FF2E16` | `#B85947` | 2.10 s/ `#2C595D` | 4.19 s/ `#F7F4EC`; 3.69 s/ `#AEF5D5` |
 | `textError` | texto de error | `#FF2E16` (A1) | `#1C2B29` + icono ⚠ | 2.10 (reportado) | 13.39 |
@@ -272,7 +273,7 @@ Cada etapa: rama propia, un commit por tema, PR con 1 aprobación y "Create a me
 
 ### Etapa 1 · Spec y paleta aprobada
 - Archivos: este documento y `modulo-5-figma-referencia.md`.
-- Hecho cuando: el grupo aprueba la sección 10 (paleta propuesta, vetos a D1–D14) y responde las preguntas 11.1 a 11.3.
+- Hecho cuando: el grupo aprueba la sección 10 (paleta propuesta, vetos a D1–D14). Las 5 preguntas abiertas ya están respondidas (sección 11).
 - Riesgo: que el claro de pantallas sin Figma se deba rediseñar; se mitiga con la lista de aprobación.
 
 ### Etapa 2 · Preferencias
@@ -312,7 +313,7 @@ Un PR por bloque: (5a) autenticación y verificación, (5b) quiz y onboarding, (
 - Riesgos: **tema AppCompat vs Material.Light**; recreación; `FragmentActivity` → `AppCompatActivity` con `androidx.biometric`.
 
 ### Etapa 8 · `values-en` para toda la UI
-- Nuevos: `res/values-en/` con los mismos 11 archivos de strings; test de paridad (claves y placeholders `%1$s`, `%d`, plurales); revisión de traducción por el grupo.
+- Nuevos: `res/values-en/` con los mismos 11 archivos de strings; test de paridad (claves y placeholders `%1$s`, `%d`, plurales); el inglés lo redacta Claude Code con `modulo-5-glosario.md` y **cada integrante revisa un módulo**; aviso de la arena "Las preguntas están disponibles solo en español" (A5, `social_arena_questions_spanish_only`, visible en `ArenaScreen`).
 - Pruebas: paridad `values`/`values-en`; prueba de que ninguna cadena en inglés queda vacía o igual al español sin motivo (lista blanca: nombres propios como "NightWatch Protocol", emojis).
 - Hecho cuando: la UI completa se ve en inglés sin truncamientos (lista visual, fuente grande).
 - Riesgo: **calidad y volumen de traducción** (≈ 780 cadenas); textos más largos que rompan diseños.
@@ -372,9 +373,9 @@ Un PR por bloque: (5a) autenticación y verificación, (5b) quiz y onboarding, (
 ## 10. Lista de aprobaciones del grupo
 
 1. **Paleta propuesta**: `bgElevated` claro `#F7F4EC`, `cardTint` `#D9D9D9`, `noticeSurface`, `sheetBorder` `#597F82`, `failAccent` `#A13A2A`, `link` `#0B5A8A`, `success` `#1B6B2A`, `pickerSurface`, interruptor claro (4.2), estados deshabilitado/pulsado/foco (4.4).
-2. **Ajuste del dorado** `#B2842C` → `#926A1B` (A2) y el color del ✓ claro (pregunta 11.1).
+2. **Ajuste del dorado** `#B2842C` → `#926A1B` para el borde (A2) — *decidido por el grupo*, junto con el ✓ claro `#1C2B29` (11.1).
 3. **"Contactar a soporte"** en claro: blanco como el resto de CTA (D4) o `#D9D9D9` como dibuja el Figma.
-4. **Traducciones** del inglés (≈ 780 cadenas, JSON de contenido) y el glosario de términos de ciberseguridad.
+4. **Traducciones** del inglés (≈ 780 cadenas, JSON de contenido): las redacta Claude Code con el glosario fijo `modulo-5-glosario.md` y **cada integrante revisa un módulo** (11.5).
 5. **Formato de fecha en inglés** (`MM/dd/yyyy` PROPUESTA).
 6. **A1 a A7** (decisiones adicionales de la sección 1).
 7. **Vetos a D1–D14**: cada integrante puede vetar una decisión indicando cuál y por qué; sin veto antes de la etapa 2 se consideran aprobadas.
@@ -382,10 +383,24 @@ Un PR por bloque: (5a) autenticación y verificación, (5b) quiz y onboarding, (
 
 ---
 
-## 11. Preguntas abiertas (solo lo que no se puede decidir con lo leído)
+## 11. Decisiones del grupo (antes "preguntas abiertas"; respondidas)
 
-1. **Color del ✓ de la selección clara:** el Figma lo pinta `#1C2B29` (contraste 10.43:1 sobre `#D9D9D9`); D4 decía `#B2842C` y A2 lo ajusta a `#926A1B` (3.46:1). ¿Cuál se usa? *(Recomendación: `#1C2B29`, igual que el Figma, y dejar el borde en `#926A1B`.)*
-2. **Social en inglés con preguntas en español (A5):** ¿se acepta para v2.4.0 o se agrega un aviso visible en la arena? ¿Y se prioriza un módulo posterior para el banco de preguntas?
-3. **Confirmar identidad y el diálogo de recuperación no tienen frame claro:** ¿el grupo las revisa con capturas en la etapa 5a o prefiere pedir el diseño al Figma antes?
-4. **Idioma por defecto con teléfono en inglés (A4):** ¿fijar español de forma explícita en el primer arranque (propuesto) o respetar el idioma del sistema aunque contradiga D2?
-5. **Quién traduce y revisa** el inglés y el contenido de los labs (¿persona del grupo con nivel suficiente?). Condiciona el calendario de las etapas 8 y 9.
+1. **Selección clara:** el ✓ usa `#1C2B29` (como el Figma, 10.43:1 sobre `#D9D9D9`) y el borde usa `#926A1B` (3.46:1 sobre `#D9D9D9`). Ver A2 y token `selectionCheck` en 4.1.
+2. **Social en inglés:** las preguntas de batalla y los retos de ulti siguen en español en v2.4.0. La arena muestra un aviso corto traducido: "Las preguntas están disponibles solo en español" / "Questions are only available in Spanish" (cadena nueva `social_arena_questions_spanish_only`, etapa 8; el texto en inglés es PROPUESTA de redacción). Un módulo posterior traducirá el banco de preguntas (fuera de alcance, D1).
+3. **Pantallas sin frame claro** (Confirmar identidad y el diálogo de recuperación): se derivan con la paleta propuesta (sección 4) y se revisan con capturas en la lista visual del grupo (sección 9, etapa 5a). **No se pide diseño nuevo** al Figma.
+4. **Primer arranque:** se fija español de forma explícita (A4); la persona cambia el idioma en la pantalla Idioma. El indicador `language_initialized` vive en el DataStore (etapa 2) y el idioma en AppCompat (etapa 7).
+5. **Traducción:** Claude Code redacta el inglés con un **glosario técnico fijo** (`docs/superpowers/specs/modulo-5-glosario.md`: phishing, hash, firewall, etc.); **cada integrante del grupo revisa un módulo**; en los labs los **comandos no se traducen**. El glosario se completa y el grupo lo aprueba antes de la etapa 8.
+
+## 12. Deuda técnica registrada (no se corrige en este módulo)
+
+Contrastes bajos del **modo oscuro actual**, ya reportados en 2.2-4. Por la regla "lo que existe en oscuro no cambia" se **registran y no se corrigen** en el Módulo 5; quedan para una tarea aparte con decisión del grupo:
+
+| Caso | Dónde | Contraste hoy | Meta D6 |
+|---|---|---|---|
+| Texto blanco sobre campo `#A1A1A1` | `ui/components/NightWatchTextField.kt:77-85` | 2.58:1 | 4.5:1 |
+| Rojo de error `#FF2E16` sobre `#2C595D` | `NightWatchError`, `errorSupportingTextColor` | 2.10:1 | 4.5:1 |
+| Verde de éxito `#4CAF50` sobre `#2C595D` | `NightWatchSuccess` (requisitos de contraseña) | 2.80:1 | 4.5:1 (3:1 si es icono) |
+
+Otros casos menores ya anotados en 2.2-4 (divisor `#808080`, blanco sobre `#94A6A7`, ✓ dorado sobre `#D9D9D9`, dorado 11 sp sobre `#2C595D`) siguen igual. `ContrastTest` (etapa 4) **no** incluye estos pares del oscuro actual en las comprobaciones que fallan; los lista como excepciones documentadas.
+
+**R-01** se mantiene como **"verificar"** en la etapa 7 (ya está corregido en el código, ver 2.2-1).

@@ -30,6 +30,8 @@ import com.example.nightwatchprotocol.data.notifications.NotificationPermission
 import com.example.nightwatchprotocol.data.notifications.ReminderCoordinator
 import com.example.nightwatchprotocol.data.notifications.ReminderScheduler
 import com.example.nightwatchprotocol.data.notifications.WorkManagerReminderScheduler
+import com.example.nightwatchprotocol.data.preferences.AppearanceRepository
+import com.example.nightwatchprotocol.data.preferences.DataStoreAppearanceRepository
 import com.example.nightwatchprotocol.data.preferences.UserPreferences
 import com.example.nightwatchprotocol.data.preferences.userDataStore
 import com.example.nightwatchprotocol.data.profile.ContentResolverDataExportWriter
@@ -92,6 +94,7 @@ interface AppContainer {
     val avatarRepository: AvatarRepository
     val avatarImageProcessor: AvatarImageProcessor
     val userPreferences: UserPreferences
+    val appearanceRepository: AppearanceRepository
     val biometricCapabilities: BiometricCapabilities
     val profileExtrasRepository: ProfileExtrasRepository
     val profileDataExporter: ProfileDataExporter
@@ -188,6 +191,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
         AvatarRepository(profileRepository, FileAvatarCache(context.filesDir), socialAvatars = socialAvatarRepository)
     override val avatarImageProcessor: AvatarImageProcessor = BitmapAvatarImageProcessor(context.contentResolver)
     override val userPreferences: UserPreferences = UserPreferences(context.userDataStore)
+    override val appearanceRepository: AppearanceRepository = DataStoreAppearanceRepository(context.userDataStore)
     override val biometricCapabilities: BiometricCapabilities = AndroidBiometricCapabilities(context)
     override val profileExtrasRepository: ProfileExtrasRepository =
         ProfileExtrasRepository(profileRepository, DataStoreProfileExtrasCache(context.userDataStore))
