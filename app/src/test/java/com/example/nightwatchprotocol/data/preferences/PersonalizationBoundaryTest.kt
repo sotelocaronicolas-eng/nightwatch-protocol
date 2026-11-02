@@ -30,15 +30,21 @@ class PersonalizationBoundaryTest {
      * To add a file here, say why in this comment: the list is meant to stay short.
      *  - `data/common/UiText.kt`: the type itself and its `Context` resolver.
      *  - `data/learning/Badges.kt`: the names of the nine badges (a fixed catalog).
-     *  - `data/profile/BirthDate.kt`, `data/profile/ProfileFormatters.kt`: the messages of the profile fields.
-     *  - the `data/notifications` folder: the text of the reminders and their channels, resolved with a `Context` when posted.
+     *  - `data/profile/BirthDate.kt`, `data/profile/ProfileFormatters.kt`, `data/profile/Gender.kt`: the messages and labels of
+     *    the profile fields.
+     *  - `data/device/DeviceFormatters.kt`: "Ahora / Hace N min" of the devices list.
+     *  - `data/notifications/ReminderKind.kt` (the ids of the texts) and `ReminderNotifier.kt` (the icon and the `Context` that
+     *    resolves them when the notification is posted). `ReminderWorker.kt` and the rest of the folder are NOT on the list.
      */
     private val mayNameResources = listOf(
         "/data/common/UiText.kt",
         "/data/learning/Badges.kt",
         "/data/profile/BirthDate.kt",
         "/data/profile/ProfileFormatters.kt",
-        "/data/notifications/",
+        "/data/profile/Gender.kt",
+        "/data/device/DeviceFormatters.kt",
+        "/data/notifications/ReminderKind.kt",
+        "/data/notifications/ReminderNotifier.kt",
     )
 
     @Test
@@ -47,7 +53,7 @@ class PersonalizationBoundaryTest {
         assertTrue("no se encontró la capa data", files.size > 30)
         val resourceWords = listOf(
             "com.example.nightwatchprotocol.R", "android.content.res", "androidx.annotation.StringRes",
-            "androidx.annotation.PluralsRes", "stringResource", "getString(",
+            "androidx.annotation.PluralsRes", "stringResource", "getString(R.", "getQuantityString(",
         )
 
         files.forEach { file ->

@@ -126,7 +126,8 @@ class CodeFlowTest {
         flow.confirm("654321")
 
         assertEquals("nuevo@example.com", account.profile?.email)
-        assertEquals(MESSAGE_GOOGLE_UNLINK_FAILED, flow.completionNotice)
+        assertEquals(CompletionNotice.GOOGLE_UNLINK_FAILED, flow.completionNotice)
+        assertEquals(MESSAGE_GOOGLE_UNLINK_FAILED, CompletionNotice.GOOGLE_UNLINK_FAILED.toUiText())
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.profile.changepassword
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.account.AccountProfile
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
@@ -54,7 +55,7 @@ class ChangePasswordViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("Ingresa tu contraseña actual", vm.uiState.value.currentError)
+        assertEquals("Ingresa tu contraseña actual", vm.uiState.value.currentError.text())
         assertTrue(account.changePasswordCalls.isEmpty())
     }
 
@@ -66,7 +67,7 @@ class ChangePasswordViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("La contraseña no cumple con los requerimientos", vm.uiState.value.newError)
+        assertEquals("La contraseña no cumple con los requerimientos", vm.uiState.value.newError.text())
         assertTrue(account.changePasswordCalls.isEmpty())
     }
 
@@ -78,7 +79,7 @@ class ChangePasswordViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("Las contraseñas no coinciden", vm.uiState.value.confirmError)
+        assertEquals("Las contraseñas no coinciden", vm.uiState.value.confirmError.text())
         assertNull(vm.uiState.value.currentError)
         assertTrue(account.changePasswordCalls.isEmpty())
     }
@@ -92,7 +93,7 @@ class ChangePasswordViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("La contraseña actual no es correcta", vm.uiState.value.currentError)
+        assertEquals("La contraseña actual no es correcta", vm.uiState.value.currentError.text())
         assertFalse(vm.uiState.value.isLoading)
     }
 
@@ -105,7 +106,7 @@ class ChangePasswordViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("La contraseña actual no es correcta", vm.uiState.value.currentError)
+        assertEquals("La contraseña actual no es correcta", vm.uiState.value.currentError.text())
     }
 
     @Test
@@ -117,7 +118,7 @@ class ChangePasswordViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("La contraseña no cumple con los requerimientos", vm.uiState.value.newError)
+        assertEquals("La contraseña no cumple con los requerimientos", vm.uiState.value.newError.text())
     }
 
     @Test
@@ -129,7 +130,7 @@ class ChangePasswordViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("Sin conexión a internet", vm.uiState.value.formError)
+        assertEquals("Sin conexión a internet", vm.uiState.value.formError.text())
     }
 
     @Test
@@ -189,7 +190,7 @@ class ChangePasswordViewModelTest {
 
     @Test
     fun theRequirementLines_followEachRuleOfTheValidator() {
-        val partial = passwordRequirements(PasswordRules.from("abcdefgh"))
+        val partial = passwordRequirements(PasswordRules.from("abcdefgh")).map { it.first.text() to it.second }
 
         assertEquals(
             listOf(
@@ -220,7 +221,7 @@ class ChangePasswordViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("La nueva contraseña no puede ser igual a la actual", vm.uiState.value.newError)
+        assertEquals("La nueva contraseña no puede ser igual a la actual", vm.uiState.value.newError.text())
         assertTrue(account.changePasswordCalls.isEmpty())
     }
 
@@ -265,14 +266,14 @@ class ChangePasswordViewModelTest {
         wrong.fill()
         wrong.onSaveClicked()
         advanceUntilIdle()
-        assertEquals("La contraseña actual no es correcta", wrong.uiState.value.currentError)
+        assertEquals("La contraseña actual no es correcta", wrong.uiState.value.currentError.text())
 
         account.reauthenticateResult = Result.failure(AuthError.NetworkError)
         val offline = viewModel()
         offline.fill()
         offline.onSaveClicked()
         advanceUntilIdle()
-        assertEquals("Sin conexión a internet", offline.uiState.value.formError)
+        assertEquals("Sin conexión a internet", offline.uiState.value.formError.text())
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.profile.usermenu
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.account.AccountProfile
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
@@ -64,7 +65,7 @@ class UserMenuViewModelTest {
         assertEquals(StreakState.Loading, vm.uiState.value.streak)
         advanceUntilIdle()
 
-        assertEquals("Nicolás Sotelo", vm.uiState.value.displayName)
+        assertEquals("Nicolás Sotelo", vm.uiState.value.displayName.text())
         assertEquals(AvatarDisplay.Initial("N"), vm.uiState.value.avatar)
         assertEquals(StreakState.Days(0), vm.uiState.value.streak)
     }

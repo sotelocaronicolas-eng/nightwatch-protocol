@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.profile.editprofile
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.account.AccountProfile
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
@@ -71,7 +72,7 @@ class EditProfileViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("Ingresa tu nombre", vm.uiState.value.nameError)
+        assertEquals("Ingresa tu nombre", vm.uiState.value.nameError.text())
         assertTrue(account.updateDisplayNameCalls.isEmpty())
     }
 
@@ -109,7 +110,7 @@ class EditProfileViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("La contraseña no cumple con los requerimientos", vm.uiState.value.passwordError)
+        assertEquals("La contraseña no cumple con los requerimientos", vm.uiState.value.passwordError.text())
         assertTrue(account.updatePasswordCalls.isEmpty())
     }
 
@@ -122,7 +123,7 @@ class EditProfileViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("Las contraseñas no coinciden", vm.uiState.value.confirmError)
+        assertEquals("Las contraseñas no coinciden", vm.uiState.value.confirmError.text())
         assertTrue(account.updatePasswordCalls.isEmpty())
     }
 
@@ -183,7 +184,7 @@ class EditProfileViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("Correo electrónico inválido", vm.uiState.value.emailError)
+        assertEquals("Correo electrónico inválido", vm.uiState.value.emailError.text())
     }
 
     @Test
@@ -195,7 +196,7 @@ class EditProfileViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("Sin conexión a internet", vm.uiState.value.formError)
+        assertEquals("Sin conexión a internet", vm.uiState.value.formError.text())
         assertFalse(vm.uiState.value.isSaving)
     }
 
@@ -294,12 +295,12 @@ class EditProfileViewModelTest {
         advanceUntilIdle()
 
         vm.onBirthDateChanged(BirthDate(2026, 10, 12))
-        assertEquals("La fecha de nacimiento no puede ser futura", vm.uiState.value.birthDateError)
+        assertEquals("La fecha de nacimiento no puede ser futura", vm.uiState.value.birthDateError.text())
 
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("La fecha de nacimiento no puede ser futura", vm.uiState.value.birthDateError)
+        assertEquals("La fecha de nacimiento no puede ser futura", vm.uiState.value.birthDateError.text())
         assertTrue(profile.savedExtras.isEmpty())
         assertTrue(account.updateDisplayNameCalls.isEmpty())
     }
@@ -313,7 +314,7 @@ class EditProfileViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("Revisa la fecha de nacimiento: la edad máxima es de 120 años", vm.uiState.value.birthDateError)
+        assertEquals("Revisa la fecha de nacimiento: la edad máxima es de 120 años", vm.uiState.value.birthDateError.text())
         assertTrue(profile.savedExtras.isEmpty())
     }
 
@@ -408,7 +409,7 @@ class EditProfileViewModelTest {
         vm.onAvatarPicked("content://rota")
         advanceUntilIdle()
 
-        assertEquals("No pudimos leer esa imagen", vm.uiState.value.avatarError)
+        assertEquals("No pudimos leer esa imagen", vm.uiState.value.avatarError.text())
         assertEquals(AvatarDisplay.Photo(previous), vm.uiState.value.avatar)
     }
 

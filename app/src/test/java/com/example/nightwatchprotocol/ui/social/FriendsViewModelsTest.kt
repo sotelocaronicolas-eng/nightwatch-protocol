@@ -3,6 +3,7 @@ package com.example.nightwatchprotocol.ui.social
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.learning.BadgeFacts
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.social.BattleOutcome
@@ -404,7 +405,7 @@ class FriendsViewModelsTest {
         // "Primeros pasos" (a lesson seen), "Racha de 7 días" (best streak 12) and "Maestro de Contraseñas" (island done).
         assertEquals(
             listOf("Primeros pasos", "Racha de 7 días", "Maestro de Contraseñas"),
-            state.unlockedBadges!!.map { it.definition.name },
+            state.unlockedBadges!!.map { it.definition.name.text() },
         )
         assertFalse(state.hidden)
     }

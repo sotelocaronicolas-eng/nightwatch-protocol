@@ -1,5 +1,7 @@
 package com.example.nightwatchprotocol.data.profile
 
+import com.example.nightwatchprotocol.data.common.UiText
+import com.example.nightwatchprotocol.text
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -16,7 +18,7 @@ class ProfileExtrasTest {
     fun theGenderOptions_areTheFourFromTheSpec_withTheirLabels() {
         assertEquals(
             listOf("Masculino", "Femenino", "Otro", "Prefiero no decir"),
-            Gender.entries.map { it.label },
+            Gender.entries.map { UiText.of(it.labelRes).text() },
         )
         assertEquals(listOf("male", "female", "other", "prefer_not_to_say"), Gender.entries.map { it.key })
     }

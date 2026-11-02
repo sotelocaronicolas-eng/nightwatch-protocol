@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.profile.achievements
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.common.FailureKind
 import com.example.nightwatchprotocol.data.learning.BadgeCatalog
 import com.example.nightwatchprotocol.data.learning.FakeLearningProgressRepository
@@ -29,7 +30,7 @@ class AchievementsViewModelTest {
     private fun viewModel() = AchievementsViewModel(ProgressSummaryProvider(progress, clock))
 
     private fun AchievementsViewModel.unlockedNames() =
-        uiState.value.badges.filter { it.unlocked }.map { it.definition.name }
+        uiState.value.badges.filter { it.unlocked }.map { it.definition.name.text() }
 
     // ---- loading ----
 
@@ -58,6 +59,7 @@ class AchievementsViewModelTest {
         assertEquals(0, state.unlockedCount)
         assertEquals(9, state.totalCount)
         assertEquals(BadgeCatalog.map { it.name }, state.badges.map { it.definition.name })
+        assertEquals(9, state.badges.map { it.definition.name.text() }.toSet().size)
     }
 
     @Test

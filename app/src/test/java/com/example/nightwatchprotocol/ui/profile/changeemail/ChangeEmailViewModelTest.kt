@@ -2,10 +2,11 @@ package com.example.nightwatchprotocol.ui.profile.changeemail
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.account.AccountProfile
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
-import com.example.nightwatchprotocol.ui.verifycode.MESSAGE_WAIT_BEFORE_NEW_CODE
+import com.example.nightwatchprotocol.ui.verifycode.TEXT_WAIT_BEFORE_NEW_CODE
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -82,7 +83,7 @@ class ChangeEmailViewModelTest {
         vm.onIdentityConfirmed()
         advanceUntilIdle()
 
-        assertEquals(MESSAGE_WAIT_BEFORE_NEW_CODE, vm.uiState.value.error)
+        assertEquals(TEXT_WAIT_BEFORE_NEW_CODE, vm.uiState.value.error)
     }
 
     @Test
@@ -102,7 +103,7 @@ class ChangeEmailViewModelTest {
         vm.onSendCodeClicked()
         advanceUntilIdle()
 
-        assertEquals("Correo electrónico inválido", vm.uiState.value.error)
+        assertEquals("Correo electrónico inválido", vm.uiState.value.error.text())
         assertTrue(account.requestEmailChangeCalls.isEmpty())
     }
 
@@ -113,7 +114,7 @@ class ChangeEmailViewModelTest {
         vm.onSendCodeClicked()
         advanceUntilIdle()
 
-        assertEquals("Ese ya es el correo de tu cuenta", vm.uiState.value.error)
+        assertEquals("Ese ya es el correo de tu cuenta", vm.uiState.value.error.text())
         assertTrue(account.requestEmailChangeCalls.isEmpty())
     }
 
@@ -141,7 +142,7 @@ class ChangeEmailViewModelTest {
         vm.onIdentityConfirmed()
         advanceUntilIdle()
 
-        assertEquals("Ese correo ya está en uso en otra cuenta", vm.uiState.value.error)
+        assertEquals("Ese correo ya está en uso en otra cuenta", vm.uiState.value.error.text())
     }
 
     @Test
@@ -152,7 +153,7 @@ class ChangeEmailViewModelTest {
         vm.onIdentityConfirmed()
         advanceUntilIdle()
 
-        assertEquals("Sin conexión a internet", vm.uiState.value.error)
+        assertEquals("Sin conexión a internet", vm.uiState.value.error.text())
     }
 
     @Test
@@ -163,7 +164,7 @@ class ChangeEmailViewModelTest {
         vm.onIdentityConfirmed()
         advanceUntilIdle()
 
-        assertEquals("Se produjo un error inesperado. Intenta de nuevo.", vm.uiState.value.error)
+        assertEquals("Se produjo un error inesperado. Intenta de nuevo.", vm.uiState.value.error.text())
     }
 
     @Test

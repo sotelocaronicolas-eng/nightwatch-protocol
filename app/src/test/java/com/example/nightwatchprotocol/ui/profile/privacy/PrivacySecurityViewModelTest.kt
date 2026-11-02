@@ -1,6 +1,7 @@
 package com.example.nightwatchprotocol.ui.profile.privacy
 
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.biometric.BiometricAvailability
@@ -45,6 +46,7 @@ class PrivacySecurityViewModelTest {
         profile,
         FakeQuizResultRepository(),
         ProfileExtrasRepository(profile, DataStoreProfileExtrasCache.inMemory()),
+        com.example.nightwatchprotocol.TestStrings,
         clock = { 0L },
     )
 
@@ -153,7 +155,7 @@ class PrivacySecurityViewModelTest {
         advanceUntilIdle()
 
         assertFalse(vm.uiState.value.biometricLockEnabled)
-        assertEquals("No se pudo verificar tu huella", vm.uiState.value.biometricError)
+        assertEquals("No se pudo verificar tu huella", vm.uiState.value.biometricError.text())
         assertFalse(preferences.settings.first()[UserSetting.BIOMETRIC_LOCK])
     }
 
@@ -169,7 +171,7 @@ class PrivacySecurityViewModelTest {
             expectNoEvents()
         }
 
-        assertEquals("No hay una huella registrada en este teléfono", vm.uiState.value.biometricError)
+        assertEquals("No hay una huella registrada en este teléfono", vm.uiState.value.biometricError.text())
         assertFalse(vm.uiState.value.biometricLockEnabled)
     }
 
@@ -181,7 +183,7 @@ class PrivacySecurityViewModelTest {
 
         vm.onBiometricLockToggled(true)
 
-        assertEquals("Este teléfono no tiene lector de huella", vm.uiState.value.biometricError)
+        assertEquals("Este teléfono no tiene lector de huella", vm.uiState.value.biometricError.text())
     }
 
     @Test
@@ -192,7 +194,7 @@ class PrivacySecurityViewModelTest {
 
         vm.onBiometricLockToggled(true)
 
-        assertEquals("El lector no está disponible ahora, inténtalo más tarde", vm.uiState.value.biometricError)
+        assertEquals("El lector no está disponible ahora, inténtalo más tarde", vm.uiState.value.biometricError.text())
     }
 
     @Test
