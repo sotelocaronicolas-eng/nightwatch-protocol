@@ -15,6 +15,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
@@ -89,10 +90,10 @@ class MainActivity : FragmentActivity() {
                     AlertDialog(
                         onDismissRequest = deviceSessionViewModel::onNoticeDismissed,
                         confirmButton = {
-                            TextButton(onClick = deviceSessionViewModel::onNoticeDismissed) { Text("Entendido") }
+                            TextButton(onClick = deviceSessionViewModel::onNoticeDismissed) { Text(stringResource(R.string.common_understood)) }
                         },
-                        title = { Text("Sesión cerrada") },
-                        text = { Text("Se cerró tu sesión porque lo pediste desde otro dispositivo.") },
+                        title = { Text(stringResource(R.string.nav_session_ended_title)) },
+                        text = { Text(stringResource(R.string.nav_session_ended_message)) },
                     )
                 }
 
@@ -131,8 +132,8 @@ class MainActivity : FragmentActivity() {
         if (isUnlockPromptShowing || !appLockViewModel.requestUnlock()) return
         isUnlockPromptShowing = true
         BiometricPrompter(this).authenticate(
-            title = "Desbloquear NightWatch",
-            subtitle = "Usa tu huella para continuar",
+            title = getString(R.string.applock_prompt_title),
+            subtitle = getString(R.string.applock_prompt_subtitle),
             allowDeviceCredential = true,
         ) { result ->
             isUnlockPromptShowing = false

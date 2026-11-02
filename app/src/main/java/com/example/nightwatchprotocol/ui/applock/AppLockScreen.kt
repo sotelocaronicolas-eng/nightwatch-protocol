@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
@@ -47,12 +48,12 @@ fun AppLockScreen(onRequestUnlock: () -> Unit) {
                 modifier = Modifier.size(120.dp),
             )
             Text(
-                text = "Nightwatch Protocol",
+                text = stringResource(R.string.common_app_title),
                 style = NightWatchDisplayStyle,
                 color = NightWatchOnBackground,
                 modifier = Modifier.padding(top = 16.dp, bottom = 48.dp),
             )
-            NightWatchButton(text = "Desbloquear", onClick = onRequestUnlock)
+            NightWatchButton(text = stringResource(R.string.applock_unlock), onClick = onRequestUnlock)
         }
     }
 }
