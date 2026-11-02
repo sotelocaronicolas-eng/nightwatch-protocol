@@ -34,6 +34,15 @@ class NoHardcodedTextTest {
         "ui/biometric",
         "ui/common",
         "ui/components",
+        // Part B2: aprendizaje (lección, lab, informe, labs, ruta, examen, resultado) y su lógica
+        "ui/lesson",
+        "ui/lab",
+        "ui/labreport",
+        "ui/labs",
+        "ui/path",
+        "ui/exam",
+        "ui/examresult",
+        "data/learning",
     )
 
     private val guardedFiles = listOf(
@@ -56,6 +65,8 @@ class NoHardcodedTextTest {
     private fun looksLikeUserText(content: String): Boolean {
         val withoutTemplates = content.replace(Regex("\\$\\{[^}]*}|\\$[A-Za-z_]\\w*"), "").replace(Regex("%\\d?\\$?[sd]"), "")
         if (withoutTemplates.none { it.isLetter() }) return false
+        // A technical identifier with slashes and no spaces: "America/Bogota", "application/json".
+        if (Regex("^[A-Za-z0-9_.+-]+(/[A-Za-z0-9_.+-]+)+$").matches(withoutTemplates)) return false
         // Accented Latin letters only (code < 0x250): emoji and symbols such as "ℹ" are icons, not words.
         return withoutTemplates.contains(' ') || withoutTemplates.any { it.isLetter() && it.code in 128..0x24F } ||
             Regex("^[A-Z][a-z]").containsMatchIn(withoutTemplates)
@@ -65,8 +76,18 @@ class NoHardcodedTextTest {
         val found = mutableListOf<String>()
         var skippingPreview = false
         var inBlockComment = false
+        var inExceptionBlock = false
         file.readLines().forEachIndexed { index, raw ->
             val line = raw.trim()
+            // `require(cond) {` / `check(cond) {` followed by the message on its own lines: logs only, never shown.
+            if (inExceptionBlock) {
+                if (line == "}") inExceptionBlock = false
+                return@forEachIndexed
+            }
+            if (Regex("^(require|check|requireNotNull|checkNotNull)\\(.*\\)\\s*\\{$").containsMatchIn(line)) {
+                inExceptionBlock = true
+                return@forEachIndexed
+            }
             if (inBlockComment) {
                 if (line.contains("*/")) inBlockComment = false
                 return@forEachIndexed
