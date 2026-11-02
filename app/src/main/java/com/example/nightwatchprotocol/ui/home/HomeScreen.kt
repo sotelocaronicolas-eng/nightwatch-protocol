@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.ui.common.asString
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -292,7 +293,7 @@ private fun UserPill(uiState: HomeUiState) {
         UserAvatar(display = uiState.avatar, size = 51.dp)
         Column(modifier = Modifier.padding(start = 12.dp)) {
             Text(
-                text = uiState.displayName,
+                text = uiState.displayName.asString(),
                 color = NightWatchOnBackground,
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.Bold,
@@ -309,7 +310,7 @@ private fun UserPill(uiState: HomeUiState) {
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = stringResource(R.string.learning_home_level, uiState.level ?: stringResource(R.string.learning_loading_dots)),
+                text = stringResource(R.string.learning_home_level, uiState.level?.asString() ?: stringResource(R.string.learning_loading_dots)),
                 color = NightWatchOnBackground,
                 fontFamily = NightWatchBodyFontFamily,
                 fontSize = 13.sp,

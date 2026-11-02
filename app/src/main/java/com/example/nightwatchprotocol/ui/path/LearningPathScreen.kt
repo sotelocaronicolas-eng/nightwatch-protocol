@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.ui.common.asString
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -175,7 +176,7 @@ private fun ProgressCard(uiState: LearningPathUiState, modifier: Modifier = Modi
             .padding(horizontal = 16.dp),
     ) {
         Text(
-            text = stringResource(R.string.learning_path_level, uiState.level ?: stringResource(R.string.learning_loading_dots)),
+            text = stringResource(R.string.learning_path_level, uiState.level?.asString() ?: stringResource(R.string.learning_loading_dots)),
             color = NightWatchOnBackground,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,

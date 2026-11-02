@@ -3,6 +3,7 @@ package com.example.nightwatchprotocol.ui.examresult
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
@@ -238,8 +239,8 @@ class ExamCompletionFlowTest {
         assertEquals(writesBefore + 2, progress.writeCallCount)
         assertEquals(0, quiz.saveResultCallCount)
         assertEquals(null, quiz.lastSavedResult)
-        assertEquals(PlacementLevel.BAJO.name, path.uiState.value.level)
-        assertEquals(PlacementLevel.BAJO.name, home.uiState.value.level)
+        assertEquals(PlacementLevel.BAJO.name, path.uiState.value.level.text())
+        assertEquals(PlacementLevel.BAJO.name, home.uiState.value.level.text())
         assertEquals(viewedBefore, progress.viewedLessons)
         assertEquals(labsBefore, progress.completedLabs)
         assertFalse(progress.examAttempts.isEmpty())

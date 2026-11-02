@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Textos del quiz de nivelación y de su resultado (Módulo 5, Etapa 3, parte B1). Prefijo quiz_. Las preguntas y sus
+    opciones no están aquí: viven en assets/quiz_questions.json (contenido, decisión D13 de la spec).
+-->
+<resources>
+    <string name="quiz_progress">Pregunta %1$d de %2$d</string>
+    <string name="quiz_saving">Guardando…</string>
+    <string name="quiz_finish">Finalizar</string>
+    <string name="quiz_next">Siguiente</string>
+    <string name="quiz_category_basics">🛡️ Conceptos Básicos</string>
+    <string name="quiz_category_passwords">🔑 Contraseñas y Autenticación</string>
+    <string name="quiz_category_social">🎣 Phishing / Ingeniería Social</string>
+    <string name="quiz_category_networks">🌐 Redes y Malware</string>
+    <string name="quiz_result_title">¡Resultados listos!</string>
+    <string name="quiz_result_level">Tu nivel: %1$s</string>
+    <string name="quiz_result_plan_title">Tu plan de estudio recomendado:</string>
+    <string name="quiz_result_save_failed">No pudimos guardar tu resultado; es posible que veas este quiz de nuevo la próxima vez.</string>
+    <string name="quiz_result_continue">Continuar</string>
+</resources>

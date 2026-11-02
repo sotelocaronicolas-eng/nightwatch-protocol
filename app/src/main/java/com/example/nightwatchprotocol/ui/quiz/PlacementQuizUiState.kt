@@ -1,5 +1,7 @@
 package com.example.nightwatchprotocol.ui.quiz
 
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.quiz.PlacementLevel
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
 import com.example.nightwatchprotocol.data.quiz.QuizQuestion
@@ -14,8 +16,8 @@ data class PlacementQuizUiState(
     val currentQuestion: QuizQuestion?
         get() = questions.getOrNull(currentIndex)
 
-    val progressLabel: String
-        get() = "Pregunta ${currentIndex + 1} de ${questions.size}"
+    val progressLabel: UiText
+        get() = UiText.of(R.string.quiz_progress, currentIndex + 1, questions.size)
 }
 
 sealed interface PlacementQuizEvent {

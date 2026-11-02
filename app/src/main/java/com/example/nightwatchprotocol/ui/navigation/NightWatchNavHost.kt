@@ -2,12 +2,14 @@ package com.example.nightwatchprotocol.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
 import com.example.nightwatchprotocol.ui.auth.forgotpassword.NewPasswordScreen
 import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
@@ -98,7 +100,7 @@ fun NightWatchNavHost(
             // The recovery session was closed by the new-password screen: Login is the only way on.
             PasswordUpdatedScreen(
                 onDone = { navController.navigate(Login) { popUpTo(0) { inclusive = true } } },
-                headerTitle = "Nueva Contraseña",
+                headerTitle = stringResource(R.string.auth_new_password_title),
             )
         }
         composable<Register> {

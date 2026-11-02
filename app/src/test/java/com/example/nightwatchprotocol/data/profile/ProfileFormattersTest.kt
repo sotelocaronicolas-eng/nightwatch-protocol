@@ -28,38 +28,23 @@ class ProfileFormattersTest {
     }
 
     @Test
-    fun displayText_matchesTheStringVersion() {
+    fun displayName_prefersTheRealNameThenTheEmailPrefixThenAGenericName() {
         assertEquals("Nicolás Sotelo", profileDisplayText("  Nicolás Sotelo ", "n@example.com").text())
         assertEquals("euzuki1205", profileDisplayText(null, "euzuki1205@gmail.com").text())
+        assertEquals("euzuki1205", profileDisplayText("   ", "euzuki1205@gmail.com").text())
         assertEquals("Usuario", profileDisplayText(null, null).text())
         assertEquals("Usuario", profileDisplayText("", "@gmail.com").text())
     }
 
     @Test
-    fun levelText_matchesTheStringVersion() {
-        assertEquals("BAJO", levelText(PlacementResult(PlacementLevel.BAJO, emptySet())).text())
-        assertEquals("Sin evaluar", levelText(null).text())
-        assertEquals(levelLabel(null), levelText(null).text())
-    }
-
-    @Test
-    fun displayName_prefersTheRealNameThenTheEmailPrefixThenAGenericName() {
-        assertEquals("Nicolás Sotelo", profileDisplayName("  Nicolás Sotelo ", "n@example.com"))
-        assertEquals("euzuki1205", profileDisplayName(null, "euzuki1205@gmail.com"))
-        assertEquals("euzuki1205", profileDisplayName("   ", "euzuki1205@gmail.com"))
-        assertEquals("Usuario", profileDisplayName(null, null))
-        assertEquals("Usuario", profileDisplayName("", "@gmail.com"))
-    }
-
-    @Test
     fun level_showsExactlyWhatTheQuizComputed() {
-        assertEquals("BAJO", levelLabel(PlacementResult(PlacementLevel.BAJO, emptySet())))
-        assertEquals("MEDIO", levelLabel(PlacementResult(PlacementLevel.MEDIO, emptySet())))
-        assertEquals("ALTO", levelLabel(PlacementResult(PlacementLevel.ALTO, emptySet())))
+        assertEquals("BAJO", levelText(PlacementResult(PlacementLevel.BAJO, emptySet())).text())
+        assertEquals("MEDIO", levelText(PlacementResult(PlacementLevel.MEDIO, emptySet())).text())
+        assertEquals("ALTO", levelText(PlacementResult(PlacementLevel.ALTO, emptySet())).text())
     }
 
     @Test
     fun level_withoutQuizResult_isNotAssessed() {
-        assertEquals("Sin evaluar", levelLabel(null))
+        assertEquals("Sin evaluar", levelText(null).text())
     }
 }

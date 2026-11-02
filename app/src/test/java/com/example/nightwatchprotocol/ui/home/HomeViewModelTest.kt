@@ -3,6 +3,7 @@ package com.example.nightwatchprotocol.ui.home
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.account.AccountProfile
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
@@ -94,7 +95,7 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         val state = vm.uiState.value
-        assertEquals("Nicolás Sotelo", state.displayName)
+        assertEquals("Nicolás Sotelo", state.displayName.text())
         assertEquals(AvatarDisplay.Initial("N"), state.avatar)
         assertEquals(StreakState.Loading, state.streak)
     }
@@ -190,7 +191,7 @@ class HomeViewModelTest {
             val vm = viewModel()
             advanceUntilIdle()
 
-            assertEquals(level.name, vm.uiState.value.level)
+            assertEquals(level.name, vm.uiState.value.level.text())
         }
     }
 
@@ -199,25 +200,25 @@ class HomeViewModelTest {
         quiz.getResultResult = Result.success(null)
         val noResult = viewModel()
         advanceUntilIdle()
-        assertEquals("Sin evaluar", noResult.uiState.value.level)
+        assertEquals("Sin evaluar", noResult.uiState.value.level.text())
 
         quiz.getResultResult = Result.failure(IllegalStateException("sin red"))
         val failed = viewModel()
         advanceUntilIdle()
-        assertEquals("Sin evaluar", failed.uiState.value.level)
+        assertEquals("Sin evaluar", failed.uiState.value.level.text())
 
         auth.currentUserUid = null
         val noSession = viewModel()
-        assertEquals("Sin evaluar", noSession.uiState.value.level)
+        assertEquals("Sin evaluar", noSession.uiState.value.level.text())
     }
 
     @Test
     fun levelIsNullWhileItIsBeingRead() = runTest {
         val vm = viewModel()
 
-        assertEquals(null, vm.uiState.value.level)
+        assertEquals(null, vm.uiState.value.level.text())
         advanceUntilIdle()
-        assertEquals("Sin evaluar", vm.uiState.value.level)
+        assertEquals("Sin evaluar", vm.uiState.value.level.text())
     }
 
     // ---- tabs ----
@@ -450,8 +451,8 @@ class HomeViewModelTest {
 
         assertEquals(DailyLessonState.Failed(offline = true), vm.uiState.value.dailyLesson)
         // The failure only touches the card: name, level and the tabs keep working.
-        assertEquals("Nicolás Sotelo", vm.uiState.value.displayName)
-        assertEquals("MEDIO", vm.uiState.value.level)
+        assertEquals("Nicolás Sotelo", vm.uiState.value.displayName.text())
+        assertEquals("MEDIO", vm.uiState.value.level.text())
         vm.onTabSelected(HomeTab.Ruta)
         assertEquals(HomeTab.Ruta, vm.uiState.value.selectedTab)
     }

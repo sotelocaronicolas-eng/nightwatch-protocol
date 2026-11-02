@@ -12,7 +12,7 @@ import org.junit.Test
  */
 class GoldenTextsTest {
 
-    private val golden: List<Pair<Int, String>> = listOf(
+    private val golden: List<Pair<Int, String>> get() = listOf(
         R.string.common_accept to "Aceptar",
         R.string.common_cancel to "Cancelar",
         R.string.common_continue_with_google to "Continuar con Google",
@@ -75,6 +75,75 @@ class GoldenTextsTest {
         R.string.notif_streak_channel_name to "Racha en riesgo",
         R.string.notif_streak_title to "Tu racha está en riesgo",
         R.string.notif_streak_text to "Practica hoy para no perder tu racha.",
+    ) + partB1
+
+    /** Part B1: authentication, quiz, app lock, navigation and the shared texts that came with them. */
+    private val partB1: List<Pair<Int, String>> get() = listOf(
+        R.string.common_close to "Cerrar",
+        R.string.common_understood to "Entendido",
+        R.string.common_level_low to "BAJO",
+        R.string.common_level_medium to "MEDIO",
+        R.string.common_level_high to "ALTO",
+        R.string.applock_unlock to "Desbloquear",
+        R.string.applock_prompt_title to "Desbloquear NightWatch",
+        R.string.applock_prompt_subtitle to "Usa tu huella para continuar",
+        R.string.nav_session_ended_title to "Sesión cerrada",
+        R.string.nav_session_ended_message to "Se cerró tu sesión porque lo pediste desde otro dispositivo.",
+        R.string.auth_password_label to "Contraseña",
+        R.string.auth_google_account_hint to "Esta cuenta se creó con Google. Usa «Continuar con Google»",
+        R.string.auth_error_no_google_account to "Agrega una cuenta de Google en tu teléfono para continuar",
+        R.string.auth_error_dialog_network to "Sin conexión a internet. Verifica tu conexión e intenta de nuevo.",
+        R.string.auth_login_error_title to "Error de inicio de sesión",
+        R.string.auth_login_error_unknown to "Se produjo un error inesperado. Intenta iniciar sesión de nuevo.",
+        R.string.auth_login_username_label to "Nombre de usuario/Email",
+        R.string.auth_login_enter_email to "Ingresa tu correo",
+        R.string.auth_login_enter_password to "Ingresa tu contraseña",
+        R.string.auth_login_forgot_password to "¿Olvidaste tu contraseña?",
+        R.string.auth_login_keep_session to "Mantener sesión iniciada",
+        R.string.auth_login_button to "INICIAR SESIÓN",
+        R.string.auth_login_or to "O",
+        // The space at the end is part of the original text (it separates the link that follows).
+        R.string.auth_login_no_account to "¿Aún no tienes cuenta? ",
+        R.string.auth_login_register_here to "Regístrate aquí",
+        R.string.auth_register_error_title to "Error de registro",
+        R.string.auth_register_error_unknown to "Se produjo un error inesperado. Intenta registrarte de nuevo.",
+        R.string.auth_register_title to "Registro de Usuario",
+        R.string.auth_register_subtitle to "Ingrese los datos requeridos a continuación",
+        R.string.auth_register_full_name to "Nombre Completo",
+        R.string.auth_register_email_registered_with_google to "Este correo ya está registrado con Google. Usa «Continuar con Google»",
+        R.string.auth_register_weak_password to "La contraseña no cumple los requisitos de seguridad",
+        R.string.auth_register_verify_password to "Verifica la contraseña",
+        R.string.auth_register_password_mismatch to "Contraseña no coincide",
+        R.string.auth_register_button to "REGISTRARSE",
+        R.string.auth_recovery_title to "Recuperación de contraseña",
+        R.string.auth_recovery_intro to
+            "Para recuperar su contraseña, ingrese su correo electrónico. Recibirá un código de " +
+            "verificación de 6 dígitos para continuar con el proceso.",
+        R.string.auth_recovery_email_not_found to "Correo no encontrado",
+        R.string.auth_new_password_title to "Nueva Contraseña",
+        R.string.quiz_saving to "Guardando…",
+        R.string.quiz_finish to "Finalizar",
+        R.string.quiz_next to "Siguiente",
+        R.string.quiz_category_basics to "🛡️ Conceptos Básicos",
+        R.string.quiz_category_passwords to "🔑 Contraseñas y Autenticación",
+        R.string.quiz_category_social to "🎣 Phishing / Ingeniería Social",
+        R.string.quiz_category_networks to "🌐 Redes y Malware",
+        R.string.quiz_result_title to "¡Resultados listos!",
+        R.string.quiz_result_plan_title to "Tu plan de estudio recomendado:",
+        R.string.quiz_result_save_failed to "No pudimos guardar tu resultado; es posible que veas este quiz de nuevo la próxima vez.",
+        R.string.quiz_result_continue to "Continuar",
+        R.string.plan_low_basics to "Fundamentos de ciberseguridad",
+        R.string.plan_low_passwords to "Higiene básica de contraseñas",
+        R.string.plan_low_social to "Cómo reconocer un intento de phishing",
+        R.string.plan_low_networks to "Introducción a redes y malware",
+        R.string.plan_medium_basics to "Principios de defensa en profundidad",
+        R.string.plan_medium_passwords to "Autenticación multifactor y gestión de credenciales",
+        R.string.plan_medium_social to "Ingeniería social dirigida (spear phishing y pretexting)",
+        R.string.plan_medium_networks to "Fundamentos de redes seguras y tipos de malware",
+        R.string.plan_high_basics to "Modelado de amenazas y gestión de vulnerabilidades",
+        R.string.plan_high_passwords to "Arquitecturas de autenticación y almacenamiento seguro de credenciales",
+        R.string.plan_high_social to "Análisis avanzado de ataques de ingeniería social",
+        R.string.plan_high_networks to "Endurecimiento de redes y respuesta a incidentes de malware",
     )
 
     @Test
@@ -93,6 +162,8 @@ class GoldenTextsTest {
         assertEquals("Código de 6 dígitos", TestStrings.string(R.string.verify_code_field_description, listOf(6)))
         assertEquals("Hace 2 h", TestStrings.string(R.string.devices_time_hours, listOf(2)))
         assertEquals("Mínimo 8 caracteres: cumplido", TestStrings.string(R.string.profile_password_rule_met, listOf("Mínimo 8 caracteres")))
+        assertEquals("Pregunta 3 de 10", TestStrings.string(R.string.quiz_progress, listOf(3, 10)))
+        assertEquals("Tu nivel: MEDIO", TestStrings.string(R.string.quiz_result_level, listOf("MEDIO")))
     }
 
     @Test

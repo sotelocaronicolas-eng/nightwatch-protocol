@@ -23,20 +23,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.theme.NightWatchLinkAccent
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeContent
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeEvent
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeLayout
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeViewModel
-
-const val RECOVERY_DIALOG_TITLE = "Recuperación de contraseña"
 
 /**
  * "Recuperación de contraseña" over Login (Figma 113:38 and 110:332), adapted to email: first the email field, then the
@@ -78,7 +78,7 @@ fun PasswordRecoveryDialog(
                 }
             }
             VerifyCodeContent(
-                title = RECOVERY_DIALOG_TITLE,
+                title = stringResource(R.string.auth_recovery_title),
                 recipient = state.email,
                 uiState = codeState,
                 onCodeChange = codeViewModel::onCodeChanged,
@@ -106,7 +106,7 @@ private fun RecoveryEmailDialog(
         onDismissRequest = onDismiss,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(RECOVERY_DIALOG_TITLE, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.auth_recovery_title), modifier = Modifier.weight(1f))
                 Image(
                     painter = painterResource(R.drawable.img_logo_nightwatch),
                     contentDescription = null,
@@ -117,23 +117,20 @@ private fun RecoveryEmailDialog(
         text = {
             // Scrolls if the keyboard leaves the dialog too little room for the field.
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                Text(
-                    "Para recuperar su contraseña, ingrese su correo electrónico. Recibirá un código de " +
-                        "verificación de 6 dígitos para continuar con el proceso.",
-                )
+                Text(stringResource(R.string.auth_recovery_intro))
                 NightWatchTextField(
-                    label = "Correo electrónico",
+                    label = stringResource(R.string.common_email_label),
                     value = state.email,
                     onValueChange = onEmailChange,
                     isError = state.error != null,
-                    supportingText = state.error?.message,
+                    supportingText = state.error?.message?.asString(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { onConfirm() }),
                     modifier = Modifier.padding(top = 16.dp),
                 )
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Volver al menú") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.verify_code_back_to_menu)) } },
         confirmButton = {
             Button(
                 onClick = onConfirm,
@@ -142,7 +139,7 @@ private fun RecoveryEmailDialog(
                     containerColor = NightWatchLinkAccent,
                     contentColor = Color.Black,
                 ),
-            ) { Text("Confirmar") }
+            ) { Text(stringResource(R.string.verify_code_confirm_short)) }
         },
     )
 }

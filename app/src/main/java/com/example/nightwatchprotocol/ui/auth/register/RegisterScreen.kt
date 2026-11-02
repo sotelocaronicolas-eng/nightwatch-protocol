@@ -51,6 +51,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.ui.auth.login.ErrorDialogKind
 import com.example.nightwatchprotocol.ui.auth.login.message
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.UiText
+import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.components.GoogleSignInButton
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
@@ -107,9 +111,9 @@ fun RegisterScreen(
     dialogKind?.let { kind ->
         AlertDialog(
             onDismissRequest = { dialogKind = null },
-            title = { Text("Error de registro") },
-            text = { Text(kind.message(unknown = "Se produjo un error inesperado. Intenta registrarte de nuevo.")) },
-            confirmButton = { TextButton(onClick = { dialogKind = null }) { Text("Aceptar") } },
+            title = { Text(stringResource(R.string.auth_register_error_title)) },
+            text = { Text(kind.message(unknown = UiText.of(R.string.auth_register_error_unknown)).asString()) },
+            confirmButton = { TextButton(onClick = { dialogKind = null }) { Text(stringResource(R.string.common_accept)) } },
         )
     }
 }
@@ -138,15 +142,15 @@ private fun RegisterScreenContent(
                     .background(NightWatchHeaderPanel, RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp)),
             ) {
                 Column(modifier = Modifier.padding(30.dp)) {
-                    Text("Registro de Usuario", style = MaterialTheme.typography.titleLarge, color = Color.Black)
+                    Text(stringResource(R.string.auth_register_title), style = MaterialTheme.typography.titleLarge, color = Color.Black)
                     Text(
-                        "Ingrese los datos requeridos a continuación",
+                        stringResource(R.string.auth_register_subtitle),
                         color = Color.Black,
                         modifier = Modifier.padding(top = 6.dp),
                     )
                 }
                 IconButton(onClick = onCloseClicked, modifier = Modifier.align(Alignment.TopEnd)) {
-                    Icon(Icons.Filled.Close, contentDescription = "Cerrar", tint = Color.Black)
+                    Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.common_close), tint = Color.Black)
                 }
             }
             Column(
@@ -157,7 +161,7 @@ private fun RegisterScreenContent(
                     .padding(horizontal = 24.dp, vertical = 16.dp),
             ) {
                 NightWatchTextField(
-                    label = "Nombre Completo",
+                    label = stringResource(R.string.auth_register_full_name),
                     value = uiState.fullName,
                     onValueChange = onFullNameChanged,
                     keyboardOptions = KeyboardOptions(
@@ -167,30 +171,30 @@ private fun RegisterScreenContent(
                     ),
                 )
                 NightWatchTextField(
-                    label = "Correo electrónico",
+                    label = stringResource(R.string.common_email_label),
                     value = uiState.email,
                     onValueChange = onEmailChanged,
                     isError = uiState.fieldError == RegisterFieldError.EmailAlreadyInUse ||
                         uiState.fieldError == RegisterFieldError.EmailRegisteredWithGoogle ||
                         uiState.fieldError == RegisterFieldError.InvalidEmail,
                     supportingText = when (uiState.fieldError) {
-                        RegisterFieldError.EmailAlreadyInUse -> "Ya tienes una cuenta con este correo"
+                        RegisterFieldError.EmailAlreadyInUse -> stringResource(R.string.error_auth_email_already_in_use)
                         RegisterFieldError.EmailRegisteredWithGoogle ->
-                            "Este correo ya está registrado con Google. Usa «Continuar con Google»"
-                        RegisterFieldError.InvalidEmail -> "Correo electrónico inválido"
+                            stringResource(R.string.auth_register_email_registered_with_google)
+                        RegisterFieldError.InvalidEmail -> stringResource(R.string.common_invalid_email)
                         else -> null
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                     modifier = Modifier.padding(top = 12.dp),
                 )
                 NightWatchTextField(
-                    label = "Contraseña",
+                    label = stringResource(R.string.auth_password_label),
                     value = uiState.password,
                     onValueChange = onPasswordChanged,
                     isPassword = true,
                     isError = uiState.fieldError == RegisterFieldError.WeakPassword,
                     supportingText = if (uiState.fieldError == RegisterFieldError.WeakPassword) {
-                        "La contraseña no cumple los requisitos de seguridad"
+                        stringResource(R.string.auth_register_weak_password)
                     } else {
                         null
                     },
@@ -198,13 +202,13 @@ private fun RegisterScreenContent(
                     modifier = Modifier.padding(top = 12.dp),
                 )
                 NightWatchTextField(
-                    label = "Verifica la contraseña",
+                    label = stringResource(R.string.auth_register_verify_password),
                     value = uiState.confirmPassword,
                     onValueChange = onConfirmPasswordChanged,
                     isPassword = true,
                     isError = uiState.showPasswordMismatch || uiState.fieldError == RegisterFieldError.PasswordMismatch,
                     supportingText = if (uiState.showPasswordMismatch || uiState.fieldError == RegisterFieldError.PasswordMismatch) {
-                        "Contraseña no coincide"
+                        stringResource(R.string.auth_register_password_mismatch)
                     } else {
                         null
                     },
@@ -213,19 +217,19 @@ private fun RegisterScreenContent(
                     modifier = Modifier.padding(top = 12.dp),
                 )
                 Column(modifier = Modifier.padding(top = 16.dp)) {
-                    PasswordRuleRow("Mínimo 8 caracteres", uiState.passwordRules.hasMinLength)
-                    PasswordRuleRow("Incluye una mayúscula y un número", uiState.passwordRules.hasUpperCaseAndDigit)
-                    PasswordRuleRow("Incluye una minúscula", uiState.passwordRules.hasLowercase)
-                    PasswordRuleRow("Incluye al menos un carácter especial", uiState.passwordRules.hasSpecialChar)
+                    PasswordRuleRow(stringResource(R.string.profile_password_rule_length), uiState.passwordRules.hasMinLength)
+                    PasswordRuleRow(stringResource(R.string.profile_password_rule_upper_digit), uiState.passwordRules.hasUpperCaseAndDigit)
+                    PasswordRuleRow(stringResource(R.string.profile_password_rule_lower), uiState.passwordRules.hasLowercase)
+                    PasswordRuleRow(stringResource(R.string.profile_password_rule_special), uiState.passwordRules.hasSpecialChar)
                 }
                 NightWatchButton(
-                    text = "REGISTRARSE",
+                    text = stringResource(R.string.auth_register_button),
                     onClick = onRegisterClicked,
                     enabled = uiState.isRegisterEnabled,
                     modifier = Modifier.padding(top = 24.dp),
                 )
                 Text(
-                    "O",
+                    stringResource(R.string.auth_login_or),
                     color = NightWatchOnBackground,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -247,7 +251,10 @@ private fun PasswordRuleRow(text: String, satisfied: Boolean) {
     ) {
         Icon(
             imageVector = Icons.Filled.Check,
-            contentDescription = "$text: ${if (satisfied) "cumplido" else "pendiente"}",
+            contentDescription = stringResource(
+                if (satisfied) R.string.profile_password_rule_met else R.string.profile_password_rule_pending,
+                text,
+            ),
             tint = if (satisfied) NightWatchSuccess else NightWatchOnBackground.copy(alpha = 0.4f),
         )
         Text(text, color = NightWatchOnBackground, fontSize = 14.sp)

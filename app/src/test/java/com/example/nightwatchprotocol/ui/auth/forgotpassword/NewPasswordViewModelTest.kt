@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.auth.forgotpassword
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
@@ -71,7 +72,7 @@ class NewPasswordViewModelTest {
 
         assertTrue(account.updatePasswordCalls.isEmpty())
         assertEquals(0, auth.signOutCallCount)
-        assertEquals("La contraseña no cumple con los requerimientos", vm.uiState.value.newError)
+        assertEquals("La contraseña no cumple con los requerimientos", vm.uiState.value.newError.text())
     }
 
     @Test
@@ -83,7 +84,7 @@ class NewPasswordViewModelTest {
         advanceUntilIdle()
 
         assertTrue(account.updatePasswordCalls.isEmpty())
-        assertEquals("Las contraseñas no coinciden", vm.uiState.value.confirmError)
+        assertEquals("Las contraseñas no coinciden", vm.uiState.value.confirmError.text())
     }
 
     @Test
@@ -95,7 +96,7 @@ class NewPasswordViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("La contraseña no cumple con los requerimientos", vm.uiState.value.newError)
+        assertEquals("La contraseña no cumple con los requerimientos", vm.uiState.value.newError.text())
         assertEquals(0, auth.signOutCallCount)
         assertFalse(vm.uiState.value.isLoading)
     }
@@ -109,7 +110,7 @@ class NewPasswordViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("Sin conexión a internet", vm.uiState.value.formError)
+        assertEquals("Sin conexión a internet", vm.uiState.value.formError.text())
         assertEquals(0, auth.signOutCallCount)
     }
 

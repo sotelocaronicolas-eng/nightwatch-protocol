@@ -20,6 +20,34 @@
     <string name="common_level_not_assessed">Sin evaluar</string>
     <string name="common_undefined">Sin definir</string>
     <string name="common_default_user_name">Usuario</string>
+    <string name="common_close">Cerrar</string>
+    <string name="common_understood">Entendido</string>
+    <!-- Niveles del quiz: el valor guardado sigue siendo BAJO, MEDIO o ALTO -->
+    <string name="common_level_low">BAJO</string>
+    <string name="common_level_medium">MEDIO</string>
+    <string name="common_level_high">ALTO</string>
+
+    <!-- Bloqueo de la app (applock_) y aviso de sesión cerrada (nav_) -->
+    <string name="applock_unlock">Desbloquear</string>
+    <string name="applock_prompt_title">Desbloquear NightWatch</string>
+    <string name="applock_prompt_subtitle">Usa tu huella para continuar</string>
+    <string name="nav_session_ended_title">Sesión cerrada</string>
+    <string name="nav_session_ended_message">Se cerró tu sesión porque lo pediste desde otro dispositivo.</string>
+
+    <!-- Plan de estudio recomendado (data/quiz/StudyPlan.kt) -->
+    <string name="plan_low_basics">Fundamentos de ciberseguridad</string>
+    <string name="plan_low_passwords">Higiene básica de contraseñas</string>
+    <string name="plan_low_social">Cómo reconocer un intento de phishing</string>
+    <string name="plan_low_networks">Introducción a redes y malware</string>
+    <string name="plan_medium_basics">Principios de defensa en profundidad</string>
+    <string name="plan_medium_passwords">Autenticación multifactor y gestión de credenciales</string>
+    <string name="plan_medium_social">Ingeniería social dirigida (spear phishing y pretexting)</string>
+    <string name="plan_medium_networks">Fundamentos de redes seguras y tipos de malware</string>
+    <string name="plan_high_basics">Modelado de amenazas y gestión de vulnerabilidades</string>
+    <string name="plan_high_passwords">Arquitecturas de autenticación y almacenamiento seguro de credenciales</string>
+    <string name="plan_high_social">Análisis avanzado de ataques de ingeniería social</string>
+    <string name="plan_high_networks">Endurecimiento de redes y respuesta a incidentes de malware</string>
+
 
     <!-- Meses abreviados (fecha "Miembro desde") -->
     <string name="common_month_short_1">Ene.</string>

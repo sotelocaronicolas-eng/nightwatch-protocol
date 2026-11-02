@@ -7,7 +7,8 @@ import org.junit.Test
 /**
  * Guard of Stage 3 (F-09) of Module 5: the areas already moved to string resources must not get fixed Spanish text again.
  * It reads the source code (like `PersonalizationBoundaryTest`) and looks for string literals that read like a sentence or a
- * label. Part B of the stage adds its packages to [guardedFolders]/[guardedFiles] as it migrates them.
+ * label. Each part of the stage adds its packages to [guardedFolders]/[guardedFiles] as it migrates them (B2: lesson, lab,
+ * exam; B3: social).
  *
  * What it ignores, on purpose:
  *  - comments and KDoc, imports and the package line;
@@ -20,18 +21,25 @@ import org.junit.Test
 class NoHardcodedTextTest {
 
     private val guardedFolders = listOf(
+        // Part A: Perfil y Ajustes
         "ui/profile",
         "ui/verifycode",
         "data/profile",
+        // Part B1: autenticación, quiz, inicio, navegación, bloqueo de la app y lo compartido
+        "ui/auth",
+        "ui/quiz",
+        "ui/home",
+        "ui/navigation",
+        "ui/applock",
+        "ui/biometric",
+        "ui/common",
+        "ui/components",
     )
 
     private val guardedFiles = listOf(
-        "ui/components/BirthDatePickerDialog.kt",
-        "ui/components/NightWatchButton.kt",
-        "ui/components/NightWatchTextField.kt",
-        "ui/components/ProfileTopBar.kt",
-        "ui/components/SelectField.kt",
-        "ui/common/AuthErrorText.kt",
+        "MainActivity.kt",
+        "data/auth/AuthError.kt",
+        "data/quiz/StudyPlan.kt",
         "data/learning/Badges.kt",
         "data/notifications/ReminderKind.kt",
         "data/device/DeviceFormatters.kt",

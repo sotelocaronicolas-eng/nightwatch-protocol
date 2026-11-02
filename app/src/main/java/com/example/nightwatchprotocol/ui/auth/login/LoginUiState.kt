@@ -1,6 +1,8 @@
 package com.example.nightwatchprotocol.ui.auth.login
 
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.auth.AuthError
+import com.example.nightwatchprotocol.data.common.UiText
 
 data class LoginUiState(
     val usernameOrEmail: String = "",
@@ -28,11 +30,11 @@ enum class ErrorDialogKind {
     UNKNOWN,
 }
 
-const val MESSAGE_NO_GOOGLE_ACCOUNT = "Agrega una cuenta de Google en tu teléfono para continuar"
-const val MESSAGE_ERROR_DIALOG_NETWORK = "Sin conexión a internet. Verifica tu conexión e intenta de nuevo."
+val MESSAGE_NO_GOOGLE_ACCOUNT: UiText = UiText.of(R.string.auth_error_no_google_account)
+val MESSAGE_ERROR_DIALOG_NETWORK: UiText = UiText.of(R.string.auth_error_dialog_network)
 
 /** The text of the error dialog; [unknown] is the screen's own generic message. */
-fun ErrorDialogKind.message(unknown: String): String = when (this) {
+fun ErrorDialogKind.message(unknown: UiText): UiText = when (this) {
     ErrorDialogKind.NETWORK -> MESSAGE_ERROR_DIALOG_NETWORK
     ErrorDialogKind.NO_GOOGLE_ACCOUNT -> MESSAGE_NO_GOOGLE_ACCOUNT
     ErrorDialogKind.UNKNOWN -> unknown

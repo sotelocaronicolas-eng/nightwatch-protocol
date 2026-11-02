@@ -6,11 +6,13 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.auth.AuthError
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.ui.profile.isPlausibleEmail
-import com.example.nightwatchprotocol.ui.verifycode.MESSAGE_WAIT_BEFORE_NEW_CODE
+import com.example.nightwatchprotocol.ui.verifycode.TEXT_WAIT_BEFORE_NEW_CODE
 import com.example.nightwatchprotocol.ui.verifycode.RecoveryCodeFlow
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeViewModel
 import kotlin.coroutines.cancellation.CancellationException
@@ -29,13 +31,13 @@ enum class RecoveryStep {
 }
 
 /** Why the email step failed; [message] is what the dialog shows under the field. */
-enum class RecoveryEmailError(val message: String) {
-    InvalidEmail("Correo electrónico inválido"),
-    NotFound("Correo no encontrado"),
-    GoogleAccountOnly("Esta cuenta se creó con Google. Usa «Continuar con Google»"),
-    TooSoon(MESSAGE_WAIT_BEFORE_NEW_CODE),
-    Offline("Sin conexión a internet"),
-    Generic("Se produjo un error inesperado. Intenta de nuevo."),
+enum class RecoveryEmailError(val message: UiText) {
+    InvalidEmail(UiText.of(R.string.common_invalid_email)),
+    NotFound(UiText.of(R.string.auth_recovery_email_not_found)),
+    GoogleAccountOnly(UiText.of(R.string.auth_google_account_hint)),
+    TooSoon(TEXT_WAIT_BEFORE_NEW_CODE),
+    Offline(UiText.of(R.string.common_no_connection)),
+    Generic(UiText.of(R.string.common_generic_error)),
 }
 
 data class PasswordRecoveryUiState(

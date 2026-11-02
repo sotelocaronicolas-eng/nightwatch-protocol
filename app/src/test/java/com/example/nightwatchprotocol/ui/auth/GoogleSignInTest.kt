@@ -4,6 +4,8 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.exceptions.NoCredentialException
 import com.example.nightwatchprotocol.ui.auth.login.ErrorDialogKind
+import com.example.nightwatchprotocol.data.common.UiText
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.ui.auth.login.MESSAGE_ERROR_DIALOG_NETWORK
 import com.example.nightwatchprotocol.ui.auth.login.message
 import org.junit.Assert.assertEquals
@@ -25,10 +27,14 @@ class GoogleSignInTest {
     fun noAccountDialog_asksToAddAGoogleAccount_andOtherKindsKeepTheirTexts() {
         assertEquals(
             "Agrega una cuenta de Google en tu teléfono para continuar",
-            ErrorDialogKind.NO_GOOGLE_ACCOUNT.message(unknown = "x"),
+            ErrorDialogKind.NO_GOOGLE_ACCOUNT.message(unknown = UiText.dynamic("x")).text(),
         )
-        assertEquals("x", ErrorDialogKind.UNKNOWN.message(unknown = "x"))
-        assertEquals(MESSAGE_ERROR_DIALOG_NETWORK, ErrorDialogKind.NETWORK.message(unknown = "x"))
+        assertEquals("x", ErrorDialogKind.UNKNOWN.message(unknown = UiText.dynamic("x")).text())
+        assertEquals(MESSAGE_ERROR_DIALOG_NETWORK, ErrorDialogKind.NETWORK.message(unknown = UiText.dynamic("x")))
+        assertEquals(
+            "Sin conexión a internet. Verifica tu conexión e intenta de nuevo.",
+            MESSAGE_ERROR_DIALOG_NETWORK.text(),
+        )
     }
 
     @Test
