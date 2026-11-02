@@ -14,12 +14,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 
 private val ProfileButtonShape = RoundedCornerShape(20.dp)
 
@@ -30,6 +30,7 @@ fun ProfileButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    containerColor: Color = NightWatchTheme.colors.ctaSurface,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -38,13 +39,13 @@ fun ProfileButton(
             .height(47.dp)
             .alpha(if (enabled) 1f else 0.6f)
             .shadow(4.dp, ProfileButtonShape)
-            .background(NightWatchSurfaceButton, ProfileButtonShape)
+            .background(containerColor, ProfileButtonShape)
             .clip(ProfileButtonShape)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
     ) {
         Text(
             text = text,
-            color = Color.Black,
+            color = NightWatchTheme.colors.onButton,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp,

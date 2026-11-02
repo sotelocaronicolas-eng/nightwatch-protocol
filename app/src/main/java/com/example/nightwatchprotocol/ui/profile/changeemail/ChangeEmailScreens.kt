@@ -28,8 +28,8 @@ import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchSecondaryText
 
 // "Confirmar Correo": the new address is typed here and a 6-digit code is sent to it. "Verifica tu Correo" is the shared
 // code screen (ui/verifycode).
@@ -95,7 +95,7 @@ fun ChangeEmailScreen(
                 } else {
                     Text(
                         text = stringResource(R.string.profile_edit_google_account_notice),
-                        color = NightWatchHeaderPanel,
+                        color = NightWatchSecondaryText,
                         fontFamily = NightWatchBodyFontFamily,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center,
@@ -129,7 +129,7 @@ internal fun EmailScreenHeader(title: String, message: String) {
     )
     Text(
         text = message,
-        color = NightWatchHeaderPanel,
+        color = NightWatchSecondaryText,
         fontFamily = NightWatchBodyFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 13.sp,

@@ -25,8 +25,8 @@ import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchSecondaryText
 
 @Composable
 fun RecoveryEmailScreen(
@@ -69,7 +69,7 @@ fun RecoveryEmailScreen(
                 )
                 Text(
                     text = stringResource(R.string.profile_recovery_email_message),
-                    color = NightWatchHeaderPanel,
+                    color = NightWatchSecondaryText,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 13.sp,

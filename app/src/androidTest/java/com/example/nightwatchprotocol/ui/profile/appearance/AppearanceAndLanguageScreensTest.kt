@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.example.nightwatchprotocol.data.preferences.ThemeMode
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -17,7 +18,7 @@ class AppearanceAndLanguageScreensTest {
 
     @Test
     fun appearance_showsTheHintAndTheThreeOptions() {
-        composeTestRule.setContent { NightWatchProtocolTheme { AppearanceScreen(onClose = {}) } }
+        composeTestRule.setContent { NightWatchProtocolTheme { AppearanceContent(themeMode = ThemeMode.DARK, onThemeSelected = {}, onClose = {}) } }
 
         composeTestRule.onNodeWithText("Elige cómo se ve NightWatch Protocol en tu dispositivo.").assertIsDisplayed()
         composeTestRule.onNodeWithText("Oscuro").assertIsDisplayed()

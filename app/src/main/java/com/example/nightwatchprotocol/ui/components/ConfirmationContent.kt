@@ -22,7 +22,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
@@ -32,12 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
+import com.example.nightwatchprotocol.ui.theme.NightWatchSecondaryText
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
-
-private val ConfirmationPanelColor = Color(0xFF447579)
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /**
  * The "¡... actualizado!" screens from Figma: gear background, check circle, title, message and one button.
@@ -62,7 +60,7 @@ fun ConfirmationContent(
             } else {
                 TitleTopBar(title = headerTitle, onClose = onClose)
             }
-            Box(modifier = Modifier.weight(1f).fillMaxWidth().background(ConfirmationPanelColor)) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth().background(NightWatchTheme.colors.confirmationPanel)) {
                 // Decorative gears: bottom-right large and top-left small, both at 25% like the design.
                 Image(
                     painter = painterResource(R.drawable.img_gear_large),
@@ -108,7 +106,7 @@ fun ConfirmationContent(
                     )
                     Text(
                         text = message,
-                        color = NightWatchHeaderPanel,
+                        color = NightWatchSecondaryText,
                         fontFamily = NightWatchBodyFontFamily,
                         fontWeight = FontWeight.Medium,
                         fontSize = messageSizeSp.sp,
@@ -123,7 +121,8 @@ fun ConfirmationContent(
                         .padding(bottom = 110.dp),
                 ) {
                     if (headerTitle == null) {
-                        ProfileButton(text = buttonText, onClick = onButtonClick)
+                        // D9D9D9 in both themes: the light panel is white, a white button would vanish on it.
+                        ProfileButton(text = buttonText, onClick = onButtonClick, containerColor = NightWatchSurfaceButton)
                     } else {
                         WidePillButton(text = buttonText, onClick = onButtonClick)
                     }
@@ -147,7 +146,7 @@ private fun WidePillButton(text: String, onClick: () -> Unit) {
     ) {
         Text(
             text = text,
-            color = Color(0xFF162523),
+            color = NightWatchTheme.colors.textOnLight,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp,

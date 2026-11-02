@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -36,6 +35,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchDisplayStyle
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 // "Ayuda y Soporte" and "Acerca de" are static: the design has no answers, links or addresses, so none of
 // the rows or the support button do anything yet.
@@ -67,7 +67,7 @@ fun HelpScreen(onClose: () -> Unit) {
                 )
                 Text(
                     text = stringResource(R.string.settings_help_contact_support),
-                    color = Color(0xFF162523),
+                    color = NightWatchTheme.colors.textOnLight,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,

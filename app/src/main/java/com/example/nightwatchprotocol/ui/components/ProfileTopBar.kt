@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -27,8 +26,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
-
-private val TopBarTextColor = Color(0xFFDDDDDD)
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /** Logo, app name, "X" and the white line from the Figma profile screens. Sits below the status bar. */
 @Composable
@@ -45,7 +43,7 @@ fun ProfileTopBar(
             )
             Text(
                 text = stringResource(R.string.common_app_title),
-                color = TopBarTextColor,
+                color = NightWatchTheme.colors.topBarText,
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
@@ -77,7 +75,7 @@ fun ProfileTopBar(
                 .align(Alignment.BottomStart)
                 .fillMaxWidth()
                 .height(4.dp)
-                .background(Color.White),
+                .background(NightWatchTheme.colors.headerLine),
         )
     }
 }

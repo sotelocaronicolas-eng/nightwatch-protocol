@@ -30,7 +30,7 @@ import com.example.nightwatchprotocol.data.social.ChallengeStatus
 import com.example.nightwatchprotocol.data.social.Friend
 import com.example.nightwatchprotocol.data.social.ReceivedChallenge
 import com.example.nightwatchprotocol.data.social.SentChallenge
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 

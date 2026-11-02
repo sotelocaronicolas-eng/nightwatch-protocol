@@ -44,12 +44,11 @@ import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
-import com.example.nightwatchprotocol.ui.theme.NightWatchError
-import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
-import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
-
-private val DeviceLabelColor = Color(0xFF404040)
+import com.example.nightwatchprotocol.ui.theme.NightWatchSecondaryText
+import com.example.nightwatchprotocol.ui.theme.NightWatchTextError
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
+import com.example.nightwatchprotocol.ui.theme.errorMark
 
 /** Cooperative device list (see [DEVICES_LIMITATION_NOTICE]): the registered devices of the account, not the backend's sessions. */
 @Composable
@@ -94,7 +93,7 @@ fun DevicesScreen(
                     )
                     Text(
                         text = stringResource(R.string.devices_subtitle),
-                        color = NightWatchHeaderPanel,
+                        color = NightWatchSecondaryText,
                         fontFamily = NightWatchBodyFontFamily,
                         fontWeight = FontWeight.Medium,
                         fontSize = 13.sp,
@@ -110,7 +109,7 @@ fun DevicesScreen(
                         modifier = Modifier.fillMaxWidth().padding(top = 26.dp),
                     ) {
                         if (uiState.isLoading && uiState.devices.isEmpty()) {
-                            InfoText(stringResource(R.string.devices_loading), NightWatchHeaderPanel)
+                            InfoText(stringResource(R.string.devices_loading), NightWatchSecondaryText)
                         }
                         uiState.devices.forEach { device ->
                             DeviceCard(
@@ -121,9 +120,9 @@ fun DevicesScreen(
                                 },
                             )
                         }
-                        uiState.error?.let { InfoText(it.asString(), NightWatchError) }
-                        uiState.notice?.let { InfoText(it.asString(), NightWatchHeaderPanel) }
-                        InfoText(DEVICES_LIMITATION_NOTICE.asString(), NightWatchHeaderPanel, size = 11)
+                        uiState.error?.let { InfoText(errorMark(it.asString()), NightWatchTextError) }
+                        uiState.notice?.let { InfoText(it.asString(), NightWatchSecondaryText) }
+                        InfoText(DEVICES_LIMITATION_NOTICE.asString(), NightWatchSecondaryText, size = 11)
                     }
                     Box(modifier = Modifier.padding(bottom = 120.dp))
                 }
@@ -162,7 +161,7 @@ private fun DeviceCard(name: String, status: String, onClick: (() -> Unit)?) {
             .fillMaxWidth()
             .height(60.dp)
             .shadow(4.dp, shape)
-            .background(NightWatchSurfaceButtonMuted, shape)
+            .background(NightWatchTheme.colors.fieldSurface, shape)
             .border(2.dp, NightWatchBorderAccent, shape)
             .clip(shape)
             .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
@@ -170,7 +169,7 @@ private fun DeviceCard(name: String, status: String, onClick: (() -> Unit)?) {
     ) {
         Text(
             text = "📱  $name",
-            color = Color.Black,
+            color = NightWatchTheme.colors.onSurfaceButton,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 15.sp,
@@ -179,14 +178,14 @@ private fun DeviceCard(name: String, status: String, onClick: (() -> Unit)?) {
         )
         Text(
             text = status,
-            color = DeviceLabelColor,
+            color = NightWatchTheme.colors.textMutedOnLight,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 11.sp,
             modifier = Modifier.padding(start = 8.dp, end = 8.dp),
         )
         if (onClick != null) {
-            Text(text = "›", color = Color.Black, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+            Text(text = "›", color = NightWatchTheme.colors.onSurfaceButton, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.Bold, fontSize = 22.sp)
         }
     }
 }

@@ -51,7 +51,7 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.Lesson
 import com.example.nightwatchprotocol.data.learning.LessonCard
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.home.PillColor
 import com.example.nightwatchprotocol.ui.home.showNotice

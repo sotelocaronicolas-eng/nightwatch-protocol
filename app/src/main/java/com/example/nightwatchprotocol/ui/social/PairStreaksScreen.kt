@@ -23,7 +23,7 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.social.PairState
 import com.example.nightwatchprotocol.data.social.PairStatus
 import com.example.nightwatchprotocol.data.social.PairStreak
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 
 /** "Racha en pareja": the list that replaces "Racha grupal" (decision D15). Tapping an active pair opens its detail. */

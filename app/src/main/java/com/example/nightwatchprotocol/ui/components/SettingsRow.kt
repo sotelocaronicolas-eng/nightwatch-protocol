@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -25,14 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
-
-/** Accent used for the selected card and the check mark in Apariencia and Idioma (Figma color/accent/gold). */
-val NightWatchGold = Color(0xFFE3B54F)
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 private val RowShape = RoundedCornerShape(16.dp)
-private val RowTextColor = Color(0xFF162523)
 
 /**
  * Light card with emoji, label and a trailing control, as in the Figma "ListItemRow".
@@ -48,6 +45,7 @@ fun SettingsRow(
     highlighted: Boolean = false,
     onClick: () -> Unit = {},
 ) {
+    val rowTextColor = NightWatchTheme.colors.textOnLight
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -61,11 +59,11 @@ fun SettingsRow(
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 16.dp),
     ) {
-        Text(text = emoji, color = Color.Black, fontSize = 18.sp)
+        Text(text = emoji, color = NightWatchTheme.colors.onSurfaceButton, fontSize = 18.sp)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                color = RowTextColor,
+                color = rowTextColor,
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 15.sp,
@@ -73,7 +71,7 @@ fun SettingsRow(
             if (subtitle != null) {
                 Text(
                     text = subtitle,
-                    color = RowTextColor,
+                    color = rowTextColor,
                     fontFamily = NightWatchBodyFontFamily,
                     fontSize = 12.sp,
                     maxLines = 1,
@@ -86,7 +84,7 @@ fun SettingsRow(
         } else {
             Text(
                 text = "›",
-                color = RowTextColor,
+                color = rowTextColor,
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 20.sp,

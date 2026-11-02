@@ -36,8 +36,9 @@ import com.example.nightwatchprotocol.ui.components.SettingsSwitch
 import com.example.nightwatchprotocol.ui.components.TitleTopBar
 import com.example.nightwatchprotocol.ui.social.messageRes
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchError
-import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
+import com.example.nightwatchprotocol.ui.theme.NightWatchSecondaryText
+import com.example.nightwatchprotocol.ui.theme.NightWatchTextError
+import com.example.nightwatchprotocol.ui.theme.errorMark
 
 @Composable
 fun PrivacySecurityScreen(
@@ -144,7 +145,7 @@ private fun PrivacySecurityContent(
                     onClick = { onBiometricLockToggle(!uiState.biometricLockEnabled) },
                 )
                 uiState.biometricError?.let { error ->
-                    Text(text = error.asString(), color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+                    Text(text = errorMark(error.asString()), color = NightWatchTextError,fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
                 }
                 SettingsRow(
                     emoji = "👁️",
@@ -159,7 +160,7 @@ private fun PrivacySecurityContent(
                     onClick = { onHidePublicProgressChange(!uiState.hidePublicProgress) },
                 )
                 uiState.hideProgressError?.let { error ->
-                    Text(text = stringResource(error.messageRes()), color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+                    Text(text = errorMark(stringResource(error.messageRes())), color = NightWatchTextError,fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
                 }
                 SettingsRow(
                     emoji = "⬇️",
@@ -169,9 +170,9 @@ private fun PrivacySecurityContent(
                 )
                 when (uiState.exportStatus) {
                     ExportStatus.Done ->
-                        Text(MESSAGE_EXPORT_DONE.asString(), color = NightWatchHeaderPanel, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+                        Text(MESSAGE_EXPORT_DONE.asString(), color = NightWatchSecondaryText, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
                     ExportStatus.Failed ->
-                        Text(MESSAGE_EXPORT_FAILED.asString(), color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+                        Text(errorMark(MESSAGE_EXPORT_FAILED.asString()), color = NightWatchTextError,fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
                     ExportStatus.InProgress, ExportStatus.Idle -> Unit
                 }
             }

@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,12 +40,13 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.profile.TEXT_PASSWORDS_DO_NOT_MATCH
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchError
-import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSuccess
 import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
-import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchSecondaryText
+import com.example.nightwatchprotocol.ui.theme.NightWatchTextError
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
+import com.example.nightwatchprotocol.ui.theme.errorMark
 
 @Composable
 fun ChangePasswordScreen(
@@ -97,7 +97,7 @@ private fun ChangePasswordContent(
                 if (!uiState.hasPassword) {
                     Text(
                         text = stringResource(R.string.profile_edit_google_account_notice),
-                        color = NightWatchHeaderPanel,
+                        color = NightWatchSecondaryText,
                         fontFamily = NightWatchBodyFontFamily,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(top = 32.dp),
@@ -139,8 +139,8 @@ private fun ChangePasswordContent(
                     }
                     uiState.formError?.let { error ->
                         Text(
-                            text = error.asString(),
-                            color = NightWatchError,
+                            text = errorMark(error.asString()),
+                            color = NightWatchTextError,
                             fontFamily = NightWatchBodyFontFamily,
                             fontSize = 13.sp,
                             modifier = Modifier.padding(top = 12.dp),
@@ -197,13 +197,13 @@ internal fun SaveButton(
             .height(48.dp)
             .alpha(if (enabled) 1f else 0.6f)
             .shadow(4.dp, NightWatchPillShape)
-            .background(NightWatchSurfaceButton, NightWatchPillShape)
+            .background(NightWatchTheme.colors.ctaSurface, NightWatchPillShape)
             .clip(NightWatchPillShape)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
     ) {
         Text(
             text = text,
-            color = Color(0xFF162523),
+            color = NightWatchTheme.colors.textOnLight,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp,

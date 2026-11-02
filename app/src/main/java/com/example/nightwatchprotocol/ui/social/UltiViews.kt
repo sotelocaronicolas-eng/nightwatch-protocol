@@ -28,7 +28,7 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.social.BattleState
 import com.example.nightwatchprotocol.data.social.UltiAttemptResult
 import com.example.nightwatchprotocol.data.social.UltiRole
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.lab.CommandInput
 import com.example.nightwatchprotocol.ui.lab.SendButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
