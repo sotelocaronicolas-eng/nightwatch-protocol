@@ -1,5 +1,7 @@
 package com.example.nightwatchprotocol.data.profile
 
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.UiText
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
@@ -87,12 +89,8 @@ fun birthDateIssue(date: BirthDate, today: BirthDate): BirthDateIssue? = when {
     else -> null
 }
 
-const val MESSAGE_BIRTH_DATE_FUTURE = "La fecha de nacimiento no puede ser futura"
-const val MESSAGE_BIRTH_DATE_TOO_OLD = "Revisa la fecha de nacimiento: la edad máxima es de 120 años"
-const val MESSAGE_BIRTH_DATE_INVALID = "La fecha de nacimiento no es válida"
-
-fun BirthDateIssue.message(): String = when (this) {
-    BirthDateIssue.NotARealDate -> MESSAGE_BIRTH_DATE_INVALID
-    BirthDateIssue.InTheFuture -> MESSAGE_BIRTH_DATE_FUTURE
-    BirthDateIssue.TooOld -> MESSAGE_BIRTH_DATE_TOO_OLD
+fun BirthDateIssue.message(): UiText = when (this) {
+    BirthDateIssue.NotARealDate -> UiText.of(R.string.profile_error_birth_date_invalid)
+    BirthDateIssue.InTheFuture -> UiText.of(R.string.profile_error_birth_date_future)
+    BirthDateIssue.TooOld -> UiText.of(R.string.profile_error_birth_date_too_old)
 }

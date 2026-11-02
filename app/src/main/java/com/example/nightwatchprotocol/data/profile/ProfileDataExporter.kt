@@ -1,6 +1,8 @@
 package com.example.nightwatchprotocol.data.profile
 
 import com.example.nightwatchprotocol.data.account.AccountRepository
+import com.example.nightwatchprotocol.data.common.TextResolver
+import com.example.nightwatchprotocol.data.common.resolve
 import com.example.nightwatchprotocol.data.quiz.QuizResultRepository
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -32,6 +34,8 @@ class ProfileDataExporter(
     private val profileRepository: ProfileRepository,
     private val quizResultRepository: QuizResultRepository,
     private val extrasRepository: ProfileExtrasRepository,
+    /** Turns the texts of the file (month, gender, level) into the language of the app at export time. */
+    private val texts: TextResolver,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
     private val json = Json { prettyPrint = true }
@@ -53,10 +57,10 @@ class ProfileDataExporter(
             put("nombre", account?.displayName)
             put("correo", account?.email)
             put("correoDeRecuperacion", recoveryEmail)
-            put("miembroDesde", account?.creationTimeMillis?.let { memberSinceLabel(it) })
-            put("genero", extras.gender?.label)
+            put("miembroDesde", account?.creationTimeMillis?.let { memberSinceLabel(it).resolve(texts) })
+            put("genero", extras.gender?.let { texts.string(it.labelRes, emptyList()) })
             put("fechaDeNacimiento", extras.birthDate?.iso())
-            put("nivel", levelLabel(quizResult))
+            put("nivel", levelText(quizResult).resolve(texts))
             put(
                 "categoriasDebiles",
                 buildJsonArray { quizResult?.weakCategories?.forEach { add(JsonPrimitive(it.name)) } },

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.theme.NightWatchButtonHeight
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnButton
@@ -67,7 +68,7 @@ fun GoogleSignInButton(
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
             )
-            Text("Continuar con Google")
+            Text(stringResource(R.string.common_continue_with_google))
         }
     }
 }

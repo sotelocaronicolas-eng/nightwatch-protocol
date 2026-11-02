@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
@@ -41,7 +42,7 @@ fun ProfileTopBar(
                 modifier = Modifier.padding(start = 11.dp, top = 9.dp).size(50.dp),
             )
             Text(
-                text = "Nightwatch Protocol",
+                text = stringResource(R.string.common_app_title),
                 color = TopBarTextColor,
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.SemiBold,
