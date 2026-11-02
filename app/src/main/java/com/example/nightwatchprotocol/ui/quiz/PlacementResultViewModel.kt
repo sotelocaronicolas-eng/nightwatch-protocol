@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.toRoute
+import com.example.nightwatchprotocol.data.profile.labelText
 import com.example.nightwatchprotocol.data.quiz.PlacementLevel
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
 import com.example.nightwatchprotocol.data.quiz.buildStudyPlan
@@ -32,7 +33,7 @@ class PlacementResultViewModel(
 
     private val _uiState = MutableStateFlow(
         PlacementResultUiState(
-            level = level.name,
+            level = level.labelText(),
             studyPlan = buildStudyPlan(level, weakCategories),
             saveFailed = route.saveFailed,
         ),

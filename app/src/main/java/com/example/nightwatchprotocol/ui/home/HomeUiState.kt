@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.home
 
 import androidx.annotation.Keep
 import com.example.nightwatchprotocol.data.avatar.AvatarDisplay
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.StreakState
 import kotlinx.serialization.Serializable
@@ -36,10 +37,10 @@ sealed interface DailyLessonState {
 
 data class HomeUiState(
     val selectedTab: HomeTab = HomeTab.Inicio,
-    val displayName: String = "",
+    val displayName: UiText = UiText.dynamic(""),
     val avatar: AvatarDisplay = AvatarDisplay.Initial("?"),
     /** BAJO / MEDIO / ALTO, "Sin evaluar", or null while it is being read. */
-    val level: String? = null,
+    val level: UiText? = null,
     /** The real current streak (decision that replaces P9); read together with the progress of "Lección diaria". */
     val streak: StreakState = StreakState.Loading,
     val dailyLesson: DailyLessonState = DailyLessonState.Loading,

@@ -29,7 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.common.asString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -140,9 +143,10 @@ private fun PlacementQuizScreenContent(
             }
             NightWatchButton(
                 text = when {
-                    uiState.isSubmitting -> "Guardando…"
-                    uiState.questions.isNotEmpty() && uiState.currentIndex == uiState.questions.lastIndex -> "Finalizar"
-                    else -> "Siguiente"
+                    uiState.isSubmitting -> stringResource(R.string.quiz_saving)
+                    uiState.questions.isNotEmpty() && uiState.currentIndex == uiState.questions.lastIndex ->
+                        stringResource(R.string.quiz_finish)
+                    else -> stringResource(R.string.quiz_next)
                 },
                 onClick = onNextClicked,
                 enabled = uiState.selectedOptionIndex != null && !uiState.isSubmitting,
@@ -173,7 +177,7 @@ private fun QuizHeader(uiState: PlacementQuizUiState) {
             )
         }
         Text(
-            text = uiState.progressLabel,
+            text = uiState.progressLabel.asString(),
             color = NightWatchOnBackground,
             style = MaterialTheme.typography.labelLarge,
             fontSize = 14.sp,
@@ -191,9 +195,12 @@ private fun QuizHeader(uiState: PlacementQuizUiState) {
     }
 }
 
-private fun categoryLabel(category: QuizCategory): String = when (category) {
-    QuizCategory.CONCEPTOS_BASICOS -> "🛡️ Conceptos Básicos"
-    QuizCategory.CONTRASENAS -> "🔑 Contraseñas y Autenticación"
-    QuizCategory.INGENIERIA_SOCIAL -> "🎣 Phishing / Ingeniería Social"
-    QuizCategory.REDES_MALWARE -> "🌐 Redes y Malware"
-}
+@Composable
+private fun categoryLabel(category: QuizCategory): String = stringResource(
+    when (category) {
+        QuizCategory.CONCEPTOS_BASICOS -> R.string.quiz_category_basics
+        QuizCategory.CONTRASENAS -> R.string.quiz_category_passwords
+        QuizCategory.INGENIERIA_SOCIAL -> R.string.quiz_category_social
+        QuizCategory.REDES_MALWARE -> R.string.quiz_category_networks
+    },
+)

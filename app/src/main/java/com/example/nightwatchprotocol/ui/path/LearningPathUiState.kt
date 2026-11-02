@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.ui.path
 
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.learning.IslandState
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.TOTAL_ISLANDS
@@ -24,7 +25,7 @@ sealed interface PathStatus {
 
 data class LearningPathUiState(
     /** BAJO / MEDIO / ALTO, "Sin evaluar", or null while it is being read. */
-    val level: String? = null,
+    val level: UiText? = null,
     val status: PathStatus = PathStatus.Loading,
     /** The six islands in order; empty only if the lesson content could not be read. */
     val islands: List<IslandUi> = emptyList(),

@@ -18,7 +18,8 @@ import com.example.nightwatchprotocol.data.learning.LearningProgressRepository
 import com.example.nightwatchprotocol.data.learning.LearningSnapshot
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.deriveLearningProgress
-import com.example.nightwatchprotocol.data.profile.LEVEL_NOT_ASSESSED
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import com.example.nightwatchprotocol.data.quiz.QuizResultRepository
 import com.example.nightwatchprotocol.ui.home.readLevelLabel
@@ -58,7 +59,7 @@ class LearningPathViewModel(
     init {
         val uid = authRepository.currentUserUid
         if (uid == null) {
-            _uiState.update { it.copy(level = LEVEL_NOT_ASSESSED) }
+            _uiState.update { it.copy(level = UiText.of(R.string.common_level_not_assessed)) }
         } else {
             viewModelScope.launch {
                 val level = readLevelLabel(quizResultRepository, uid)

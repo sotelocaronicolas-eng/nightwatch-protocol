@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.path
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.common.FailureKind
 import com.example.nightwatchprotocol.data.learning.FakeLearningContentRepository
@@ -141,16 +142,16 @@ class LearningPathViewModelTest {
             quiz.getResultResult = Result.success(PlacementResult(level, emptySet()))
             val vm = viewModel()
             advanceUntilIdle()
-            assertEquals(level.name, vm.uiState.value.level)
+            assertEquals(level.name, vm.uiState.value.level.text())
         }
 
         quiz.getResultResult = Result.success(null)
         val none = viewModel()
         advanceUntilIdle()
-        assertEquals("Sin evaluar", none.uiState.value.level)
+        assertEquals("Sin evaluar", none.uiState.value.level.text())
 
         auth.currentUserUid = null
-        assertEquals("Sin evaluar", viewModel().uiState.value.level)
+        assertEquals("Sin evaluar", viewModel().uiState.value.level.text())
     }
 
     @Test

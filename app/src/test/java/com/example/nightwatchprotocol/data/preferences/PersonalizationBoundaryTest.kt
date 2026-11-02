@@ -33,6 +33,7 @@ class PersonalizationBoundaryTest {
      *  - `data/profile/BirthDate.kt`, `data/profile/ProfileFormatters.kt`, `data/profile/Gender.kt`: the messages and labels of
      *    the profile fields.
      *  - `data/device/DeviceFormatters.kt`: "Ahora / Hace N min" of the devices list.
+     *  - `data/quiz/StudyPlan.kt`: the twelve topics of the recommended study plan (a fixed table).
      *  - `data/notifications/ReminderKind.kt` (the ids of the texts) and `ReminderNotifier.kt` (the icon and the `Context` that
      *    resolves them when the notification is posted). `ReminderWorker.kt` and the rest of the folder are NOT on the list.
      */
@@ -43,6 +44,7 @@ class PersonalizationBoundaryTest {
         "/data/profile/ProfileFormatters.kt",
         "/data/profile/Gender.kt",
         "/data/device/DeviceFormatters.kt",
+        "/data/quiz/StudyPlan.kt",
         "/data/notifications/ReminderKind.kt",
         "/data/notifications/ReminderNotifier.kt",
     )

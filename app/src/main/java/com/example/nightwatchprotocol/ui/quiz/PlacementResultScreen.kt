@@ -19,7 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.common.asString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -74,14 +77,14 @@ private fun PlacementResultScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "¡Resultados listos!",
+                text = stringResource(R.string.quiz_result_title),
                 color = NightWatchOnBackground,
                 style = NightWatchSectionTitleStyle,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
             Text(
-                text = "Tu nivel: ${uiState.level}",
+                text = stringResource(R.string.quiz_result_level, uiState.level.asString()),
                 color = NightWatchOnButton,
                 style = MaterialTheme.typography.labelLarge,
                 fontSize = 14.sp,
@@ -94,7 +97,7 @@ private fun PlacementResultScreenContent(
                     .padding(horizontal = 32.dp, vertical = 14.dp),
             )
             Text(
-                text = "Tu plan de estudio recomendado:",
+                text = stringResource(R.string.quiz_result_plan_title),
                 color = NightWatchOnBackground,
                 style = MaterialTheme.typography.labelLarge,
                 fontSize = 14.sp,
@@ -103,7 +106,7 @@ private fun PlacementResultScreenContent(
             )
             uiState.studyPlan.forEach { topic ->
                 Text(
-                    text = topic,
+                    text = topic.asString(),
                     color = Color.Black,
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 14.sp,
@@ -118,7 +121,7 @@ private fun PlacementResultScreenContent(
             }
             if (uiState.saveFailed) {
                 Text(
-                    text = "No pudimos guardar tu resultado; es posible que veas este quiz de nuevo la próxima vez.",
+                    text = stringResource(R.string.quiz_result_save_failed),
                     color = NightWatchOnBackground,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
@@ -126,7 +129,7 @@ private fun PlacementResultScreenContent(
                 )
             }
             NightWatchButton(
-                text = "Continuar",
+                text = stringResource(R.string.quiz_result_continue),
                 onClick = onContinueClicked,
                 modifier = Modifier.padding(top = 32.dp),
             )

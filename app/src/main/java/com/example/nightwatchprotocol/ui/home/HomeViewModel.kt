@@ -25,8 +25,9 @@ import com.example.nightwatchprotocol.data.learning.computeStreak
 import com.example.nightwatchprotocol.data.learning.deriveLearningProgress
 import com.example.nightwatchprotocol.data.learning.practiceMoments
 import java.time.Clock
-import com.example.nightwatchprotocol.data.profile.LEVEL_NOT_ASSESSED
-import com.example.nightwatchprotocol.data.profile.profileDisplayName
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.UiText
+import com.example.nightwatchprotocol.data.profile.profileDisplayText
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import com.example.nightwatchprotocol.data.quiz.QuizResultRepository
 import com.example.nightwatchprotocol.ui.navigation.Home
@@ -64,7 +65,7 @@ class HomeViewModel(
     private val _uiState = MutableStateFlow(
         HomeUiState(
             selectedTab = HomeTab.fromName(savedStateHandle[KEY_SELECTED_TAB]) ?: initialTab,
-            displayName = profileDisplayName(account?.displayName, account?.email),
+            displayName = profileDisplayText(account?.displayName, account?.email),
             avatar = avatarDisplay(null, account?.displayName, account?.email),
         ),
     )
@@ -81,7 +82,7 @@ class HomeViewModel(
         }
         val uid = authRepository.currentUserUid
         if (uid == null) {
-            _uiState.update { it.copy(level = LEVEL_NOT_ASSESSED) }
+            _uiState.update { it.copy(level = UiText.of(R.string.common_level_not_assessed)) }
         } else {
             viewModelScope.launch { avatarRepository.load(uid) }
             viewModelScope.launch { loadLevel(uid) }
@@ -132,7 +133,7 @@ class HomeViewModel(
     /** Re-reads name and email, which may have changed on Editar Perfil while Home stayed in the back stack. */
     fun refreshAccount() {
         account = accountRepository.currentProfile()
-        _uiState.update { it.copy(displayName = profileDisplayName(account?.displayName, account?.email)) }
+        _uiState.update { it.copy(displayName = profileDisplayText(account?.displayName, account?.email)) }
     }
 
     /**
