@@ -38,6 +38,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
@@ -82,7 +84,7 @@ fun DevicesScreen(
                         .padding(horizontal = 41.dp),
                 ) {
                     Text(
-                        text = "Administrar Dispositivos",
+                        text = stringResource(R.string.devices_title),
                         color = NightWatchOnBackground,
                         fontFamily = NightWatchBodyFontFamily,
                         fontWeight = FontWeight.Bold,
@@ -91,7 +93,7 @@ fun DevicesScreen(
                         modifier = Modifier.padding(top = 36.dp),
                     )
                     Text(
-                        text = "Sesiones activas en tu cuenta",
+                        text = stringResource(R.string.devices_subtitle),
                         color = NightWatchHeaderPanel,
                         fontFamily = NightWatchBodyFontFamily,
                         fontWeight = FontWeight.Medium,
@@ -108,25 +110,25 @@ fun DevicesScreen(
                         modifier = Modifier.fillMaxWidth().padding(top = 26.dp),
                     ) {
                         if (uiState.isLoading && uiState.devices.isEmpty()) {
-                            InfoText("Cargando dispositivos…", NightWatchHeaderPanel)
+                            InfoText(stringResource(R.string.devices_loading), NightWatchHeaderPanel)
                         }
                         uiState.devices.forEach { device ->
                             DeviceCard(
-                                name = device.name,
-                                status = device.statusLabel,
+                                name = device.name.asString(),
+                                status = device.statusLabel.asString(),
                                 onClick = if (device.isCurrent || device.isRevoked) null else {
                                     { viewModel.onDeviceClicked(device.id) }
                                 },
                             )
                         }
-                        uiState.error?.let { InfoText(it, NightWatchError) }
-                        uiState.notice?.let { InfoText(it, NightWatchHeaderPanel) }
-                        InfoText(DEVICES_LIMITATION_NOTICE, NightWatchHeaderPanel, size = 11)
+                        uiState.error?.let { InfoText(it.asString(), NightWatchError) }
+                        uiState.notice?.let { InfoText(it.asString(), NightWatchHeaderPanel) }
+                        InfoText(DEVICES_LIMITATION_NOTICE.asString(), NightWatchHeaderPanel, size = 11)
                     }
                     Box(modifier = Modifier.padding(bottom = 120.dp))
                 }
                 ProfileButton(
-                    text = "CERRAR SESIÓN EN TODOS",
+                    text = stringResource(R.string.devices_sign_out_all),
                     onClick = viewModel::onSignOutAllClicked,
                     enabled = !uiState.isWorking,
                     modifier = Modifier

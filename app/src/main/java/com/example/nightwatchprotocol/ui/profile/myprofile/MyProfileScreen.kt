@@ -34,6 +34,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.UiText
+import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
@@ -97,7 +101,7 @@ private fun MyProfileContent(
                             .shadow(4.dp, CircleShape),
                     )
                     Text(
-                        text = "Mi Avatar",
+                        text = stringResource(R.string.profile_my_avatar),
                         color = NightWatchOnBackground,
                         fontFamily = NightWatchBodyFontFamily,
                         fontWeight = FontWeight.Medium,
@@ -110,7 +114,7 @@ private fun MyProfileContent(
                     ) {
                         InfoCard(uiState = uiState)
                         ProfileButton(
-                            text = "EDITAR PERFIL",
+                            text = stringResource(R.string.profile_my_profile_edit_button),
                             onClick = onEditProfile,
                             modifier = Modifier.padding(top = 55.dp),
                         )
@@ -123,7 +127,7 @@ private fun MyProfileContent(
 
 /** Light header with the rounded cut-outs from the design; the dark body overlaps its lower part. */
 @Composable
-private fun HeaderPanel(displayName: String) {
+private fun HeaderPanel(displayName: UiText) {
     Box(modifier = Modifier.fillMaxWidth().height(161.dp)) {
         Box(Modifier.fillMaxSize().background(NightWatchHeaderPanel))
         Box(
@@ -148,7 +152,7 @@ private fun HeaderPanel(displayName: String) {
                 .background(NightWatchHeaderPanel, RoundedCornerShape(100.dp)),
         )
         Text(
-            text = "Mi Perfil",
+            text = stringResource(R.string.profile_my_profile_title),
             color = Color.Black,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Bold,
@@ -156,7 +160,7 @@ private fun HeaderPanel(displayName: String) {
             modifier = Modifier.padding(start = 24.dp, top = 14.dp),
         )
         Text(
-            text = displayName,
+            text = displayName.asString(),
             color = Color(0xFF5E5E5E),
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Bold,
@@ -179,21 +183,21 @@ private fun InfoCard(uiState: MyProfileUiState, modifier: Modifier = Modifier) {
             .border(2.dp, NightWatchBorderAccent, shape),
     ) {
         // Both address rows use the same value style as every other row; they only differ in layout (see below).
-        InfoRow("Correo electrónico", uiState.email, rowHeight = 55.dp, stackValue = true)
+        InfoRow(stringResource(R.string.common_email_label), uiState.email, rowHeight = 55.dp, stackValue = true)
         InfoDivider()
-        InfoRow("Nivel actual", uiState.level ?: "…", rowHeight = 43.dp)
+        InfoRow(stringResource(R.string.profile_info_level), uiState.level?.asString() ?: "…", rowHeight = 43.dp)
         InfoDivider()
-        InfoRow("Racha activa", streakValueText(uiState.streak), rowHeight = 43.dp)
+        InfoRow(stringResource(R.string.profile_info_streak), streakValueText(uiState.streak), rowHeight = 43.dp)
         InfoDivider()
-        InfoRow("Miembro desde", uiState.memberSince, rowHeight = 41.dp)
+        InfoRow(stringResource(R.string.profile_info_member_since), uiState.memberSince.asString(), rowHeight = 41.dp)
         InfoDivider()
-        InfoRow("Género", uiState.gender ?: "—", rowHeight = 43.dp)
+        InfoRow(stringResource(R.string.profile_field_gender), uiState.gender?.asString() ?: "—", rowHeight = 43.dp)
         InfoDivider()
-        InfoRow("Fecha de nacimiento", uiState.birthDate ?: "—", rowHeight = 43.dp)
+        InfoRow(stringResource(R.string.profile_field_birth_date), uiState.birthDate ?: "—", rowHeight = 43.dp)
         InfoDivider()
         InfoRow(
             // (Figma writes "recuperacion" without the accent; the correct spelling is used.)
-            "Correo de recuperación",
+            stringResource(R.string.profile_info_recovery_email),
             uiState.recoveryEmail ?: "—",
             rowHeight = 49.dp,
             stackValue = true,

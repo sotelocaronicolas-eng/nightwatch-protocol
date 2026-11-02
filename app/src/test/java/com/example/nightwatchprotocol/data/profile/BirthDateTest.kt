@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.data.profile
 
 import java.util.Calendar
 import java.util.TimeZone
+import com.example.nightwatchprotocol.text
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -99,9 +100,9 @@ class BirthDateTest {
 
     @Test
     fun everyIssueHasItsOwnSpanishMessage() {
-        assertEquals("La fecha de nacimiento no puede ser futura", BirthDateIssue.InTheFuture.message())
-        assertEquals("Revisa la fecha de nacimiento: la edad máxima es de 120 años", BirthDateIssue.TooOld.message())
-        assertEquals("La fecha de nacimiento no es válida", BirthDateIssue.NotARealDate.message())
+        assertEquals("La fecha de nacimiento no puede ser futura", BirthDateIssue.InTheFuture.message().text())
+        assertEquals("Revisa la fecha de nacimiento: la edad máxima es de 120 años", BirthDateIssue.TooOld.message().text())
+        assertEquals("La fecha de nacimiento no es válida", BirthDateIssue.NotARealDate.message().text())
     }
 
     // ---- Comparison and the date picker's UTC milliseconds ----

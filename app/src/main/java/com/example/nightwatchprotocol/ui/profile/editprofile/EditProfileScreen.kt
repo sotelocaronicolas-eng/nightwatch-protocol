@@ -34,6 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.data.profile.BirthDate
 import com.example.nightwatchprotocol.data.profile.Gender
 import com.example.nightwatchprotocol.ui.components.BirthDatePickerDialog
@@ -129,7 +132,7 @@ private fun EditProfileContent(
                     .navigationBarsPadding(),
             ) {
                 Text(
-                    text = "Editar Perfil",
+                    text = stringResource(R.string.profile_edit_title),
                     color = NightWatchOnBackground,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.Bold,
@@ -141,13 +144,13 @@ private fun EditProfileContent(
                     size = 128.dp,
                     modifier = Modifier.padding(top = 14.dp).shadow(4.dp, CircleShape).alpha(if (uiState.isAvatarBusy) 0.5f else 1f),
                 )
-                AvatarLink(text = "Cambiar Avatar", enabled = !uiState.isAvatarBusy, onClick = onChangeAvatar)
+                AvatarLink(text = stringResource(R.string.profile_edit_change_avatar), enabled = !uiState.isAvatarBusy, onClick = onChangeAvatar)
                 if (uiState.hasPhoto) {
-                    AvatarLink(text = "Quitar foto", enabled = !uiState.isAvatarBusy, onClick = onRemoveAvatar)
+                    AvatarLink(text = stringResource(R.string.profile_edit_remove_photo), enabled = !uiState.isAvatarBusy, onClick = onRemoveAvatar)
                 }
                 uiState.avatarError?.let { error ->
                     Text(
-                        text = error,
+                        text = error.asString(),
                         color = NightWatchError,
                         fontFamily = NightWatchBodyFontFamily,
                         fontSize = 12.sp,
@@ -161,39 +164,39 @@ private fun EditProfileContent(
                     modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
                 ) {
                     NightWatchTextField(
-                        label = "Nombre completo",
+                        label = stringResource(R.string.profile_edit_full_name),
                         value = uiState.name,
                         onValueChange = onNameChange,
                         isError = uiState.nameError != null,
-                        supportingText = uiState.nameError,
+                        supportingText = uiState.nameError?.asString(),
                     )
                     if (uiState.hasPassword) {
                         NightWatchTextField(
-                            label = "Correo electrónico",
+                            label = stringResource(R.string.common_email_label),
                             value = uiState.email,
                             onValueChange = onEmailChange,
                             isError = uiState.emailError != null,
-                            supportingText = uiState.emailError,
+                            supportingText = uiState.emailError?.asString(),
                         )
                         NightWatchTextField(
-                            label = "Nueva contraseña",
+                            label = stringResource(R.string.common_new_password_label),
                             value = uiState.newPassword,
                             onValueChange = onNewPasswordChange,
                             isPassword = true,
                             isError = uiState.passwordError != null,
-                            supportingText = uiState.passwordError,
+                            supportingText = uiState.passwordError?.asString(),
                         )
                         NightWatchTextField(
-                            label = "Verificar contraseña",
+                            label = stringResource(R.string.profile_edit_verify_password),
                             value = uiState.confirmPassword,
                             onValueChange = onConfirmPasswordChange,
                             isPassword = true,
                             isError = uiState.confirmError != null,
-                            supportingText = uiState.confirmError,
+                            supportingText = uiState.confirmError?.asString(),
                         )
                     } else {
                         Text(
-                            text = GOOGLE_ACCOUNT_NOTICE,
+                            text = stringResource(R.string.profile_edit_google_account_notice),
                             color = NightWatchHeaderPanel,
                             fontFamily = NightWatchBodyFontFamily,
                             fontSize = 13.sp,
@@ -204,13 +207,13 @@ private fun EditProfileContent(
                     // Optional personal data (not in the Figma frame): gender menu and Material 3 date picker.
                     Box {
                         NightWatchSelectField(
-                            label = "Género",
-                            valueText = uiState.gender?.label.orEmpty(),
+                            label = stringResource(R.string.profile_field_gender),
+                            valueText = uiState.gender?.let { stringResource(it.labelRes) }.orEmpty(),
                             onClick = { genderMenuOpen = true },
                         )
                         DropdownMenu(expanded = genderMenuOpen, onDismissRequest = { genderMenuOpen = false }) {
                             DropdownMenuItem(
-                                text = { Text("Sin definir") },
+                                text = { Text(stringResource(R.string.common_undefined)) },
                                 onClick = {
                                     genderMenuOpen = false
                                     onGenderChange(null)
@@ -218,7 +221,7 @@ private fun EditProfileContent(
                             )
                             Gender.entries.forEach { option ->
                                 DropdownMenuItem(
-                                    text = { Text(option.label) },
+                                    text = { Text(stringResource(option.labelRes)) },
                                     onClick = {
                                         genderMenuOpen = false
                                         onGenderChange(option)
@@ -228,14 +231,14 @@ private fun EditProfileContent(
                         }
                     }
                     NightWatchSelectField(
-                        label = "Fecha de nacimiento",
+                        label = stringResource(R.string.profile_field_birth_date),
                         valueText = uiState.birthDate?.display().orEmpty(),
                         onClick = { showDatePicker = true },
                         isError = uiState.birthDateError != null,
-                        supportingText = uiState.birthDateError,
+                        supportingText = uiState.birthDateError?.asString(),
                     )
                     if (uiState.birthDate != null) {
-                        AvatarLink(text = "Quitar fecha", enabled = true, onClick = { onBirthDateChange(null) })
+                        AvatarLink(text = stringResource(R.string.profile_edit_remove_date), enabled = true, onClick = { onBirthDateChange(null) })
                     }
                 }
 
@@ -253,7 +256,7 @@ private fun EditProfileContent(
 
                 uiState.formError?.let { error ->
                     Text(
-                        text = error,
+                        text = error.asString(),
                         color = NightWatchError,
                         fontFamily = NightWatchBodyFontFamily,
                         fontSize = 13.sp,
@@ -263,7 +266,7 @@ private fun EditProfileContent(
                 }
 
                 ProfileButton(
-                    text = "GUARDAR CAMBIOS",
+                    text = stringResource(R.string.profile_edit_save),
                     onClick = onSave,
                     enabled = !uiState.isSaving,
                     modifier = Modifier.padding(top = 32.dp, bottom = 32.dp),
@@ -287,6 +290,3 @@ private fun AvatarLink(text: String, enabled: Boolean, onClick: () -> Unit) {
             .padding(horizontal = 8.dp, vertical = 4.dp),
     )
 }
-
-const val GOOGLE_ACCOUNT_NOTICE =
-    "Tu cuenta usa Google: la contraseña y el correo se gestionan desde tu cuenta de Google."

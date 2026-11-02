@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Textos de Perfil y Ajustes (Módulo 5, Etapa 3, parte A). Prefijos: settings_ (menú y ajustes), profile_ (perfil y cuenta),
+    devices_ (dispositivos), verify_code_ (verificar código). Son los textos que estaban en el código, sin cambios; el inglés
+    va en otra etapa. Los textos de las insignias están en strings_comunes.xml (prefijo badge_), como pide la spec.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Menú de usuario -->
+    <string name="settings_menu_section_account">CUENTA</string>
+    <string name="settings_menu_section_progress">PROGRESO</string>
+    <string name="settings_menu_section_preferences">PREFERENCIAS</string>
+    <string name="settings_menu_section_privacy">PRIVACIDAD Y SEGURIDAD</string>
+    <string name="settings_menu_section_support">SOPORTE</string>
+    <string name="settings_menu_view_profile">Ver Perfil</string>
+    <string name="settings_menu_edit_profile">Editar Perfil</string>
+    <string name="settings_menu_achievements">Logros e Insignias</string>
+    <string name="settings_menu_notifications">Notificaciones</string>
+    <string name="settings_menu_appearance">Apariencia</string>
+    <string name="settings_menu_language">Idioma</string>
+    <string name="settings_menu_privacy">Privacidad y Seguridad</string>
+    <string name="settings_menu_help">Ayuda y Soporte</string>
+    <string name="settings_menu_about">Acerca de</string>
+    <string name="settings_menu_sign_out">"🚪  Cerrar Sesión"</string>
+    <string name="settings_menu_footer">Nightwatch Protocol · v%1$s</string>
+
+    <!-- Ver perfil -->
+    <string name="profile_my_profile_title">Mi Perfil</string>
+    <string name="profile_my_avatar">Mi Avatar</string>
+    <string name="profile_my_profile_edit_button">EDITAR PERFIL</string>
+    <string name="profile_info_level">Nivel actual</string>
+    <string name="profile_info_streak">Racha activa</string>
+    <string name="profile_info_member_since">Miembro desde</string>
+    <string name="profile_info_recovery_email">Correo de recuperación</string>
+    <string name="profile_member_since_value">%1$s %2$d</string>
+    <string name="profile_field_gender">Género</string>
+    <string name="profile_field_birth_date">Fecha de nacimiento</string>
+    <string name="profile_gender_male">Masculino</string>
+    <string name="profile_gender_female">Femenino</string>
+    <string name="profile_gender_other">Otro</string>
+    <string name="profile_gender_prefer_not_to_say">Prefiero no decir</string>
+
+    <!-- Editar perfil -->
+    <string name="profile_edit_title">Editar Perfil</string>
+    <string name="profile_edit_change_avatar">Cambiar Avatar</string>
+    <string name="profile_edit_remove_photo">Quitar foto</string>
+    <string name="profile_edit_full_name">Nombre completo</string>
+    <string name="profile_edit_verify_password">Verificar contraseña</string>
+    <string name="profile_edit_remove_date">Quitar fecha</string>
+    <string name="profile_edit_save">GUARDAR CAMBIOS</string>
+    <string name="profile_edit_google_account_notice">Tu cuenta usa Google: la contraseña y el correo se gestionan desde tu cuenta de Google.</string>
+
+    <!-- Errores de perfil y cuenta -->
+    <string name="profile_error_enter_name">Ingresa tu nombre</string>
+    <string name="profile_error_avatar_unreadable">No pudimos leer esa imagen</string>
+    <string name="profile_error_avatar_local_only">No se pudo guardar la foto en tu cuenta. Quedó guardada en este teléfono.</string>
+    <string name="profile_error_avatar_social_failed">Tu foto se guardó, pero no se pudo actualizar en Social. Vuelve a elegirla para reintentarlo.</string>
+    <string name="profile_error_avatar_social_remove_failed">Tu foto se quitó de tu perfil, pero sigue visible en Social. Elige una foto y quítala de nuevo para reintentarlo.</string>
+    <string name="profile_error_birth_date_invalid">La fecha de nacimiento no es válida</string>
+    <string name="profile_error_birth_date_future">La fecha de nacimiento no puede ser futura</string>
+    <string name="profile_error_birth_date_too_old">Revisa la fecha de nacimiento: la edad máxima es de 120 años</string>
+    <string name="profile_error_wrong_current_password">La contraseña actual no es correcta</string>
+    <string name="profile_error_enter_current_password">Ingresa tu contraseña actual</string>
+    <string name="profile_error_password_rules">La contraseña no cumple con los requerimientos</string>
+    <string name="profile_error_passwords_do_not_match">Las contraseñas no coinciden</string>
+    <string name="profile_error_same_password">La nueva contraseña no puede ser igual a la actual</string>
+    <string name="profile_error_email_in_use">Ese correo ya está en uso en otra cuenta</string>
+    <string name="profile_error_email_same">Ese ya es el correo de tu cuenta</string>
+    <string name="profile_error_recovery_email_not_saved">No se pudo guardar el correo. Inténtalo de nuevo.</string>
+    <string name="profile_error_recovery_email_offline">Sin conexión a internet. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="profile_error_wait_seconds">Espera %1$d s antes de pedir otro código.</string>
+
+    <!-- Cambiar contraseña -->
+    <string name="profile_change_password_title">Cambiar Contraseña</string>
+    <string name="profile_change_password_confirm_label">Confirmar nueva contraseña</string>
+    <string name="profile_password_rule_length">Mínimo 8 caracteres</string>
+    <string name="profile_password_rule_upper_digit">Incluye una mayúscula y un número</string>
+    <string name="profile_password_rule_lower">Incluye una minúscula</string>
+    <string name="profile_password_rule_special">Incluye al menos un carácter especial</string>
+    <string name="profile_password_rule_met">%1$s: cumplido</string>
+    <string name="profile_password_rule_pending">%1$s: pendiente</string>
+
+    <!-- Cambiar correo -->
+    <string name="profile_change_email_send_code">ENVIAR CÓDIGO</string>
+    <string name="profile_change_email_title">Confirmar Correo</string>
+    <string name="profile_change_email_message">Escribe tu nuevo correo. Te enviaremos un código de verificación para confirmarlo.</string>
+    <string name="profile_change_email_label">Nuevo correo electrónico</string>
+
+    <!-- Confirmar identidad -->
+    <string name="profile_confirm_identity_continue">CONTINUAR</string>
+    <string name="profile_confirm_identity_title">Confirma tu identidad</string>
+    <string name="profile_confirm_identity_message">Por seguridad, ingresa tu contraseña actual para continuar.</string>
+
+    <!-- Correo de recuperación -->
+    <string name="profile_recovery_email_save">GUARDAR CORREO</string>
+    <string name="profile_recovery_email_title">Correo de Recuperación</string>
+    <string name="profile_recovery_email_message">Agrega un correo alterno para recuperar tu cuenta si pierdes acceso a la principal.</string>
+
+    <!-- Pantallas de confirmación -->
+    <string name="profile_updated_title">¡Perfil actualizado!</string>
+    <string name="profile_updated_message">Tus datos se guardaron correctamente.</string>
+    <string name="profile_updated_button">VOLVER A MI PERFIL</string>
+    <string name="profile_email_updated_title">¡Correo actualizado!</string>
+    <string name="profile_email_updated_message">Tu correo electrónico fue verificado y actualizado con éxito.</string>
+    <string name="profile_email_updated_button">VOLVER A EDITAR PERFIL</string>
+    <string name="profile_recovery_saved_title">¡Correo guardado!</string>
+    <string name="profile_recovery_saved_message">Tu correo de recuperación fue guardado con éxito.</string>
+    <string name="profile_recovery_saved_button">VOLVER A CUENTAS</string>
+    <string name="profile_password_updated_title">¡Contraseña actualizada!</string>
+    <string name="profile_password_updated_message">Usa tu nueva contraseña la próxima vez que inicies sesión.</string>
+    <string name="profile_password_updated_button">Listo</string>
+
+    <!-- Dispositivos -->
+    <string name="devices_title">Administrar Dispositivos</string>
+    <string name="devices_subtitle">Sesiones activas en tu cuenta</string>
+    <string name="devices_loading">Cargando dispositivos…</string>
+    <string name="devices_sign_out_all">CERRAR SESIÓN EN TODOS</string>
+    <string name="devices_unnamed">Dispositivo sin nombre</string>
+    <string name="devices_status_current">Actual</string>
+    <string name="devices_status_pending_sign_out">Cierre pendiente</string>
+    <string name="devices_time_now">Ahora</string>
+    <string name="devices_time_minutes">Hace %1$d min</string>
+    <string name="devices_time_hours">Hace %1$d h</string>
+    <string name="devices_time_days">Hace %1$d d</string>
+    <string name="devices_error_load_failed">No pudimos cargar tus dispositivos. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="devices_error_sign_out_failed">No pudimos cerrar la sesión en ese dispositivo. Inténtalo de nuevo.</string>
+    <string name="devices_error_other_sessions_failed">No pudimos cerrar las otras sesiones. Inténtalo de nuevo.</string>
+    <string name="devices_notice_no_other_devices">No hay otros dispositivos con sesión abierta.</string>
+    <string name="devices_limitation_notice">Cerrar la sesión en otro dispositivo le pide a NightWatch que se cierre allí la próxima vez que se abra la app. No revoca de inmediato el acceso de tu cuenta.</string>
+    <string name="devices_signed_out_title">¡Sesión cerrada!</string>
+    <string name="devices_signed_out_message">Ese dispositivo cerrará su sesión la próxima vez que abra NightWatch. No revoca de inmediato el acceso de tu cuenta.</string>
+    <string name="devices_signed_out_button">VOLVER A DISPOSITIVOS</string>
+
+    <!-- Notificaciones (ajustes) -->
+    <string name="settings_notifications_title">Notificaciones</string>
+    <string name="settings_notifications_daily_label">Recordatorio de lección diaria</string>
+    <string name="settings_notifications_daily_subtitle">Un aviso a las 7:00 p.m. si no has practicado</string>
+    <string name="settings_notifications_achievements_label">Logros e insignias</string>
+    <string name="settings_notifications_achievements_subtitle">Cuando desbloquees un nuevo logro</string>
+    <string name="settings_notifications_streak_label">Racha en riesgo</string>
+    <string name="settings_notifications_streak_subtitle">Si tu racha está por romperse</string>
+    <string name="settings_notifications_labs_label">Nuevos laboratorios</string>
+    <string name="settings_notifications_labs_subtitle">Cuando se publique un lab nuevo</string>
+    <string name="settings_notifications_news_label">Novedades de NightWatch</string>
+    <string name="settings_notifications_news_subtitle">Anuncios y noticias del producto</string>
+    <string name="settings_notifications_footnote">Los avisos de logros, laboratorios y novedades se activarán cuando esas funciones existan en la app.</string>
+    <string name="settings_notifications_denied">Sin el permiso de notificaciones no podemos enviarte recordatorios. Puedes permitirlo en Ajustes del teléfono > Aplicaciones > NightWatch > Notificaciones.</string>
+
+    <!-- Apariencia e idioma (pantallas sin lógica todavía) -->
+    <string name="settings_appearance_intro">Elige cómo se ve NightWatch Protocol en tu dispositivo.</string>
+    <string name="settings_appearance_dark">Oscuro</string>
+    <string name="settings_appearance_dark_subtitle">Fondo oscuro, ideal de noche</string>
+    <string name="settings_appearance_light">Claro</string>
+    <string name="settings_appearance_light_subtitle">Fondo claro de alto contraste</string>
+    <string name="settings_appearance_auto">Automático</string>
+    <string name="settings_appearance_auto_subtitle">Sigue el ajuste del sistema</string>
+    <!-- Nombres de idioma en su propio idioma: no se traducen -->
+    <string name="settings_language_spanish" translatable="false">Español</string>
+    <string name="settings_language_english" translatable="false">English</string>
+
+    <!-- Privacidad y seguridad -->
+    <string name="settings_privacy_section_account">SEGURIDAD DE LA CUENTA</string>
+    <string name="settings_privacy_section_privacy">PRIVACIDAD</string>
+    <string name="settings_privacy_add_recovery_email">Agregar correo de recuperación</string>
+    <string name="settings_privacy_manage_sessions">Administra tus sesiones</string>
+    <plurals name="settings_privacy_active_devices">
+        <item quantity="one">%1$d dispositivo activo</item>
+        <item quantity="other">%1$d dispositivos activos</item>
+    </plurals>
+    <string name="settings_privacy_biometric_label">Bloqueo Biométrico</string>
+    <string name="settings_privacy_biometric_subtitle">Pide huella o rostro al abrir la app</string>
+    <string name="settings_privacy_hide_progress_label">Ocultar mi progreso público</string>
+    <string name="settings_privacy_hide_progress_subtitle">Otros no verán tu nivel ni tus islas</string>
+    <string name="settings_privacy_download_label">Descargar mis datos</string>
+    <string name="settings_privacy_download_subtitle">Exporta una copia de tu información</string>
+    <string name="settings_privacy_prompt_title">Activar bloqueo</string>
+    <string name="settings_privacy_prompt_subtitle">Verifica tu huella para activarlo</string>
+    <string name="settings_privacy_export_done">Tus datos se guardaron en el archivo que elegiste.</string>
+    <string name="settings_privacy_export_failed">No se pudo guardar el archivo. Inténtalo de nuevo.</string>
+    <string name="settings_privacy_no_fingerprint_enrolled">No hay una huella registrada en este teléfono</string>
+    <string name="settings_privacy_no_fingerprint_reader">Este teléfono no tiene lector de huella</string>
+    <string name="settings_privacy_reader_unavailable">El lector no está disponible ahora, inténtalo más tarde</string>
+    <string name="settings_privacy_fingerprint_not_verified">No se pudo verificar tu huella</string>
+
+    <!-- Ayuda y Acerca de -->
+    <string name="settings_help_faq_path">¿Cómo funciona la Ruta de Aprendizaje?</string>
+    <string name="settings_help_faq_streak">¿Por qué perdí mi racha?</string>
+    <string name="settings_help_faq_labs">¿Los laboratorios afectan mi progreso?</string>
+    <string name="settings_help_faq_report">¿Cómo reporto un error en la app?</string>
+    <string name="settings_help_contact_support">Contactar a soporte</string>
+    <string name="settings_about_version">Versión %1$s</string>
+    <string name="settings_about_terms">Términos y Condiciones</string>
+    <string name="settings_about_privacy_policy">Política de Privacidad</string>
+    <string name="settings_about_rate">Calificar la app</string>
+    <string name="settings_about_report">Reportar un problema</string>
+    <string name="settings_about_made_with">Hecho con 🛡️ para futuros defensores de la ciberseguridad.</string>
+
+    <!-- Verificar código (compartido con registro y recuperación de contraseña) -->
+    <string name="verify_code_title">Verifica tu Correo</string>
+    <string name="verify_code_resent">Te enviamos un código nuevo.</string>
+    <string name="verify_code_resend_in">Reenviar en %1$d s</string>
+    <!-- El código siempre tiene 6 dígitos: no hace falta plural (PluralsCandidate es un falso positivo). -->
+    <string name="verify_code_resend" tools:ignore="PluralsCandidate">Reenviar el código de %1$d dígitos</string>
+    <string name="verify_code_google_unlink_failed">Tu cuenta de Google anterior sigue vinculada a este perfil.</string>
+    <string name="verify_code_dialog_message">Hemos enviado un código a %1$s. Ingresa el código recibido para verificar tu identidad y continuar con el proceso de restablecimiento de tu contraseña.</string>
+    <string name="verify_code_back_to_menu">Volver al menú</string>
+    <string name="verify_code_retry_short">Reintentar</string>
+    <string name="verify_code_confirm_short">Confirmar</string>
+    <string name="verify_code_retry_button">REINTENTAR</string>
+    <string name="verify_code_confirm_button">CONFIRMAR CÓDIGO</string>
+    <string name="verify_code_screen_message" tools:ignore="PluralsCandidate">Enviamos un código de %1$d dígitos a %2$s</string>
+    <string name="verify_code_hint" tools:ignore="PluralsCandidate">Ingrese el código de %1$d dígitos</string>
+    <string name="verify_code_field_description" tools:ignore="PluralsCandidate">Código de %1$d dígitos</string>
+</resources>

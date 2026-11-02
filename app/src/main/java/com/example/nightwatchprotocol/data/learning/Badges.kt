@@ -1,5 +1,8 @@
 package com.example.nightwatchprotocol.data.learning
 
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.UiText
+
 /**
  * What the badges look at. Everything comes from saved history, so a condition that is met once stays met: lessons and labs
  * are never un-saved, an exam attempt is never deleted and the best streak never goes down.
@@ -71,7 +74,7 @@ sealed interface BadgeCondition {
  */
 data class BadgeDefinition(
     val emoji: String,
-    val name: String,
+    val name: UiText,
     val condition: BadgeCondition,
     val source: String,
     val note: String? = null,
@@ -83,21 +86,21 @@ data class BadgeDefinition(
  * rules of the group's prompt for stage 5.5 (see the spec section "Insignias y racha reales").
  */
 val BadgeCatalog: List<BadgeDefinition> = listOf(
-    BadgeDefinition("🥇", "Primeros pasos", BadgeCondition.LessonsViewedAtLeast(1), "Figma 2287:108", "Regla 1: al menos 1 lección vista"),
-    BadgeDefinition("🔥", "Racha de 7 días", BadgeCondition.BestStreakAtLeast(7), "Figma 2287:112", "Regla 6: mejor racha de 7 días (N sale del nombre)"),
-    BadgeDefinition("🔑", "Maestro de Contraseñas", BadgeCondition.IslandCompleted(LearningTopic.CONTRASENAS), "Figma 2287:116", "Regla 5: isla de Contraseñas completada"),
-    BadgeDefinition("🎣", "Cazador de Phishing", BadgeCondition.IslandCompleted(LearningTopic.PHISHING), "Figma 2287:120", "Regla 5: isla de Phishing completada. Emoji desbloqueado: SUPUESTO"),
-    BadgeDefinition("🌐", "Guardián de Redes", BadgeCondition.IslandCompleted(LearningTopic.REDES_SEGURAS), "Figma 2287:124", "Regla 5: isla de Redes Seguras completada. Emoji desbloqueado: SUPUESTO"),
+    BadgeDefinition("🥇", UiText.of(R.string.badge_first_steps), BadgeCondition.LessonsViewedAtLeast(1), "Figma 2287:108", "Regla 1: al menos 1 lección vista"),
+    BadgeDefinition("🔥", UiText.of(R.string.badge_streak_7), BadgeCondition.BestStreakAtLeast(7), "Figma 2287:112", "Regla 6: mejor racha de 7 días (N sale del nombre)"),
+    BadgeDefinition("🔑", UiText.of(R.string.badge_passwords_master), BadgeCondition.IslandCompleted(LearningTopic.CONTRASENAS), "Figma 2287:116", "Regla 5: isla de Contraseñas completada"),
+    BadgeDefinition("🎣", UiText.of(R.string.badge_phishing_hunter), BadgeCondition.IslandCompleted(LearningTopic.PHISHING), "Figma 2287:120", "Regla 5: isla de Phishing completada. Emoji desbloqueado: SUPUESTO"),
+    BadgeDefinition("🌐", UiText.of(R.string.badge_network_guardian), BadgeCondition.IslandCompleted(LearningTopic.REDES_SEGURAS), "Figma 2287:124", "Regla 5: isla de Redes Seguras completada. Emoji desbloqueado: SUPUESTO"),
     BadgeDefinition(
         "🌟",
-        "Leyenda NightWatch",
+        UiText.of(R.string.badge_legend),
         BadgeCondition.AllOf(listOf(BadgeCondition.AllIslandsCompleted, BadgeCondition.ExamPerfect)),
         "Figma 2287:128",
         "SUPUESTO elegido por el grupo: las 6 islas completadas Y al menos un intento de examen con 6 aciertos. Emoji desbloqueado: SUPUESTO",
     ),
-    BadgeDefinition("📞", "Detective de Ingeniería Social", BadgeCondition.IslandCompleted(LearningTopic.INGENIERIA_SOCIAL), "Figma 2540:255", "Regla 5: isla de Ingeniería Social completada. Emoji desbloqueado: SUPUESTO"),
-    BadgeDefinition("🔥", "Racha de 30 días", BadgeCondition.BestStreakAtLeast(30), "Figma 2540:259", "Regla 6: mejor racha de 30 días (N sale del nombre)"),
-    BadgeDefinition("🎓", "Graduado NightWatch", BadgeCondition.ExamPassed, "Figma 2540:263", "Regla 4: al menos un intento de examen aprobado. Emoji desbloqueado: SUPUESTO"),
+    BadgeDefinition("📞", UiText.of(R.string.badge_social_engineering_detective), BadgeCondition.IslandCompleted(LearningTopic.INGENIERIA_SOCIAL), "Figma 2540:255", "Regla 5: isla de Ingeniería Social completada. Emoji desbloqueado: SUPUESTO"),
+    BadgeDefinition("🔥", UiText.of(R.string.badge_streak_30), BadgeCondition.BestStreakAtLeast(30), "Figma 2540:259", "Regla 6: mejor racha de 30 días (N sale del nombre)"),
+    BadgeDefinition("🎓", UiText.of(R.string.badge_graduate), BadgeCondition.ExamPassed, "Figma 2540:263", "Regla 4: al menos un intento de examen aprobado. Emoji desbloqueado: SUPUESTO"),
 )
 
 /** A badge with its state. [unlocked] is derived every time from the history: nothing is stored. */

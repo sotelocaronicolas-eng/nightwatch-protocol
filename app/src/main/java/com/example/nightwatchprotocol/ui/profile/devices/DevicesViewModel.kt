@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.device.DeviceRecord
 import com.example.nightwatchprotocol.data.device.DeviceRepository
 import com.example.nightwatchprotocol.data.device.DeviceSessionManager
@@ -22,11 +24,11 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-const val MESSAGE_DEVICES_LOAD_FAILED = "No pudimos cargar tus dispositivos. Revisa tu conexión e inténtalo de nuevo."
-const val MESSAGE_DEVICE_SIGN_OUT_FAILED = "No pudimos cerrar la sesión en ese dispositivo. Inténtalo de nuevo."
-const val MESSAGE_NO_OTHER_DEVICES = "No hay otros dispositivos con sesión abierta."
+val MESSAGE_DEVICES_LOAD_FAILED: UiText = UiText.of(R.string.devices_error_load_failed)
+val MESSAGE_DEVICE_SIGN_OUT_FAILED: UiText = UiText.of(R.string.devices_error_sign_out_failed)
+val MESSAGE_NO_OTHER_DEVICES: UiText = UiText.of(R.string.devices_notice_no_other_devices)
 
-const val MESSAGE_OTHER_SESSIONS_FAILED = "No pudimos cerrar las otras sesiones. Inténtalo de nuevo."
+val MESSAGE_OTHER_SESSIONS_FAILED: UiText = UiText.of(R.string.devices_error_other_sessions_failed)
 
 /**
  * Shown on the screen and on the confirmation: signing out another device is a request that device honours the
@@ -34,15 +36,13 @@ const val MESSAGE_OTHER_SESSIONS_FAILED = "No pudimos cerrar las otras sesiones.
  * "cerrar sesión en todos" also revokes the other sessions on the server when the backend can, but access tokens
  * already issued live until they expire). Neutral about the backend on purpose.
  */
-const val DEVICES_LIMITATION_NOTICE =
-    "Cerrar la sesión en otro dispositivo le pide a NightWatch que se cierre allí la próxima vez que se abra la app. " +
-        "No revoca de inmediato el acceso de tu cuenta."
+val DEVICES_LIMITATION_NOTICE: UiText = UiText.of(R.string.devices_limitation_notice)
 
 data class DeviceItem(
     val id: String,
-    val name: String,
+    val name: UiText,
     /** "Actual", "Cierre pendiente" or how long ago the device was last seen. */
-    val statusLabel: String,
+    val statusLabel: UiText,
     val isCurrent: Boolean,
     val isRevoked: Boolean,
 )
@@ -51,8 +51,8 @@ data class DevicesUiState(
     val devices: List<DeviceItem> = emptyList(),
     val isLoading: Boolean = true,
     val isWorking: Boolean = false,
-    val error: String? = null,
-    val notice: String? = null,
+    val error: UiText? = null,
+    val notice: UiText? = null,
 )
 
 sealed interface DevicesEvent {
@@ -151,10 +151,10 @@ class DevicesViewModel(
                 val isCurrent = record.id == currentId
                 DeviceItem(
                     id = record.id,
-                    name = record.name.ifBlank { "Dispositivo sin nombre" },
+                    name = if (record.name.isBlank()) UiText.of(R.string.devices_unnamed) else UiText.dynamic(record.name),
                     statusLabel = when {
-                        isCurrent -> "Actual"
-                        record.revoked -> "Cierre pendiente"
+                        isCurrent -> UiText.of(R.string.devices_status_current)
+                        record.revoked -> UiText.of(R.string.devices_status_pending_sign_out)
                         else -> relativeTimeLabel(record.lastSeenMillis, now)
                     },
                     isCurrent = isCurrent,

@@ -36,8 +36,10 @@ import com.example.nightwatchprotocol.ui.auth.register.PasswordRules
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.components.TitleTopBar
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_PASSWORDS_DO_NOT_MATCH
-import com.example.nightwatchprotocol.ui.profile.editprofile.GOOGLE_ACCOUNT_NOTICE
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.common.asString
+import com.example.nightwatchprotocol.ui.profile.TEXT_PASSWORDS_DO_NOT_MATCH
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
@@ -83,7 +85,7 @@ private fun ChangePasswordContent(
 ) {
     NightWatchScreenBackground {
         Column(modifier = Modifier.fillMaxSize()) {
-            TitleTopBar(title = "Cambiar Contraseña", onClose = onClose)
+            TitleTopBar(title = stringResource(R.string.profile_change_password_title), onClose = onClose)
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -94,7 +96,7 @@ private fun ChangePasswordContent(
             ) {
                 if (!uiState.hasPassword) {
                     Text(
-                        text = GOOGLE_ACCOUNT_NOTICE,
+                        text = stringResource(R.string.profile_edit_google_account_notice),
                         color = NightWatchHeaderPanel,
                         fontFamily = NightWatchBodyFontFamily,
                         fontSize = 14.sp,
@@ -107,37 +109,37 @@ private fun ChangePasswordContent(
                         modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
                     ) {
                         NightWatchTextField(
-                            label = "Contraseña actual",
+                            label = stringResource(R.string.common_current_password_label),
                             value = uiState.currentPassword,
                             onValueChange = onCurrentChange,
                             isPassword = true,
                             isError = uiState.currentError != null,
-                            supportingText = uiState.currentError,
+                            supportingText = uiState.currentError?.asString(),
                         )
                         NightWatchTextField(
-                            label = "Nueva contraseña",
+                            label = stringResource(R.string.common_new_password_label),
                             value = uiState.newPassword,
                             onValueChange = onNewChange,
                             isPassword = true,
                             // Live: "igual a la actual" shows while typing; the rule list below shows the rest.
                             isError = uiState.newError != null || uiState.sameAsCurrent,
-                            supportingText = uiState.newError
-                                ?: if (uiState.sameAsCurrent) MESSAGE_SAME_PASSWORD else null,
+                            supportingText = (uiState.newError ?: if (uiState.sameAsCurrent) MESSAGE_SAME_PASSWORD else null)
+                                ?.asString(),
                         )
                         PasswordRequirements(uiState.rules)
                         NightWatchTextField(
-                            label = "Confirmar nueva contraseña",
+                            label = stringResource(R.string.profile_change_password_confirm_label),
                             value = uiState.confirmPassword,
                             onValueChange = onConfirmChange,
                             isPassword = true,
                             isError = uiState.confirmError != null || uiState.confirmationMismatch,
-                            supportingText = uiState.confirmError
-                                ?: if (uiState.confirmationMismatch) MESSAGE_PASSWORDS_DO_NOT_MATCH else null,
+                            supportingText = (uiState.confirmError ?: if (uiState.confirmationMismatch) TEXT_PASSWORDS_DO_NOT_MATCH else null)
+                                ?.asString(),
                         )
                     }
                     uiState.formError?.let { error ->
                         Text(
-                            text = error,
+                            text = error.asString(),
                             color = NightWatchError,
                             fontFamily = NightWatchBodyFontFamily,
                             fontSize = 13.sp,
@@ -159,7 +161,8 @@ private fun ChangePasswordContent(
 @Composable
 internal fun PasswordRequirements(rules: PasswordRules) {
     Column(modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)) {
-        passwordRequirements(rules).forEach { (text, satisfied) ->
+        passwordRequirements(rules).forEach { (ruleText, satisfied) ->
+            val text = ruleText.asString()
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -167,7 +170,10 @@ internal fun PasswordRequirements(rules: PasswordRules) {
             ) {
                 Icon(
                     imageVector = Icons.Filled.Check,
-                    contentDescription = "$text: ${if (satisfied) "cumplido" else "pendiente"}",
+                    contentDescription = stringResource(
+                        if (satisfied) R.string.profile_password_rule_met else R.string.profile_password_rule_pending,
+                        text,
+                    ),
                     tint = if (satisfied) NightWatchSuccess else NightWatchOnBackground.copy(alpha = 0.4f),
                 )
                 Text(text, color = NightWatchOnBackground, fontFamily = NightWatchBodyFontFamily, fontSize = 14.sp)
@@ -182,7 +188,7 @@ internal fun SaveButton(
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    text: String = "Guardar cambios",
+    text: String = stringResource(R.string.common_save_changes),
 ) {
     Box(
         contentAlignment = Alignment.Center,

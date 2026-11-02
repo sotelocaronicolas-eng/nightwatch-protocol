@@ -8,11 +8,14 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.toRoute
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.ui.navigation.ChangeEmail
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_GENERIC_ERROR
-import com.example.nightwatchprotocol.ui.verifycode.MESSAGE_WAIT_BEFORE_NEW_CODE
+import com.example.nightwatchprotocol.ui.profile.TEXT_GENERIC_ERROR
+import com.example.nightwatchprotocol.ui.profile.TEXT_NO_CONNECTION
+import com.example.nightwatchprotocol.ui.verifycode.TEXT_WAIT_BEFORE_NEW_CODE
 import com.example.nightwatchprotocol.ui.profile.isPlausibleEmail
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.channels.Channel
@@ -24,16 +27,16 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-const val MESSAGE_EMAIL_INVALID = "Correo electrónico inválido"
-const val MESSAGE_EMAIL_IN_USE = "Ese correo ya está en uso en otra cuenta"
-const val MESSAGE_EMAIL_SAME = "Ese ya es el correo de tu cuenta"
+val MESSAGE_EMAIL_INVALID: UiText = UiText.of(R.string.common_invalid_email)
+val MESSAGE_EMAIL_IN_USE: UiText = UiText.of(R.string.profile_error_email_in_use)
+val MESSAGE_EMAIL_SAME: UiText = UiText.of(R.string.profile_error_email_same)
 
 data class ChangeEmailUiState(
     val email: String = "",
     /** False for Google-only accounts: the form is replaced by a notice. */
     val hasPassword: Boolean = true,
     val isSending: Boolean = false,
-    val error: String? = null,
+    val error: UiText? = null,
 )
 
 sealed interface ChangeEmailEvent {
@@ -106,17 +109,17 @@ class ChangeEmailViewModel(
             } catch (e: AuthError) {
                 _uiState.update { it.copy(isSending = false, error = messageFor(e)) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isSending = false, error = MESSAGE_GENERIC_ERROR) }
+                _uiState.update { it.copy(isSending = false, error = TEXT_GENERIC_ERROR) }
             }
         }
     }
 
-    private fun messageFor(error: AuthError): String = when (error) {
+    private fun messageFor(error: AuthError): UiText = when (error) {
         AuthError.InvalidEmail -> MESSAGE_EMAIL_INVALID
         AuthError.EmailAlreadyInUse -> MESSAGE_EMAIL_IN_USE
-        is AuthError.RateLimited -> MESSAGE_WAIT_BEFORE_NEW_CODE
-        AuthError.NetworkError -> "Sin conexión a internet"
-        else -> MESSAGE_GENERIC_ERROR
+        is AuthError.RateLimited -> TEXT_WAIT_BEFORE_NEW_CODE
+        AuthError.NetworkError -> TEXT_NO_CONNECTION
+        else -> TEXT_GENERIC_ERROR
     }
 
     companion object {

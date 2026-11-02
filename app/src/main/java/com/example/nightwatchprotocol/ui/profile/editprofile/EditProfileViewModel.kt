@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.AuthRepository
@@ -22,9 +24,10 @@ import com.example.nightwatchprotocol.data.profile.ProfileExtrasRepository
 import com.example.nightwatchprotocol.data.profile.birthDateIssue
 import com.example.nightwatchprotocol.data.profile.message
 import com.example.nightwatchprotocol.ui.auth.register.PasswordRules
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_GENERIC_ERROR
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_PASSWORDS_DO_NOT_MATCH
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_PASSWORD_RULES
+import com.example.nightwatchprotocol.ui.common.toUiText
+import com.example.nightwatchprotocol.ui.profile.TEXT_GENERIC_ERROR
+import com.example.nightwatchprotocol.ui.profile.TEXT_PASSWORDS_DO_NOT_MATCH
+import com.example.nightwatchprotocol.ui.profile.TEXT_PASSWORD_RULES
 import com.example.nightwatchprotocol.ui.profile.isPlausibleEmail
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.channels.Channel
@@ -36,14 +39,14 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-const val MESSAGE_ENTER_NAME = "Ingresa tu nombre"
-const val MESSAGE_INVALID_EMAIL = "Correo electrónico inválido"
-const val MESSAGE_AVATAR_UNREADABLE = "No pudimos leer esa imagen"
-const val MESSAGE_AVATAR_LOCAL_ONLY = "No se pudo guardar la foto en tu cuenta. Quedó guardada en este teléfono."
-const val MESSAGE_AVATAR_SOCIAL_FAILED = "Tu foto se guardó, pero no se pudo actualizar en Social. Vuelve a elegirla para reintentarlo."
-const val MESSAGE_AVATAR_SOCIAL_REMOVE_FAILED = "Tu foto se quitó de tu perfil, pero sigue visible en Social. Elige una foto y quítala de nuevo para reintentarlo."
+val MESSAGE_ENTER_NAME: UiText = UiText.of(R.string.profile_error_enter_name)
+val MESSAGE_INVALID_EMAIL: UiText = UiText.of(R.string.common_invalid_email)
+val MESSAGE_AVATAR_UNREADABLE: UiText = UiText.of(R.string.profile_error_avatar_unreadable)
+val MESSAGE_AVATAR_LOCAL_ONLY: UiText = UiText.of(R.string.profile_error_avatar_local_only)
+val MESSAGE_AVATAR_SOCIAL_FAILED: UiText = UiText.of(R.string.profile_error_avatar_social_failed)
+val MESSAGE_AVATAR_SOCIAL_REMOVE_FAILED: UiText = UiText.of(R.string.profile_error_avatar_social_remove_failed)
 
-private fun AvatarSyncResult.toMessage(): String? = when (this) {
+private fun AvatarSyncResult.toMessage(): UiText? = when (this) {
     AvatarSyncResult.Synced -> null
     AvatarSyncResult.LocalOnly -> MESSAGE_AVATAR_LOCAL_ONLY
     AvatarSyncResult.SocialFailed -> MESSAGE_AVATAR_SOCIAL_FAILED
@@ -60,16 +63,16 @@ data class EditProfileUiState(
     val avatar: AvatarDisplay = AvatarDisplay.Initial("?"),
     val isSaving: Boolean = false,
     val isAvatarBusy: Boolean = false,
-    val nameError: String? = null,
-    val emailError: String? = null,
-    val passwordError: String? = null,
-    val confirmError: String? = null,
-    val avatarError: String? = null,
-    val formError: String? = null,
+    val nameError: UiText? = null,
+    val emailError: UiText? = null,
+    val passwordError: UiText? = null,
+    val confirmError: UiText? = null,
+    val avatarError: UiText? = null,
+    val formError: UiText? = null,
     /** Optional: null means "no definido". */
     val gender: Gender? = null,
     val birthDate: BirthDate? = null,
-    val birthDateError: String? = null,
+    val birthDateError: UiText? = null,
 ) {
     val hasPhoto: Boolean get() = avatar is AvatarDisplay.Photo
 }
@@ -170,12 +173,12 @@ class EditProfileViewModel(
         val wantsNewPassword = state.hasPassword && !passwordSaved &&
             (state.newPassword.isNotEmpty() || state.confirmPassword.isNotEmpty())
         val passwordError = when {
-            wantsNewPassword && !PasswordRules.from(state.newPassword).allSatisfied -> MESSAGE_PASSWORD_RULES
+            wantsNewPassword && !PasswordRules.from(state.newPassword).allSatisfied -> TEXT_PASSWORD_RULES
             else -> null
         }
         val confirmError = when {
             wantsNewPassword && passwordError == null && state.newPassword != state.confirmPassword ->
-                MESSAGE_PASSWORDS_DO_NOT_MATCH
+                TEXT_PASSWORDS_DO_NOT_MATCH
             else -> null
         }
 
@@ -233,11 +236,11 @@ class EditProfileViewModel(
                 _uiState.update { it.copy(isSaving = false) }
                 _events.send(EditProfileEvent.NavigateToConfirmIdentity)
             } catch (e: AuthError.WeakPassword) {
-                _uiState.update { it.copy(isSaving = false, passwordError = MESSAGE_PASSWORD_RULES) }
+                _uiState.update { it.copy(isSaving = false, passwordError = TEXT_PASSWORD_RULES) }
             } catch (e: AuthError) {
-                _uiState.update { it.copy(isSaving = false, formError = e.message ?: MESSAGE_GENERIC_ERROR) }
+                _uiState.update { it.copy(isSaving = false, formError = e.toUiText()) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isSaving = false, formError = MESSAGE_GENERIC_ERROR) }
+                _uiState.update { it.copy(isSaving = false, formError = TEXT_GENERIC_ERROR) }
             }
         }
     }

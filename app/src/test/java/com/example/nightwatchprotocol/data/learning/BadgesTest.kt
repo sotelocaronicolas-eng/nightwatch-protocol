@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.data.learning
 
 import com.example.nightwatchprotocol.data.common.DataAccessException
 import com.example.nightwatchprotocol.data.common.FailureKind
+import com.example.nightwatchprotocol.text
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -32,7 +33,7 @@ class BadgesTest {
 
     private fun BadgeCondition.met(facts: BadgeFacts) = isMet(facts)
 
-    private fun unlocked(state: List<BadgeState>, name: String) = state.first { it.definition.name == name }.unlocked
+    private fun unlocked(state: List<BadgeState>, name: String) = state.first { it.definition.name.text() == name }.unlocked
 
     private fun topics(count: Int): Set<LearningTopic> = LearningTopic.entries.take(count).toSet()
 
@@ -53,17 +54,17 @@ class BadgesTest {
                 "Racha de 30 días",
                 "Graduado NightWatch",
             ),
-            BadgeCatalog.map { it.name },
+            BadgeCatalog.map { it.name.text() },
         )
     }
 
     @Test
     fun everyBadge_hasAnEmoji_aSource_andANote() {
         BadgeCatalog.forEach { badge ->
-            assertTrue(badge.name, badge.emoji.isNotBlank())
-            assertTrue(badge.name, badge.source.startsWith("Figma"))
-            assertNotNull(badge.name, badge.note)
-            assertTrue(badge.name, badge.note!!.isNotBlank())
+            assertTrue(badge.name.text(), badge.emoji.isNotBlank())
+            assertTrue(badge.name.text(), badge.source.startsWith("Figma"))
+            assertNotNull(badge.name.text(), badge.note)
+            assertTrue(badge.name.text(), badge.note!!.isNotBlank())
         }
         assertEquals(BadgeCatalog.size, BadgeCatalog.map { it.name }.toSet().size)
     }
@@ -71,8 +72,8 @@ class BadgesTest {
     @Test
     fun aBadgeForModule4_saysSo_inItsNote_andLeyendaIsMarkedAsAnAssumptionOfTheGroup() {
         BadgeCatalog.filter { it.condition == BadgeCondition.AvailableFromModule4 }
-            .forEach { assertTrue(it.name, it.note!!.contains("módulo 4")) }
-        val leyenda = BadgeCatalog.first { it.name == "Leyenda NightWatch" }
+            .forEach { assertTrue(it.name.text(), it.note!!.contains("módulo 4")) }
+        val leyenda = BadgeCatalog.first { it.name.text() == "Leyenda NightWatch" }
         assertTrue(leyenda.note!!.contains("SUPUESTO elegido por el grupo"))
         assertEquals(
             BadgeCondition.AllOf(listOf(BadgeCondition.AllIslandsCompleted, BadgeCondition.ExamPerfect)),
@@ -82,8 +83,8 @@ class BadgesTest {
 
     @Test
     fun theStreakBadges_takeTheirNumberFromTheirName() {
-        assertEquals(BadgeCondition.BestStreakAtLeast(7), BadgeCatalog.first { it.name == "Racha de 7 días" }.condition)
-        assertEquals(BadgeCondition.BestStreakAtLeast(30), BadgeCatalog.first { it.name == "Racha de 30 días" }.condition)
+        assertEquals(BadgeCondition.BestStreakAtLeast(7), BadgeCatalog.first { it.name.text() == "Racha de 7 días" }.condition)
+        assertEquals(BadgeCondition.BestStreakAtLeast(30), BadgeCatalog.first { it.name.text() == "Racha de 30 días" }.condition)
     }
 
     // ---- each kind of condition, with and without, and on its edge ----
@@ -174,7 +175,7 @@ class BadgesTest {
     fun withAPassedButNotPerfectExam_onlyLeyendaStaysLocked() {
         val state = evaluateBadges(facts(lessons = topics(6), labs = topics(6), examPassed = true, examPerfect = false, bestStreak = 30))
 
-        assertEquals(listOf("Leyenda NightWatch"), state.filter { !it.unlocked }.map { it.definition.name })
+        assertEquals(listOf("Leyenda NightWatch"), state.filter { !it.unlocked }.map { it.definition.name.text() })
     }
 
     // ---- Leyenda NightWatch: six islands AND a perfect exam ----
@@ -253,7 +254,7 @@ class BadgesTest {
 
         val summary = summarizeProgress(snapshot, now, bogota)
 
-        assertEquals(listOf("Primeros pasos"), summary.badges.filter { it.unlocked }.map { it.definition.name })
+        assertEquals(listOf("Primeros pasos"), summary.badges.filter { it.unlocked }.map { it.definition.name.text() })
         assertEquals(1, summary.streak.current)
     }
 
@@ -298,7 +299,7 @@ class BadgesTest {
         val before = summarizeProgress(small, now, bogota).badges
         val after = summarizeProgress(bigger, now, bogota).badges
 
-        before.zip(after).forEach { (a, b) -> assertTrue(a.definition.name, !a.unlocked || b.unlocked) }
+        before.zip(after).forEach { (a, b) -> assertTrue(a.definition.name.text(), !a.unlocked || b.unlocked) }
     }
 
     // ---- the provider ----

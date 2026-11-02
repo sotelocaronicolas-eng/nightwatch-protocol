@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.profile.devices
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.avatar.AvatarRepository
@@ -56,9 +57,9 @@ class DevicesViewModelTest {
 
         val items = vm.uiState.value.devices
         assertEquals(listOf("device-me", "device-b", "device-c"), items.map { it.id })
-        assertEquals("Actual", items[0].statusLabel)
+        assertEquals("Actual", items[0].statusLabel.text())
         assertTrue(items[0].isCurrent)
-        assertEquals("Hace 2 h", items[1].statusLabel)
+        assertEquals("Hace 2 h", items[1].statusLabel.text())
         assertFalse(vm.uiState.value.isLoading)
     }
 
@@ -68,7 +69,7 @@ class DevicesViewModelTest {
         advanceUntilIdle()
 
         assertEquals(listOf("device-me"), vm.uiState.value.devices.map { it.id })
-        assertEquals("Este telefono", vm.uiState.value.devices.single().name)
+        assertEquals("Este telefono", vm.uiState.value.devices.single().name.text())
     }
 
     @Test
@@ -78,7 +79,7 @@ class DevicesViewModelTest {
         advanceUntilIdle()
 
         val item = vm.uiState.value.devices.first { it.id == "device-b" }
-        assertEquals("Cierre pendiente", item.statusLabel)
+        assertEquals("Cierre pendiente", item.statusLabel.text())
         assertTrue(item.isRevoked)
     }
 
@@ -140,7 +141,7 @@ class DevicesViewModelTest {
             expectNoEvents()
         }
 
-        assertEquals("No hay otros dispositivos con sesión abierta.", vm.uiState.value.notice)
+        assertEquals("No hay otros dispositivos con sesión abierta.", vm.uiState.value.notice.text())
     }
 
     @Test
@@ -156,7 +157,7 @@ class DevicesViewModelTest {
             expectNoEvents()
         }
 
-        assertEquals("No pudimos cerrar la sesión en ese dispositivo. Inténtalo de nuevo.", vm.uiState.value.error)
+        assertEquals("No pudimos cerrar la sesión en ese dispositivo. Inténtalo de nuevo.", vm.uiState.value.error.text())
         assertFalse(vm.uiState.value.isWorking)
     }
 
@@ -187,8 +188,8 @@ class DevicesViewModelTest {
 
     @Test
     fun theLimitationNoticeSaysItDoesNotRevokeImmediately_andNamesNoBackend() {
-        assertTrue(DEVICES_LIMITATION_NOTICE.contains("No revoca"))
-        assertFalse(DEVICES_LIMITATION_NOTICE.contains("Supabase"))
+        assertTrue(DEVICES_LIMITATION_NOTICE.text()!!.contains("No revoca"))
+        assertFalse(DEVICES_LIMITATION_NOTICE.text()!!.contains("Supabase"))
     }
 
     // ---- the real revocation of the other sessions ----
@@ -237,7 +238,7 @@ class DevicesViewModelTest {
         }
 
         assertEquals(1, auth.signOutOtherSessionsCallCount)
-        assertEquals("No hay otros dispositivos con sesión abierta.", vm.uiState.value.notice)
+        assertEquals("No hay otros dispositivos con sesión abierta.", vm.uiState.value.notice.text())
         assertFalse(vm.uiState.value.isWorking)
     }
 

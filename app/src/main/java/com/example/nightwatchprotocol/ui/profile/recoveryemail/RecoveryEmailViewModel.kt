@@ -6,12 +6,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
+import com.example.nightwatchprotocol.ui.common.toUiText
 import com.example.nightwatchprotocol.ui.profile.isPlausibleEmail
-import com.example.nightwatchprotocol.ui.verifycode.MESSAGE_WAIT_BEFORE_NEW_CODE
+import com.example.nightwatchprotocol.ui.verifycode.TEXT_WAIT_BEFORE_NEW_CODE
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,25 +24,25 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-const val MESSAGE_RECOVERY_EMAIL_INVALID = "Correo electrónico inválido"
-const val MESSAGE_RECOVERY_EMAIL_NOT_SAVED = "No se pudo guardar el correo. Inténtalo de nuevo."
-const val MESSAGE_RECOVERY_EMAIL_OFFLINE = "Sin conexión a internet. Revisa tu conexión e inténtalo de nuevo."
+val MESSAGE_RECOVERY_EMAIL_INVALID: UiText = UiText.of(R.string.common_invalid_email)
+val MESSAGE_RECOVERY_EMAIL_NOT_SAVED: UiText = UiText.of(R.string.profile_error_recovery_email_not_saved)
+val MESSAGE_RECOVERY_EMAIL_OFFLINE: UiText = UiText.of(R.string.profile_error_recovery_email_offline)
 
 data class RecoveryEmailUiState(
     val email: String = "",
     val isSaving: Boolean = false,
-    val error: String? = null,
+    val error: UiText? = null,
 )
 
 /**
  * Why asking for the code failed. One short message per kind of failure, the technical cause is never shown. The
  * seconds, when the server gave them, are in the text.
  */
-fun recoveryEmailCodeErrorMessage(error: Throwable?): String = when (error) {
+fun recoveryEmailCodeErrorMessage(error: Throwable?): UiText = when (error) {
     is AuthError.RateLimited ->
-        error.retryAfterSeconds?.let { "Espera $it s antes de pedir otro código." } ?: MESSAGE_WAIT_BEFORE_NEW_CODE
-    AuthError.SameAsPrimaryEmail -> AuthError.SameAsPrimaryEmail.message.orEmpty()
-    AuthError.EmailSendFailed -> AuthError.EmailSendFailed.message.orEmpty()
+        error.retryAfterSeconds?.let { UiText.of(R.string.profile_error_wait_seconds, it) } ?: TEXT_WAIT_BEFORE_NEW_CODE
+    AuthError.SameAsPrimaryEmail -> AuthError.SameAsPrimaryEmail.toUiText()
+    AuthError.EmailSendFailed -> AuthError.EmailSendFailed.toUiText()
     AuthError.InvalidEmail -> MESSAGE_RECOVERY_EMAIL_INVALID
     AuthError.NetworkError -> MESSAGE_RECOVERY_EMAIL_OFFLINE
     else -> MESSAGE_RECOVERY_EMAIL_NOT_SAVED

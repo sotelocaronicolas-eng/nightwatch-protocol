@@ -1,6 +1,8 @@
 package com.example.nightwatchprotocol.ui.components
 
 import androidx.compose.material3.DatePicker
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.R
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SelectableDates
@@ -46,9 +48,9 @@ fun BirthDatePickerDialog(
             TextButton(
                 enabled = state.selectedDateMillis != null,
                 onClick = { state.selectedDateMillis?.let { onConfirm(BirthDate.fromUtcMillis(it)) } },
-            ) { Text("Aceptar") }
+            ) { Text(stringResource(R.string.common_accept)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) } },
     ) {
         DatePicker(state = state)
     }

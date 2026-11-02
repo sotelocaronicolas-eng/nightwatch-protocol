@@ -1,6 +1,7 @@
 package com.example.nightwatchprotocol.ui.profile.myprofile
 
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.account.AccountProfile
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
@@ -129,10 +130,10 @@ class MyProfileViewModelTest {
         advanceUntilIdle()
 
         val state = vm.uiState.value
-        assertEquals("Nicolás Sotelo", state.displayName)
+        assertEquals("Nicolás Sotelo", state.displayName.text())
         assertEquals("n@example.com", state.email)
         assertEquals(AvatarDisplay.Initial("N"), state.avatar)
-        assertTrue(state.memberSince != "—")
+        assertTrue(state.memberSince.text() != "—")
     }
 
     @Test
@@ -141,8 +142,8 @@ class MyProfileViewModelTest {
         val vm = viewModel()
         advanceUntilIdle()
 
-        assertEquals("euzuki1205", vm.uiState.value.displayName)
-        assertEquals("—", vm.uiState.value.memberSince)
+        assertEquals("euzuki1205", vm.uiState.value.displayName.text())
+        assertEquals("—", vm.uiState.value.memberSince.text())
         assertEquals(AvatarDisplay.Initial("E"), vm.uiState.value.avatar)
     }
 
@@ -154,7 +155,7 @@ class MyProfileViewModelTest {
 
         advanceUntilIdle()
 
-        assertEquals("MEDIO", vm.uiState.value.level)
+        assertEquals("MEDIO", vm.uiState.value.level.text())
     }
 
     @Test
@@ -163,7 +164,7 @@ class MyProfileViewModelTest {
         val vm = viewModel()
         advanceUntilIdle()
 
-        assertEquals("Sin evaluar", vm.uiState.value.level)
+        assertEquals("Sin evaluar", vm.uiState.value.level.text())
     }
 
     @Test
@@ -172,7 +173,7 @@ class MyProfileViewModelTest {
         val vm = viewModel()
         advanceUntilIdle()
 
-        assertEquals("Sin evaluar", vm.uiState.value.level)
+        assertEquals("Sin evaluar", vm.uiState.value.level.text())
     }
 
     @Test
@@ -184,7 +185,7 @@ class MyProfileViewModelTest {
 
         advanceTimeBy(1_500)
 
-        assertEquals("Sin evaluar", vm.uiState.value.level)
+        assertEquals("Sin evaluar", vm.uiState.value.level.text())
     }
 
     @Test
@@ -225,7 +226,7 @@ class MyProfileViewModelTest {
         val vm = viewModel()
         advanceUntilIdle()
 
-        assertEquals("Femenino", vm.uiState.value.gender)
+        assertEquals("Femenino", vm.uiState.value.gender.text())
         assertEquals("07/03/1999", vm.uiState.value.birthDate)
     }
 
@@ -245,7 +246,7 @@ class MyProfileViewModelTest {
         val vm = viewModel()
         advanceUntilIdle()
 
-        assertEquals("Otro", vm.uiState.value.gender)
+        assertEquals("Otro", vm.uiState.value.gender.text())
         assertEquals("25/12/1990", vm.uiState.value.birthDate)
     }
 
@@ -265,7 +266,7 @@ class MyProfileViewModelTest {
         val vm = viewModel()
         advanceUntilIdle()
 
-        assertEquals("Sin evaluar", vm.uiState.value.level)
+        assertEquals("Sin evaluar", vm.uiState.value.level.text())
         assertEquals(0, quiz.getResultCallCount)
         assertEquals(0, profile.getProfileCallCount)
     }

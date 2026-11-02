@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.biometric.BiometricAvailability
 import com.example.nightwatchprotocol.data.biometric.BiometricCapabilities
 import com.example.nightwatchprotocol.data.preferences.UserPreferences
@@ -38,19 +40,19 @@ data class PrivacySecurityUiState(
     /** The server did not take the change of [hidePublicProgress]: nothing changed, and the switch shows the real value. */
     val hideProgressError: SocialError? = null,
     val biometricLockEnabled: Boolean = false,
-    val biometricError: String? = null,
+    val biometricError: UiText? = null,
     val exportStatus: ExportStatus = ExportStatus.Idle,
 )
 
 enum class ExportStatus { Idle, InProgress, Done, Failed }
 
-const val MESSAGE_EXPORT_DONE = "Tus datos se guardaron en el archivo que elegiste."
-const val MESSAGE_EXPORT_FAILED = "No se pudo guardar el archivo. Inténtalo de nuevo."
+val MESSAGE_EXPORT_DONE: UiText = UiText.of(R.string.settings_privacy_export_done)
+val MESSAGE_EXPORT_FAILED: UiText = UiText.of(R.string.settings_privacy_export_failed)
 
-const val MESSAGE_NO_FINGERPRINT_ENROLLED = "No hay una huella registrada en este teléfono"
-const val MESSAGE_NO_FINGERPRINT_READER = "Este teléfono no tiene lector de huella"
-const val MESSAGE_READER_UNAVAILABLE = "El lector no está disponible ahora, inténtalo más tarde"
-const val MESSAGE_FINGERPRINT_NOT_VERIFIED = "No se pudo verificar tu huella"
+val MESSAGE_NO_FINGERPRINT_ENROLLED: UiText = UiText.of(R.string.settings_privacy_no_fingerprint_enrolled)
+val MESSAGE_NO_FINGERPRINT_READER: UiText = UiText.of(R.string.settings_privacy_no_fingerprint_reader)
+val MESSAGE_READER_UNAVAILABLE: UiText = UiText.of(R.string.settings_privacy_reader_unavailable)
+val MESSAGE_FINGERPRINT_NOT_VERIFIED: UiText = UiText.of(R.string.settings_privacy_fingerprint_not_verified)
 
 sealed interface PrivacySecurityEvent {
     /** The screen must show the system prompt that proves the user's fingerprint works before the lock is turned on. */

@@ -4,6 +4,7 @@ import com.example.nightwatchprotocol.data.quiz.PlacementLevel
 import com.example.nightwatchprotocol.data.quiz.PlacementResult
 import java.util.Calendar
 import java.util.TimeZone
+import com.example.nightwatchprotocol.text
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -15,15 +16,30 @@ class ProfileFormattersTest {
 
     @Test
     fun memberSince_formatsMonthAbbreviationAndYear() {
-        assertEquals("Ago. 2026", memberSinceLabel(millis(2026, Calendar.AUGUST, 15), utc))
-        assertEquals("Ene. 2025", memberSinceLabel(millis(2025, Calendar.JANUARY, 2), utc))
-        assertEquals("Dic. 2024", memberSinceLabel(millis(2024, Calendar.DECEMBER, 31), utc))
+        assertEquals("Ago. 2026", memberSinceLabel(millis(2026, Calendar.AUGUST, 15), utc).text())
+        assertEquals("Ene. 2025", memberSinceLabel(millis(2025, Calendar.JANUARY, 2), utc).text())
+        assertEquals("Dic. 2024", memberSinceLabel(millis(2024, Calendar.DECEMBER, 31), utc).text())
     }
 
     @Test
     fun memberSince_missingOrInvalidDate_showsDash() {
-        assertEquals("—", memberSinceLabel(null, utc))
-        assertEquals("—", memberSinceLabel(0L, utc))
+        assertEquals("—", memberSinceLabel(null, utc).text())
+        assertEquals("—", memberSinceLabel(0L, utc).text())
+    }
+
+    @Test
+    fun displayText_matchesTheStringVersion() {
+        assertEquals("Nicolás Sotelo", profileDisplayText("  Nicolás Sotelo ", "n@example.com").text())
+        assertEquals("euzuki1205", profileDisplayText(null, "euzuki1205@gmail.com").text())
+        assertEquals("Usuario", profileDisplayText(null, null).text())
+        assertEquals("Usuario", profileDisplayText("", "@gmail.com").text())
+    }
+
+    @Test
+    fun levelText_matchesTheStringVersion() {
+        assertEquals("BAJO", levelText(PlacementResult(PlacementLevel.BAJO, emptySet())).text())
+        assertEquals("Sin evaluar", levelText(null).text())
+        assertEquals(levelLabel(null), levelText(null).text())
     }
 
     @Test

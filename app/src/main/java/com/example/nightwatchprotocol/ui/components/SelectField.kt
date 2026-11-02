@@ -1,6 +1,8 @@
 package com.example.nightwatchprotocol.ui.components
 
 import androidx.compose.foundation.border
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,7 +66,7 @@ fun NightWatchSelectField(
                             modifier = Modifier.size(20.dp).border(1.5.dp, NightWatchError, CircleShape),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Icon(Icons.Filled.Close, contentDescription = "Error", tint = NightWatchError, modifier = Modifier.size(12.dp))
+                            Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.common_error_icon_description), tint = NightWatchError, modifier = Modifier.size(12.dp))
                         }
                     } else {
                         Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = NightWatchOnBackground)

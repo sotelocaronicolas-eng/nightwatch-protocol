@@ -1,6 +1,8 @@
 package com.example.nightwatchprotocol.ui.components
 
 import androidx.compose.foundation.border
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -97,7 +99,7 @@ private fun NightWatchErrorIcon() {
     ) {
         Icon(
             imageVector = Icons.Filled.Close,
-            contentDescription = "Error",
+            contentDescription = stringResource(R.string.common_error_icon_description),
             tint = NightWatchError,
             modifier = Modifier.size(12.dp),
         )

@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.nightwatchprotocol.MainActivity
 import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.asString
 
 /** Creates the notification channels and posts the local reminders. */
 object ReminderNotifier {
@@ -19,7 +20,7 @@ object ReminderNotifier {
         val manager = context.getSystemService(NotificationManager::class.java)
         ReminderKind.entries.forEach { kind ->
             manager.createNotificationChannel(
-                NotificationChannel(kind.channelId, kind.channelName, NotificationManager.IMPORTANCE_DEFAULT),
+                NotificationChannel(kind.channelId, kind.channelName.asString(context), NotificationManager.IMPORTANCE_DEFAULT),
             )
         }
     }
@@ -35,8 +36,8 @@ object ReminderNotifier {
         )
         val notification = NotificationCompat.Builder(context, kind.channelId)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(kind.title)
-            .setContentText(kind.text)
+            .setContentTitle(kind.title.asString(context))
+            .setContentText(kind.text.asString(context))
             .setContentIntent(openApp)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

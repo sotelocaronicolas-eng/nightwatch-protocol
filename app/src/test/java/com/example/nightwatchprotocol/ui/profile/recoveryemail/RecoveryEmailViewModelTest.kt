@@ -2,6 +2,8 @@ package com.example.nightwatchprotocol.ui.profile.recoveryemail
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.data.common.UiText
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.profile.FakeProfileRepository
@@ -53,7 +55,7 @@ class RecoveryEmailViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("Correo electrónico inválido", vm.uiState.value.error)
+        assertEquals("Correo electrónico inválido", vm.uiState.value.error.text())
         assertTrue(profile.requestedRecoveryEmailCodes.isEmpty())
     }
 
@@ -65,7 +67,7 @@ class RecoveryEmailViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("Correo electrónico inválido", vm.uiState.value.error)
+        assertEquals("Correo electrónico inválido", vm.uiState.value.error.text())
     }
 
     @Test
@@ -102,7 +104,7 @@ class RecoveryEmailViewModelTest {
         return viewModel()
     }
 
-    private fun RecoveryEmailViewModel.saveAndGetError(): String? {
+    private fun RecoveryEmailViewModel.saveAndGetError(): UiText? {
         onEmailChanged("respaldo@example.com")
         onSaveClicked()
         return uiState.value.error
@@ -116,7 +118,7 @@ class RecoveryEmailViewModelTest {
         vm.saveAndGetError()
         advanceUntilIdle()
 
-        assertEquals("Usa un correo distinto al principal", vm.uiState.value.error)
+        assertEquals("Usa un correo distinto al principal", vm.uiState.value.error.text())
         assertFalse(vm.uiState.value.isSaving)
     }
 
@@ -128,7 +130,7 @@ class RecoveryEmailViewModelTest {
         vm.saveAndGetError()
         advanceUntilIdle()
 
-        assertEquals("Espera 37 s antes de pedir otro código.", vm.uiState.value.error)
+        assertEquals("Espera 37 s antes de pedir otro código.", vm.uiState.value.error.text())
     }
 
     @Test
@@ -139,7 +141,7 @@ class RecoveryEmailViewModelTest {
         vm.saveAndGetError()
         advanceUntilIdle()
 
-        assertEquals("Espera un momento antes de pedir otro código.", vm.uiState.value.error)
+        assertEquals("Espera un momento antes de pedir otro código.", vm.uiState.value.error.text())
     }
 
     @Test
@@ -150,7 +152,7 @@ class RecoveryEmailViewModelTest {
         vm.saveAndGetError()
         advanceUntilIdle()
 
-        assertEquals("No pudimos enviar el código. Inténtalo de nuevo.", vm.uiState.value.error)
+        assertEquals("No pudimos enviar el código. Inténtalo de nuevo.", vm.uiState.value.error.text())
     }
 
     @Test
@@ -173,7 +175,7 @@ class RecoveryEmailViewModelTest {
         advanceUntilIdle()
 
         assertEquals(MESSAGE_RECOVERY_EMAIL_NOT_SAVED, vm.uiState.value.error)
-        assertFalse(vm.uiState.value.error.orEmpty().contains("detalle interno"))
+        assertFalse(vm.uiState.value.error.text().orEmpty().contains("detalle interno"))
     }
 
     @Test
@@ -186,7 +188,7 @@ class RecoveryEmailViewModelTest {
         vm.onSaveClicked()
         advanceUntilIdle()
 
-        assertEquals("No se pudo guardar el correo. Inténtalo de nuevo.", vm.uiState.value.error)
+        assertEquals("No se pudo guardar el correo. Inténtalo de nuevo.", vm.uiState.value.error.text())
         assertTrue(profile.requestedRecoveryEmailCodes.isEmpty())
     }
 }

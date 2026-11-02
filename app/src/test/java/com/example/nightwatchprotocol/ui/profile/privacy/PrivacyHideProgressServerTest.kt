@@ -47,6 +47,7 @@ class PrivacyHideProgressServerTest {
             profile,
             FakeQuizResultRepository(),
             ProfileExtrasRepository(profile, DataStoreProfileExtrasCache.inMemory()),
+            com.example.nightwatchprotocol.TestStrings,
             clock = { 0L },
         ),
         FakeDataExportWriter(),

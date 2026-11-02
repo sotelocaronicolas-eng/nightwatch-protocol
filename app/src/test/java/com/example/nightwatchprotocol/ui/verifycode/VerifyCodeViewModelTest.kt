@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.verifycode
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.auth.AuthError
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,7 +24,7 @@ class FakeCodeFlow : CodeFlow {
     var resendResult: Result<Unit> = Result.success(Unit)
     val confirmed = mutableListOf<String>()
     var resendCalls = 0
-    override var completionNotice: String? = null
+    override var completionNotice: CompletionNotice? = null
 
     /** When set, [confirm] suspends until it is completed (a check that is still in flight). */
     var confirmGate: CompletableDeferred<Unit>? = null
@@ -115,13 +116,13 @@ class VerifyCodeViewModelTest {
 
     @Test
     fun aValidCodeWithACompletionNotice_emitsVerifiedWithTheNotice() = runTest {
-        flow.completionNotice = "aviso"
+        flow.completionNotice = CompletionNotice.GOOGLE_UNLINK_FAILED
         val vm = viewModel()
         vm.onCodeChanged("123456")
 
         vm.events.test {
             vm.onConfirmClicked()
-            assertEquals(VerifyCodeEvent.VerifiedWithNotice("aviso"), awaitItem())
+            assertEquals(VerifyCodeEvent.VerifiedWithNotice(CompletionNotice.GOOGLE_UNLINK_FAILED), awaitItem())
         }
     }
 
@@ -181,7 +182,7 @@ class VerifyCodeViewModelTest {
         advanceUntilIdle()
 
         assertEquals(VerifyCodeError.InvalidCode, vm.uiState.value.error)
-        assertEquals("El código ingresado no es correcto.", vm.uiState.value.error?.message)
+        assertEquals("El código ingresado no es correcto.", vm.uiState.value.error?.message.text())
 
         vm.onConfirmClicked() // "REINTENTAR"
         assertNull(vm.uiState.value.error)
@@ -197,7 +198,7 @@ class VerifyCodeViewModelTest {
 
         vm.onConfirmClicked()
         advanceUntilIdle()
-        assertEquals("Sin conexión a internet", vm.uiState.value.error?.message)
+        assertEquals("Sin conexión a internet", vm.uiState.value.error?.message.text())
 
         flow.confirmResult = Result.success(Unit)
         vm.events.test {
@@ -256,7 +257,7 @@ class VerifyCodeViewModelTest {
 
         assertEquals(60, vm.uiState.value.resendSecondsLeft)
         assertFalse(vm.uiState.value.canResend)
-        assertEquals("Reenviar en 60 s", vm.uiState.value.resendLabel)
+        assertEquals("Reenviar en 60 s", vm.uiState.value.resendLabel.text())
     }
 
     @Test
@@ -265,7 +266,7 @@ class VerifyCodeViewModelTest {
 
         advanceTimeBy(15_001)
         assertEquals(45, vm.uiState.value.resendSecondsLeft)
-        assertEquals("Reenviar en 45 s", vm.uiState.value.resendLabel)
+        assertEquals("Reenviar en 45 s", vm.uiState.value.resendLabel.text())
 
         advanceTimeBy(44_000)
         assertEquals(1, vm.uiState.value.resendSecondsLeft)
@@ -280,7 +281,7 @@ class VerifyCodeViewModelTest {
 
         assertEquals(0, vm.uiState.value.resendSecondsLeft)
         assertTrue(vm.uiState.value.canResend)
-        assertEquals("Reenviar el código de 6 dígitos", vm.uiState.value.resendLabel)
+        assertEquals("Reenviar el código de 6 dígitos", vm.uiState.value.resendLabel.text())
     }
 
     @Test
@@ -356,7 +357,7 @@ class VerifyCodeViewModelTest {
         val state = confirmWith(AuthError.InvalidCode)
 
         assertEquals(VerifyCodeError.InvalidCode, state.error)
-        assertEquals("El código ingresado no es correcto.", state.error?.message)
+        assertEquals("El código ingresado no es correcto.", state.error?.message.text())
     }
 
     @Test
@@ -370,7 +371,7 @@ class VerifyCodeViewModelTest {
         runCurrent()
 
         assertEquals(VerifyCodeError.Expired, vm.uiState.value.error)
-        assertEquals("El código expiró. Solicita uno nuevo.", vm.uiState.value.error?.message)
+        assertEquals("El código expiró. Solicita uno nuevo.", vm.uiState.value.error?.message.text())
     }
 
     @Test
@@ -422,7 +423,7 @@ class VerifyCodeViewModelTest {
         val state = confirmWith(AuthError.TooManyAttempts)
 
         assertEquals(VerifyCodeError.TooManyAttempts, state.error)
-        assertEquals("Demasiados intentos. Espera unos minutos y vuelve a intentarlo.", state.error?.message)
+        assertEquals("Demasiados intentos. Espera unos minutos y vuelve a intentarlo.", state.error?.message.text())
         assertEquals("123456", state.code)
     }
 
@@ -431,7 +432,7 @@ class VerifyCodeViewModelTest {
         val state = confirmWith(AuthError.NetworkError)
 
         assertEquals(VerifyCodeError.Offline, state.error)
-        assertEquals("Sin conexión a internet", state.error?.message)
+        assertEquals("Sin conexión a internet", state.error?.message.text())
     }
 
     @Test

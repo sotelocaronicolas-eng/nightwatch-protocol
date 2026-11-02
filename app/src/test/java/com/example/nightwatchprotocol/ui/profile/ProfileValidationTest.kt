@@ -1,6 +1,7 @@
 package com.example.nightwatchprotocol.ui.profile
 
 import com.example.nightwatchprotocol.data.auth.AuthError
+import com.example.nightwatchprotocol.text
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -24,11 +25,11 @@ class ProfileValidationTest {
 
     @Test
     fun passwordErrors_mapToTheirMessages() {
-        assertEquals("La contraseña actual no es correcta", passwordOperationErrorMessage(AuthError.WrongPassword))
-        assertEquals("La contraseña actual no es correcta", passwordOperationErrorMessage(AuthError.InvalidCredentials))
-        assertEquals("La contraseña no cumple con los requerimientos", passwordOperationErrorMessage(AuthError.WeakPassword))
-        assertEquals("Sin conexión a internet", passwordOperationErrorMessage(AuthError.NetworkError))
-        assertEquals(MESSAGE_GENERIC_ERROR, passwordOperationErrorMessage(AuthError.Unknown))
-        assertEquals(MESSAGE_GENERIC_ERROR, passwordOperationErrorMessage(RuntimeException("x")))
+        assertEquals("La contraseña actual no es correcta", passwordOperationErrorMessage(AuthError.WrongPassword).text())
+        assertEquals("La contraseña actual no es correcta", passwordOperationErrorMessage(AuthError.InvalidCredentials).text())
+        assertEquals("La contraseña no cumple con los requerimientos", passwordOperationErrorMessage(AuthError.WeakPassword).text())
+        assertEquals("Sin conexión a internet", passwordOperationErrorMessage(AuthError.NetworkError).text())
+        assertEquals(MESSAGE_GENERIC_ERROR, passwordOperationErrorMessage(AuthError.Unknown).text())
+        assertEquals(MESSAGE_GENERIC_ERROR, passwordOperationErrorMessage(RuntimeException("x")).text())
     }
 }

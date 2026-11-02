@@ -1,6 +1,7 @@
 package com.example.nightwatchprotocol.di
 
 import android.content.Context
+import com.example.nightwatchprotocol.data.common.ContextTextResolver
 import com.example.nightwatchprotocol.BuildConfig
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.account.SupabaseAccountRepository
@@ -196,7 +197,13 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val profileExtrasRepository: ProfileExtrasRepository =
         ProfileExtrasRepository(profileRepository, DataStoreProfileExtrasCache(context.userDataStore))
     override val profileDataExporter: ProfileDataExporter =
-        ProfileDataExporter(accountRepository, profileRepository, quizResultRepository, profileExtrasRepository)
+        ProfileDataExporter(
+            accountRepository,
+            profileRepository,
+            quizResultRepository,
+            profileExtrasRepository,
+            ContextTextResolver(context),
+        )
     override val dataExportWriter: DataExportWriter = ContentResolverDataExportWriter(context.contentResolver)
     override val notificationPermission: NotificationPermission = AndroidNotificationPermission(context)
     override val reminderScheduler: ReminderScheduler = WorkManagerReminderScheduler(context)

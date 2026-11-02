@@ -2,6 +2,7 @@ package com.example.nightwatchprotocol.ui.profile.confirmidentity
 
 import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.account.FakeAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,7 +29,7 @@ class ConfirmIdentityViewModelTest {
         vm.onConfirmClicked()
         advanceUntilIdle()
 
-        assertEquals("Ingresa tu contraseña actual", vm.uiState.value.error)
+        assertEquals("Ingresa tu contraseña actual", vm.uiState.value.error.text())
         assertEquals(0, account.reauthenticateCalls.size)
     }
 
@@ -56,7 +57,7 @@ class ConfirmIdentityViewModelTest {
         vm.onConfirmClicked()
         advanceUntilIdle()
 
-        assertEquals("La contraseña actual no es correcta", vm.uiState.value.error)
+        assertEquals("La contraseña actual no es correcta", vm.uiState.value.error.text())
         assertFalse(vm.uiState.value.isLoading)
     }
 
@@ -69,7 +70,7 @@ class ConfirmIdentityViewModelTest {
         vm.onConfirmClicked()
         advanceUntilIdle()
 
-        assertEquals("La contraseña actual no es correcta", vm.uiState.value.error)
+        assertEquals("La contraseña actual no es correcta", vm.uiState.value.error.text())
     }
 
     @Test
@@ -81,7 +82,7 @@ class ConfirmIdentityViewModelTest {
         vm.onConfirmClicked()
         advanceUntilIdle()
 
-        assertEquals("Sin conexión a internet", vm.uiState.value.error)
+        assertEquals("Sin conexión a internet", vm.uiState.value.error.text())
     }
 
     @Test
@@ -93,7 +94,7 @@ class ConfirmIdentityViewModelTest {
         vm.onConfirmClicked()
         advanceUntilIdle()
 
-        assertEquals("Se produjo un error inesperado. Intenta de nuevo.", vm.uiState.value.error)
+        assertEquals("Se produjo un error inesperado. Intenta de nuevo.", vm.uiState.value.error.text())
     }
 
     @Test

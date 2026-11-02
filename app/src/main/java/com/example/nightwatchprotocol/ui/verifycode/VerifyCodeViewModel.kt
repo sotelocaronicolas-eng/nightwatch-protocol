@@ -8,7 +8,9 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.toRoute
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.auth.AuthError
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.ui.navigation.VerifyCode
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Job
@@ -26,16 +28,19 @@ import kotlinx.coroutines.launch
 /** The codes Supabase sends have 6 digits ("Email OTP length" in the panel). */
 const val CODE_LENGTH = 6
 
-const val MESSAGE_INVALID_CODE = "El código ingresado no es correcto."
-const val MESSAGE_CODE_RESENT = "Te enviamos un código nuevo."
-const val MESSAGE_OFFLINE = "Sin conexión a internet"
-const val MESSAGE_CODE_GENERIC_ERROR = "Se produjo un error inesperado. Intenta de nuevo."
+val MESSAGE_INVALID_CODE: UiText = UiText.of(R.string.error_auth_invalid_code)
+val MESSAGE_CODE_RESENT: UiText = UiText.of(R.string.verify_code_resent)
+val MESSAGE_OFFLINE: UiText = UiText.of(R.string.common_no_connection)
+val MESSAGE_CODE_GENERIC_ERROR: UiText = UiText.of(R.string.common_generic_error)
 
 /** Shown wherever a new code is asked for too soon and the server did not say how long to wait. */
-const val MESSAGE_WAIT_BEFORE_NEW_CODE = "Espera un momento antes de pedir otro código."
+val TEXT_WAIT_BEFORE_NEW_CODE: UiText = UiText.of(R.string.error_auth_rate_limited)
 
-const val MESSAGE_CODE_EXPIRED = "El código expiró. Solicita uno nuevo."
-const val MESSAGE_TOO_MANY_ATTEMPTS = "Demasiados intentos. Espera unos minutos y vuelve a intentarlo."
+// PENDING_PART_B: the password-recovery dialog (auth) still keeps this as a String; Part B uses TEXT_WAIT_BEFORE_NEW_CODE.
+const val MESSAGE_WAIT_BEFORE_NEW_CODE = "Espera un momento antes de pedir otro código." // PENDING_PART_B
+
+val MESSAGE_CODE_EXPIRED: UiText = UiText.of(R.string.error_auth_code_expired)
+val MESSAGE_TOO_MANY_ATTEMPTS: UiText = UiText.of(R.string.error_auth_too_many_attempts)
 
 /** "Email OTP expiration" in the panel: 600 seconds. */
 const val CODE_VALIDITY_MILLIS = 600_000L
@@ -47,7 +52,7 @@ const val RESEND_COOLDOWN_SECONDS = 60
 fun sanitizeCode(raw: String): String = raw.filter { it in '0'..'9' }.take(CODE_LENGTH)
 
 /** Why the last confirmation failed. [clearsCode] says whether the typed code is useless and should be retyped. */
-enum class VerifyCodeError(val message: String, val clearsCode: Boolean) {
+enum class VerifyCodeError(val message: UiText, val clearsCode: Boolean) {
     InvalidCode(MESSAGE_INVALID_CODE, clearsCode = true),
     Expired(MESSAGE_CODE_EXPIRED, clearsCode = true),
     TooManyAttempts(MESSAGE_TOO_MANY_ATTEMPTS, clearsCode = false),
@@ -62,7 +67,7 @@ data class VerifyCodeUiState(
     val isResending: Boolean = false,
     val error: VerifyCodeError? = null,
     /** "Te enviamos un código nuevo." after a successful resend. */
-    val notice: String? = null,
+    val notice: UiText? = null,
     /** Seconds until "Reenviar" works again; 0 when it already does. */
     val resendSecondsLeft: Int = 0,
 ) {
@@ -72,11 +77,11 @@ data class VerifyCodeUiState(
     val canResend: Boolean get() = resendSecondsLeft == 0 && !isResending
 
     /** The text of the resend link: a countdown while it is disabled. */
-    val resendLabel: String
+    val resendLabel: UiText
         get() = if (resendSecondsLeft > 0) {
-            "Reenviar en $resendSecondsLeft s"
+            UiText.of(R.string.verify_code_resend_in, resendSecondsLeft)
         } else {
-            "Reenviar el código de $CODE_LENGTH dígitos"
+            UiText.of(R.string.verify_code_resend, CODE_LENGTH)
         }
 }
 
@@ -85,7 +90,7 @@ sealed interface VerifyCodeEvent {
     data object Verified : VerifyCodeEvent
 
     /** Accepted, but a secondary step failed (see [CodeFlow.completionNotice]); the next screen shows [notice]. */
-    data class VerifiedWithNotice(val notice: String) : VerifyCodeEvent
+    data class VerifiedWithNotice(val notice: CompletionNotice) : VerifyCodeEvent
 }
 
 /**

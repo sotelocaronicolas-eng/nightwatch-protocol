@@ -16,6 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.components.BottomActionScrollLayout
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
@@ -49,14 +52,14 @@ fun RecoveryEmailScreen(
                 modifier = Modifier.weight(1f),
                 action = {
                     ProfileButton(
-                        text = "GUARDAR CORREO",
+                        text = stringResource(R.string.profile_recovery_email_save),
                         onClick = viewModel::onSaveClicked,
                         enabled = !uiState.isSaving,
                     )
                 },
             ) {
                 Text(
-                    text = "Correo de Recuperación",
+                    text = stringResource(R.string.profile_recovery_email_title),
                     color = NightWatchOnBackground,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.Bold,
@@ -65,7 +68,7 @@ fun RecoveryEmailScreen(
                     modifier = Modifier.padding(top = 80.dp),
                 )
                 Text(
-                    text = "Agrega un correo alterno para recuperar tu cuenta si pierdes acceso a la principal.",
+                    text = stringResource(R.string.profile_recovery_email_message),
                     color = NightWatchHeaderPanel,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.Medium,
@@ -74,11 +77,11 @@ fun RecoveryEmailScreen(
                     modifier = Modifier.padding(top = 12.dp, bottom = 56.dp),
                 )
                 NightWatchTextField(
-                    label = "Correo de recuperación",
+                    label = stringResource(R.string.profile_info_recovery_email),
                     value = uiState.email,
                     onValueChange = viewModel::onEmailChanged,
                     isError = uiState.error != null,
-                    supportingText = uiState.error,
+                    supportingText = uiState.error?.asString(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 )
             }

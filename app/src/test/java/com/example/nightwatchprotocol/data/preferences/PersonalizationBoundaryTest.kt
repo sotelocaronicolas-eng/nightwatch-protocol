@@ -7,9 +7,8 @@ import org.junit.Test
 
 /**
  * Architecture rules of Module 5 (checked on the source code, like `SocialBoundaryTest`):
- *  - The data layer does not depend on Android resources or Compose: the UI turns types into text and colours
- *    (decision D10). `data/notifications` is the one documented exception today (it builds the notification with `R`);
- *    Stage 3 and Stage 10 of Module 5 remove it.
+ *  - The data layer does not use Compose and, except for a short documented list, names no Android text resource: it hands
+ *    the UI a `UiText` or a type to translate (decision D10, Stage 3 of Module 5).
  *  - Nothing in the app erases the `user_preferences` DataStore, so the look chosen on this device survives signing out.
  */
 class PersonalizationBoundaryTest {
@@ -25,18 +24,44 @@ class PersonalizationBoundaryTest {
         .filterNot { line -> line.trim().let { it.startsWith("*") || it.startsWith("/*") || it.startsWith("//") } }
         .joinToString("\n")
 
+    /**
+     * The only files of `data/` that may name an Android text resource (`R.string...`) so they can hand a [UiText] to the UI
+     * (decision D10 and Stage 3 of Module 5). Everything else in `data/` knows no resources. Compose is forbidden for all.
+     * To add a file here, say why in this comment: the list is meant to stay short.
+     *  - `data/common/UiText.kt`: the type itself and its `Context` resolver.
+     *  - `data/learning/Badges.kt`: the names of the nine badges (a fixed catalog).
+     *  - `data/profile/BirthDate.kt`, `data/profile/ProfileFormatters.kt`, `data/profile/Gender.kt`: the messages and labels of
+     *    the profile fields.
+     *  - `data/device/DeviceFormatters.kt`: "Ahora / Hace N min" of the devices list.
+     *  - `data/notifications/ReminderKind.kt` (the ids of the texts) and `ReminderNotifier.kt` (the icon and the `Context` that
+     *    resolves them when the notification is posted). `ReminderWorker.kt` and the rest of the folder are NOT on the list.
+     */
+    private val mayNameResources = listOf(
+        "/data/common/UiText.kt",
+        "/data/learning/Badges.kt",
+        "/data/profile/BirthDate.kt",
+        "/data/profile/ProfileFormatters.kt",
+        "/data/profile/Gender.kt",
+        "/data/device/DeviceFormatters.kt",
+        "/data/notifications/ReminderKind.kt",
+        "/data/notifications/ReminderNotifier.kt",
+    )
+
     @Test
     fun theDataLayer_doesNotUseAndroidResourcesOrCompose() {
-        val files = kotlinFiles(mainFolder("data")).filterNot { it.invariantSeparatorsPath.contains("/data/notifications/") }
+        val files = kotlinFiles(mainFolder("data"))
         assertTrue("no se encontró la capa data", files.size > 30)
-        val forbidden = listOf(
+        val resourceWords = listOf(
             "com.example.nightwatchprotocol.R", "android.content.res", "androidx.annotation.StringRes",
-            "androidx.annotation.PluralsRes", "androidx.compose", "stringResource", "getString(",
+            "androidx.annotation.PluralsRes", "stringResource", "getString(R.", "getQuantityString(",
         )
 
         files.forEach { file ->
             val code = codeOf(file)
-            forbidden.forEach { word -> assertFalse("${file.name} usa $word", code.contains(word)) }
+            assertFalse("${file.name} usa Compose", code.contains("androidx.compose"))
+            if (mayNameResources.none { file.invariantSeparatorsPath.contains(it) }) {
+                resourceWords.forEach { word -> assertFalse("${file.name} usa $word", code.contains(word)) }
+            }
         }
     }
 

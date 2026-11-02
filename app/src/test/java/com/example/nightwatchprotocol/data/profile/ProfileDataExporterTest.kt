@@ -6,6 +6,7 @@ import com.example.nightwatchprotocol.data.quiz.FakeQuizResultRepository
 import com.example.nightwatchprotocol.data.quiz.PlacementLevel
 import com.example.nightwatchprotocol.data.quiz.PlacementResult
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
+import com.example.nightwatchprotocol.TestStrings
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
@@ -29,7 +30,7 @@ class ProfileDataExporterTest {
 
     private val extras = ProfileExtrasRepository(profile, DataStoreProfileExtrasCache.inMemory())
 
-    private fun exporter() = ProfileDataExporter(account, profile, quiz, extras, clock = { fixedNow })
+    private fun exporter() = ProfileDataExporter(account, profile, quiz, extras, TestStrings, clock = { fixedNow })
 
     private fun parse(text: String): JsonObject = Json.parseToJsonElement(text).jsonObject
 
