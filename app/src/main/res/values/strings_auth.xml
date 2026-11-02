@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Textos de autenticación (Módulo 5, Etapa 3, parte B1): inicio de sesión, registro, recuperación de contraseña y nueva
+    contraseña. Prefijo auth_. Son los textos que estaban en el código, sin cambios; el inglés va en otra etapa.
+    Los que comparten con Perfil están en strings_comunes.xml (common_, error_auth_) y strings_perfil.xml.
+-->
+<resources>
+    <!-- Compartidos por inicio de sesión, registro y recuperación -->
+    <string name="auth_password_label">Contraseña</string>
+    <string name="auth_google_account_hint">Esta cuenta se creó con Google. Usa «Continuar con Google»</string>
+    <string name="auth_error_no_google_account">Agrega una cuenta de Google en tu teléfono para continuar</string>
+    <string name="auth_error_dialog_network">Sin conexión a internet. Verifica tu conexión e intenta de nuevo.</string>
+
+    <!-- Inicio de sesión -->
+    <string name="auth_login_error_title">Error de inicio de sesión</string>
+    <string name="auth_login_error_unknown">Se produjo un error inesperado. Intenta iniciar sesión de nuevo.</string>
+    <string name="auth_login_username_label">Nombre de usuario/Email</string>
+    <string name="auth_login_enter_email">Ingresa tu correo</string>
+    <string name="auth_login_enter_password">Ingresa tu contraseña</string>
+    <string name="auth_login_forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="auth_login_keep_session">Mantener sesión iniciada</string>
+    <string name="auth_login_button">INICIAR SESIÓN</string>
+    <string name="auth_login_or">O</string>
+    <!-- El espacio del final es parte del texto original: lo separa del enlace que sigue -->
+    <string name="auth_login_no_account">"¿Aún no tienes cuenta? "</string>
+    <string name="auth_login_register_here">Regístrate aquí</string>
+
+    <!-- Registro -->
+    <string name="auth_register_error_title">Error de registro</string>
+    <string name="auth_register_error_unknown">Se produjo un error inesperado. Intenta registrarte de nuevo.</string>
+    <string name="auth_register_title">Registro de Usuario</string>
+    <string name="auth_register_subtitle">Ingrese los datos requeridos a continuación</string>
+    <string name="auth_register_full_name">Nombre Completo</string>
+    <string name="auth_register_email_registered_with_google">Este correo ya está registrado con Google. Usa «Continuar con Google»</string>
+    <string name="auth_register_weak_password">La contraseña no cumple los requisitos de seguridad</string>
+    <string name="auth_register_verify_password">Verifica la contraseña</string>
+    <string name="auth_register_password_mismatch">Contraseña no coincide</string>
+    <string name="auth_register_button">REGISTRARSE</string>
+
+    <!-- Recuperación de contraseña y nueva contraseña -->
+    <string name="auth_recovery_title">Recuperación de contraseña</string>
+    <string name="auth_recovery_intro">Para recuperar su contraseña, ingrese su correo electrónico. Recibirá un código de verificación de 6 dígitos para continuar con el proceso.</string>
+    <string name="auth_recovery_email_not_found">Correo no encontrado</string>
+    <string name="auth_new_password_title">Nueva Contraseña</string>
+</resources>

@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -57,6 +59,7 @@ fun ProfileTopBar(
                     .size(48.dp)
                     .clickable(role = Role.Button, onClick = onClose),
             ) {
+                val closeDescription = stringResource(R.string.common_close)
                 Text(
                     text = "X",
                     color = NightWatchOnBackground,
@@ -64,6 +67,8 @@ fun ProfileTopBar(
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
                     textAlign = TextAlign.Center,
+                    // Accessibility only: TalkBack says "Cerrar" instead of the letter; nothing changes on screen.
+                    modifier = Modifier.semantics { contentDescription = closeDescription },
                 )
             }
         }

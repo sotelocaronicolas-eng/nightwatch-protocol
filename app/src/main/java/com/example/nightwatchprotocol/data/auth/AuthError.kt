@@ -1,33 +1,37 @@
 package com.example.nightwatchprotocol.data.auth
 
+/**
+ * Why an authentication step failed. The [message] is a technical identifier for the logs and the tests, never text for the
+ * person: the screens translate each case to a resource with `AuthError.toUiText()` (`ui/common/AuthErrorText.kt`).
+ */
 sealed class AuthError(message: String) : Exception(message) {
-    data object WrongPassword : AuthError("La contraseña es incorrecta")
-    data object UserNotFound : AuthError("El correo no está registrado")
-    data object InvalidCredentials : AuthError("Correo o contraseña incorrectos")
-    data object GoogleAccountOnly : AuthError("Esta cuenta se creó con Google. Usa «Continuar con Google» para entrar.")
-    data object InvalidEmail : AuthError("Correo electrónico inválido")
-    data object EmailAlreadyInUse : AuthError("Ya tienes una cuenta con este correo")
-    data object WeakPassword : AuthError("La contraseña no cumple con los requerimientos")
-    data object RecentLoginRequired : AuthError("Por seguridad, confirma tu identidad para continuar")
+    data object WrongPassword : AuthError("wrong_password")
+    data object UserNotFound : AuthError("user_not_found")
+    data object InvalidCredentials : AuthError("invalid_credentials")
+    data object GoogleAccountOnly : AuthError("google_account_only")
+    data object InvalidEmail : AuthError("invalid_email")
+    data object EmailAlreadyInUse : AuthError("email_already_in_use")
+    data object WeakPassword : AuthError("weak_password")
+    data object RecentLoginRequired : AuthError("recent_login_required")
     /** The account was created but the backend wants the email confirmed first, so there is no session yet. */
-    data object EmailConfirmationRequired : AuthError("Revisa tu correo para confirmar tu cuenta antes de entrar")
+    data object EmailConfirmationRequired : AuthError("email_confirmation_required")
     /** Signing in with the right password, but the email was never confirmed with its code. */
-    data object EmailNotConfirmed : AuthError("Confirma tu correo con el código que te enviamos")
+    data object EmailNotConfirmed : AuthError("email_not_confirmed")
     /** The 6-digit code was refused. The server answers the same for a wrong and for an expired code. */
-    data object InvalidCode : AuthError("El código ingresado no es correcto.")
+    data object InvalidCode : AuthError("invalid_code")
     /** The code was older than its validity. The server cannot tell this from [InvalidCode]; the code screen can. */
-    data object CodeExpired : AuthError("El código expiró. Solicita uno nuevo.")
+    data object CodeExpired : AuthError("code_expired")
     /** The server stopped answering verification requests (HTTP 429 over_request_rate_limit). */
-    data object TooManyAttempts : AuthError("Demasiados intentos. Espera unos minutos y vuelve a intentarlo.")
+    data object TooManyAttempts : AuthError("too_many_attempts")
     /**
      * Another email was asked for too soon (over_email_send_rate_limit). [retryAfterSeconds] is what the server said
      * ("you can only request this after 45 seconds"), or null if it did not say.
      */
-    data class RateLimited(val retryAfterSeconds: Int?) : AuthError("Espera un momento antes de pedir otro código.")
+    data class RateLimited(val retryAfterSeconds: Int?) : AuthError("rate_limited")
     /** The recovery email is the account's own email: it must be a different address. */
-    data object SameAsPrimaryEmail : AuthError("Usa un correo distinto al principal")
+    data object SameAsPrimaryEmail : AuthError("same_as_primary_email")
     /** The email with the code could not be sent (the mail provider refused it). */
-    data object EmailSendFailed : AuthError("No pudimos enviar el código. Inténtalo de nuevo.")
-    data object NetworkError : AuthError("Sin conexión a internet")
-    data object Unknown : AuthError("Se produjo un error inesperado. Intenta de nuevo.")
+    data object EmailSendFailed : AuthError("email_send_failed")
+    data object NetworkError : AuthError("network_error")
+    data object Unknown : AuthError("unknown")
 }
