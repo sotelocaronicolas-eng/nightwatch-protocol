@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.notifications.NotificationPermission
 import com.example.nightwatchprotocol.data.notifications.ReminderCoordinator
 import com.example.nightwatchprotocol.data.notifications.ReminderKind
@@ -21,9 +23,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-const val MESSAGE_NOTIFICATIONS_DENIED =
-    "Sin el permiso de notificaciones no podemos enviarte recordatorios. " +
-        "Puedes permitirlo en Ajustes del teléfono > Aplicaciones > NightWatch > Notificaciones."
+val MESSAGE_NOTIFICATIONS_DENIED: UiText = UiText.of(R.string.settings_notifications_denied)
 
 data class NotificationSettingsUiState(
     val dailyReminder: Boolean = UserSetting.DAILY_REMINDER.default,
@@ -32,7 +32,7 @@ data class NotificationSettingsUiState(
     val newLabs: Boolean = UserSetting.NEW_LABS.default,
     val news: Boolean = UserSetting.NEWS_AND_UPDATES.default,
     /** Shown in red when the user turned a reminder on but notifications are not allowed. */
-    val permissionMessage: String? = null,
+    val permissionMessage: UiText? = null,
 )
 
 sealed interface NotificationSettingsEvent {

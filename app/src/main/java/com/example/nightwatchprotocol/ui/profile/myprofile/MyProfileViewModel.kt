@@ -12,12 +12,12 @@ import com.example.nightwatchprotocol.data.avatar.AvatarRepository
 import com.example.nightwatchprotocol.data.avatar.avatarDisplay
 import com.example.nightwatchprotocol.data.learning.ProgressSummaryProvider
 import com.example.nightwatchprotocol.data.learning.readStreak
-import com.example.nightwatchprotocol.data.profile.LEVEL_NOT_ASSESSED
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.profile.ProfileExtrasRepository
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
-import com.example.nightwatchprotocol.data.profile.levelLabel
+import com.example.nightwatchprotocol.data.profile.levelText
 import com.example.nightwatchprotocol.data.profile.memberSinceLabel
-import com.example.nightwatchprotocol.data.profile.profileDisplayName
+import com.example.nightwatchprotocol.data.profile.profileDisplayText
 import com.example.nightwatchprotocol.data.profile.runCatchingKeepCancellation
 import com.example.nightwatchprotocol.data.quiz.QuizResultRepository
 import kotlinx.coroutines.Job
@@ -46,7 +46,7 @@ class MyProfileViewModel(
 
     private val _uiState = MutableStateFlow(
         MyProfileUiState(
-            displayName = profileDisplayName(account?.displayName, account?.email),
+            displayName = profileDisplayText(account?.displayName, account?.email),
             email = account?.email.orEmpty(),
             memberSince = memberSinceLabel(account?.creationTimeMillis),
             avatar = avatarDisplay(null, account?.displayName, account?.email),
@@ -62,11 +62,12 @@ class MyProfileViewModel(
         }
         viewModelScope.launch {
             extrasRepository.extras.collect { extras ->
-                _uiState.update { it.copy(gender = extras.gender?.label, birthDate = extras.birthDate?.display()) }
+                val gender = extras.gender?.let { UiText.of(it.labelRes) }
+                _uiState.update { it.copy(gender = gender, birthDate = extras.birthDate?.display()) }
             }
         }
         if (uid == null) {
-            _uiState.update { it.copy(level = LEVEL_NOT_ASSESSED) }
+            _uiState.update { it.copy(level = levelText(null)) }
         } else {
             viewModelScope.launch { avatarRepository.load(uid) }
             viewModelScope.launch { extrasRepository.load(uid) }
@@ -90,7 +91,7 @@ class MyProfileViewModel(
         account = accountRepository.currentProfile()
         _uiState.update {
             it.copy(
-                displayName = profileDisplayName(account?.displayName, account?.email),
+                displayName = profileDisplayText(account?.displayName, account?.email),
                 email = account?.email.orEmpty(),
                 memberSince = memberSinceLabel(account?.creationTimeMillis),
             )
@@ -102,7 +103,7 @@ class MyProfileViewModel(
         val result = withTimeoutOrNull(READ_TIMEOUT_MILLIS) {
             runCatchingKeepCancellation { quizResultRepository.getResult(uid) }.getOrNull()
         }
-        _uiState.update { it.copy(level = levelLabel(result)) }
+        _uiState.update { it.copy(level = levelText(result)) }
     }
 
     private suspend fun loadRecoveryEmail(uid: String) {

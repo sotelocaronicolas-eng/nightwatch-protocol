@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.ui.common.asString
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -79,13 +81,13 @@ fun VerifyCodeScreen(
         viewModel.events.collect { event ->
             when (event) {
                 VerifyCodeEvent.Verified -> onVerified(null)
-                is VerifyCodeEvent.VerifiedWithNotice -> onVerified(event.notice)
+                is VerifyCodeEvent.VerifiedWithNotice -> onVerified(event.notice.name)
             }
         }
     }
 
     VerifyCodeContent(
-        title = "Verifica tu Correo",
+        title = stringResource(R.string.verify_code_title),
         recipient = uiState.email,
         uiState = uiState,
         onCodeChange = viewModel::onCodeChanged,
@@ -151,10 +153,7 @@ private fun VerifyCodeDialogLayout(
         text = {
             // Scrolls if the keyboard leaves the dialog too little room for the code boxes.
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                Text(
-                    "Hemos enviado un código a $recipient. Ingresa el código recibido para verificar tu identidad " +
-                        "y continuar con el proceso de restablecimiento de tu contraseña.",
-                )
+                Text(stringResource(R.string.verify_code_dialog_message, recipient))
                 CodeInput(
                     code = uiState.code,
                     onCodeChange = onCodeChange,
@@ -166,7 +165,7 @@ private fun VerifyCodeDialogLayout(
                 ResendLink(uiState, onResend, modifier = Modifier.padding(top = 4.dp))
             }
         },
-        dismissButton = { TextButton(onClick = onClose) { Text("Volver al menú") } },
+        dismissButton = { TextButton(onClick = onClose) { Text(stringResource(R.string.verify_code_back_to_menu)) } },
         confirmButton = {
             Button(
                 onClick = onConfirm,
@@ -175,7 +174,13 @@ private fun VerifyCodeDialogLayout(
                     containerColor = NightWatchLinkAccent,
                     contentColor = Color.Black,
                 ),
-            ) { Text(if (uiState.error?.clearsCode == true) "Reintentar" else "Confirmar") }
+            ) {
+                Text(
+                    stringResource(
+                        if (uiState.error?.clearsCode == true) R.string.verify_code_retry_short else R.string.verify_code_confirm_short,
+                    ),
+                )
+            }
         },
     )
 }
@@ -198,7 +203,9 @@ private fun VerifyCodeScreenLayout(
                 modifier = Modifier.weight(1f),
                 action = {
                     ProfileButton(
-                        text = if (uiState.error != null) "REINTENTAR" else "CONFIRMAR CÓDIGO",
+                        text = stringResource(
+                            if (uiState.error != null) R.string.verify_code_retry_button else R.string.verify_code_confirm_button,
+                        ),
                         onClick = onConfirm,
                         enabled = uiState.error != null || uiState.canConfirm,
                     )
@@ -207,7 +214,7 @@ private fun VerifyCodeScreenLayout(
             ) {
                 EmailScreenHeader(
                     title = title,
-                    message = "Enviamos un código de $CODE_LENGTH dígitos a $recipient",
+                    message = stringResource(R.string.verify_code_screen_message, CODE_LENGTH, recipient),
                 )
                 EnvelopeImage()
                 CodeInput(
@@ -232,7 +239,7 @@ internal fun CodeHint(
 ) {
     val error = uiState.error
     Text(
-        text = error?.message ?: uiState.notice ?: "Ingrese el código de $CODE_LENGTH dígitos",
+        text = (error?.message ?: uiState.notice)?.asString() ?: stringResource(R.string.verify_code_hint, CODE_LENGTH),
         color = if (error != null) NightWatchError else onSurfaceColor,
         fontFamily = NightWatchBodyFontFamily,
         fontWeight = FontWeight.Medium,
@@ -246,7 +253,7 @@ internal fun CodeHint(
 internal fun ResendLink(uiState: VerifyCodeUiState, onResend: () -> Unit, modifier: Modifier = Modifier) {
     // "Reenviar el código de 6 dígitos", or "Reenviar en 45 s" (dimmed, not clickable) while the countdown runs.
     Text(
-        text = uiState.resendLabel,
+        text = uiState.resendLabel.asString(),
         color = if (uiState.canResend) NightWatchHeaderPanel else NightWatchHeaderPanel.copy(alpha = 0.5f),
         fontFamily = NightWatchBodyFontFamily,
         fontWeight = FontWeight.Medium,
@@ -282,6 +289,7 @@ fun CodeInput(
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focusRequester.requestFocus() } }
     val border = if (isError) NightWatchError else Color.White
+    val fieldDescription = stringResource(R.string.verify_code_field_description, CODE_LENGTH)
 
     BasicTextField(
         value = code,
@@ -300,7 +308,7 @@ fun CodeInput(
         modifier = modifier
             .keepVisibleWithKeyboard()
             .focusRequester(focusRequester)
-            .semantics { contentDescription = "Código de $CODE_LENGTH dígitos" }
+            .semantics { contentDescription = fieldDescription }
             .testTag(CODE_FIELD_TAG),
         decorationBox = { innerTextField ->
             when (style) {

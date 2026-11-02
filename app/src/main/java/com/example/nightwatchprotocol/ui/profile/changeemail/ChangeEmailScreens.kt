@@ -12,6 +12,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.ui.common.asString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -25,7 +27,6 @@ import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
-import com.example.nightwatchprotocol.ui.profile.editprofile.GOOGLE_ACCOUNT_NOTICE
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
@@ -69,7 +70,7 @@ fun ChangeEmailScreen(
                 action = {
                     if (uiState.hasPassword) {
                         ProfileButton(
-                            text = "ENVIAR CÓDIGO",
+                            text = stringResource(R.string.profile_change_email_send_code),
                             onClick = viewModel::onSendCodeClicked,
                             enabled = !uiState.isSending,
                         )
@@ -77,23 +78,23 @@ fun ChangeEmailScreen(
                 },
             ) {
                 EmailScreenHeader(
-                    title = "Confirmar Correo",
-                    message = "Escribe tu nuevo correo. Te enviaremos un código de verificación para confirmarlo.",
+                    title = stringResource(R.string.profile_change_email_title),
+                    message = stringResource(R.string.profile_change_email_message),
                 )
                 EnvelopeImage()
                 if (uiState.hasPassword) {
                     NightWatchTextField(
-                        label = "Nuevo correo electrónico",
+                        label = stringResource(R.string.profile_change_email_label),
                         value = uiState.email,
                         onValueChange = viewModel::onEmailChanged,
                         isError = uiState.error != null,
-                        supportingText = uiState.error,
+                        supportingText = uiState.error?.asString(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         modifier = Modifier.padding(top = emailFieldTopPadding),
                     )
                 } else {
                     Text(
-                        text = GOOGLE_ACCOUNT_NOTICE,
+                        text = stringResource(R.string.profile_edit_google_account_notice),
                         color = NightWatchHeaderPanel,
                         fontFamily = NightWatchBodyFontFamily,
                         fontSize = 14.sp,

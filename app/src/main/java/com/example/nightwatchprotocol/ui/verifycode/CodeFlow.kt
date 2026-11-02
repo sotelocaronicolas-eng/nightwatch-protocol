@@ -1,8 +1,10 @@
 package com.example.nightwatchprotocol.ui.verifycode
 
 import androidx.annotation.Keep
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.profile.ProfileRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import kotlinx.coroutines.NonCancellable
@@ -23,13 +25,32 @@ enum class CodePurpose {
     RECOVERY_EMAIL,
 }
 
+/**
+ * A non-blocking warning for the screen that follows a successful code. It travels in the navigation route as its [name]
+ * (a key, not a text), and the confirmation screen turns it into text in the language of that moment.
+ */
+enum class CompletionNotice {
+    /** The email changed, but the old Google account could not be unlinked. */
+    GOOGLE_UNLINK_FAILED,
+    ;
+
+    fun toUiText(): UiText = when (this) {
+        GOOGLE_UNLINK_FAILED -> MESSAGE_GOOGLE_UNLINK_FAILED
+    }
+
+    companion object {
+        /** Null for a missing or unknown key, so a bad route never breaks the screen. */
+        fun fromKey(key: String?): CompletionNotice? = entries.firstOrNull { it.name == key }
+    }
+}
+
 /** What the code screen does: check the code, and send a new one. Both throw `AuthError` on failure. */
 interface CodeFlow {
     suspend fun confirm(code: String)
     suspend fun resend()
 
     /** A non-blocking warning for the screen that follows a successful [confirm]; null when everything went well. */
-    val completionNotice: String? get() = null
+    val completionNotice: CompletionNotice? get() = null
 
     /**
      * The code screen was closed while [confirm] was running (it has been cancelled and awaited). Undoes whatever a
@@ -43,19 +64,20 @@ class SignUpCodeFlow(private val authRepository: AuthRepository, private val ema
     override suspend fun resend() = authRepository.resendSignUpCode(email)
 }
 
-const val MESSAGE_GOOGLE_UNLINK_FAILED = "Tu cuenta de Google anterior sigue vinculada a este perfil."
+val MESSAGE_GOOGLE_UNLINK_FAILED: UiText = UiText.of(R.string.verify_code_google_unlink_failed)
 
 /**
  * [email] is the new address, the one the code was sent to. Once it is confirmed, the Google accounts with another
  * email are unlinked; if that fails the change still stands and [completionNotice] says so.
  */
 class EmailChangeCodeFlow(private val accountRepository: AccountRepository, private val email: String) : CodeFlow {
-    override var completionNotice: String? = null
+    override var completionNotice: CompletionNotice? = null
         private set
 
     override suspend fun confirm(code: String) {
         accountRepository.verifyEmailChangeCode(email, code)
-        completionNotice = if (accountRepository.unlinkOutdatedGoogleAccounts(email)) null else MESSAGE_GOOGLE_UNLINK_FAILED
+        completionNotice =
+            if (accountRepository.unlinkOutdatedGoogleAccounts(email)) null else CompletionNotice.GOOGLE_UNLINK_FAILED
     }
 
     override suspend fun resend() = accountRepository.resendEmailChangeCode(email)

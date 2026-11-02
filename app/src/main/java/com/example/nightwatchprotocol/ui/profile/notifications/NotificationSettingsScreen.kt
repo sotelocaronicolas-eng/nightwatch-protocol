@@ -12,7 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.LifecycleEventEffect
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.common.asString
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.data.preferences.UserSetting
@@ -22,9 +25,6 @@ import com.example.nightwatchprotocol.ui.components.SettingsSwitch
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
-
-const val NOTIFICATIONS_FOOTNOTE =
-    "Los avisos de logros, laboratorios y novedades se activarán cuando esas funciones existan en la app."
 
 @Composable
 fun NotificationSettingsScreen(
@@ -62,22 +62,22 @@ fun NotificationSettingsScreen(
     }
 
     // The design leaves a gap under the header before the first card.
-    SettingsScaffold(title = "Notificaciones", onClose = onClose, topPadding = 137.dp) {
-        Item("📘", "Recordatorio de lección diaria", "Un aviso a las 7:00 p.m. si no has practicado",
+    SettingsScaffold(title = stringResource(R.string.settings_notifications_title), onClose = onClose, topPadding = 137.dp) {
+        Item("📘", stringResource(R.string.settings_notifications_daily_label), stringResource(R.string.settings_notifications_daily_subtitle),
             UserSetting.DAILY_REMINDER, state.dailyReminder)
-        Item("🏆", "Logros e insignias", "Cuando desbloquees un nuevo logro",
+        Item("🏆", stringResource(R.string.settings_notifications_achievements_label), stringResource(R.string.settings_notifications_achievements_subtitle),
             UserSetting.ACHIEVEMENT_NOTIFICATIONS, state.achievements)
-        Item("🔥", "Racha en riesgo", "Si tu racha está por romperse",
+        Item("🔥", stringResource(R.string.settings_notifications_streak_label), stringResource(R.string.settings_notifications_streak_subtitle),
             UserSetting.STREAK_AT_RISK, state.streakAtRisk)
-        Item("🧪", "Nuevos laboratorios", "Cuando se publique un lab nuevo",
+        Item("🧪", stringResource(R.string.settings_notifications_labs_label), stringResource(R.string.settings_notifications_labs_subtitle),
             UserSetting.NEW_LABS, state.newLabs)
-        Item("📣", "Novedades de NightWatch", "Anuncios y noticias del producto",
+        Item("📣", stringResource(R.string.settings_notifications_news_label), stringResource(R.string.settings_notifications_news_subtitle),
             UserSetting.NEWS_AND_UPDATES, state.news)
         state.permissionMessage?.let { message ->
-            Text(text = message, color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+            Text(text = message.asString(), color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
         }
         Text(
-            text = NOTIFICATIONS_FOOTNOTE,
+            text = stringResource(R.string.settings_notifications_footnote),
             color = NightWatchHeaderPanel,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 11.sp,

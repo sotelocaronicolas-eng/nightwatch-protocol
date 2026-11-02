@@ -13,7 +13,7 @@ import com.example.nightwatchprotocol.data.device.DeviceSessionManager
 import com.example.nightwatchprotocol.data.avatar.avatarDisplay
 import com.example.nightwatchprotocol.data.learning.ProgressSummaryProvider
 import com.example.nightwatchprotocol.data.learning.readStreak
-import com.example.nightwatchprotocol.data.profile.profileDisplayName
+import com.example.nightwatchprotocol.data.profile.profileDisplayText
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -37,7 +37,7 @@ class UserMenuViewModel(
 
     private val _uiState = MutableStateFlow(
         UserMenuUiState(
-            displayName = profileDisplayName(account?.displayName, account?.email),
+            displayName = profileDisplayText(account?.displayName, account?.email),
             avatar = avatarDisplay(null, account?.displayName, account?.email),
         ),
     )
@@ -59,7 +59,7 @@ class UserMenuViewModel(
     /** Re-reads the name, which may have changed on Editar Perfil while this screen stayed in the back stack. */
     fun refreshAccount() {
         account = accountRepository.currentProfile()
-        _uiState.update { it.copy(displayName = profileDisplayName(account?.displayName, account?.email)) }
+        _uiState.update { it.copy(displayName = profileDisplayText(account?.displayName, account?.email)) }
     }
 
     /** Reads the real streak; a read already running is not duplicated, and a failed one keeps the last known value. */

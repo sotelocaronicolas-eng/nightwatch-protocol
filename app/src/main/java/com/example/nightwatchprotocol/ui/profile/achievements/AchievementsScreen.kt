@@ -37,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.learning.BadgeState
+import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.components.NightWatchGold
 import com.example.nightwatchprotocol.ui.components.SettingsScaffold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
@@ -123,7 +124,7 @@ private fun CounterLine(uiState: AchievementsUiState, onRetry: () -> Unit) {
 private fun BadgeCard(state: BadgeState, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(16.dp)
     val unlocked = state.unlocked
-    val name = state.definition.name
+    val name = state.definition.name.asString()
     val description = stringResource(
         if (unlocked) R.string.learning_badges_card_unlocked else R.string.learning_badges_card_locked,
         name,

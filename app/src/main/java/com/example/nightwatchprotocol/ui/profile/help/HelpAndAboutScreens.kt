@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,11 +42,11 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 
 @Composable
 fun HelpScreen(onClose: () -> Unit) {
-    SettingsScaffold(title = "Ayuda y Soporte", onClose = onClose, topPadding = 164.dp) {
-        SettingsRow("❓", "¿Cómo funciona la Ruta de Aprendizaje?")
-        SettingsRow("❓", "¿Por qué perdí mi racha?")
-        SettingsRow("❓", "¿Los laboratorios afectan mi progreso?")
-        SettingsRow("❓", "¿Cómo reporto un error en la app?")
+    SettingsScaffold(title = stringResource(R.string.settings_menu_help), onClose = onClose, topPadding = 164.dp) {
+        SettingsRow("❓", stringResource(R.string.settings_help_faq_path))
+        SettingsRow("❓", stringResource(R.string.settings_help_faq_streak))
+        SettingsRow("❓", stringResource(R.string.settings_help_faq_labs))
+        SettingsRow("❓", stringResource(R.string.settings_help_faq_report))
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -65,7 +66,7 @@ fun HelpScreen(onClose: () -> Unit) {
                     modifier = Modifier.size(width = 36.dp, height = 24.dp),
                 )
                 Text(
-                    text = "Contactar a soporte",
+                    text = stringResource(R.string.settings_help_contact_support),
                     color = Color(0xFF162523),
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.SemiBold,
@@ -84,14 +85,14 @@ fun AboutScreen(onClose: () -> Unit) {
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: ""
     }
 
-    SettingsScaffold(title = "Acerca de", onClose = onClose, topPadding = 28.dp) {
+    SettingsScaffold(title = stringResource(R.string.settings_menu_about), onClose = onClose, topPadding = 28.dp) {
         Image(
             painter = painterResource(R.drawable.img_logo_nightwatch),
             contentDescription = null,
             modifier = Modifier.align(Alignment.CenterHorizontally).size(50.dp),
         )
         Text(
-            text = "Nightwatch Protocol",
+            text = stringResource(R.string.common_app_title),
             style = NightWatchDisplayStyle,
             color = NightWatchOnBackground,
             fontSize = 26.sp,
@@ -99,19 +100,19 @@ fun AboutScreen(onClose: () -> Unit) {
             modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
         )
         Text(
-            text = "Versión $versionName",
+            text = stringResource(R.string.settings_about_version, versionName),
             color = NightWatchOnBackground,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 13.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
         )
-        SettingsRow("📄", "Términos y Condiciones")
-        SettingsRow("🔏", "Política de Privacidad")
-        SettingsRow("⭐", "Calificar la app")
-        SettingsRow("🐞", "Reportar un problema")
+        SettingsRow("📄", stringResource(R.string.settings_about_terms))
+        SettingsRow("🔏", stringResource(R.string.settings_about_privacy_policy))
+        SettingsRow("⭐", stringResource(R.string.settings_about_rate))
+        SettingsRow("🐞", stringResource(R.string.settings_about_report))
         Text(
-            text = "Hecho con 🛡️ para futuros defensores de la ciberseguridad.",
+            text = stringResource(R.string.settings_about_made_with),
             color = NightWatchOnBackground,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 11.sp,

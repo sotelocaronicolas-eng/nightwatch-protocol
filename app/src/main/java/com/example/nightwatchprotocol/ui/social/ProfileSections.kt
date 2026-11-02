@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import com.example.nightwatchprotocol.ui.common.asString
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -400,7 +401,7 @@ private fun ProfileBadgeCard(badge: BadgeState) {
     ) {
         EmojiCircle(badge.definition.emoji, size = 56)
         Text(
-            text = badge.definition.name,
+            text = badge.definition.name.asString(),
             color = SocialOnLight,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 11.sp,

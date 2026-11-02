@@ -12,6 +12,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.ui.common.asString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -69,15 +71,15 @@ private fun ConfirmIdentityContent(
                 modifier = Modifier.weight(1f),
                 action = {
                     ProfileButton(
-                        text = "CONTINUAR",
+                        text = stringResource(R.string.profile_confirm_identity_continue),
                         onClick = onConfirm,
                         enabled = !uiState.isLoading,
                     )
                 },
             ) {
                 EmailScreenHeader(
-                    title = "Confirma tu identidad",
-                    message = "Por seguridad, ingresa tu contraseña actual para continuar.",
+                    title = stringResource(R.string.profile_confirm_identity_title),
+                    message = stringResource(R.string.profile_confirm_identity_message),
                 )
                 // The slot has the size of the envelope illustration; the icon is drawn a little smaller inside it
                 // so its strokes look as big as the envelope's.
@@ -89,12 +91,12 @@ private fun ConfirmIdentityContent(
                     )
                 }
                 NightWatchTextField(
-                    label = "Contraseña actual",
+                    label = stringResource(R.string.common_current_password_label),
                     value = uiState.password,
                     onValueChange = onPasswordChange,
                     isPassword = true,
                     isError = uiState.error != null,
-                    supportingText = uiState.error,
+                    supportingText = uiState.error?.asString(),
                     modifier = Modifier.padding(top = emailFieldTopPadding),
                 )
             }

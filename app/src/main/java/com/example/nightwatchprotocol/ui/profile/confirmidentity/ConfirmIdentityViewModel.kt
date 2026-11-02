@@ -9,7 +9,8 @@ import com.example.nightwatchprotocol.NightWatchApplication
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.ui.profile.MESSAGE_ENTER_CURRENT_PASSWORD
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_GENERIC_ERROR
+import com.example.nightwatchprotocol.data.common.UiText
+import com.example.nightwatchprotocol.ui.profile.TEXT_GENERIC_ERROR
 import com.example.nightwatchprotocol.ui.profile.passwordOperationErrorMessage
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.channels.Channel
@@ -24,7 +25,7 @@ import kotlinx.coroutines.launch
 data class ConfirmIdentityUiState(
     val password: String = "",
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: UiText? = null,
 )
 
 sealed interface ConfirmIdentityEvent {
@@ -64,7 +65,7 @@ class ConfirmIdentityViewModel(
             } catch (e: AuthError) {
                 _uiState.update { it.copy(isLoading = false, error = passwordOperationErrorMessage(e)) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, error = MESSAGE_GENERIC_ERROR) }
+                _uiState.update { it.copy(isLoading = false, error = TEXT_GENERIC_ERROR) }
             }
         }
     }

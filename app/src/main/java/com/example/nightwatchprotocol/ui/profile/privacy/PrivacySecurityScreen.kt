@@ -24,6 +24,9 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.fragment.app.FragmentActivity
+import androidx.compose.ui.res.pluralStringResource
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.biometric.BiometricPrompter
 import com.example.nightwatchprotocol.ui.biometric.BiometricResult
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
@@ -55,6 +58,8 @@ fun PrivacySecurityScreen(
     ) { uri -> viewModel.onExportDestinationChosen(uri?.toString()) }
 
     val activity = LocalActivity.current as? FragmentActivity
+    val promptTitle = stringResource(R.string.settings_privacy_prompt_title)
+    val promptSubtitle = stringResource(R.string.settings_privacy_prompt_subtitle)
     LaunchedEffect(viewModel, activity) {
         viewModel.events.collect { event ->
             when (event) {
@@ -64,8 +69,8 @@ fun PrivacySecurityScreen(
                     } else {
                         // Activation needs a real fingerprint: no PIN fallback here (spec 3c).
                         BiometricPrompter(activity).authenticate(
-                            title = "Activar bloqueo",
-                            subtitle = "Verifica tu huella para activarlo",
+                            title = promptTitle,
+                            subtitle = promptSubtitle,
                             allowDeviceCredential = false,
                         ) { result -> viewModel.onBiometricVerified(result == BiometricResult.Success) }
                     }
@@ -101,7 +106,7 @@ private fun PrivacySecurityContent(
 ) {
     NightWatchScreenBackground {
         Column(modifier = Modifier.fillMaxSize()) {
-            TitleTopBar(title = "Privacidad y Seguridad", onClose = onClose)
+            TitleTopBar(title = stringResource(R.string.settings_menu_privacy), onClose = onClose)
             Column(
                 verticalArrangement = Arrangement.spacedBy(14.dp),
                 modifier = Modifier
@@ -111,41 +116,40 @@ private fun PrivacySecurityContent(
                     .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp)
                     .navigationBarsPadding(),
             ) {
-                SectionLabel("SEGURIDAD DE LA CUENTA", dimmed = false)
-                SettingsRow("🔑", "Cambiar Contraseña", onClick = onOpenChangePassword)
+                SectionLabel(stringResource(R.string.settings_privacy_section_account), dimmed = false)
+                SettingsRow("🔑", stringResource(R.string.profile_change_password_title), onClick = onOpenChangePassword)
                 SettingsRow(
                     emoji = "📧",
-                    label = "Correo de Recuperación",
-                    subtitle = uiState.recoveryEmail ?: "Agregar correo de recuperación",
+                    label = stringResource(R.string.profile_recovery_email_title),
+                    subtitle = uiState.recoveryEmail ?: stringResource(R.string.settings_privacy_add_recovery_email),
                     onClick = onOpenRecoveryEmail,
                 )
                 SettingsRow(
                     emoji = "📱",
-                    label = "Administrar Dispositivos",
+                    label = stringResource(R.string.devices_title),
                     subtitle = when (val count = uiState.activeDevices) {
-                        null -> "Administra tus sesiones"
-                        1 -> "1 dispositivo activo"
-                        else -> "$count dispositivos activos"
+                        null -> stringResource(R.string.settings_privacy_manage_sessions)
+                        else -> pluralStringResource(R.plurals.settings_privacy_active_devices, count, count)
                     },
                     onClick = onOpenDevices,
                 )
-                SectionLabel("PRIVACIDAD", dimmed = false, modifier = Modifier.padding(top = 14.dp))
+                SectionLabel(stringResource(R.string.settings_privacy_section_privacy), dimmed = false, modifier = Modifier.padding(top = 14.dp))
                 SettingsRow(
                     emoji = "🔒",
-                    label = "Bloqueo Biométrico",
-                    subtitle = "Pide huella o rostro al abrir la app",
+                    label = stringResource(R.string.settings_privacy_biometric_label),
+                    subtitle = stringResource(R.string.settings_privacy_biometric_subtitle),
                     trailing = {
                         SettingsSwitch(checked = uiState.biometricLockEnabled, onCheckedChange = onBiometricLockToggle)
                     },
                     onClick = { onBiometricLockToggle(!uiState.biometricLockEnabled) },
                 )
                 uiState.biometricError?.let { error ->
-                    Text(text = error, color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+                    Text(text = error.asString(), color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
                 }
                 SettingsRow(
                     emoji = "👁️",
-                    label = "Ocultar mi progreso público",
-                    subtitle = "Otros no verán tu nivel ni tus islas",
+                    label = stringResource(R.string.settings_privacy_hide_progress_label),
+                    subtitle = stringResource(R.string.settings_privacy_hide_progress_subtitle),
                     trailing = {
                         SettingsSwitch(
                             checked = uiState.hidePublicProgress,
@@ -159,15 +163,15 @@ private fun PrivacySecurityContent(
                 }
                 SettingsRow(
                     emoji = "⬇️",
-                    label = "Descargar mis datos",
-                    subtitle = "Exporta una copia de tu información",
+                    label = stringResource(R.string.settings_privacy_download_label),
+                    subtitle = stringResource(R.string.settings_privacy_download_subtitle),
                     onClick = onDownloadData,
                 )
                 when (uiState.exportStatus) {
                     ExportStatus.Done ->
-                        Text(MESSAGE_EXPORT_DONE, color = NightWatchHeaderPanel, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+                        Text(MESSAGE_EXPORT_DONE.asString(), color = NightWatchHeaderPanel, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
                     ExportStatus.Failed ->
-                        Text(MESSAGE_EXPORT_FAILED, color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+                        Text(MESSAGE_EXPORT_FAILED.asString(), color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
                     ExportStatus.InProgress, ExportStatus.Idle -> Unit
                 }
             }

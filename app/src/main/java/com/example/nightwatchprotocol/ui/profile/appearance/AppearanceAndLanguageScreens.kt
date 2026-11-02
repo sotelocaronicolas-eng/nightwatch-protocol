@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,14 +40,14 @@ private const val LanguageIllustrationRatio = 412f / 287f
 @Composable
 fun AppearanceScreen(onClose: () -> Unit) {
     SettingsScaffold(
-        title = "Apariencia",
+        title = stringResource(R.string.settings_menu_appearance),
         onClose = onClose,
         topPadding = ContentTopPadding,
         centerVertically = true,
         footer = { Illustration(R.drawable.img_appearance_bg, AppearanceIllustrationRatio, alpha = 0.8f) },
     ) {
         Text(
-            text = "Elige cómo se ve NightWatch Protocol en tu dispositivo.",
+            text = stringResource(R.string.settings_appearance_intro),
             color = NightWatchOnBackground,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 13.sp,
@@ -55,27 +56,37 @@ fun AppearanceScreen(onClose: () -> Unit) {
         )
         SettingsRow(
             emoji = "🌙",
-            label = "Oscuro",
-            subtitle = "Fondo oscuro, ideal de noche",
+            label = stringResource(R.string.settings_appearance_dark),
+            subtitle = stringResource(R.string.settings_appearance_dark_subtitle),
             highlighted = true,
             trailing = { CheckMark() },
         )
-        SettingsRow(emoji = "☀️", label = "Claro", subtitle = "Fondo claro de alto contraste", trailing = { NoTrailing() })
-        SettingsRow(emoji = "⚙️", label = "Automático", subtitle = "Sigue el ajuste del sistema", trailing = { NoTrailing() })
+        SettingsRow(
+            emoji = "☀️",
+            label = stringResource(R.string.settings_appearance_light),
+            subtitle = stringResource(R.string.settings_appearance_light_subtitle),
+            trailing = { NoTrailing() },
+        )
+        SettingsRow(
+            emoji = "⚙️",
+            label = stringResource(R.string.settings_appearance_auto),
+            subtitle = stringResource(R.string.settings_appearance_auto_subtitle),
+            trailing = { NoTrailing() },
+        )
     }
 }
 
 @Composable
 fun LanguageScreen(onClose: () -> Unit) {
     SettingsScaffold(
-        title = "Idioma",
+        title = stringResource(R.string.settings_menu_language),
         onClose = onClose,
         topPadding = ContentTopPadding,
         centerVertically = true,
         footer = { Illustration(R.drawable.img_language_bg, LanguageIllustrationRatio, alpha = 0.7f) },
     ) {
-        SettingsRow(emoji = "🇪🇸", label = "Español", highlighted = true, trailing = { CheckMark() })
-        SettingsRow(emoji = "🇺🇸", label = "English", trailing = { NoTrailing() })
+        SettingsRow(emoji = "🇪🇸", label = stringResource(R.string.settings_language_spanish), highlighted = true, trailing = { CheckMark() })
+        SettingsRow(emoji = "🇺🇸", label = stringResource(R.string.settings_language_english), trailing = { NoTrailing() })
     }
 }
 

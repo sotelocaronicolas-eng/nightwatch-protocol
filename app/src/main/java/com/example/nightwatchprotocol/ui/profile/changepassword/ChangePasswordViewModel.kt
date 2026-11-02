@@ -6,14 +6,17 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nightwatchprotocol.NightWatchApplication
+import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthError
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.ui.auth.register.PasswordRules
 import com.example.nightwatchprotocol.ui.profile.MESSAGE_ENTER_CURRENT_PASSWORD
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_GENERIC_ERROR
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_PASSWORDS_DO_NOT_MATCH
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_PASSWORD_RULES
 import com.example.nightwatchprotocol.ui.profile.MESSAGE_WRONG_CURRENT_PASSWORD
+import com.example.nightwatchprotocol.ui.profile.TEXT_GENERIC_ERROR
+import com.example.nightwatchprotocol.ui.profile.TEXT_NO_CONNECTION
+import com.example.nightwatchprotocol.ui.profile.TEXT_PASSWORDS_DO_NOT_MATCH
+import com.example.nightwatchprotocol.ui.profile.TEXT_PASSWORD_RULES
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +27,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-const val MESSAGE_SAME_PASSWORD = "La nueva contraseña no puede ser igual a la actual"
+val MESSAGE_SAME_PASSWORD: UiText = UiText.of(R.string.profile_error_same_password)
 
 data class ChangePasswordUiState(
     val currentPassword: String = "",
@@ -33,10 +36,10 @@ data class ChangePasswordUiState(
     /** False for Google-only accounts: the form is replaced by a notice. */
     val hasPassword: Boolean = true,
     val isLoading: Boolean = false,
-    val currentError: String? = null,
-    val newError: String? = null,
-    val confirmError: String? = null,
-    val formError: String? = null,
+    val currentError: UiText? = null,
+    val newError: UiText? = null,
+    val confirmError: UiText? = null,
+    val formError: UiText? = null,
 ) {
     /** The same rules as the sign-up screen (`PasswordRules`), evaluated live as the user types. */
     val rules: PasswordRules get() = PasswordRules.from(newPassword)
@@ -56,11 +59,11 @@ data class ChangePasswordUiState(
 }
 
 /** The requirement lines shown under "Nueva contraseña", in the order and wording of the sign-up screen. */
-fun passwordRequirements(rules: PasswordRules): List<Pair<String, Boolean>> = listOf(
-    "Mínimo 8 caracteres" to rules.hasMinLength,
-    "Incluye una mayúscula y un número" to rules.hasUpperCaseAndDigit,
-    "Incluye una minúscula" to rules.hasLowercase,
-    "Incluye al menos un carácter especial" to rules.hasSpecialChar,
+fun passwordRequirements(rules: PasswordRules): List<Pair<UiText, Boolean>> = listOf(
+    UiText.of(R.string.profile_password_rule_length) to rules.hasMinLength,
+    UiText.of(R.string.profile_password_rule_upper_digit) to rules.hasUpperCaseAndDigit,
+    UiText.of(R.string.profile_password_rule_lower) to rules.hasLowercase,
+    UiText.of(R.string.profile_password_rule_special) to rules.hasSpecialChar,
 )
 
 sealed interface ChangePasswordEvent {
@@ -95,12 +98,12 @@ class ChangePasswordViewModel(
         // Local checks first: a mismatch or a weak password never reaches the server.
         val currentError = if (state.currentPassword.isEmpty()) MESSAGE_ENTER_CURRENT_PASSWORD else null
         val newError = when {
-            !state.rules.allSatisfied -> MESSAGE_PASSWORD_RULES
+            !state.rules.allSatisfied -> TEXT_PASSWORD_RULES
             state.sameAsCurrent -> MESSAGE_SAME_PASSWORD
             else -> null
         }
         val confirmError =
-            if (newError == null && state.newPassword != state.confirmPassword) MESSAGE_PASSWORDS_DO_NOT_MATCH else null
+            if (newError == null && state.newPassword != state.confirmPassword) TEXT_PASSWORDS_DO_NOT_MATCH else null
         if (currentError != null || newError != null || confirmError != null) {
             _uiState.update {
                 it.copy(currentError = currentError, newError = newError, confirmError = confirmError, formError = null)
@@ -121,7 +124,7 @@ class ChangePasswordViewModel(
             } catch (e: AuthError) {
                 _uiState.update { it.applyError(e) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, formError = MESSAGE_GENERIC_ERROR) }
+                _uiState.update { it.copy(isLoading = false, formError = TEXT_GENERIC_ERROR) }
             }
         }
     }
@@ -129,9 +132,9 @@ class ChangePasswordViewModel(
     private fun ChangePasswordUiState.applyError(error: AuthError): ChangePasswordUiState = when (error) {
         AuthError.WrongPassword, AuthError.InvalidCredentials ->
             copy(isLoading = false, currentError = MESSAGE_WRONG_CURRENT_PASSWORD)
-        AuthError.WeakPassword -> copy(isLoading = false, newError = MESSAGE_PASSWORD_RULES)
-        AuthError.NetworkError -> copy(isLoading = false, formError = "Sin conexión a internet")
-        else -> copy(isLoading = false, formError = MESSAGE_GENERIC_ERROR)
+        AuthError.WeakPassword -> copy(isLoading = false, newError = TEXT_PASSWORD_RULES)
+        AuthError.NetworkError -> copy(isLoading = false, formError = TEXT_NO_CONNECTION)
+        else -> copy(isLoading = false, formError = TEXT_GENERIC_ERROR)
     }
 
     companion object {

@@ -37,6 +37,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
 import com.example.nightwatchprotocol.ui.components.SectionLabel
@@ -129,28 +132,28 @@ private fun UserMenuContent(
                     .padding(start = 41.dp, end = 41.dp, top = 41.dp, bottom = 24.dp)
                     .navigationBarsPadding(),
             ) {
-                MenuSection("CUENTA") {
-                    SettingsRow("👤", "Ver Perfil", onClick = onOpenProfile)
-                    SettingsRow("✏️", "Editar Perfil", onClick = onOpenEditProfile)
+                MenuSection(stringResource(R.string.settings_menu_section_account)) {
+                    SettingsRow("👤", stringResource(R.string.settings_menu_view_profile), onClick = onOpenProfile)
+                    SettingsRow("✏️", stringResource(R.string.settings_menu_edit_profile), onClick = onOpenEditProfile)
                 }
-                MenuSection("PROGRESO") {
-                    SettingsRow("🏆", "Logros e Insignias", onClick = onOpenAchievements)
+                MenuSection(stringResource(R.string.settings_menu_section_progress)) {
+                    SettingsRow("🏆", stringResource(R.string.settings_menu_achievements), onClick = onOpenAchievements)
                 }
-                MenuSection("PREFERENCIAS") {
-                    SettingsRow("🔔", "Notificaciones", onClick = onOpenNotifications)
-                    SettingsRow("🎨", "Apariencia", onClick = onOpenAppearance)
-                    SettingsRow("🌐", "Idioma", onClick = onOpenLanguage)
+                MenuSection(stringResource(R.string.settings_menu_section_preferences)) {
+                    SettingsRow("🔔", stringResource(R.string.settings_menu_notifications), onClick = onOpenNotifications)
+                    SettingsRow("🎨", stringResource(R.string.settings_menu_appearance), onClick = onOpenAppearance)
+                    SettingsRow("🌐", stringResource(R.string.settings_menu_language), onClick = onOpenLanguage)
                 }
-                MenuSection("PRIVACIDAD Y SEGURIDAD") {
-                    SettingsRow("🔒", "Privacidad y Seguridad", onClick = onOpenPrivacy)
+                MenuSection(stringResource(R.string.settings_menu_section_privacy)) {
+                    SettingsRow("🔒", stringResource(R.string.settings_menu_privacy), onClick = onOpenPrivacy)
                 }
-                MenuSection("SOPORTE") {
-                    SettingsRow("❓", "Ayuda y Soporte", onClick = onOpenHelp)
-                    SettingsRow("ℹ️", "Acerca de", onClick = onOpenAbout)
+                MenuSection(stringResource(R.string.settings_menu_section_support)) {
+                    SettingsRow("❓", stringResource(R.string.settings_menu_help), onClick = onOpenHelp)
+                    SettingsRow("ℹ️", stringResource(R.string.settings_menu_about), onClick = onOpenAbout)
                 }
                 SignOutButton(onClick = onSignOut)
                 Text(
-                    text = "Nightwatch Protocol · v$versionName",
+                    text = stringResource(R.string.settings_menu_footer, versionName),
                     color = NightWatchOnBackground,
                     fontFamily = NightWatchBodyFontFamily,
                     fontSize = 11.sp,
@@ -179,7 +182,7 @@ private fun UserSummaryPill(uiState: UserMenuUiState) {
         UserAvatar(display = uiState.avatar, size = 51.dp)
         Column(modifier = Modifier.padding(start = 12.dp)) {
             Text(
-                text = uiState.displayName,
+                text = uiState.displayName.asString(),
                 color = NightWatchOnBackground,
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.Bold,
@@ -219,7 +222,7 @@ private fun SignOutButton(onClick: () -> Unit) {
             .clickable(role = Role.Button, onClick = onClick),
     ) {
         Text(
-            text = "🚪  Cerrar Sesión",
+            text = stringResource(R.string.settings_menu_sign_out),
             color = NightWatchOnBackground,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,
