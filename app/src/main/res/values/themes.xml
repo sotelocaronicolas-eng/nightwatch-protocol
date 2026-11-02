@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.NightWatchProtocol" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- The window shows between the splash and the first frame: the dark background (the app's default look). The real
+         one is set in code once the look is known (see ui/theme/SystemChrome.kt). -->
+    <style name="Theme.NightWatchProtocol" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#2C595D</item>
+    </style>
 
     <style name="Theme.NightWatchProtocol.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#2C595D</item>

@@ -24,7 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.social.Friend
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 
 /** "Amigos" (Figma 2446:181). Tapping a row opens the profile of that friend. */

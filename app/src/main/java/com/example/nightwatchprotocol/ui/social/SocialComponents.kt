@@ -49,7 +49,7 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.social.ServerCountdown
 import com.example.nightwatchprotocol.data.social.SocialError
 import com.example.nightwatchprotocol.data.social.SystemMonotonicClock
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.TitleTopBar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily

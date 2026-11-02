@@ -31,7 +31,9 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchFieldShape
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
-import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
+import com.example.nightwatchprotocol.ui.theme.NightWatchTextError
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
+import com.example.nightwatchprotocol.ui.theme.errorMark
 
 @Composable
 fun NightWatchTextField(
@@ -74,18 +76,18 @@ fun NightWatchTextField(
             } else {
                 null
             },
-            supportingText = supportingText?.let { { Text(it) } },
+            supportingText = supportingText?.let { { Text(if (isError) errorMark(it) else it) } },
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = NightWatchSurfaceButtonMuted,
-                focusedContainerColor = NightWatchSurfaceButtonMuted,
-                errorContainerColor = NightWatchSurfaceButtonMuted,
+                unfocusedContainerColor = NightWatchTheme.colors.fieldSurface,
+                focusedContainerColor = NightWatchTheme.colors.fieldSurface,
+                errorContainerColor = NightWatchTheme.colors.fieldSurface,
                 unfocusedBorderColor = NightWatchBorderAccent,
                 focusedBorderColor = NightWatchBorderAccent,
                 errorBorderColor = NightWatchError,
-                unfocusedTextColor = NightWatchOnBackground,
-                focusedTextColor = NightWatchOnBackground,
-                errorTextColor = NightWatchOnBackground,
-                errorSupportingTextColor = NightWatchError,
+                unfocusedTextColor = NightWatchTheme.colors.fieldText,
+                focusedTextColor = NightWatchTheme.colors.fieldText,
+                errorTextColor = NightWatchTheme.colors.fieldText,
+                errorSupportingTextColor = NightWatchTextError,
             ),
         )
     }

@@ -62,10 +62,12 @@ import com.example.nightwatchprotocol.ui.profile.changeemail.EmailScreenHeader
 import com.example.nightwatchprotocol.ui.profile.changeemail.EnvelopeImage
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
-import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchLinkAccent
+import com.example.nightwatchprotocol.ui.theme.NightWatchSecondaryText
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
-import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
+import com.example.nightwatchprotocol.ui.theme.NightWatchTextError
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
+import com.example.nightwatchprotocol.ui.theme.errorMark
 
 const val CODE_FIELD_TAG = "code-field"
 
@@ -172,7 +174,7 @@ private fun VerifyCodeDialogLayout(
                 enabled = uiState.error != null || uiState.canConfirm,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = NightWatchLinkAccent,
-                    contentColor = Color.Black,
+                    contentColor = NightWatchTheme.colors.onLink,
                 ),
             ) {
                 Text(
@@ -235,12 +237,13 @@ private fun VerifyCodeScreenLayout(
 internal fun CodeHint(
     uiState: VerifyCodeUiState,
     modifier: Modifier = Modifier,
-    onSurfaceColor: Color = NightWatchHeaderPanel,
+    onSurfaceColor: Color = NightWatchSecondaryText,
 ) {
     val error = uiState.error
+    val message = (error?.message ?: uiState.notice)?.asString() ?: stringResource(R.string.verify_code_hint, CODE_LENGTH)
     Text(
-        text = (error?.message ?: uiState.notice)?.asString() ?: stringResource(R.string.verify_code_hint, CODE_LENGTH),
-        color = if (error != null) NightWatchError else onSurfaceColor,
+        text = if (error != null) errorMark(message) else message,
+        color = if (error != null) NightWatchTextError else onSurfaceColor,
         fontFamily = NightWatchBodyFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 13.sp,
@@ -254,7 +257,7 @@ internal fun ResendLink(uiState: VerifyCodeUiState, onResend: () -> Unit, modifi
     // "Reenviar el código de 6 dígitos", or "Reenviar en 45 s" (dimmed, not clickable) while the countdown runs.
     Text(
         text = uiState.resendLabel.asString(),
-        color = if (uiState.canResend) NightWatchHeaderPanel else NightWatchHeaderPanel.copy(alpha = 0.5f),
+        color = if (uiState.canResend) NightWatchSecondaryText else NightWatchSecondaryText.copy(alpha = 0.5f),
         fontFamily = NightWatchBodyFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 13.sp,
@@ -288,7 +291,9 @@ fun CodeInput(
 ) {
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focusRequester.requestFocus() } }
-    val border = if (isError) NightWatchError else Color.White
+    val border = if (isError) NightWatchError else NightWatchTheme.colors.codeBorder
+    val inkColor = NightWatchTheme.colors.onSurfaceButton
+    val barColor = NightWatchTheme.colors.fieldSurface
     val fieldDescription = stringResource(R.string.verify_code_field_description, CODE_LENGTH)
 
     BasicTextField(
@@ -297,14 +302,14 @@ fun CodeInput(
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         textStyle = TextStyle(
-            color = Color.Black,
+            color = inkColor,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 22.sp,
             letterSpacing = 14.sp,
             textAlign = TextAlign.Center,
         ),
-        cursorBrush = SolidColor(Color.Black),
+        cursorBrush = SolidColor(inkColor),
         modifier = modifier
             .keepVisibleWithKeyboard()
             .focusRequester(focusRequester)
@@ -317,7 +322,7 @@ fun CodeInput(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(47.dp)
-                        .background(NightWatchSurfaceButtonMuted, RoundedCornerShape(12.dp))
+                        .background(barColor, RoundedCornerShape(12.dp))
                         .border(BorderStroke(2.dp, border), RoundedCornerShape(12.dp)),
                 ) { innerTextField() }
 
@@ -343,7 +348,7 @@ fun CodeInput(
                             ) {
                                 Text(
                                     text = code.getOrNull(index)?.toString().orEmpty(),
-                                    color = Color.Black,
+                                    color = inkColor,
                                     fontFamily = NightWatchBodyFontFamily,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 22.sp,

@@ -1,6 +1,12 @@
 package com.example.nightwatchprotocol.ui.profile.appearance
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.aspectRatio
@@ -17,14 +23,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nightwatchprotocol.R
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.data.preferences.ThemeMode
 import com.example.nightwatchprotocol.ui.components.SettingsRow
 import com.example.nightwatchprotocol.ui.components.SettingsScaffold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
-// Both screens look like the design but choose nothing: the app stays dark and in Spanish (decision 3).
-// Tapping "Claro", "Automático" or "English" does nothing.
+// "Apariencia" chooses the look (Module 5, Stage 4). "Idioma" still chooses nothing: the app stays in Spanish until
+// Stage 7, so tapping "English" does nothing.
 
 /**
  * Both screens center their whole block (options + illustration) in the space under the header, with the scroll as a
@@ -37,8 +44,23 @@ private val ContentTopPadding = 24.dp
 private const val AppearanceIllustrationRatio = 412f / 308f
 private const val LanguageIllustrationRatio = 412f / 287f
 
+/** "Apariencia": reads and saves the look with [AppearanceViewModel]; the change shows at once (no activity restart). */
 @Composable
-fun AppearanceScreen(onClose: () -> Unit) {
+fun AppearanceScreen(
+    onClose: () -> Unit,
+    viewModel: AppearanceViewModel = viewModel(factory = AppearanceViewModel.Factory),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    AppearanceContent(themeMode = uiState.themeMode, onThemeSelected = viewModel::onThemeSelected, onClose = onClose)
+}
+
+/** The stateless body of [AppearanceScreen]: the marked card (✓ and 3 dp border) is the one of [themeMode]. */
+@Composable
+fun AppearanceContent(
+    themeMode: ThemeMode,
+    onThemeSelected: (ThemeMode) -> Unit,
+    onClose: () -> Unit,
+) {
     SettingsScaffold(
         title = stringResource(R.string.settings_menu_appearance),
         onClose = onClose,
@@ -54,26 +76,32 @@ fun AppearanceScreen(onClose: () -> Unit) {
             // Figma puts this line 8dp inside the cards' left edge.
             modifier = Modifier.padding(start = 8.dp),
         )
-        SettingsRow(
-            emoji = "🌙",
-            label = stringResource(R.string.settings_appearance_dark),
-            subtitle = stringResource(R.string.settings_appearance_dark_subtitle),
-            highlighted = true,
-            trailing = { CheckMark() },
-        )
-        SettingsRow(
-            emoji = "☀️",
-            label = stringResource(R.string.settings_appearance_light),
-            subtitle = stringResource(R.string.settings_appearance_light_subtitle),
-            trailing = { NoTrailing() },
-        )
-        SettingsRow(
-            emoji = "⚙️",
-            label = stringResource(R.string.settings_appearance_auto),
-            subtitle = stringResource(R.string.settings_appearance_auto_subtitle),
-            trailing = { NoTrailing() },
-        )
+        // "Automático" selected has no frame in the Figma: it uses the same marked-card style (PROPUESTA).
+        ThemeOption("🌙", R.string.settings_appearance_dark, R.string.settings_appearance_dark_subtitle, ThemeMode.DARK, themeMode, onThemeSelected)
+        ThemeOption("☀️", R.string.settings_appearance_light, R.string.settings_appearance_light_subtitle, ThemeMode.LIGHT, themeMode, onThemeSelected)
+        ThemeOption("⚙️", R.string.settings_appearance_auto, R.string.settings_appearance_auto_subtitle, ThemeMode.SYSTEM, themeMode, onThemeSelected)
     }
+}
+
+@Composable
+private fun ThemeOption(
+    emoji: String,
+    @StringRes label: Int,
+    @StringRes subtitle: Int,
+    option: ThemeMode,
+    current: ThemeMode,
+    onSelected: (ThemeMode) -> Unit,
+) {
+    val isSelected = option == current
+    SettingsRow(
+        emoji = emoji,
+        label = stringResource(label),
+        subtitle = stringResource(subtitle),
+        highlighted = isSelected,
+        trailing = { if (isSelected) CheckMark() else NoTrailing() },
+        onClick = { onSelected(option) },
+        modifier = Modifier.semantics { selected = isSelected },
+    )
 }
 
 @Composable
@@ -92,7 +120,7 @@ fun LanguageScreen(onClose: () -> Unit) {
 
 @Composable
 private fun CheckMark() {
-    Text(text = "✓", color = NightWatchGold, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+    Text(text = "✓", color = NightWatchTheme.colors.selectionCheck, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
 }
 
 /** Rows without a chevron: these are choices, not links. */

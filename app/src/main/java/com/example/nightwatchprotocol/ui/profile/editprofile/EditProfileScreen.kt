@@ -47,9 +47,10 @@ import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
 import com.example.nightwatchprotocol.ui.components.UserAvatar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchError
-import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchSecondaryText
+import com.example.nightwatchprotocol.ui.theme.NightWatchTextError
+import com.example.nightwatchprotocol.ui.theme.errorMark
 
 @Composable
 fun EditProfileScreen(
@@ -150,8 +151,8 @@ private fun EditProfileContent(
                 }
                 uiState.avatarError?.let { error ->
                     Text(
-                        text = error.asString(),
-                        color = NightWatchError,
+                        text = errorMark(error.asString()),
+                        color = NightWatchTextError,
                         fontFamily = NightWatchBodyFontFamily,
                         fontSize = 12.sp,
                         textAlign = TextAlign.Center,
@@ -197,7 +198,7 @@ private fun EditProfileContent(
                     } else {
                         Text(
                             text = stringResource(R.string.profile_edit_google_account_notice),
-                            color = NightWatchHeaderPanel,
+                            color = NightWatchSecondaryText,
                             fontFamily = NightWatchBodyFontFamily,
                             fontSize = 13.sp,
                             modifier = Modifier.padding(top = 8.dp),
@@ -256,8 +257,8 @@ private fun EditProfileContent(
 
                 uiState.formError?.let { error ->
                     Text(
-                        text = error.asString(),
-                        color = NightWatchError,
+                        text = errorMark(error.asString()),
+                        color = NightWatchTextError,
                         fontFamily = NightWatchBodyFontFamily,
                         fontSize = 13.sp,
                         textAlign = TextAlign.Center,

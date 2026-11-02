@@ -29,7 +29,9 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchFieldShape
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
-import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
+import com.example.nightwatchprotocol.ui.theme.NightWatchTextError
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
+import com.example.nightwatchprotocol.ui.theme.errorMark
 
 /**
  * A field that looks like `NightWatchTextField` but is not typed into: tapping it calls [onClick] (open a menu
@@ -69,21 +71,21 @@ fun NightWatchSelectField(
                             Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.common_error_icon_description), tint = NightWatchError, modifier = Modifier.size(12.dp))
                         }
                     } else {
-                        Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = NightWatchOnBackground)
+                        Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = NightWatchTheme.colors.fieldText)
                     }
                 },
-                supportingText = supportingText?.let { { Text(it) } },
+                supportingText = supportingText?.let { { Text(if (isError) errorMark(it) else it) } },
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = NightWatchSurfaceButtonMuted,
-                    focusedContainerColor = NightWatchSurfaceButtonMuted,
-                    errorContainerColor = NightWatchSurfaceButtonMuted,
+                    unfocusedContainerColor = NightWatchTheme.colors.fieldSurface,
+                    focusedContainerColor = NightWatchTheme.colors.fieldSurface,
+                    errorContainerColor = NightWatchTheme.colors.fieldSurface,
                     unfocusedBorderColor = NightWatchBorderAccent,
                     focusedBorderColor = NightWatchBorderAccent,
                     errorBorderColor = NightWatchError,
-                    unfocusedTextColor = NightWatchOnBackground,
-                    focusedTextColor = NightWatchOnBackground,
-                    errorTextColor = NightWatchOnBackground,
-                    errorSupportingTextColor = NightWatchError,
+                    unfocusedTextColor = NightWatchTheme.colors.fieldText,
+                    focusedTextColor = NightWatchTheme.colors.fieldText,
+                    errorTextColor = NightWatchTheme.colors.fieldText,
+                    errorSupportingTextColor = NightWatchTextError,
                 ),
             )
             // The read-only text field would swallow the touch; this layer turns the whole field into a button.

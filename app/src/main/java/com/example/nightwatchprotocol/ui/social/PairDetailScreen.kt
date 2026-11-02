@@ -42,7 +42,7 @@ import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.social.PairMetrics
 import com.example.nightwatchprotocol.data.social.PairState
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 

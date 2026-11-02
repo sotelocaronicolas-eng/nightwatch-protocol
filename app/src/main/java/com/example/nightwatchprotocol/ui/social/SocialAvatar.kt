@@ -39,7 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
@@ -58,8 +58,6 @@ private const val HAT_HEADROOM = 0.30f
 private const val WAND_FOOTROOM = 0.18f
 
 private val HatBody = SocialOnLight
-private val GearOutline = NightWatchOnBackground
-private val WandStick = NightWatchSurfaceButton
 
 /**
  * [photo] is null while it loads, when it failed or when the person has none: the [emoji] shows instead. [contentDescription] is what
@@ -102,16 +100,20 @@ fun SocialAvatar(
             }
         }
         if (withWizardGear) {
+            // The colors are read here (the draw functions are not composable).
+            val outlineColor = NightWatchOnBackground
+            val stickColor = NightWatchSurfaceButton
+            val gold = NightWatchGold
             Canvas(modifier = Modifier.matchParentSize()) {
-                drawWizardHat(headroom.toPx())
-                drawWizardWand(headroom.toPx())
+                drawWizardHat(headroom.toPx(), outlineColor, gold)
+                drawWizardWand(headroom.toPx(), outlineColor, stickColor, gold)
             }
         }
     }
 }
 
 /** A tilted pointed hat: dark body with a light outline, a gold band and a gold sparkle. [headroom] is where the circle starts. */
-private fun DrawScope.drawWizardHat(headroom: Float) {
+private fun DrawScope.drawWizardHat(headroom: Float, gearOutline: Color, gold: Color) {
     val s = size.width
     val cx = s * 0.5f
     val brimY = headroom + s * 0.16f
@@ -121,7 +123,7 @@ private fun DrawScope.drawWizardHat(headroom: Float) {
         val brimTopLeft = Offset(cx - s * 0.42f, brimY - s * 0.09f)
         val brimSize = Size(s * 0.84f, s * 0.18f)
         drawOval(HatBody, topLeft = brimTopLeft, size = brimSize)
-        drawOval(GearOutline, topLeft = brimTopLeft, size = brimSize, style = outline)
+        drawOval(gearOutline, topLeft = brimTopLeft, size = brimSize, style = outline)
 
         val cone = Path().apply {
             moveTo(cx - s * 0.30f, baseY)
@@ -130,7 +132,7 @@ private fun DrawScope.drawWizardHat(headroom: Float) {
             close()
         }
         drawPath(cone, HatBody)
-        drawPath(cone, GearOutline, style = outline)
+        drawPath(cone, gearOutline, style = outline)
 
         val band = Path().apply {
             moveTo(cx - s * 0.30f, baseY)
@@ -139,20 +141,20 @@ private fun DrawScope.drawWizardHat(headroom: Float) {
             lineTo(cx - s * 0.244f, baseY - s * 0.08f)
             close()
         }
-        drawPath(band, NightWatchGold)
-        drawPath(sparkle(Offset(cx + s * 0.01f, baseY - s * 0.25f), s * 0.07f), NightWatchGold)
+        drawPath(band, gold)
+        drawPath(sparkle(Offset(cx + s * 0.01f, baseY - s * 0.25f), s * 0.07f), gold)
     }
 }
 
 /** A wand that goes diagonally across the lower edge of the circle, with a gold sparkle at its tip. */
-private fun DrawScope.drawWizardWand(headroom: Float) {
+private fun DrawScope.drawWizardWand(headroom: Float, gearOutline: Color, wandStick: Color, gold: Color) {
     val s = size.width
     val start = Offset(s * 0.20f, headroom + s * 1.12f)
     val tip = Offset(s * 0.76f, headroom + s * 0.66f)
-    drawLine(GearOutline, start, tip, strokeWidth = s * 0.11f, cap = StrokeCap.Round)
-    drawLine(WandStick, start, tip, strokeWidth = s * 0.06f, cap = StrokeCap.Round)
-    drawPath(sparkle(tip, s * 0.13f), GearOutline, style = Stroke(width = s * 0.04f))
-    drawPath(sparkle(tip, s * 0.13f), NightWatchGold)
+    drawLine(gearOutline, start, tip, strokeWidth = s * 0.11f, cap = StrokeCap.Round)
+    drawLine(wandStick, start, tip, strokeWidth = s * 0.06f, cap = StrokeCap.Round)
+    drawPath(sparkle(tip, s * 0.13f), gearOutline, style = Stroke(width = s * 0.04f))
+    drawPath(sparkle(tip, s * 0.13f), gold)
 }
 
 /** A four-pointed star: eight points around [center], alternating the full radius and a short one. */

@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.preferences.ThemeMode
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
 import com.example.nightwatchprotocol.ui.auth.forgotpassword.NewPasswordScreen
 import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
@@ -59,6 +60,8 @@ import com.example.nightwatchprotocol.ui.social.FriendRequestsScreen
 import com.example.nightwatchprotocol.ui.social.FriendsScreen
 import com.example.nightwatchprotocol.ui.social.PairDetailScreen
 import com.example.nightwatchprotocol.ui.social.PairStreaksScreen
+import com.example.nightwatchprotocol.ui.theme.LocalChosenThemeMode
+import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
 import com.example.nightwatchprotocol.ui.verifycode.CodePurpose
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeScreen
 
@@ -114,6 +117,9 @@ fun NightWatchNavHost(
         }
         composable<VerifyCode> { entry ->
             val purpose = entry.toRoute<VerifyCode>().purpose
+            // The sign-up code belongs to the login flow (still dark); the profile ones follow the chosen look.
+            val mode = if (purpose.followsChosenTheme()) LocalChosenThemeMode.current else ThemeMode.DARK
+            NightWatchProtocolTheme(themeMode = mode) {
             VerifyCodeScreen(
                 onVerified = { notice ->
                     when (purpose) {
@@ -136,6 +142,7 @@ fun NightWatchNavHost(
                     }
                 },
             )
+            }
         }
         composable<PostAuthGate> {
             PostAuthGateScreen(
@@ -329,7 +336,7 @@ fun NightWatchNavHost(
                 },
             )
         }
-        composable<UserMenu> {
+        themedComposable<UserMenu> {
             UserMenuScreen(
                 onClose = { navController.popBackStack() },
                 onOpenProfile = { navController.navigate(Profile) },
@@ -346,13 +353,13 @@ fun NightWatchNavHost(
                 },
             )
         }
-        composable<Profile> {
+        themedComposable<Profile> {
             MyProfileScreen(
                 onClose = { navController.popBackStack() },
                 onEditProfile = { navController.navigate(EditProfile) },
             )
         }
-        composable<EditProfile> { entry ->
+        themedComposable<EditProfile> { entry ->
             val identityConfirmed by entry.savedStateHandle
                 .getStateFlow(KEY_IDENTITY_CONFIRMED, false)
                 .collectAsStateWithLifecycle()
@@ -365,7 +372,7 @@ fun NightWatchNavHost(
                 onNavigateToProfileUpdated = { navController.navigate(ProfileUpdated) },
             )
         }
-        composable<ChangeEmail> { entry ->
+        themedComposable<ChangeEmail> { entry ->
             val identityConfirmed by entry.savedStateHandle
                 .getStateFlow(KEY_IDENTITY_CONFIRMED, false)
                 .collectAsStateWithLifecycle()
@@ -377,7 +384,7 @@ fun NightWatchNavHost(
                 onCodeSent = { newEmail -> navController.navigate(VerifyCode(newEmail, CodePurpose.EMAIL_CHANGE)) },
             )
         }
-        composable<EmailUpdated> { entry ->
+        themedComposable<EmailUpdated> { entry ->
             EmailUpdatedScreen(
                 notice = entry.toRoute<EmailUpdated>().notice,
                 onBackToEditProfile = {
@@ -386,7 +393,7 @@ fun NightWatchNavHost(
                 },
             )
         }
-        composable<ConfirmIdentity> {
+        themedComposable<ConfirmIdentity> {
             ConfirmIdentityScreen(
                 onClose = { navController.popBackStack() },
                 onConfirmed = {
@@ -395,7 +402,7 @@ fun NightWatchNavHost(
                 },
             )
         }
-        composable<PrivacySecurity> {
+        themedComposable<PrivacySecurity> {
             PrivacySecurityScreen(
                 onClose = { navController.popBackStack() },
                 onOpenChangePassword = { navController.navigate(ChangePassword) },
@@ -403,7 +410,7 @@ fun NightWatchNavHost(
                 onOpenDevices = { navController.navigate(Devices) },
             )
         }
-        composable<ChangePassword> {
+        themedComposable<ChangePassword> {
             ChangePasswordScreen(
                 onClose = { navController.popBackStack() },
                 onPasswordChanged = {
@@ -411,20 +418,20 @@ fun NightWatchNavHost(
                 },
             )
         }
-        composable<RecoveryEmail> {
+        themedComposable<RecoveryEmail> {
             RecoveryEmailScreen(
                 onClose = { navController.popBackStack() },
                 onCodeSent = { email -> navController.navigate(VerifyCode(email, CodePurpose.RECOVERY_EMAIL)) },
             )
         }
-        composable<RecoveryEmailSaved> {
+        themedComposable<RecoveryEmailSaved> {
             RecoveryEmailSavedScreen(onBackToAccounts = { navController.popBackStack<PrivacySecurity>(inclusive = false) })
         }
-        composable<NotificationSettings> { NotificationSettingsScreen(onClose = { navController.popBackStack() }) }
-        composable<Appearance> { AppearanceScreen(onClose = { navController.popBackStack() }) }
-        composable<Language> { LanguageScreen(onClose = { navController.popBackStack() }) }
-        composable<Achievements> { AchievementsScreen(onClose = { navController.popBackStack() }) }
-        composable<Devices> {
+        themedComposable<NotificationSettings> { NotificationSettingsScreen(onClose = { navController.popBackStack() }) }
+        themedComposable<Appearance> { AppearanceScreen(onClose = { navController.popBackStack() }) }
+        themedComposable<Language> { LanguageScreen(onClose = { navController.popBackStack() }) }
+        themedComposable<Achievements> { AchievementsScreen(onClose = { navController.popBackStack() }) }
+        themedComposable<Devices> {
             DevicesScreen(
                 onClose = { navController.popBackStack() },
                 onDeviceSignedOut = { navController.navigate(DeviceSignedOut) },
@@ -433,15 +440,15 @@ fun NightWatchNavHost(
                 },
             )
         }
-        composable<DeviceSignedOut> {
+        themedComposable<DeviceSignedOut> {
             DeviceSignedOutScreen(onBackToDevices = { navController.popBackStack<Devices>(inclusive = false) })
         }
-        composable<Help> { HelpScreen(onClose = { navController.popBackStack() }) }
-        composable<About> { AboutScreen(onClose = { navController.popBackStack() }) }
-        composable<PasswordUpdated> {
+        themedComposable<Help> { HelpScreen(onClose = { navController.popBackStack() }) }
+        themedComposable<About> { AboutScreen(onClose = { navController.popBackStack() }) }
+        themedComposable<PasswordUpdated> {
             PasswordUpdatedScreen(onDone = { navController.popBackStack<PrivacySecurity>(inclusive = false) })
         }
-        composable<ProfileUpdated> {
+        themedComposable<ProfileUpdated> {
             ProfileUpdatedScreen(onBackToProfile = { navController.backToProfile() })
         }
     }

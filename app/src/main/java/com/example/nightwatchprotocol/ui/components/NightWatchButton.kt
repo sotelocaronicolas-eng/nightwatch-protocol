@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
@@ -20,7 +19,7 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.theme.NightWatchButtonHeight
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
-import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 @Composable
 fun NightWatchButton(
@@ -35,7 +34,7 @@ fun NightWatchButton(
         shape = NightWatchPillShape,
         modifier = modifier.fillMaxWidth().height(NightWatchButtonHeight),
         colors = ButtonDefaults.buttonColors(
-            containerColor = NightWatchSurfaceButton,
+            containerColor = NightWatchTheme.colors.ctaSurface,
             contentColor = NightWatchOnButton,
         ),
     ) {
@@ -55,7 +54,7 @@ fun GoogleSignInButton(
         shape = NightWatchPillShape,
         modifier = modifier.fillMaxWidth().height(NightWatchButtonHeight),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White,
+            containerColor = NightWatchTheme.colors.brandWhite,
             contentColor = NightWatchOnButton,
         ),
     ) {

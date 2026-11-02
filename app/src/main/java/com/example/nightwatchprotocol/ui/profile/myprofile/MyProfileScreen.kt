@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,10 +47,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
-import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
-
-private val LabelColor = Color(0xFF404040)
-private val DividerColor = Color(0xFF808080)
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 @Composable
 fun MyProfileScreen(
@@ -153,7 +149,7 @@ private fun HeaderPanel(displayName: UiText) {
         )
         Text(
             text = stringResource(R.string.profile_my_profile_title),
-            color = Color.Black,
+            color = NightWatchTheme.colors.onSurfaceButton,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 32.sp,
@@ -161,7 +157,7 @@ private fun HeaderPanel(displayName: UiText) {
         )
         Text(
             text = displayName.asString(),
-            color = Color(0xFF5E5E5E),
+            color = NightWatchTheme.colors.textSoftOnLight,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
@@ -179,7 +175,7 @@ private fun InfoCard(uiState: MyProfileUiState, modifier: Modifier = Modifier) {
         modifier = modifier
             .width(330.dp)
             .shadow(4.dp, shape)
-            .background(NightWatchSurfaceButtonMuted, shape)
+            .background(NightWatchTheme.colors.fieldSurface, shape)
             .border(2.dp, NightWatchBorderAccent, shape),
     ) {
         // Both address rows use the same value style as every other row; they only differ in layout (see below).
@@ -210,7 +206,7 @@ private fun InfoCard(uiState: MyProfileUiState, modifier: Modifier = Modifier) {
 private fun InfoValueText(text: String, modifier: Modifier = Modifier, textAlign: TextAlign, maxLines: Int = Int.MAX_VALUE) {
     Text(
         text = text,
-        color = Color.Black,
+        color = NightWatchTheme.colors.onSurfaceButton,
         fontFamily = NightWatchBodyFontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 13.sp,
@@ -269,7 +265,7 @@ private fun InfoRow(
 private fun InfoLabelText(text: String) {
     Text(
         text = text,
-        color = LabelColor,
+        color = NightWatchTheme.colors.textMutedOnLight,
         fontFamily = NightWatchBodyFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 13.sp,
@@ -285,6 +281,6 @@ private fun InfoDivider() {
             .padding(horizontal = 14.dp)
             .fillMaxWidth()
             .height(1.dp)
-            .background(DividerColor),
+            .background(NightWatchTheme.colors.divider),
     )
 }

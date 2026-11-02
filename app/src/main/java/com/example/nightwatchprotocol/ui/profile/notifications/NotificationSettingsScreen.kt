@@ -23,8 +23,9 @@ import com.example.nightwatchprotocol.ui.components.SettingsRow
 import com.example.nightwatchprotocol.ui.components.SettingsScaffold
 import com.example.nightwatchprotocol.ui.components.SettingsSwitch
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchError
-import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
+import com.example.nightwatchprotocol.ui.theme.NightWatchSecondaryText
+import com.example.nightwatchprotocol.ui.theme.NightWatchTextError
+import com.example.nightwatchprotocol.ui.theme.errorMark
 
 @Composable
 fun NotificationSettingsScreen(
@@ -74,11 +75,11 @@ fun NotificationSettingsScreen(
         Item("📣", stringResource(R.string.settings_notifications_news_label), stringResource(R.string.settings_notifications_news_subtitle),
             UserSetting.NEWS_AND_UPDATES, state.news)
         state.permissionMessage?.let { message ->
-            Text(text = message.asString(), color = NightWatchError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
+            Text(text = errorMark(message.asString()), color = NightWatchTextError, fontFamily = NightWatchBodyFontFamily, fontSize = 12.sp)
         }
         Text(
             text = stringResource(R.string.settings_notifications_footnote),
-            color = NightWatchHeaderPanel,
+            color = NightWatchSecondaryText,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 11.sp,
             modifier = Modifier.padding(horizontal = 6.dp),

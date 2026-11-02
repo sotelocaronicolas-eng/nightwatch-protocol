@@ -63,7 +63,7 @@ import com.example.nightwatchprotocol.data.social.BattleOutcome
 import com.example.nightwatchprotocol.data.social.BattleStats
 import com.example.nightwatchprotocol.data.social.PROFILE_BG_COUNT
 import com.example.nightwatchprotocol.data.social.normalizeProfileBg
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.TitleTopBar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
@@ -357,6 +357,7 @@ fun VisibilityEye(visible: Boolean, sectionName: String, onToggle: () -> Unit, m
                 stateDescription = state
             },
     ) {
+        val ink = NightWatchOnBackground
         Canvas(modifier = Modifier.size(16.dp)) {
             val w = size.width
             val h = size.height
@@ -366,9 +367,9 @@ fun VisibilityEye(visible: Boolean, sectionName: String, onToggle: () -> Unit, m
                 cubicTo(w * 0.25f, h * 0.05f, w * 0.75f, h * 0.05f, w, h * 0.5f)
                 cubicTo(w * 0.75f, h * 0.95f, w * 0.25f, h * 0.95f, 0f, h * 0.5f)
             }
-            drawPath(outline, NightWatchOnBackground, style = line)
-            drawCircle(NightWatchOnBackground, radius = w * 0.16f, center = Offset(w * 0.5f, h * 0.5f))
-            if (!visible) drawLine(NightWatchOnBackground, Offset(w * 0.12f, h * 0.92f), Offset(w * 0.88f, h * 0.08f), strokeWidth = 1.8.dp.toPx(), cap = StrokeCap.Round)
+            drawPath(outline, ink, style = line)
+            drawCircle(ink, radius = w * 0.16f, center = Offset(w * 0.5f, h * 0.5f))
+            if (!visible) drawLine(ink,Offset(w * 0.12f, h * 0.92f), Offset(w * 0.88f, h * 0.08f), strokeWidth = 1.8.dp.toPx(), cap = StrokeCap.Round)
         }
     }
 }

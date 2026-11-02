@@ -43,7 +43,7 @@ import com.example.nightwatchprotocol.data.social.BattleState
 import com.example.nightwatchprotocol.data.social.LastTurn
 import com.example.nightwatchprotocol.data.social.TurnOutcome
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
@@ -52,8 +52,8 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 
 /** Figma color of the rival's side of the bar (#C0503E-ish) and of the empty middle. */
 private val RivalRed = SocialFail
-private val BarGrey = NightWatchSurfaceButtonMuted
-private val CorrectBorder = NightWatchGold
+private val BarGrey: Color @Composable get() = NightWatchSurfaceButtonMuted
+private val CorrectBorder: Color @Composable get() = NightWatchGold
 private val IncorrectBorder = SocialFail
 
 /** The arena: the question on the person's turn, the wait on the rival's, and the feedback of the turn just played. */

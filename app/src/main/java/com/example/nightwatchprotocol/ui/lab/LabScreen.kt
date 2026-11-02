@@ -58,7 +58,7 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.learning.LabObjective
 import com.example.nightwatchprotocol.data.learning.LabTerminal
 import com.example.nightwatchprotocol.data.learning.LearningTopic
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.keepVisibleWithKeyboard
 import com.example.nightwatchprotocol.ui.theme.NightWatchBackground

@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +48,7 @@ import com.example.nightwatchprotocol.ui.components.activeStreakText
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
 
 @Composable
@@ -176,7 +176,7 @@ private fun UserSummaryPill(uiState: UserMenuUiState) {
             .fillMaxWidth()
             .height(75.dp)
             .shadow(4.dp, shape)
-            .background(Color(0x99D9D9D9), shape)
+            .background(NightWatchTheme.colors.menuPill, shape)
             .padding(start = 23.dp, end = 16.dp),
     ) {
         UserAvatar(display = uiState.avatar, size = 51.dp)

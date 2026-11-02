@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -38,16 +37,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.learning.BadgeState
 import com.example.nightwatchprotocol.ui.common.asString
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
 import com.example.nightwatchprotocol.ui.components.SettingsScaffold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
-
-private val LockedCircle = Color(0xFF3E6E71)
-private val BadgeTextColor = Color(0xFF162523)
-
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /**
  * "Logros e Insignias" (Figma 2287:100): the real state of the nine badges. Read again each time the screen comes back,
@@ -144,18 +140,18 @@ private fun BadgeCard(state: BadgeState, modifier: Modifier = Modifier) {
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(56.dp)
-                .background(if (unlocked) NightWatchGold else LockedCircle, CircleShape),
+                .background(if (unlocked) NightWatchGold else NightWatchTheme.colors.lockedBadge, CircleShape),
         ) {
             Text(
                 text = if (unlocked) state.definition.emoji else stringResource(R.string.learning_icon_lock),
-                color = Color.Black,
+                color = NightWatchTheme.colors.onSurfaceButton,
                 fontSize = 24.sp,
                 modifier = Modifier.clearAndSetSemantics {},
             )
         }
         Text(
             text = name,
-            color = BadgeTextColor,
+            color = NightWatchTheme.colors.textOnLight,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Medium,
             // 12 sp (Figma has 11): the full name in up to 3 lines, centred, whole words, never cut or with an ellipsis.

@@ -55,7 +55,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.learning.IslandState
 import com.example.nightwatchprotocol.data.learning.LearningTopic
-import com.example.nightwatchprotocol.ui.components.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.home.HomeTopBar
 import com.example.nightwatchprotocol.ui.home.PillColor
 import com.example.nightwatchprotocol.ui.home.showNotice
@@ -355,6 +355,7 @@ private fun IslandNode(
     }
 }
 
+@Composable
 private fun Modifier.islandLook(state: IslandState): Modifier = when (state) {
     IslandState.Completed -> this
         .background(NightWatchGold, CircleShape)
