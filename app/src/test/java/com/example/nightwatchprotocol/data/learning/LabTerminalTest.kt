@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.data.learning
 
+import com.example.nightwatchprotocol.data.common.UiText
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -128,7 +129,7 @@ class LabTerminalTest {
         val submission = LabTerminal(lab).submit("  WHOIS   nightwatch-secure-verify.com ")
 
         assertEquals(
-            listOf(TerminalEntry("whois nightwatch-secure-verify.com", lab.objectives[0].output, recognized = true)),
+            listOf(TerminalEntry("whois nightwatch-secure-verify.com", UiText.dynamic(lab.objectives[0].output), recognized = true)),
             submission.terminal.transcript,
         )
     }

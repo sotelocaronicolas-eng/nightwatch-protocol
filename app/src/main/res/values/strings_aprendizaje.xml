@@ -127,6 +127,8 @@
     <string name="learning_lab_finish">Finalizar laboratorio</string>
     <!-- Prefijo de cada línea escrita en la salida (2374:328) -->
     <string name="learning_lab_transcript_command">$ %1$s</string>
+    <!-- Respuesta de la terminal a un comando que no es de la lista (SUPUESTO: no está en Figma) -->
+    <string name="learning_lab_unrecognized_command" tools:ignore="Typos">Comando no reconocido. Toca un objetivo para usar su comando.</string>
 
     <!-- Lab: textos propuestos (no están en Figma) -->
     <string name="learning_lab_close_description">Cerrar laboratorio</string>
