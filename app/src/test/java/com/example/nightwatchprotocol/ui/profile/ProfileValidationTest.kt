@@ -29,7 +29,7 @@ class ProfileValidationTest {
         assertEquals("La contraseña actual no es correcta", passwordOperationErrorMessage(AuthError.InvalidCredentials).text())
         assertEquals("La contraseña no cumple con los requerimientos", passwordOperationErrorMessage(AuthError.WeakPassword).text())
         assertEquals("Sin conexión a internet", passwordOperationErrorMessage(AuthError.NetworkError).text())
-        assertEquals(MESSAGE_GENERIC_ERROR, passwordOperationErrorMessage(AuthError.Unknown).text())
-        assertEquals(MESSAGE_GENERIC_ERROR, passwordOperationErrorMessage(RuntimeException("x")).text())
+        assertEquals(TEXT_GENERIC_ERROR, passwordOperationErrorMessage(AuthError.Unknown))
+        assertEquals(TEXT_GENERIC_ERROR, passwordOperationErrorMessage(RuntimeException("x")))
     }
 }

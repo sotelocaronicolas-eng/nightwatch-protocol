@@ -36,9 +36,6 @@ val MESSAGE_CODE_GENERIC_ERROR: UiText = UiText.of(R.string.common_generic_error
 /** Shown wherever a new code is asked for too soon and the server did not say how long to wait. */
 val TEXT_WAIT_BEFORE_NEW_CODE: UiText = UiText.of(R.string.error_auth_rate_limited)
 
-// PENDING_PART_B: the password-recovery dialog (auth) still keeps this as a String; Part B uses TEXT_WAIT_BEFORE_NEW_CODE.
-const val MESSAGE_WAIT_BEFORE_NEW_CODE = "Espera un momento antes de pedir otro código." // PENDING_PART_B
-
 val MESSAGE_CODE_EXPIRED: UiText = UiText.of(R.string.error_auth_code_expired)
 val MESSAGE_TOO_MANY_ATTEMPTS: UiText = UiText.of(R.string.error_auth_too_many_attempts)
 

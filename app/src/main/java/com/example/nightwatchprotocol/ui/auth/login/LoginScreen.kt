@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -39,6 +40,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.UiText
+import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.auth.GoogleCredentialResult
 import com.example.nightwatchprotocol.ui.auth.forgotpassword.PasswordRecoveryDialog
 import com.example.nightwatchprotocol.ui.auth.requestGoogleIdToken
@@ -118,10 +121,10 @@ fun LoginScreen(
     dialogKind?.let { kind ->
         AlertDialog(
             onDismissRequest = { dialogKind = null },
-            title = { Text("Error de inicio de sesión") },
-            text = { Text(kind.message(unknown = "Se produjo un error inesperado. Intenta iniciar sesión de nuevo.")) },
+            title = { Text(stringResource(R.string.auth_login_error_title)) },
+            text = { Text(kind.message(unknown = UiText.of(R.string.auth_login_error_unknown)).asString()) },
             confirmButton = {
-                TextButton(onClick = { dialogKind = null }) { Text("Aceptar") }
+                TextButton(onClick = { dialogKind = null }) { Text(stringResource(R.string.common_accept)) }
             },
         )
     }
@@ -154,13 +157,13 @@ private fun LoginScreenContent(
                 modifier = Modifier.size(140.dp),
             )
             Text(
-                text = "Nightwatch Protocol",
+                text = stringResource(R.string.common_app_title),
                 style = NightWatchDisplayStyle.copy(fontSize = 28.sp),
                 color = NightWatchOnBackground,
                 modifier = Modifier.padding(top = 8.dp, bottom = 20.dp),
             )
             NightWatchTextField(
-                label = "Nombre de usuario/Email",
+                label = stringResource(R.string.auth_login_username_label),
                 value = uiState.usernameOrEmail,
                 onValueChange = onUsernameChanged,
                 isError = uiState.fieldError == LoginFieldError.UserNotFound ||
@@ -168,17 +171,17 @@ private fun LoginScreenContent(
                     uiState.fieldError == LoginFieldError.GoogleAccountOnly ||
                     uiState.showUsernameRequired,
                 supportingText = when {
-                    uiState.showUsernameRequired -> "Ingresa tu correo"
-                    uiState.fieldError == LoginFieldError.UserNotFound -> "El correo no está registrado"
-                    uiState.fieldError == LoginFieldError.InvalidEmail -> "Correo electrónico inválido"
+                    uiState.showUsernameRequired -> stringResource(R.string.auth_login_enter_email)
+                    uiState.fieldError == LoginFieldError.UserNotFound -> stringResource(R.string.error_auth_user_not_found)
+                    uiState.fieldError == LoginFieldError.InvalidEmail -> stringResource(R.string.common_invalid_email)
                     uiState.fieldError == LoginFieldError.GoogleAccountOnly ->
-                        "Esta cuenta se creó con Google. Usa «Continuar con Google»"
+                        stringResource(R.string.auth_google_account_hint)
                     else -> null
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
             )
             NightWatchTextField(
-                label = "Contraseña",
+                label = stringResource(R.string.auth_password_label),
                 value = uiState.password,
                 onValueChange = onPasswordChanged,
                 isPassword = true,
@@ -186,9 +189,9 @@ private fun LoginScreenContent(
                     uiState.fieldError == LoginFieldError.InvalidCredentials ||
                     uiState.showPasswordRequired,
                 supportingText = when {
-                    uiState.showPasswordRequired -> "Ingresa tu contraseña"
-                    uiState.fieldError == LoginFieldError.WrongPassword -> "La contraseña es incorrecta"
-                    uiState.fieldError == LoginFieldError.InvalidCredentials -> "Correo o contraseña incorrectos"
+                    uiState.showPasswordRequired -> stringResource(R.string.auth_login_enter_password)
+                    uiState.fieldError == LoginFieldError.WrongPassword -> stringResource(R.string.error_auth_wrong_password)
+                    uiState.fieldError == LoginFieldError.InvalidCredentials -> stringResource(R.string.error_auth_invalid_credentials)
                     else -> null
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
@@ -196,7 +199,7 @@ private fun LoginScreenContent(
                 modifier = Modifier.padding(top = 8.dp),
             )
             Text(
-                text = "¿Olvidaste tu contraseña?",
+                text = stringResource(R.string.auth_login_forgot_password),
                 color = NightWatchLinkAccent,
                 modifier = Modifier
                     .padding(top = 8.dp)
@@ -208,23 +211,23 @@ private fun LoginScreenContent(
                 modifier = Modifier.padding(top = 8.dp),
             ) {
                 Checkbox(checked = uiState.rememberSession, onCheckedChange = onRememberSessionChanged)
-                Text("Mantener sesión iniciada", color = NightWatchOnBackground)
+                Text(stringResource(R.string.auth_login_keep_session), color = NightWatchOnBackground)
             }
             NightWatchButton(
-                text = "INICIAR SESIÓN",
+                text = stringResource(R.string.auth_login_button),
                 onClick = onSignInClicked,
                 enabled = !uiState.isLoading,
                 modifier = Modifier.padding(top = 12.dp),
             )
-            Text("O", color = NightWatchOnBackground, modifier = Modifier.padding(vertical = 8.dp))
+            Text(stringResource(R.string.auth_login_or), color = NightWatchOnBackground, modifier = Modifier.padding(vertical = 8.dp))
             GoogleSignInButton(onClick = onGoogleSignInClicked, enabled = !uiState.isLoading)
             FlowRow(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
             ) {
-                Text("¿Aún no tienes cuenta? ", color = NightWatchOnBackground, fontSize = 14.sp)
+                Text(stringResource(R.string.auth_login_no_account), color = NightWatchOnBackground, fontSize = 14.sp)
                 Text(
-                    text = "Regístrate aquí",
+                    text = stringResource(R.string.auth_login_register_here),
                     color = NightWatchLinkAccent,
                     fontSize = 14.sp,
                     modifier = Modifier.clickableText(onRegisterLinkClicked),

@@ -14,6 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.ui.common.asString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -52,7 +55,7 @@ fun NewPasswordScreen(
 
     NightWatchScreenBackground {
         Column(modifier = Modifier.fillMaxSize()) {
-            TitleTopBar(title = "Nueva Contraseña", onClose = viewModel::onCancelClicked)
+            TitleTopBar(title = stringResource(R.string.auth_new_password_title), onClose = viewModel::onCancelClicked)
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -66,27 +69,27 @@ fun NewPasswordScreen(
                     modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
                 ) {
                     NightWatchTextField(
-                        label = "Nueva contraseña",
+                        label = stringResource(R.string.common_new_password_label),
                         value = uiState.newPassword,
                         onValueChange = viewModel::onNewPasswordChanged,
                         isPassword = true,
                         isError = uiState.newError != null,
-                        supportingText = uiState.newError,
+                        supportingText = uiState.newError?.asString(),
                     )
                     PasswordRequirements(uiState.rules)
                     NightWatchTextField(
-                        label = "Confirmar nueva contraseña",
+                        label = stringResource(R.string.profile_change_password_confirm_label),
                         value = uiState.confirmPassword,
                         onValueChange = viewModel::onConfirmPasswordChanged,
                         isPassword = true,
                         isError = uiState.confirmError != null || uiState.confirmationMismatch,
-                        supportingText = uiState.confirmError
-                            ?: if (uiState.confirmationMismatch) "Las contraseñas no coinciden" else null,
+                        supportingText = uiState.confirmError?.asString()
+                            ?: if (uiState.confirmationMismatch) stringResource(R.string.profile_error_passwords_do_not_match) else null,
                     )
                 }
                 uiState.formError?.let { error ->
                     Text(
-                        text = error,
+                        text = error.asString(),
                         color = NightWatchError,
                         fontFamily = NightWatchBodyFontFamily,
                         fontSize = 13.sp,

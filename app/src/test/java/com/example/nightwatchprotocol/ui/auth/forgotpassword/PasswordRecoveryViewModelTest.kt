@@ -1,6 +1,7 @@
 package com.example.nightwatchprotocol.ui.auth.forgotpassword
 
 import com.example.nightwatchprotocol.MainDispatcherRule
+import com.example.nightwatchprotocol.text
 import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.FakeAuthRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
@@ -52,7 +53,7 @@ class PasswordRecoveryViewModelTest {
         advanceUntilIdle()
 
         assertEquals(RecoveryEmailError.NotFound, vm.uiState.value.error)
-        assertEquals("Correo no encontrado", vm.uiState.value.error?.message)
+        assertEquals("Correo no encontrado", vm.uiState.value.error?.message.text())
         assertEquals(RecoveryStep.Email, vm.uiState.value.step)
     }
 

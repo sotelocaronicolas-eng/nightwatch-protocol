@@ -11,9 +11,11 @@ import com.example.nightwatchprotocol.data.auth.AuthError
 import com.example.nightwatchprotocol.data.auth.AuthRepository
 import com.example.nightwatchprotocol.data.session.SessionPreferences
 import com.example.nightwatchprotocol.ui.auth.register.PasswordRules
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_GENERIC_ERROR
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_PASSWORDS_DO_NOT_MATCH
-import com.example.nightwatchprotocol.ui.profile.MESSAGE_PASSWORD_RULES
+import com.example.nightwatchprotocol.data.common.UiText
+import com.example.nightwatchprotocol.ui.profile.TEXT_GENERIC_ERROR
+import com.example.nightwatchprotocol.ui.profile.TEXT_NO_CONNECTION
+import com.example.nightwatchprotocol.ui.profile.TEXT_PASSWORDS_DO_NOT_MATCH
+import com.example.nightwatchprotocol.ui.profile.TEXT_PASSWORD_RULES
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -28,9 +30,9 @@ data class NewPasswordUiState(
     val newPassword: String = "",
     val confirmPassword: String = "",
     val isLoading: Boolean = false,
-    val newError: String? = null,
-    val confirmError: String? = null,
-    val formError: String? = null,
+    val newError: UiText? = null,
+    val confirmError: UiText? = null,
+    val formError: UiText? = null,
 ) {
     /** The same rules as the sign-up and "Cambiar Contraseña" screens, evaluated live as the user types. */
     val rules: PasswordRules get() = PasswordRules.from(newPassword)
@@ -74,9 +76,9 @@ class NewPasswordViewModel(
         val state = _uiState.value
         if (state.isLoading) return
 
-        val newError = if (!state.rules.allSatisfied) MESSAGE_PASSWORD_RULES else null
+        val newError = if (!state.rules.allSatisfied) TEXT_PASSWORD_RULES else null
         val confirmError =
-            if (newError == null && state.newPassword != state.confirmPassword) MESSAGE_PASSWORDS_DO_NOT_MATCH else null
+            if (newError == null && state.newPassword != state.confirmPassword) TEXT_PASSWORDS_DO_NOT_MATCH else null
         if (newError != null || confirmError != null) {
             _uiState.update { it.copy(newError = newError, confirmError = confirmError, formError = null) }
             return
@@ -95,7 +97,7 @@ class NewPasswordViewModel(
             } catch (e: AuthError) {
                 _uiState.update { it.applyError(e) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, formError = MESSAGE_GENERIC_ERROR) }
+                _uiState.update { it.copy(isLoading = false, formError = TEXT_GENERIC_ERROR) }
             }
         }
     }
@@ -110,9 +112,9 @@ class NewPasswordViewModel(
     }
 
     private fun NewPasswordUiState.applyError(error: AuthError): NewPasswordUiState = when (error) {
-        AuthError.WeakPassword -> copy(isLoading = false, newError = MESSAGE_PASSWORD_RULES)
-        AuthError.NetworkError -> copy(isLoading = false, formError = "Sin conexión a internet")
-        else -> copy(isLoading = false, formError = MESSAGE_GENERIC_ERROR)
+        AuthError.WeakPassword -> copy(isLoading = false, newError = TEXT_PASSWORD_RULES)
+        AuthError.NetworkError -> copy(isLoading = false, formError = TEXT_NO_CONNECTION)
+        else -> copy(isLoading = false, formError = TEXT_GENERIC_ERROR)
     }
 
     companion object {
