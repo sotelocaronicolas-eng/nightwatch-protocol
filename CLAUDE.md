@@ -10,7 +10,8 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
   curso *Android Basics with Compose*.
 - **Módulos 1, 2, 3 y 4 terminados** (autenticación, onboarding, quiz de nivelación, perfil y ajustes; ruta de aprendizaje,
   lecciones, laboratorios, examen final, racha e insignias; Social: amigos, racha en pareja, batallas, fotos, reportar y bloquear).
-  Los módulos 1 a 3 ya están en `main`. El módulo 4 está en la rama `modulo-4`, listo para abrir su Pull Request.
+  Los módulos 1 a 4 ya están en `main` (el módulo 4 y sus mejoras del perfil social, PR #10, merge `3db30b4`). **Siguiente: Módulo 5 =
+  personalización** (ver la sección "Módulo 5" al final de esta sección 1).
 - **v2.2.0** (`versionName` 2.2.0, `versionCode` 5; la v2.1.0 fue el módulo 3). La migración de Firebase a Supabase fue la v2.0.0: **Firebase ya no
   existe** (no hay código, dependencias ni plugin) y `google-services.json` no se usa. Historial de la migración:
   `docs/superpowers/reports/migracion-supabase.md`.
@@ -33,8 +34,8 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
     condición de una insignia es editar una línea de `BadgeCatalog` (`data/learning/Badges.kt`).
   - **Pruebas:** **951** pruebas unitarias (0 fallos) al cerrar el módulo; el recuento y el detalle por etapa están en
     `docs/superpowers/reports/modulo-3-diagnostico.md`.
-- **Módulo 4 (Social), en la rama `modulo-4`, terminado y listo para su Pull Request.** Scripts `0008` a `0011` **aplicados y verificados**
-  (guion de `0008`: 219 de 219; guion de `0011`: 187 de 187; Security Advisor: 10 advertencias, 0 errores, 14 sugerencias); probado por el
+- **Módulo 4 (Social), terminado y fusionado a `main` (v2.2.0).** Scripts `0008` a `0012` **aplicados y verificados**
+  (guion de `0008`: 219 de 219; guion de `0011`: 187 de 187; Security Advisor: 0 errores; al cerrar `0011` eran 10 advertencias y 14 sugerencias); probado por el
   grupo en dos teléfonos. Informe de cierre: `docs/superpowers/reports/modulo-4-informe.md`; descripción del PR: `reports/modulo-4-pr.md`.
   - **Qué hay:** amigos (búsqueda exacta por nombre o código, solicitudes, perfil del amigo), racha en pareja, batallas
     (partida rápida y retos a un amigo, arena con ulti), fotos de perfil en Social, y reportar y bloquear. La spec es
@@ -46,14 +47,28 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
     pierde la batalla). Por eso **Reportar y Bloquear son diálogos y no rutas**: una ruta que tape la arena detiene el sondeo.
   - **Código:** `data/social` (modelos, parser, repositorios, sondeo, fotos), `data/supabase/Supabase*` (única parte que conoce la
     librería), `ui/social` (pantallas y ViewModels), textos en `strings_social*.xml`. `SocialBoundaryTest` vigila las capas.
-  - **Pruebas:** **1334** pruebas unitarias (0 fallos) al cerrar el módulo; lint en 0 errores (45 advertencias, las mismas de antes).
-  - **Seguimiento en la rama `social-perfil` (perfil social editable, sin cerrar):** cada persona ve y edita su propio perfil social. Nueva tarjeta "Tu Perfil" en Inicio, pantallas
+  - **Pruebas:** **1334** pruebas unitarias (0 fallos) al cerrar el módulo base; **1399**, 0 fallos, tras el perfil social; lint en 0 errores.
+  - **Perfil social editable (rama `social-perfil`, fusionada con el PR #10):** cada persona ve y edita su propio perfil social. Nueva tarjeta "Tu Perfil" en Inicio, pantallas
     "Tu perfil" y "Editar tu perfil" (`ui/social/MyProfile*`, `EditMyProfile*`), el perfil del amigo rediseñado (sin scroll general, botones fijos, Estadísticas, historial de 3) y un fondo
     elegible (`profile_bg_1` a `profile_bg_5`, o "sin fondo"; el servidor guarda solo un número 0 a 5) con ojos que ocultan Insignias, Estadísticas e Historial. El apartado compartido es
-    `ui/social/ProfileSections.kt`. **El script `0012_perfil_social.sql` es un BORRADOR sin aplicar** (y su guion `supabase/verificacion/0012_escenarios.sql` no se ha ejecutado): sin él la
-    app muestra "Función no disponible por ahora" en lo nuevo. Spec: sección 13 de la spec del módulo 4. Pruebas: **1393** unitarias, 0 fallos; lint 0 errores. **Sin comprobar en un teléfono ni contra el servidor real.**
-  - **Fuera del módulo 4:** la tabla de actividad por día para que repetir cuente en la racha (sería `0012`), la corrección del
+    `ui/social/ProfileSections.kt`. **El script `0012_perfil_social.sql` ya está APLICADO y verificado en Supabase** (según el equipo; su guion es
+    `supabase/verificacion/0012_escenarios.sql`). **Ojo:** su encabezado todavía dice "BORRADOR sin aplicar"; no se edita (una migración aplicada no se toca), pero ya no es cierto.
+    Spec: sección 13 de la spec del módulo 4. Contrato de `progress` en el perfil del amigo: `null` con `hide_progress`; si no, siempre `fighter_level`, `viewed_count` y `labs_count`, y los
+    hechos de insignias solo con `show_badges`; `stats` e `history` solo con su ojo abierto (si no, la clave no existe). Fondos: `profile_bg_1` a `profile_bg_5` (archivos `.webp`) o "sin fondo" (0 a 5).
+  - **Deuda técnica del módulo 4 (confirmada, no urgente):** (1) comentarios desactualizados que dicen que solo se puede actualizar `hide_progress`
+    (`data/social/SocialRepositories.kt:28` y encabezado de `data/supabase/SupabaseSocialProfileRepository.kt:29-31`); (2) el código de rechazo `avatar_hidden` no está en
+    `SocialRejection`, así que la app muestra un error genérico; (3) "hoy" sale del reloj del teléfono (`PairDetailViewModel.kt:121`, `MyProfileLoader`; la zona es `America/Bogota` en
+    pareja y amigos, y la del dispositivo en la racha del perfil propio); (4) nivel y racha de batallas se calculan también en la app (`buildFighterSummary`), duplicando `sx_level`;
+    (5) sin pruebas de Compose, sin `@Preview` completos ni pruebas con TalkBack en las pantallas sociales.
+  - **Fuera del módulo 4:** la tabla de actividad por día para que repetir cuente en la racha (sería la migración `0013`), la corrección del
     examen en el servidor si hay ranking o XP, las notificaciones push y una pantalla de moderación.
+- **Extras ya hechos (posteriores al módulo 4):** las 6 pantallas de lecciones según Figma ("LECCION UPDATE - <Módulo>", con scroll; rama `lecciones-update`, probada en el teléfono) y
+  ajustes de la ruta ("Prueba final" a la izquierda y arriba, "Bahía del Phishing" hacia arriba). Un segundo compañero se sumó el 2026-10-23 para extras de los módulos 3 y 4.
+- **Módulo 5 = personalización (por empezar; sin spec ni plan escritos).** Alcance acordado por el equipo: tema claro (claro/oscuro), idioma inglés (español sigue siendo el actual) y el resto
+  de personalización que esté en el plan o en el Figma. Hoy: Apariencia e Idioma existen como pantallas **sin lógica** (decisión del Módulo 2), la app fuerza `darkColorScheme` y la mayoría
+  de textos de los módulos 1 y 2 siguen en el código (F-09, probable requisito previo para traducir). Revisión previa: pendiente de decisiones del grupo.
+- **Lecciones aprendidas:** los guiones SQL deben acotar los conteos a las cuentas de prueba; Brevo permite unos 300 correos al día; el login con Google falla en silencio si el SHA-1 de depuración
+  no está registrado en un cliente OAuth Android de Google Cloud (paquete `com.example.nightwatchprotocol`); la regla de "solo Write/Edit" se rompió varias veces con `sed -i`: sigue vigente.
 
 ## 2. Stack y versiones
 
@@ -117,11 +132,11 @@ Todo el servidor vive en `supabase/` y **se despliega a mano** desde el panel (n
 | `0009_banco_batallas.sql` | **Aplicada y verificada (2026-10-21).** 72 preguntas de batalla, 12 retos de ulti y la curva de XP (20 niveles) |
 | `0010_fotos_social.sql` | **Aplicada y verificada (2026-10-22).** `avatar_key` y `avatar_version` en `social_profile`, `social_set_avatar` y el bucket privado `social-avatars` con 4 políticas |
 | `0011_reportes_bloqueos.sql` | **Aplicada y verificada (2026-10-23).** Tablas cerradas `social_reports` y `social_blocks`, columna `avatar_hidden` (solo la cambia el equipo), acciones `report`, `block`, `unblock` y `blocks` dentro de `social_friends`, `sx_is_blocked`. Su guion `supabase/verificacion/0011_escenarios.sql` dio 187 de 187. En un servidor sin ella, la app muestra "Función no disponible por ahora" |
-| `0012_perfil_social.sql` | **BORRADOR sin aplicar** (rama `social-perfil`). Columnas `profile_bg` (0 a 5), `show_badges`, `show_stats` y `show_history` en `social_profile` (el cliente las actualiza por `GRANT UPDATE` de columna) y `social_friends` reemplazada: la acción `profile` devuelve fondo y ojos, y `stats` e `history` (3 últimas entre los dos), omitiendo como clave ausente lo que el amigo oculta; `progress` cambia el contrato de `0011` (contadores siempre, hechos de insignias solo con `show_badges`). Sin funciones ni tablas nuevas. Mientras sea borrador puede editarse; al aplicarse deja de editarse |
+| `0012_perfil_social.sql` | **Aplicada y verificada** (PR #10). Su encabezado aún dice "BORRADOR sin aplicar" y no se edita. Columnas `profile_bg` (0 a 5), `show_badges`, `show_stats` y `show_history` en `social_profile` (el cliente las actualiza por `GRANT UPDATE` de columna) y `social_friends` reemplazada: la acción `profile` devuelve fondo y ojos, y `stats` e `history` (3 últimas entre los dos), omitiendo como clave ausente lo que el amigo oculta; `progress` cambia el contrato de `0011` (contadores siempre, hechos de insignias solo con `show_badges`). Sin funciones ni tablas nuevas. Ya aplicada: no se edita |
 
-- **Una migración ya aplicada NO se edita.** Cualquier cambio va en una migración nueva con el siguiente número (`0012`...).
+- **Una migración ya aplicada NO se edita.** Cualquier cambio va en una migración nueva con el siguiente número (`0013`...).
   `0007` conserva en su encabezado la palabra "BORRADOR" y un comentario sobre la racha fija: es lo
-  que se ejecutó; `0008` a `0011` tampoco se editan.
+  que se ejecutó; `0008` a `0012` tampoco se editan (el encabezado de `0012` aún dice "BORRADOR sin aplicar" aunque ya se aplicó).
 - Guiones de comprobación con dos cuentas de prueba: `supabase/verificacion/0008_escenarios.sql` (219 de 219) y `0011_escenarios.sql` (187 de 187). Todas sus
   comprobaciones y cambios se limitan a esas dos cuentas.
 - **Moderación manual:** no hay pantalla de moderación. El equipo revisa `social_reports` en el Table Editor y oculta una foto con
@@ -159,15 +174,16 @@ Todo el servidor vive en `supabase/` y **se despliega a mano** desde el panel (n
 - **Una rama por tarea**, PR hacia `main` con **1 aprobación** de otro integrante y **"Create a merge commit"**.
 - Es un **acuerdo de equipo, no una protección técnica**: el plan gratuito de GitHub no permite proteger ramas en repos
   privados, así que nada impide subir a `main`. Depende de que se cumpla.
-- **Regla actual:** el módulo 4 vive en la rama `modulo-4`, con **un commit por etapa o por tema**, y entra a `main` por un
-  Pull Request (el módulo 3 siguió el mismo camino desde `modulo-3`).
+- **Regla actual:** cada módulo o tarea vive en su propia rama (el módulo 4 fue `modulo-4`; el 5 tendrá la suya), con **un commit por etapa o por tema**
+  en español, y entra a `main` por un Pull Request con "Create a merge commit". El equipo marca cada versión con una etiqueta `vX.Y.Z` y un Release (lo hace el
+  usuario a mano, no Claude Code). Un solo prompt consolidado por tarea.
   **Claude Code NUNCA hace push.** El push de la rama lo hace el usuario a mano. **Jamás se commitea ni se sube a `main`
   directamente:** todo entra a `main` por Pull Request con 1 aprobación.
 - Nunca `git push --force`. `local.properties` nunca se sube.
 
 ## 7. Reglas para Claude Code
 
-1. Trabaja siempre en una **rama explícita** (hoy `modulo-4`); verifica con `git branch` antes de empezar. Si estás en
+1. Trabaja siempre en una **rama explícita** (la de la tarea en curso; nunca `main`); verifica con `git branch` antes de empezar. Si estás en
    `main`, detente y avisa. **Nunca toques `main`.**
 2. **Sin push, sin `--force`, sin tocar ramas remotas.** Sin tags ni releases.
 3. `git add` **por nombre de archivo** (nunca `.` ni `-A`); revisa `git status` antes de cada commit.
@@ -208,7 +224,7 @@ Aceptado por decisión del equipo:
   - "Hoy" en la tira de la semana de la pareja sale del reloj del teléfono (R-05, aceptado: todos los usuarios están en Colombia).
   - Sin pruebas de Compose de las pantallas de Social (R-15), sin vistas previas (R-14), y nada del servidor real ni de TalkBack se ha
     comprobado desde el código: lo hace el grupo con los guiones de `supabase/verificacion/`.
-- **Perfil social editable (rama `social-perfil`, borrador):** el ojo de Insignias oculta SOLO las insignias (nivel, Ejercicios y Labs no dependen de él; "Ocultar mi progreso público" oculta todo). Contrato de `progress` en `0012`: `null` con `hide_progress`; si no, siempre `fighter_level`, `viewed_count` y `labs_count`, y con `show_badges` además los hechos de insignias de `0011` (ausentes con el ojo cerrado); las estadísticas
+- **Perfil social editable (ya en `main`, PR #10):** el ojo de Insignias oculta SOLO las insignias (nivel, Ejercicios y Labs no dependen de él; "Ocultar mi progreso público" oculta todo). Contrato de `progress` en `0012`: `null` con `hide_progress`; si no, siempre `fighter_level`, `viewed_count` y `labs_count`, y con `show_badges` además los hechos de insignias de `0011` (ausentes con el ojo cerrado); las estadísticas
   y el historial propios reutilizan la lectura completa de `battle_results` que ya hace Inicio (sin límite de filas); el selector de fondo tiene casillas de unos 30 dp de alto; nada se ha visto en un teléfono.
 - **Datos fijos o solo visuales:** Apariencia, Idioma, Ayuda y Acerca de, y los interruptores de notificaciones de "Logros" y
   "Nuevos laboratorios" (sin efecto: necesitan push). La racha y las insignias **ya son reales**.
