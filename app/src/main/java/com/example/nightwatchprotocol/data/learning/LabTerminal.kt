@@ -1,11 +1,14 @@
 package com.example.nightwatchprotocol.data.learning
 
+import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.data.common.UiText
 import java.util.Locale
 
 /**
- * Text shown when the typed command is not one of the lab's three. SUPUESTO: this text is not in Figma.
+ * Text shown when the typed command is not one of the lab's three (resource `learning_lab_unrecognized_command`).
+ * SUPUESTO: this text is not in Figma.
  */
-const val UNRECOGNIZED_COMMAND_MESSAGE = "Comando no reconocido. Toca un objetivo para usar su comando."
+val UNRECOGNIZED_COMMAND_MESSAGE: UiText = UiText.of(R.string.learning_lab_unrecognized_command)
 
 /** What the terminal answered to one submission. */
 sealed interface TerminalResult {
@@ -16,14 +19,17 @@ sealed interface TerminalResult {
     data class ObjectiveRepeated(val objectiveIndex: Int, val output: String) : TerminalResult
 
     /** Not one of the lab's commands. */
-    data class Unrecognized(val message: String = UNRECOGNIZED_COMMAND_MESSAGE) : TerminalResult
+    data class Unrecognized(val message: UiText = UNRECOGNIZED_COMMAND_MESSAGE) : TerminalResult
 
     /** Nothing was typed (or only spaces): nothing is added to the transcript. */
     data object Empty : TerminalResult
 }
 
-/** A line group of the transcript: the typed text and what the terminal printed back. */
-data class TerminalEntry(val input: String, val output: String, val recognized: Boolean)
+/**
+ * A line group of the transcript: the typed text and what the terminal printed back. [output] is [UiText.Dynamic] for a lab
+ * command (its text comes from the JSON content) and a resource for the "not recognised" answer.
+ */
+data class TerminalEntry(val input: String, val output: UiText, val recognized: Boolean)
 
 /** The new terminal and the answer to the command that produced it. */
 data class TerminalSubmission(val terminal: LabTerminal, val result: TerminalResult)
@@ -77,7 +83,7 @@ data class LabTerminal(
         }
 
         val objective = lab.objectives[index]
-        val entry = TerminalEntry(objective.command, objective.output, recognized = true)
+        val entry = TerminalEntry(objective.command, UiText.dynamic(objective.output), recognized = true)
         val result = if (index in completedObjectives) {
             TerminalResult.ObjectiveRepeated(index, objective.output)
         } else {

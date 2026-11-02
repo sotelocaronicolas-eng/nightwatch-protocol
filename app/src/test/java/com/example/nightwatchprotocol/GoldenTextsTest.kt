@@ -75,7 +75,7 @@ class GoldenTextsTest {
         R.string.notif_streak_channel_name to "Racha en riesgo",
         R.string.notif_streak_title to "Tu racha está en riesgo",
         R.string.notif_streak_text to "Practica hoy para no perder tu racha.",
-    ) + partB1
+    ) + partB1 + partB2
 
     /** Part B1: authentication, quiz, app lock, navigation and the shared texts that came with them. */
     private val partB1: List<Pair<Int, String>> get() = listOf(
@@ -144,6 +144,14 @@ class GoldenTextsTest {
         R.string.plan_high_passwords to "Arquitecturas de autenticación y almacenamiento seguro de credenciales",
         R.string.plan_high_social to "Análisis avanzado de ataques de ingeniería social",
         R.string.plan_high_networks to "Endurecimiento de redes y respuesta a incidentes de malware",
+    )
+
+    /**
+     * Part B2: learning. Almost all of it was already in `strings_aprendizaje.xml` (module 3 used resources); only the answer of
+     * the lab terminal to an unknown command was still a literal in `data/learning/LabTerminal.kt`.
+     */
+    private val partB2: List<Pair<Int, String>> get() = listOf(
+        R.string.learning_lab_unrecognized_command to "Comando no reconocido. Toca un objetivo para usar su comando.",
     )
 
     @Test

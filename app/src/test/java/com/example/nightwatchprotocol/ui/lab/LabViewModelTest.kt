@@ -5,6 +5,7 @@ import app.cash.turbine.test
 import com.example.nightwatchprotocol.MainDispatcherRule
 import com.example.nightwatchprotocol.data.common.DataAccessException
 import com.example.nightwatchprotocol.data.common.FailureKind
+import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.learning.FakeLearningContentRepository
 import com.example.nightwatchprotocol.data.learning.LabTerminal
 import com.example.nightwatchprotocol.data.learning.LearningTopic
@@ -30,7 +31,7 @@ class LabViewModelTest {
 
     private fun command(index: Int) = content.content.lab(topic).objectives[index].command
 
-    private fun output(index: Int) = content.content.lab(topic).objectives[index].output
+    private fun output(index: Int) = UiText.dynamic(content.content.lab(topic).objectives[index].output)
 
     private fun LabViewModel.send(text: String) {
         onInputChanged(text)

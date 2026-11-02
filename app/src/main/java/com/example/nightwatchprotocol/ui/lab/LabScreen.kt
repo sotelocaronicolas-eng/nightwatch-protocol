@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
+import com.example.nightwatchprotocol.ui.common.asString
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -346,7 +347,7 @@ private fun TerminalOutput(terminal: LabTerminal, modifier: Modifier = Modifier)
     val scroll = rememberScrollState()
     // `map` is inline, so the string resource can be read for each entry.
     val lines = terminal.transcript.map { entry ->
-        stringResource(R.string.learning_lab_transcript_command, entry.input) + "\n" + entry.output
+        stringResource(R.string.learning_lab_transcript_command, entry.input) + "\n" + entry.output.asString()
     }
     val text = if (lines.isEmpty()) terminal.lab.briefing else lines.joinToString("\n")
     LaunchedEffect(terminal.transcript.size) { scroll.scrollTo(scroll.maxValue) }

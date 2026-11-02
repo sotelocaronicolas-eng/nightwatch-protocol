@@ -30,6 +30,7 @@ class PersonalizationBoundaryTest {
      * To add a file here, say why in this comment: the list is meant to stay short.
      *  - `data/common/UiText.kt`: the type itself and its `Context` resolver.
      *  - `data/learning/Badges.kt`: the names of the nine badges (a fixed catalog).
+     *  - `data/learning/LabTerminal.kt`: the answer of the lab terminal to a command that is not on the list (B2).
      *  - `data/profile/BirthDate.kt`, `data/profile/ProfileFormatters.kt`, `data/profile/Gender.kt`: the messages and labels of
      *    the profile fields.
      *  - `data/device/DeviceFormatters.kt`: "Ahora / Hace N min" of the devices list.
@@ -40,6 +41,7 @@ class PersonalizationBoundaryTest {
     private val mayNameResources = listOf(
         "/data/common/UiText.kt",
         "/data/learning/Badges.kt",
+        "/data/learning/LabTerminal.kt",
         "/data/profile/BirthDate.kt",
         "/data/profile/ProfileFormatters.kt",
         "/data/profile/Gender.kt",
