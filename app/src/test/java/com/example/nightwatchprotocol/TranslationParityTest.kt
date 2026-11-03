@@ -17,15 +17,6 @@ import org.w3c.dom.Element
 class TranslationParityTest {
 
     /**
-     * Part 2 of Stage 8: Spanish files that do not have their `values-en` twin yet. This list MUST be empty when the Stage ends.
-     * A file that is here but already has a translation (or a file with no translation that is not here) fails the test, so the
-     * list cannot go stale.
-     */
-    private val PENDING_PARTE_2: Set<String> = setOf(
-        "strings_social_pantallas.xml",
-    )
-
-    /**
      * Keys whose English text is allowed to equal the Spanish one (checked per key, in any file). Each one says why.
      *  - `app_name`, `common_app_title`: proper names of the app (they are never translated).
      *  - `common_error_icon_description`: "Error" is the same word in both languages.
@@ -35,6 +26,8 @@ class TranslationParityTest {
      *  - `learning_tab_social`, `learning_tab_labs`, `learning_lab_terminal`, `learning_home_app_name`: "Social", "Labs", "Terminal" and
      *    the app name are the same word in both languages. `learning_lesson_close` is the letter "X".
      *  - `social_level_chip`, `social_card_profile_unavailable`: "LVL" is the same game abbreviation in both languages.
+     *  - `social_title` ("Social", the name of the section).
+     *  - `social_search_vs` ("VS"), `social_arena_hp` ("%1$d/100 HP") and `social_end_xp` ("🎁 +%1$d XP"): game terms that are the same in both.
      *  - A text with no letters at all once the placeholders are removed (emojis, "…", "—", ">", "$ %1$s", "%1$d%%") is also the same in
      *    both languages by nature: see [hasNoWords].
      */
@@ -51,11 +44,15 @@ class TranslationParityTest {
         "learning_lesson_close",
         "social_level_chip",
         "social_card_profile_unavailable",
+        "social_search_vs",
+        "social_arena_hp",
+        "social_end_xp",
+        "social_title",
     ) + listOf(2, 3, 6, 7, 9, 10, 11).map { "common_month_short_$it" }
 
     /** True when the text has no letter once the placeholders are taken out: symbols and emojis only. */
     private fun hasNoWords(text: String): Boolean =
-        text.replace(Regex("""%(?:\d+\$)?[sdfxXc]"""), "").replace("%%", "").none { it.isLetter() }
+        text.replace(Regex("""%(?:\d+\$)?[-+0 ,#]*\d*[sdfxXc]"""), "").replace("%%", "").none { it.isLetter() }
 
     private fun mayBeSame(key: String, text: String): Boolean = key in sameInBothLanguages || hasNoWords(text)
 
@@ -113,30 +110,24 @@ class TranslationParityTest {
     private fun placeholders(text: String): Map<Int, Char> {
         var next = 1
         val result = LinkedHashMap<Int, Char>()
-        Regex("""%(?:(\d+)\$)?([sdfxXc])""").findAll(text.replace("%%", "")).forEach { match ->
+        Regex("""%(?:(\d+)\$)?[-+0 ,#]*\d*([sdfxXc])""").findAll(text.replace("%%", "")).forEach { match ->
             val index = match.groupValues[1].ifEmpty { null }?.toInt() ?: next++
             result[index] = match.groupValues[2][0]
         }
         return result
     }
 
-    private val translatedFiles: List<String> by lazy { stringsFiles(spanish).filter { it !in PENDING_PARTE_2 } }
+    /** Every strings file of `res/values` (all of them are translated since the end of Stage 8). */
+    private val translatedFiles: List<String> by lazy { stringsFiles(spanish) }
 
     @Test
-    fun everySpanishFile_isTranslated_orListedAsPending() {
+    fun everySpanishFile_hasItsEnglishTwin() {
         val spanishFiles = stringsFiles(spanish)
         val englishFiles = stringsFiles(english).toSet()
         assertTrue("no se encontró res/values", spanishFiles.isNotEmpty())
 
-        spanishFiles.forEach { name ->
-            if (name in PENDING_PARTE_2) {
-                assertFalse("$name ya tiene values-en: quítalo de PENDING_PARTE_2", name in englishFiles)
-            } else {
-                assertTrue("$name no tiene values-en y no está en PENDING_PARTE_2", name in englishFiles)
-            }
-        }
+        spanishFiles.forEach { name -> assertTrue("$name no tiene values-en", name in englishFiles) }
         assertEquals("values-en tiene archivos sin gemelo en values", emptySet<String>(), englishFiles - spanishFiles.toSet())
-        assertTrue("PENDING_PARTE_2 nombra un archivo que no existe", PENDING_PARTE_2.all { it in spanishFiles })
     }
 
     @Test

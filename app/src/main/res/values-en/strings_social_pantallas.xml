@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    English of strings_social_pantallas.xml (Module 5, Stage 8, part 2): the Social screens (module 4), prefix social_.
+    Same keys as res/values/strings_social_pantallas.xml; the Spanish file is the golden reference. Follows modulo-5-glosario.md.
+    American English. Error messages are in strings_social.xml. The questions of the battles live in Postgres (decision D15, later stage).
+-->
+<resources>
+    <string name="social_retry">Retry</string>
+    <string name="social_loading_dots">…</string>
+    <string name="social_unavailable_value">—</string>
+
+    <!-- Emojis of the cards and rows -->
+    <string name="social_icon_pair">🔥</string>
+    <string name="social_icon_friends">🧑‍🤝‍🧑</string>
+    <string name="social_icon_battles">⚔️</string>
+    <string name="social_icon_person">🧑</string>
+
+    <!-- Avatar description for screen readers -->
+    <string name="social_avatar_mine">Your profile photo</string>
+    <string name="social_avatar_of">Profile photo of %1$s</string>
+
+    <!-- Social - Home -->
+    <string name="social_title">Social</string>
+    <string name="social_intro">Keep your streak with friends and show what you know in quiz battles.</string>
+    <string name="social_card_pair_title">Pair streak</string>
+    <string name="social_card_pair_none">No streak</string>
+    <string name="social_card_pair_button">View streak →</string>
+    <string name="social_card_friends_title">Friends</string>
+    <string name="social_card_friends_button">View friends →</string>
+    <string name="social_card_battles_title">Battles</string>
+    <string name="social_card_battles_button">Battle →</string>
+    <string name="social_score">%1$dW · %2$dL</string>
+    <string name="social_score_with_draws">%1$dW · %2$dL · %3$dD</string>
+    <plurals name="social_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="social_friends_count">
+        <item quantity="one">%d friend</item>
+        <item quantity="other">%d friends</item>
+    </plurals>
+
+    <!-- Create username -->
+    <string name="social_username_title">Create your username</string>
+    <string name="social_username_body">It\'s the name your friends will see. It has 3 to 20 letters, numbers or underscores (_) and you won\'t be able to change it later.</string>
+    <string name="social_username_label">Username</string>
+    <string name="social_username_hint">For example: valeNightwatch</string>
+    <string name="social_username_create">CREATE USERNAME</string>
+    <string name="social_username_creating">CREATING…</string>
+
+    <!-- Shared -->
+    <string name="social_cancel">Cancel</string>
+
+    <!-- Friends -->
+    <string name="social_friends_title">Friends</string>
+    <string name="social_friends_summary">%1$s · %2$s</string>
+    <plurals name="social_friends_keeping_today">
+        <item quantity="one">%d keeps their streak today</item>
+        <item quantity="other">%d keep their streak today</item>
+    </plurals>
+    <string name="social_friends_empty">You don\'t have any friends yet. Add someone with their username or code.</string>
+    <string name="social_friend_streak_active">🔥 %1$s</string>
+    <string name="social_friend_no_streak">No active streak</string>
+    <string name="social_friend_trained_today">✅ Trained today</string>
+    <string name="social_friend_pending_today">⏳ Pending today</string>
+    <string name="social_friends_add">+ Add friends</string>
+
+    <!-- Add friends -->
+    <string name="social_add_title">Add friends</string>
+    <string name="social_add_intro">Find your friends by username or share your code.</string>
+    <string name="social_add_search_label">Search by username or code</string>
+    <string name="social_add_search_hint">e.g. valeNightwatch or NIGHT-7F3K2A</string>
+    <string name="social_add_search_button">Search</string>
+    <string name="social_add_my_code">Your friend code</string>
+    <string name="social_add_copy">Copy</string>
+    <string name="social_add_copied">Copied!</string>
+    <string name="social_add_requests_link">📥 Friend requests</string>
+    <string name="social_add_invite">Add +</string>
+    <string name="social_add_sent">Request sent</string>
+    <string name="social_add_already_friends">Already friends</string>
+    <string name="social_add_accept_request">Accept</string>
+    <string name="social_add_invited_ok">We sent the request to %1$s.</string>
+    <string name="social_add_accepted_ok">%1$s is now your friend.</string>
+
+    <!-- Requests -->
+    <string name="social_requests_title">Requests</string>
+    <plurals name="social_requests_pending">
+        <item quantity="one">You have %d pending friend request.</item>
+        <item quantity="other">You have %d pending friend requests.</item>
+    </plurals>
+    <string name="social_requests_none">You have no pending friend requests.</string>
+    <string name="social_requests_wants_friend">Wants to be your friend</string>
+    <string name="social_requests_accept">Accept</string>
+    <string name="social_requests_decline">Decline</string>
+    <string name="social_requests_sent_title">Sent requests</string>
+    <string name="social_requests_sent_label">Request sent</string>
+    <string name="social_requests_cancel">Cancel request</string>
+
+    <!-- A friend\'s profile -->
+    <string name="social_profile_streak">🔥 %1$s streak</string>
+    <string name="social_profile_level">Fighter level %1$d</string>
+    <string name="social_profile_exercises">Exercises</string>
+    <string name="social_profile_labs">Labs passed</string>
+    <string name="social_profile_badges">Badges</string>
+    <string name="social_profile_no_badges">No badges yet.</string>
+    <string name="social_profile_hidden">%1$s keeps their progress hidden.</string>
+    <string name="social_profile_history">Battle history</string>
+    <string name="social_profile_won">🏆 You beat %1$s</string>
+    <string name="social_profile_lost">💀 You lost to %1$s</string>
+    <string name="social_profile_draw">🤝 Draw vs %1$s</string>
+    <string name="social_profile_remove">Remove friend</string>
+    <string name="social_profile_remove_title">Remove %1$s?</string>
+    <string name="social_profile_remove_body">You will stop being friends. You can add each other again later.</string>
+    <string name="social_profile_remove_confirm">Remove</string>
+    <string name="social_profile_trained_today">✅ Trained today</string>
+    <string name="social_profile_pending_today">⏳ Pending today</string>
+
+    <string name="social_profile_invite_pair">🔥 Invite to a pair streak</string>
+    <string name="social_profile_battle">⚔️ Battle</string>
+    <string name="social_profile_invite_pair_sent">We sent the pair streak invitation to %1$s.</string>
+
+    <!-- Pair streak: list -->
+    <string name="social_pairs_title">Pair streak</string>
+    <string name="social_pairs_intro">Train on the same day and add up days in a row together. Each day counts when you both complete your exercise, in Colombia time.</string>
+    <string name="social_pairs_empty">You don\'t have any pair streak yet. Invite a friend to start one.</string>
+    <string name="social_pairs_pending_received">Invited you to a pair streak</string>
+    <string name="social_pairs_pending_sent">Invitation sent</string>
+    <string name="social_pairs_accept">Accept</string>
+    <string name="social_pairs_decline">Decline</string>
+    <string name="social_pairs_cancel">Cancel invitation</string>
+    <string name="social_pairs_invite_title">Invite a friend</string>
+    <string name="social_pairs_invite_none">You have no friends to invite. Add friends first.</string>
+    <string name="social_pairs_invite_button">Invite</string>
+    <string name="social_pairs_state_active">You both trained today</string>
+    <string name="social_pairs_state_at_risk">At risk: training still pending today</string>
+    <string name="social_pairs_state_none">No streak for now</string>
+    <string name="social_pairs_state_route_complete">Path complete: the streak stops</string>
+    <string name="social_pairs_best">Best streak: %1$s</string>
+
+    <!-- Pair streak: detail -->
+    <string name="social_pair_title">Streak with %1$s</string>
+    <string name="social_pair_days_label">days in a row training</string>
+    <string name="social_pair_week_label">This week (Colombia time)</string>
+    <string-array name="social_week_initials">
+        <item>M</item>
+        <item>T</item>
+        <item>W</item>
+        <item>T</item>
+        <item>F</item>
+        <item>S</item>
+        <item>S</item>
+    </string-array>
+    <string name="social_pair_today_title">Today</string>
+    <string name="social_pair_me">You</string>
+    <string name="social_pair_done">✅</string>
+    <string name="social_pair_pending">⏳</string>
+    <string name="social_pair_check">✓</string>
+    <string name="social_pair_banner_me_missing">⚠️ You haven\'t trained today. Don\'t lose your streak!</string>
+    <string name="social_pair_banner_partner_missing">⏳ %1$s hasn\'t trained today. Cheer them on!</string>
+    <string name="social_pair_banner_none">Start a streak: both of you complete today\'s exercise.</string>
+    <string name="social_pair_banner_done">You both trained today! Come back tomorrow.</string>
+    <string name="social_pair_banner_route_complete">One of you already completed all 6 islands, so the streak stops here.</string>
+    <string name="social_pair_exercise_lesson">Do my exercise for today →</string>
+    <string name="social_pair_exercise_done">You already did your exercise for today</string>
+    <string name="social_pair_exercise_all_done">You already completed all 6 islands</string>
+    <string name="social_pair_end">End pair streak</string>
+    <string name="social_pair_end_title">End the streak with %1$s?</string>
+    <string name="social_pair_end_body">It is deleted for both of you and the streak is not kept. You will still be friends.</string>
+    <string name="social_pair_end_confirm">End</string>
+
+    <!-- Battles: lobby -->
+    <string name="social_battles_title">Battles</string>
+    <string name="social_battles_wins">Wins</string>
+    <string name="social_battles_losses">Losses</string>
+    <string name="social_battles_quick_title">🎲 Quick match</string>
+    <string name="social_battles_quick_body">Matchmaking against a rival of your level</string>
+    <string name="social_battles_quick_button">Find opponent →</string>
+    <string name="social_battles_friends_title">Challenge a friend</string>
+    <string name="social_battles_friends_empty">You don\'t have any friends to challenge yet. Add friends from Social.</string>
+    <string name="social_battles_challenge">⚔️ Challenge</string>
+    <string name="social_battles_received_title">Challenges received</string>
+    <string name="social_battles_received_body">Challenged you to a battle</string>
+    <string name="social_battles_accept">Accept</string>
+    <string name="social_battles_decline">Decline</string>
+    <string name="social_battles_waiting_title">Waiting for %1$s…</string>
+    <string name="social_battles_waiting_body">They have 2 minutes to accept. If you leave this screen, the challenge is canceled.</string>
+    <string name="social_battles_waiting_cancel">Cancel challenge</string>
+    <string name="social_battles_declined">%1$s declined your challenge.</string>
+    <string name="social_battles_expired">%1$s didn\'t respond in time.</string>
+    <string name="social_countdown">%1$d:%2$02d</string>
+
+    <!-- Searching for an opponent -->
+    <string name="social_search_title">Quick match</string>
+    <string name="social_search_searching">Searching for an opponent…</string>
+    <string name="social_search_body">This may take a few seconds. The search continues while you keep this screen open.</string>
+    <string name="social_search_vs">VS</string>
+    <string name="social_search_unknown">?</string>
+    <string name="social_search_icon_you">🧙</string>
+    <string name="social_search_icon_search">🔍</string>
+    <string name="social_search_cancel">Cancel search</string>
+    <string name="social_search_suggest">No rival yet. Meanwhile you can challenge a friend.</string>
+    <string name="social_search_challenge_friend">Challenge a friend</string>
+    <string name="social_search_stopped">The search stopped because you left the screen.</string>
+    <string name="social_search_again">Search again</string>
+
+    <!-- End of battle -->
+    <string name="social_end_title">Result</string>
+    <string name="social_end_victory_icon">🏆</string>
+    <string name="social_end_victory">Victory!</string>
+    <string name="social_end_victory_body">You defeated %1$s in the quiz battle.</string>
+    <string name="social_end_victory_forfeit_body">%1$s left the battle or lost connection. The victory is yours!</string>
+    <string name="social_end_defeat_icon">💀</string>
+    <string name="social_end_defeat">Defeat</string>
+    <string name="social_end_defeat_body">%1$s won this battle. Keep practicing and come back stronger!</string>
+    <string name="social_end_defeat_disconnect_body">You lost because more than 1 minute passed without a connection to the battle. Keep the app open while you fight.</string>
+    <string name="social_end_defeat_abandon_body">You left the battle, so you lost it.</string>
+    <string name="social_end_draw_icon">🤝</string>
+    <string name="social_end_draw">Draw</string>
+    <string name="social_end_draw_body">Nobody won against %1$s: the 20 turns ended with the same health.</string>
+    <string name="social_end_cancelled_icon">🚫</string>
+    <string name="social_end_cancelled">Battle canceled</string>
+    <string name="social_end_cancelled_body">You both left before playing started. Nobody wins or loses XP.</string>
+    <string name="social_end_hp_left">HP left</string>
+    <string name="social_end_hp_value">%1$d/100</string>
+    <string name="social_end_xp">🎁 +%1$d XP</string>
+    <string name="social_end_xp_none">🎁 No XP in this battle</string>
+    <string name="social_end_level">⭐ Fighter level %1$d · %2$d XP</string>
+    <string name="social_end_level_next">⭐ Fighter level %1$d · %2$d of %3$d XP</string>
+    <string name="social_end_battle_streak">🔥 Battle streak: %1$d</string>
+    <string name="social_end_review">📚 Review %1$s</string>
+    <string name="social_end_review_join">%1$s and %2$s</string>
+    <string name="social_end_streak_safe">🔥 Your training streak is still intact</string>
+    <string name="social_end_score">⚔️ %1$d Wins · %2$d Losses</string>
+    <string name="social_end_score_draws">⚔️ %1$d Wins · %2$d Losses · %3$d Draws</string>
+    <string name="social_end_rematch">Rematch</string>
+    <string name="social_end_back">Back to Social</string>
+
+    <!-- Arena -->
+    <string name="social_arena_title">Battle vs %1$s</string>
+    <string name="social_arena_you">You</string>
+    <string name="social_arena_hp">%1$d/100 HP</string>
+    <string name="social_arena_my_turn">Your turn</string>
+    <string name="social_arena_rival_turn">%1$s\'s turn</string>
+    <string name="social_arena_turn_time">· %1$s</string>
+    <string name="social_arena_ulti_progress">Streak for your Ulti: %1$d of 3 correct</string>
+    <string name="social_arena_ulti_ready">⚡ Your Ulti is charged!</string>
+    <string name="social_arena_waiting_rival">%1$s is answering…</string>
+    <string name="social_arena_waiting_hint">Keep the app open: if you are away for more than 1 minute, you lose the battle.</string>
+    <string name="social_arena_rival_away">%1$s seems to be disconnected. If they don\'t come back within a minute, you win.</string>
+    <string name="social_arena_wrong_mark">✗</string>
+    <string name="social_arena_correct">✅ Correct!</string>
+    <string name="social_arena_correct_detail">-%1$d HP to %2$s</string>
+    <string name="social_arena_incorrect">❌ Incorrect</string>
+    <string name="social_arena_timeout">⏰ Time\'s up</string>
+    <string name="social_arena_no_damage">No damage. %1$s takes their turn.</string>
+    <string name="social_arena_ulti_hit">⚡ Ulti!</string>
+    <string name="social_arena_next_turn">Next turn →</string>
+    <string name="social_arena_rival_correct">%1$s got it right: -%2$d HP for you.</string>
+    <string name="social_arena_rival_incorrect">%1$s got it wrong. No damage.</string>
+    <string name="social_arena_rival_timeout">%1$s ran out of time.</string>
+    <string name="social_arena_rival_ulti">%1$s launched their Ulti: -%2$d HP for you.</string>
+    <!-- Ulti. The command is NOT shown (O10) -->
+    <string name="social_ulti_choice_icon">🔥</string>
+    <string name="social_ulti_choice_title">Ulti available!</string>
+    <string name="social_ulti_choice_body">You answered 3 questions in a row. You can launch your Ulti now, but you need to solve a terminal challenge for it to be effective.</string>
+    <string name="social_ulti_save">Save for later</string>
+    <string name="social_ulti_use">🔥 Use Ulti now</string>
+    <string name="social_ulti_time">Ulti challenge</string>
+    <string name="social_ulti_attack_title">Your Ulti challenge</string>
+    <string name="social_ulti_attack_intro">🔥 Solve this so your Ulti hits %1$s.</string>
+    <string name="social_ulti_attack_box">Your Ulti will only be effective if you type the right command before time runs out. The command is not shown: type it from memory.</string>
+    <string name="social_ulti_defend_intro">🛡️ %1$s launched their Ulti. Solve your defense challenge before they do to activate the shield.</string>
+    <string name="social_ulti_defend_box">If you solve your challenge before %1$s solves theirs, you will take only half the damage. The command is not shown: type it from memory.</string>
+    <string name="social_ulti_attempts">Attempts: %1$d of 3</string>
+    <string name="social_ulti_wrong">Incorrect command. You used an attempt.</string>
+    <string name="social_ulti_solved">✅ You solved the challenge. Waiting for %1$s…</string>
+    <string name="social_ulti_failed">No attempts left. Waiting for %1$s…</string>
+    <string name="social_ulti_done_icon">💥</string>
+    <string name="social_ulti_fail_icon">💨</string>
+    <string name="social_ulti_shield_icon">🛡️</string>
+    <string name="social_ulti_ok_title">Ulti effective!</string>
+    <string name="social_ulti_ok_body">You solved the command in time. Your Ulti hits with full force.</string>
+    <string name="social_ulti_ok_shield_body">%1$s defended with a shield: your Ulti did half the damage.</string>
+    <string name="social_ulti_ok_damage">-%1$d HP to %2$s</string>
+    <string name="social_ulti_fail_title">Your Ulti failed</string>
+    <string name="social_ulti_fail_body">You didn\'t solve the command in time. Your Ulti caused no damage.</string>
+    <string name="social_ulti_fail_damage">0 HP damage</string>
+    <string name="social_ulti_hit_title">Ulti received</string>
+    <string name="social_ulti_hit_body">%1$s launched their Ulti and you didn\'t solve your defense challenge in time.</string>
+    <string name="social_ulti_shield_title">Shield active</string>
+    <string name="social_ulti_shield_body">You solved your challenge before %1$s: the damage of their Ulti is cut in half.</string>
+    <string name="social_ulti_received_damage">You took %1$d HP</string>
+    <string name="social_ulti_rival_failed_title">%1$s\'s Ulti failed</string>
+    <string name="social_ulti_rival_failed_body">They didn\'t solve their challenge in time and caused you no damage.</string>
+    <string name="social_ulti_continue">Continue →</string>
+    <string name="social_arena_leave_title">Leave the battle?</string>
+    <string name="social_arena_leave_body">If you leave now, you lose the battle and earn no XP.</string>
+    <string name="social_arena_leave_confirm">Leave and lose</string>
+    <string name="social_arena_keep_playing">Keep playing</string>
+
+    <!-- How long ago (display only: the server decides the deadlines) -->
+    <string name="social_ago_today">today</string>
+    <plurals name="social_ago_days">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+</resources>

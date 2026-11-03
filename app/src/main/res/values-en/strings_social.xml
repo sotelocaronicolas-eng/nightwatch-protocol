@@ -4,7 +4,7 @@
     Same keys as res/values/strings_social.xml; the Spanish file is the golden reference. Follows modulo-5-glosario.md. American English.
     The screens are in strings_social_pantallas.xml.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- ============================== Errors (SocialError) ============================== -->
     <string name="social_error_offline">No connection. Check your internet and try again.</string>
@@ -106,7 +106,8 @@
     <string name="social_myprofile_edit">EDIT PROFILE</string>
     <string name="social_myprofile_save">SAVE CHANGES</string>
     <string name="social_myprofile_saving">SAVING…</string>
-    <string name="social_myprofile_cancel">CANCEL</string>
+    <!-- All caps on purpose: the buttons of this screen (EDIT PROFILE, SAVE CHANGES) are all caps in the Figma, as in the Spanish "CANCELAR". -->
+    <string name="social_myprofile_cancel" tools:ignore="ButtonCase">CANCEL</string>
     <string name="social_myprofile_you_trained_today">✅ You trained today</string>
     <string name="social_myprofile_pending_today">⏳ Pending today</string>
 
