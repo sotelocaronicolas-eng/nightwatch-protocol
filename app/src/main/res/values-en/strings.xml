@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    English of strings.xml (Module 5, Stage 8). Same keys as res/values/strings.xml; the Spanish file is the golden reference.
+    Follows docs/superpowers/specs/modulo-5-glosario.md. American English.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ============================== App ============================== -->
+    <string name="app_name">NightWatchProtocol</string>
+
+    <!-- ============================== Common (common_) ============================== -->
+    <string name="common_accept">OK</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_error_icon_description">Error</string>
+    <string name="common_continue_with_google">Continue with Google</string>
+    <string name="common_app_title">Nightwatch Protocol</string>
+    <string name="common_no_connection">No internet connection</string>
+    <string name="common_generic_error">An unexpected error occurred. Please try again.</string>
+    <string name="common_invalid_email">Invalid email address</string>
+    <string name="common_email_label">Email address</string>
+    <string name="common_current_password_label">Current password</string>
+    <string name="common_new_password_label">New password</string>
+    <string name="common_save_changes">Save changes</string>
+    <string name="common_level_not_assessed">Not assessed</string>
+    <string name="common_undefined">Not set</string>
+    <string name="common_default_user_name">User</string>
+    <string name="common_close">Close</string>
+    <string name="common_understood">Got it</string>
+    <!-- Quiz levels: the stored value stays BAJO, MEDIO or ALTO -->
+    <string name="common_level_low">LOW</string>
+    <string name="common_level_medium">MEDIUM</string>
+    <string name="common_level_high">HIGH</string>
+
+    <!-- App lock (applock_) and signed-out notice (nav_) -->
+    <string name="applock_unlock">Unlock</string>
+    <string name="applock_prompt_title">Unlock NightWatch</string>
+    <string name="applock_prompt_subtitle">Use your fingerprint to continue</string>
+    <string name="nav_session_ended_title">Signed out</string>
+    <string name="nav_session_ended_message">You were signed out because you asked for it from another device.</string>
+
+    <!-- Recommended study plan (data/quiz/StudyPlan.kt) -->
+    <string name="plan_low_basics">Cybersecurity fundamentals</string>
+    <string name="plan_low_passwords">Basic password hygiene</string>
+    <string name="plan_low_social">How to recognize a phishing attempt</string>
+    <string name="plan_low_networks">Introduction to networks and malware</string>
+    <string name="plan_medium_basics">Defense in depth principles</string>
+    <string name="plan_medium_passwords">Multi-factor authentication and credential management</string>
+    <string name="plan_medium_social">Targeted social engineering (spear phishing and pretexting)</string>
+    <string name="plan_medium_networks">Secure network fundamentals and types of malware</string>
+    <string name="plan_high_basics">Threat modeling and vulnerability management</string>
+    <string name="plan_high_passwords">Authentication architectures and secure credential storage</string>
+    <string name="plan_high_social">Advanced analysis of social engineering attacks</string>
+    <string name="plan_high_networks">Network hardening and malware incident response</string>
+
+
+    <!-- Short months ("Member since" date) -->
+    <string name="common_month_short_1">Jan.</string>
+    <string name="common_month_short_2">Feb.</string>
+    <string name="common_month_short_3">Mar.</string>
+    <string name="common_month_short_4">Apr.</string>
+    <string name="common_month_short_5">May</string>
+    <string name="common_month_short_6">Jun.</string>
+    <string name="common_month_short_7">Jul.</string>
+    <string name="common_month_short_8">Aug.</string>
+    <string name="common_month_short_9">Sep.</string>
+    <string name="common_month_short_10">Oct.</string>
+    <string name="common_month_short_11">Nov.</string>
+    <string name="common_month_short_12">Dec.</string>
+
+    <!-- Badges (catalog in data/learning/Badges.kt) -->
+    <string name="badge_first_steps">First Steps</string>
+    <string name="badge_streak_7">7-Day Streak</string>
+    <string name="badge_passwords_master">Password Master</string>
+    <string name="badge_phishing_hunter">Phishing Hunter</string>
+    <string name="badge_network_guardian">Network Guardian</string>
+    <string name="badge_legend">NightWatch Legend</string>
+    <string name="badge_social_engineering_detective">Social Engineering Detective</string>
+    <string name="badge_streak_30">30-Day Streak</string>
+    <string name="badge_graduate">NightWatch Graduate</string>
+
+    <!-- Authentication errors (AuthError) shown as they are in Profile and Verify code -->
+    <string name="error_auth_wrong_password">The password is incorrect</string>
+    <string name="error_auth_user_not_found">That email is not registered</string>
+    <string name="error_auth_invalid_credentials">Incorrect email or password</string>
+    <string name="error_auth_google_account_only">This account was created with Google. Use \"Continue with Google\" to sign in.</string>
+    <string name="error_auth_invalid_email">Invalid email address</string>
+    <string name="error_auth_email_already_in_use">You already have an account with this email</string>
+    <string name="error_auth_weak_password">The password does not meet the requirements</string>
+    <string name="error_auth_recent_login_required">For your security, confirm your identity to continue</string>
+    <string name="error_auth_email_confirmation_required">Check your email to confirm your account before signing in</string>
+    <string name="error_auth_email_not_confirmed">Confirm your email with the code we sent you</string>
+    <string name="error_auth_invalid_code">The code you entered is not correct.</string>
+    <string name="error_auth_code_expired">The code has expired. Request a new one.</string>
+    <string name="error_auth_too_many_attempts">Too many attempts. Wait a few minutes and try again.</string>
+    <string name="error_auth_rate_limited">Wait a moment before requesting another code.</string>
+    <string name="error_auth_same_as_primary_email">Use an email different from your main one</string>
+    <string name="error_auth_email_send_failed">We could not send the code. Please try again.</string>
+
+    <!-- ============================== Notifications (notif_) ============================== -->
+    <string name="notif_daily_channel_name">Daily lesson reminder</string>
+    <string name="notif_daily_title">Time to practice</string>
+    <string name="notif_daily_text">A short lesson keeps your pace. Open NightWatch.</string>
+    <string name="notif_streak_channel_name">Streak at risk</string>
+    <string name="notif_streak_title">Your streak is at risk</string>
+    <string name="notif_streak_text">Practice today so you don\'t lose your streak.</string>
+</resources>
