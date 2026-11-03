@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    English of strings_perfil.xml (Module 5, Stage 8). Same keys as res/values/strings_perfil.xml; the Spanish file is the golden reference.
+    Prefixes: settings_, profile_, devices_, verify_code_. Follows docs/superpowers/specs/modulo-5-glosario.md. American English.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- User menu -->
+    <string name="settings_menu_section_account">ACCOUNT</string>
+    <string name="settings_menu_section_progress">PROGRESS</string>
+    <string name="settings_menu_section_preferences">PREFERENCES</string>
+    <string name="settings_menu_section_privacy">PRIVACY AND SECURITY</string>
+    <string name="settings_menu_section_support">SUPPORT</string>
+    <string name="settings_menu_view_profile">View Profile</string>
+    <string name="settings_menu_edit_profile">Edit Profile</string>
+    <string name="settings_menu_achievements">Achievements and Badges</string>
+    <string name="settings_menu_notifications">Notifications</string>
+    <string name="settings_menu_appearance">Appearance</string>
+    <string name="settings_menu_language">Language</string>
+    <string name="settings_menu_privacy">Privacy and Security</string>
+    <string name="settings_menu_help">Help and Support</string>
+    <string name="settings_menu_about">About</string>
+    <string name="settings_menu_sign_out">"🚪  Sign Out"</string>
+    <string name="settings_menu_footer">Nightwatch Protocol · v%1$s</string>
+
+    <!-- View profile -->
+    <string name="profile_my_profile_title">My Profile</string>
+    <string name="profile_my_avatar">My Avatar</string>
+    <string name="profile_my_profile_edit_button">EDIT PROFILE</string>
+    <string name="profile_info_level">Current level</string>
+    <string name="profile_info_streak">Active streak</string>
+    <string name="profile_info_member_since">Member since</string>
+    <string name="profile_info_recovery_email">Recovery email</string>
+    <string name="profile_member_since_value">%1$s %2$d</string>
+    <string name="profile_field_gender">Gender</string>
+    <string name="profile_field_birth_date">Date of birth</string>
+    <string name="profile_gender_male">Male</string>
+    <string name="profile_gender_female">Female</string>
+    <string name="profile_gender_other">Other</string>
+    <string name="profile_gender_prefer_not_to_say">Prefer not to say</string>
+
+    <!-- Edit profile -->
+    <string name="profile_edit_title">Edit Profile</string>
+    <string name="profile_edit_change_avatar">Change Avatar</string>
+    <string name="profile_edit_remove_photo">Remove photo</string>
+    <string name="profile_edit_full_name">Full name</string>
+    <string name="profile_edit_verify_password">Verify password</string>
+    <string name="profile_edit_remove_date">Remove date</string>
+    <string name="profile_edit_save">SAVE CHANGES</string>
+    <string name="profile_edit_google_account_notice">Your account uses Google: your password and email are managed from your Google account.</string>
+
+    <!-- Profile and account errors -->
+    <string name="profile_error_enter_name">Enter your name</string>
+    <string name="profile_error_avatar_unreadable">We couldn\'t read that image</string>
+    <string name="profile_error_avatar_local_only">The photo couldn\'t be saved to your account. It was saved on this phone.</string>
+    <string name="profile_error_avatar_social_failed">Your photo was saved, but it couldn\'t be updated in Social. Choose it again to retry.</string>
+    <string name="profile_error_avatar_social_remove_failed">Your photo was removed from your profile, but it is still visible in Social. Choose a photo and remove it again to retry.</string>
+    <string name="profile_error_birth_date_invalid">The date of birth is not valid</string>
+    <string name="profile_error_birth_date_future">The date of birth can\'t be in the future</string>
+    <string name="profile_error_birth_date_too_old">Check the date of birth: the maximum age is 120 years</string>
+    <string name="profile_error_wrong_current_password">The current password is not correct</string>
+    <string name="profile_error_enter_current_password">Enter your current password</string>
+    <string name="profile_error_password_rules">The password does not meet the requirements</string>
+    <string name="profile_error_passwords_do_not_match">The passwords don\'t match</string>
+    <string name="profile_error_same_password">The new password can\'t be the same as the current one</string>
+    <string name="profile_error_email_in_use">That email is already in use on another account</string>
+    <string name="profile_error_email_same">That is already your account email</string>
+    <string name="profile_error_recovery_email_not_saved">The email couldn\'t be saved. Please try again.</string>
+    <string name="profile_error_recovery_email_offline">No internet connection. Check your connection and try again.</string>
+    <string name="profile_error_wait_seconds">Wait %1$d s before requesting another code.</string>
+
+    <!-- Change password -->
+    <string name="profile_change_password_title">Change Password</string>
+    <string name="profile_change_password_confirm_label">Confirm new password</string>
+    <string name="profile_password_rule_length">At least 8 characters</string>
+    <string name="profile_password_rule_upper_digit">Include an uppercase letter and a number</string>
+    <string name="profile_password_rule_lower">Include a lowercase letter</string>
+    <string name="profile_password_rule_special">Include at least one special character</string>
+    <string name="profile_password_rule_met">%1$s: met</string>
+    <string name="profile_password_rule_pending">%1$s: pending</string>
+
+    <!-- Change email -->
+    <string name="profile_change_email_send_code">SEND CODE</string>
+    <string name="profile_change_email_title">Confirm Email</string>
+    <string name="profile_change_email_message">Enter your new email. We\'ll send you a verification code to confirm it.</string>
+    <string name="profile_change_email_label">New email address</string>
+
+    <!-- Confirm identity -->
+    <string name="profile_confirm_identity_continue">CONTINUE</string>
+    <string name="profile_confirm_identity_title">Confirm your identity</string>
+    <string name="profile_confirm_identity_message">For your security, enter your current password to continue.</string>
+
+    <!-- Recovery email -->
+    <string name="profile_recovery_email_save">SAVE EMAIL</string>
+    <string name="profile_recovery_email_title">Recovery Email</string>
+    <string name="profile_recovery_email_message">Add a backup email to recover your account if you lose access to your main one.</string>
+
+    <!-- Confirmation screens -->
+    <string name="profile_updated_title">Profile updated!</string>
+    <string name="profile_updated_message">Your information was saved successfully.</string>
+    <string name="profile_updated_button">BACK TO MY PROFILE</string>
+    <string name="profile_email_updated_title">Email updated!</string>
+    <string name="profile_email_updated_message">Your email address was verified and updated successfully.</string>
+    <string name="profile_email_updated_button">BACK TO EDIT PROFILE</string>
+    <string name="profile_recovery_saved_title">Email saved!</string>
+    <string name="profile_recovery_saved_message">Your recovery email was saved successfully.</string>
+    <string name="profile_recovery_saved_button">BACK TO ACCOUNTS</string>
+    <string name="profile_password_updated_title">Password updated!</string>
+    <string name="profile_password_updated_message">Use your new password the next time you sign in.</string>
+    <string name="profile_password_updated_button">Done</string>
+
+    <!-- Devices -->
+    <string name="devices_title">Manage Devices</string>
+    <string name="devices_subtitle">Active sessions on your account</string>
+    <string name="devices_loading">Loading devices…</string>
+    <string name="devices_sign_out_all">SIGN OUT EVERYWHERE</string>
+    <string name="devices_unnamed">Unnamed device</string>
+    <string name="devices_status_current">Current</string>
+    <string name="devices_status_pending_sign_out">Sign-out pending</string>
+    <string name="devices_time_now">Now</string>
+    <string name="devices_time_minutes">%1$d min ago</string>
+    <string name="devices_time_hours">%1$d h ago</string>
+    <string name="devices_time_days">%1$d d ago</string>
+    <string name="devices_error_load_failed">We couldn\'t load your devices. Check your connection and try again.</string>
+    <string name="devices_error_sign_out_failed">We couldn\'t sign out that device. Please try again.</string>
+    <string name="devices_error_other_sessions_failed">We couldn\'t sign out the other sessions. Please try again.</string>
+    <string name="devices_notice_no_other_devices">There are no other signed-in devices.</string>
+    <string name="devices_limitation_notice">Signing out another device asks NightWatch to sign out there the next time the app is opened. It does not immediately revoke access to your account.</string>
+    <string name="devices_signed_out_title">Signed out!</string>
+    <string name="devices_signed_out_message">That device will sign out the next time it opens NightWatch. It does not immediately revoke access to your account.</string>
+    <string name="devices_signed_out_button">BACK TO DEVICES</string>
+
+    <!-- Notifications (settings) -->
+    <string name="settings_notifications_title">Notifications</string>
+    <string name="settings_notifications_daily_label">Daily lesson reminder</string>
+    <string name="settings_notifications_daily_subtitle">A reminder at 7:00 p.m. if you haven\'t practiced</string>
+    <string name="settings_notifications_achievements_label">Achievements and badges</string>
+    <string name="settings_notifications_achievements_subtitle">When you unlock a new achievement</string>
+    <string name="settings_notifications_streak_label">Streak at risk</string>
+    <string name="settings_notifications_streak_subtitle">If your streak is about to break</string>
+    <string name="settings_notifications_labs_label">New labs</string>
+    <string name="settings_notifications_labs_subtitle">When a new lab is published</string>
+    <string name="settings_notifications_news_label">NightWatch news</string>
+    <string name="settings_notifications_news_subtitle">Announcements and product news</string>
+    <string name="settings_notifications_footnote">Reminders for achievements, labs and news will turn on when those features exist in the app.</string>
+    <string name="settings_notifications_denied">Without the notification permission we can\'t send you reminders. You can allow it in your phone\'s Settings > Apps > NightWatch > Notifications.</string>
+
+    <!-- Appearance and language -->
+    <string name="settings_appearance_intro">Choose how NightWatch Protocol looks on your device.</string>
+    <string name="settings_appearance_dark">Dark</string>
+    <string name="settings_appearance_dark_subtitle">Dark background, ideal at night</string>
+    <string name="settings_appearance_light">Light</string>
+    <string name="settings_appearance_light_subtitle">High-contrast light background</string>
+    <string name="settings_appearance_auto">Automatic</string>
+    <string name="settings_appearance_auto_subtitle">Follows the system setting</string>
+    <!-- The language names (settings_language_spanish / settings_language_english) are translatable="false": they only exist in res/values -->
+    <!-- Notice of the Language screen: shown only while English is active. PROPOSAL: the exact text depends on what is left untranslated in Stage 10 -->
+    <string name="settings_language_notice_text">Some server messages or emails may still arrive in Spanish.</string>
+
+    <!-- Privacy and security -->
+    <string name="settings_privacy_section_account">ACCOUNT SECURITY</string>
+    <string name="settings_privacy_section_privacy">PRIVACY</string>
+    <string name="settings_privacy_add_recovery_email">Add recovery email</string>
+    <string name="settings_privacy_manage_sessions">Manage your sessions</string>
+    <plurals name="settings_privacy_active_devices">
+        <item quantity="one">%1$d active device</item>
+        <item quantity="other">%1$d active devices</item>
+    </plurals>
+    <string name="settings_privacy_biometric_label">Biometric Lock</string>
+    <string name="settings_privacy_biometric_subtitle">Asks for fingerprint or face when opening the app</string>
+    <string name="settings_privacy_hide_progress_label">Hide my public progress</string>
+    <string name="settings_privacy_hide_progress_subtitle">Others won\'t see your level or your islands</string>
+    <string name="settings_privacy_download_label">Download my data</string>
+    <string name="settings_privacy_download_subtitle">Export a copy of your information</string>
+    <string name="settings_privacy_prompt_title">Turn on lock</string>
+    <string name="settings_privacy_prompt_subtitle">Verify your fingerprint to turn it on</string>
+    <string name="settings_privacy_export_done">Your data was saved to the file you chose.</string>
+    <string name="settings_privacy_export_failed">The file couldn\'t be saved. Please try again.</string>
+    <string name="settings_privacy_no_fingerprint_enrolled">No fingerprint is enrolled on this phone</string>
+    <string name="settings_privacy_no_fingerprint_reader">This phone has no fingerprint reader</string>
+    <string name="settings_privacy_reader_unavailable">The reader is not available right now, try again later</string>
+    <string name="settings_privacy_fingerprint_not_verified">Your fingerprint couldn\'t be verified</string>
+
+    <!-- Help and About -->
+    <string name="settings_help_faq_path">How does the Learning Path work?</string>
+    <string name="settings_help_faq_streak">Why did I lose my streak?</string>
+    <string name="settings_help_faq_labs">Do labs affect my progress?</string>
+    <string name="settings_help_faq_report">How do I report a bug in the app?</string>
+    <string name="settings_help_contact_support">Contact support</string>
+    <string name="settings_about_version">Version %1$s</string>
+    <string name="settings_about_terms">Terms and Conditions</string>
+    <string name="settings_about_privacy_policy">Privacy Policy</string>
+    <string name="settings_about_rate">Rate the app</string>
+    <string name="settings_about_report">Report a problem</string>
+    <string name="settings_about_made_with">Made with 🛡️ for future cybersecurity defenders.</string>
+
+    <!-- Verify code (shared with sign-up and password recovery) -->
+    <string name="verify_code_title">Verify Your Email</string>
+    <string name="verify_code_resent">We sent you a new code.</string>
+    <string name="verify_code_resend_in">Resend in %1$d s</string>
+    <!-- The code always has 6 digits: no plural needed (PluralsCandidate is a false positive). -->
+    <string name="verify_code_resend" tools:ignore="PluralsCandidate">Resend the %1$d-digit code</string>
+    <string name="verify_code_google_unlink_failed">Your previous Google account is still linked to this profile.</string>
+    <string name="verify_code_dialog_message">We sent a code to %1$s. Enter the code you received to verify your identity and continue resetting your password.</string>
+    <string name="verify_code_back_to_menu">Back to menu</string>
+    <string name="verify_code_retry_short">Retry</string>
+    <string name="verify_code_confirm_short">Confirm</string>
+    <string name="verify_code_retry_button">RETRY</string>
+    <string name="verify_code_confirm_button">CONFIRM CODE</string>
+    <string name="verify_code_screen_message" tools:ignore="PluralsCandidate">We sent a %1$d-digit code to %2$s</string>
+    <string name="verify_code_hint" tools:ignore="PluralsCandidate">Enter the %1$d-digit code</string>
+    <string name="verify_code_field_description" tools:ignore="PluralsCandidate">%1$d-digit code</string>
+</resources>

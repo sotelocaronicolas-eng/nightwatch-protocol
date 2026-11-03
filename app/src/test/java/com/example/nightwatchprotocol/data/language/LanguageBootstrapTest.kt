@@ -83,6 +83,58 @@ class LanguageBootstrapTest {
         assertEquals(AppLanguage.ES, languages.currentLanguage())
     }
 
+    // ---- the order against the recreation of the Activity (Stage 8, with values-en present) ----
+
+    /** An appearance repository whose "mark done" is cut off once, like a coroutine of a destroyed Activity. */
+    private class CutOffOnce(private val inner: FakeAppearanceRepository) :
+        com.example.nightwatchprotocol.data.preferences.AppearanceRepository by inner {
+        var cut = false
+        override suspend fun markLanguageInitialized() {
+            if (!cut) {
+                cut = true
+                throw kotlin.coroutines.cancellation.CancellationException("Activity destroyed")
+            }
+            inner.markLanguageInitialized()
+        }
+    }
+
+    @Test
+    fun ifTheActivityIsRecreatedRightAfterFixingSpanish_theNextRunDoesNotOverwriteAChoice() = runTest {
+        // Phone in English, first launch: Spanish is fixed, AppCompat recreates the Activity and the coroutine dies before "mark done".
+        val languages = FakeLanguageRepository()
+        val appearance = CutOffOnce(FakeAppearanceRepository())
+        try {
+            LanguageBootstrap(languages, appearance).ensureInitialized()
+        } catch (_: kotlin.coroutines.cancellation.CancellationException) {
+        }
+        assertEquals("Spanish was already fixed before the cut", AppLanguage.ES, languages.currentLanguage())
+        assertFalse(appearance.languageInitialized.first())
+
+        // The person picks English before the next run reaches the bootstrap (or it is simply the new Activity starting).
+        languages.setLanguage(AppLanguage.EN)
+        val fixed = LanguageBootstrap(languages, appearance).ensureInitialized()
+
+        assertFalse("a language already chosen is never overwritten", fixed)
+        assertEquals(AppLanguage.EN, languages.currentLanguage())
+        assertTrue(appearance.languageInitialized.first())
+    }
+
+    @Test
+    fun ifTheActivityIsRecreatedRightAfterFixingSpanish_theNewRunKeepsSpanishAndFinishes() = runTest {
+        val languages = FakeLanguageRepository()
+        val appearance = CutOffOnce(FakeAppearanceRepository())
+        try {
+            LanguageBootstrap(languages, appearance).ensureInitialized()
+        } catch (_: kotlin.coroutines.cancellation.CancellationException) {
+        }
+
+        val fixed = LanguageBootstrap(languages, appearance).ensureInitialized()
+
+        assertFalse(fixed)
+        assertEquals(AppLanguage.ES, languages.currentLanguage())
+        assertTrue(appearance.languageInitialized.first())
+    }
+
     // ---- the language is not in DataStore ----
 
     @Test

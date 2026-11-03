@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    English of strings_social.xml (Module 5, Stage 8, part 2): Social errors, report and block, own social profile. Prefix social_.
+    Same keys as res/values/strings_social.xml; the Spanish file is the golden reference. Follows modulo-5-glosario.md. American English.
+    The screens are in strings_social_pantallas.xml.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ============================== Errors (SocialError) ============================== -->
+    <string name="social_error_offline">No connection. Check your internet and try again.</string>
+    <string name="social_error_no_session">Your session expired. Please sign in again.</string>
+    <string name="social_error_not_enabled">First create your username to use Social.</string>
+    <string name="social_error_rate_limited">Too many attempts. Wait a moment and try again.</string>
+    <string name="social_error_invalid_input">The text you entered is not valid. Check it and try again.</string>
+    <string name="social_error_permission_denied">You don\'t have permission to do this.</string>
+    <string name="social_error_unknown">An unexpected error occurred. Please try again.</string>
+
+    <!-- Rejection reasons (SocialRejection): friends -->
+    <string name="social_rejected_not_found">We couldn\'t find that person.</string>
+    <string name="social_rejected_invalid_target">You can\'t do this with yourself.</string>
+    <string name="social_rejected_already_friends">You are already friends.</string>
+    <string name="social_rejected_request_exists">You already sent a request to this person.</string>
+    <string name="social_rejected_request_incoming">This person already sent you a request. Check it in Requests.</string>
+    <string name="social_rejected_request_gone">That request no longer exists.</string>
+    <string name="social_rejected_cooldown">This person declined your request recently. Try again later.</string>
+    <string name="social_rejected_too_many_pending">You have too many pending requests. Wait for them to respond.</string>
+    <string name="social_rejected_friends_limit">The maximum number of friends was reached.</string>
+
+    <!-- Rejection reasons: pair streak -->
+    <string name="social_rejected_pair_exists">You already have a pair streak or a pending invitation.</string>
+    <string name="social_rejected_pair_gone">That pair streak no longer exists.</string>
+
+    <!-- Rejection reasons: challenges and battles -->
+    <string name="social_rejected_challenge_pending">You already have a pending challenge.</string>
+    <string name="social_rejected_challenge_gone">That challenge is no longer available.</string>
+    <string name="social_rejected_already_in_battle">You are already in a battle.</string>
+    <string name="social_rejected_rival_busy">Your friend is in another battle.</string>
+    <string name="social_rejected_battle_over">The battle is already over.</string>
+    <string name="social_rejected_not_your_turn">It\'s not your turn yet.</string>
+    <string name="social_rejected_stale_turn">That question has already passed.</string>
+    <string name="social_rejected_bad_option">Choose an option from A to D.</string>
+    <string name="social_rejected_ulti_not_charged">Your Ulti isn\'t charged yet.</string>
+    <string name="social_rejected_no_ulti">There is no Ulti challenge in progress.</string>
+    <string name="social_rejected_bad_command">The command is not valid.</string>
+    <string name="social_rejected_already_resolved">You already finished this challenge.</string>
+    <string name="social_rejected_bank_empty">Battles don\'t have any questions available yet.</string>
+
+    <!-- Rejection reasons: username -->
+    <string name="social_rejected_username_taken">That username is already taken.</string>
+    <string name="social_rejected_invalid_username">Use 3 to 20 letters, numbers or underscores (_).</string>
+
+    <!-- ============================== Report and block (module 4, script 0011) ============================== -->
+
+    <!-- Error: the server does not have the new actions yet -->
+    <string name="social_error_unavailable">Feature not available right now.</string>
+
+    <!-- Report and block links -->
+    <string name="social_report_link">Report</string>
+    <string name="social_block_link">Block</string>
+    <string name="social_report_link_desc">Report %1$s</string>
+    <string name="social_block_link_desc">Block %1$s</string>
+
+    <!-- Report -->
+    <string name="social_report_title">Report %1$s</string>
+    <string name="social_report_intro">Choose the reason. The NightWatch team will review the report; the reported person won\'t know who sent it.</string>
+    <string name="social_report_reason_inappropriate_photo">Inappropriate photo</string>
+    <string name="social_report_reason_offensive_name">Offensive username</string>
+    <string name="social_report_reason_harassment">Harassment or bad behavior</string>
+    <string name="social_report_reason_other">Other reason</string>
+    <string name="social_report_note_label">Note (optional)</string>
+    <string name="social_report_note_counter">%1$d/%2$d</string>
+    <string name="social_report_send">Send report</string>
+    <string name="social_report_sending">Sending…</string>
+    <string name="social_report_cancel">Cancel</string>
+    <string name="social_report_done_title">Report sent</string>
+    <string name="social_report_done_body">Thank you. The team will review it. Reporting doesn\'t block %1$s: if you want to stop interacting with that person, you can also block them.</string>
+    <string name="social_report_done_close">Done</string>
+
+    <!-- Block (confirmation) -->
+    <string name="social_block_title">Block %1$s?</string>
+    <string name="social_block_body">You will stop being friends, your pair streak will end and pending challenges will be canceled. Neither of you will be able to search for, invite or challenge the other. If a battle is in progress, it does not end. You can unblock from Friends > Blocked people.</string>
+    <string name="social_block_confirm">Block</string>
+    <string name="social_block_blocking">Blocking…</string>
+    <string name="social_block_cancel">Cancel</string>
+    <string name="social_block_done_title">Person blocked</string>
+    <string name="social_block_done_body">You blocked %1$s. You can unblock from Friends > Blocked people.</string>
+    <string name="social_block_done_close">Done</string>
+
+    <!-- Blocked people -->
+    <string name="social_blocked_link">🚫 Blocked people</string>
+    <string name="social_blocked_title">Blocked people</string>
+    <string name="social_blocked_intro">Neither of you can search for, invite or challenge the other. Unblocking does not restore the friendship or the pair streak.</string>
+    <string name="social_blocked_empty">You haven\'t blocked anyone.</string>
+    <string name="social_blocked_unblock">Unblock</string>
+
+    <!-- ============================== Own and editable social profile (module 4, script 0012) ============================== -->
+
+    <!-- Social - Home: "Your Profile" card -->
+    <string name="social_card_profile_title">Your Profile</string>
+    <string name="social_card_profile_button">View Profile →</string>
+    <string name="social_level_chip">LVL %1$d</string>
+    <string name="social_card_profile_unavailable">LVL -</string>
+
+    <!-- Your profile / Edit your profile -->
+    <string name="social_myprofile_title">Your profile</string>
+    <string name="social_myprofile_edit">EDIT PROFILE</string>
+    <string name="social_myprofile_save">SAVE CHANGES</string>
+    <string name="social_myprofile_saving">SAVING…</string>
+    <!-- All caps on purpose: the buttons of this screen (EDIT PROFILE, SAVE CHANGES) are all caps in the Figma, as in the Spanish "CANCELAR". -->
+    <string name="social_myprofile_cancel" tools:ignore="ButtonCase">CANCEL</string>
+    <string name="social_myprofile_you_trained_today">✅ You trained today</string>
+    <string name="social_myprofile_pending_today">⏳ Pending today</string>
+
+    <!-- Profile sections (the friend\'s and your own) -->
+    <string name="social_profile_stats">Stats</string>
+    <string name="social_profile_stat_played">Battles played</string>
+    <string name="social_profile_stat_wins">Wins</string>
+    <string name="social_profile_stat_winrate">Win rate</string>
+    <string name="social_profile_winrate_none">-</string>
+    <string name="social_profile_percent">%1$d%%</string>
+    <string name="social_profile_history_none">No battles yet</string>
+    <string name="social_profile_won_plain">You beat %1$s</string>
+    <string name="social_profile_lost_plain">You lost to %1$s</string>
+    <string name="social_profile_draw_plain">You drew with %1$s</string>
+    <string name="social_profile_row_age">%1$s, %2$s</string>
+
+    <!-- Visibility eyes (editor) -->
+    <string name="social_eye_desc">Visibility of %1$s</string>
+    <string name="social_eye_visible">Visible to your friends</string>
+    <string name="social_eye_hidden">Hidden from your friends</string>
+
+    <!-- Profile background -->
+    <string name="social_bg_change">Change background</string>
+    <string name="social_bg_none">No background</string>
+    <string name="social_bg_option">Background %1$d</string>
+    <string name="social_bg_selected">Selected</string>
+    <string name="social_bg_not_selected">Not selected</string>
+</resources>

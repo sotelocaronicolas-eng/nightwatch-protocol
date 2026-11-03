@@ -220,10 +220,10 @@ Deshabilitado, pulsado y foco: se derivan de los de Material 3 (`onSurface` al 1
 - **Dónde viven los strings por módulo** (se mantiene el esquema actual; archivos nuevos con el mismo nombre en `values-en/`):
   | Módulo | Archivo (`values/`) | Prefijo de clave | Estado hoy |
   |---|---|---|---|
-  | 1 y 2 autenticación, quiz, verificación, perfil y ajustes | `strings_auth.xml`, `strings_quiz.xml`, `strings_perfil.xml` | `auth_`, `quiz_`, `profile_`, `settings_` | **No existe** (F-09) |
-  | 3 aprendizaje | `strings_aprendizaje.xml` | `learning_` | existe (146) |
-  | 4 Social | `strings_social*.xml` (4 archivos) | `social_` | existe (331) |
-  | Comunes, notificaciones, insignias, plan, errores | `strings_comunes.xml`, `strings_notificaciones.xml` | `common_`, `notif_`, `badge_`, `plan_`, `error_` | **No existe** |
+  | 1 y 2 autenticación, quiz, verificación, perfil y ajustes | `strings_auth.xml`, `strings_quiz.xml`, `strings_perfil.xml` | `auth_`, `quiz_`, `profile_`, `settings_`, `devices_`, `verify_code_` | **Hecho** (29 + 13 + 171; etapa 3) y traducido (etapa 8) |
+  | 3 aprendizaje | `strings_aprendizaje.xml` | `learning_` | **Hecho** (147 cadenas, 2 plurales) y traducido |
+  | 4 Social | `strings_social.xml` (errores, moderación y perfil) y `strings_social_pantallas.xml` | `social_` | **Hecho** (95 + 236 cadenas, 5 plurales, 1 arreglo) y traducido |
+  | Comunes, notificaciones, insignias, plan, errores | `strings.xml` | `app_`, `common_`, `applock_`, `nav_`, `notif_`, `badge_`, `plan_`, `error_` | **Hecho** (81) y traducido |
 - **Nomenclatura:** `<prefijo>_<pantalla>_<elemento>` en minúsculas con guion bajo (ej. `profile_edit_save`, `auth_login_error_network`). Sin texto en las claves.
 - **`UiText` (D10):** `sealed interface UiText { Resource(@StringRes id, args), Plural(@PluralsRes id, count, args), Dynamic(String) }` en `ui/common`, con `asString()` composable y de contexto. Los **ViewModels** exponen `UiText` en lugar de `String`. La **capa `data` no usa recursos**: emite enums o ids que la UI traduce (`AuthError` ya funciona así). Aplicación: `BadgeDefinition` pasa de `name: String` a `id: BadgeId` y la UI traduce (`Badges.kt`); `StudyPlan` pasa de cadenas a una función `(level, category)` → clave que la UI traduce; `ProfileValidation.kt` (`MESSAGE_*`) pasa a `UiText`; `ReminderKind` deja de tener `title`/`text`/`channelName` y guarda ids de recurso resueltos por el `Notifier`.
 - **Plurales:** `<plurals>` para los conteos ("N dispositivos activos", "N de 7 islas", insignias, amigos, días de racha). Español e inglés usan `one`/`other` (el español además puede requerir `many` en lint). Ya hay 8 `plurals`/arrays en recursos.
@@ -247,8 +247,9 @@ Deshabilitado, pulsado y foco: se derivan de los de Material 3 (`onSurface` al 1
 | `MainActivity` | — | — | — | 1 diálogo con 3 textos |
 | **Total `ui/`** | **144** (44 pantallas `*Screen`) | **55** | **88** | |
 
-- Recursos hoy: 6 archivos `strings*.xml`, **478 `<string>`** (1 + 146 + 33 + 32 + 236 + 30) y 8 `plurals`/arrays; **no existe `values-en`**.
-- Textos por traducir (estimación PROPUESTA): 478 existentes + ≈ 300 por migrar (F-09) ≈ **780 cadenas**, más ≈ 6 000 palabras de JSON.
+- Recursos **al cierre de la etapa 8** (cifras reales; las de antes de la etapa 3 eran 6 archivos y 478 cadenas): **7 archivos** `strings*.xml` en `values/` y los mismos 7 en `values-en/`;
+  **772 `<string>`** en `values/` (81 + 29 + 13 + 171 + 147 + 95 + 236), de las que 2 son `translatable="false"` (los nombres de idioma), y **8 `<plurals>`** + 1 `<string-array>` (iniciales de la semana).
+  `values-en/` tiene **770 `<string>`** (las 770 traducibles, incluido el aviso de Idioma) y los mismos 8 plurales y el arreglo. Quedan por traducir ≈ 6 000 palabras de JSON (etapa 9).
 - Pruebas: 1399 unitarias (105 archivos de prueba) y 12 instrumentadas; **47 archivos** de prueba comparan texto con literales en español (85 líneas de `assertEquals` con acentos, p. ej. en `data/supabase`, `data/learning`, `data/social`, `data/profile`, `ui/social`, `ui/profile/*`).
 - Diálogos: 10 `AlertDialog`, 3 `DatePickerDialog`, 1 `DropdownMenu`, 2 `SnackbarHost`.
 
@@ -320,7 +321,10 @@ Un PR por bloque: (5a) autenticación y verificación, (5b) quiz y onboarding, (
 - Nuevos: `res/values-en/` con los mismos 7 archivos de strings (D16, sección 13.2; antes 11); test de paridad (claves y placeholders `%1$s`, `%d`, plurales); el inglés lo redacta Claude Code con `modulo-5-glosario.md` y **cada integrante revisa un módulo**; aviso de la arena "Las preguntas están disponibles solo en español" (A5, `social_arena_questions_spanish_only`, visible en `ArenaScreen`).
 - Pruebas: paridad `values`/`values-en`; prueba de que ninguna cadena en inglés queda vacía o igual al español sin motivo (lista blanca: nombres propios como "NightWatch Protocol", emojis).
 - Hecho cuando: la UI completa se ve en inglés sin truncamientos (lista visual, fuente grande).
-- Riesgo: **calidad y volumen de traducción** (≈ 780 cadenas); textos más largos que rompan diseños.
+- Riesgo: **calidad y volumen de traducción** (770 cadenas traducibles); textos más largos que rompan diseños.
+- **Estado (2026-11): HECHO en la rama `modulo-5-ingles-ui`, pendiente de la revisión del grupo y de verla en el emulador.** `TranslationParityTest` (paridad archivo por archivo, sin lista de pendientes), tabla de revisión
+  `docs/superpowers/translations/ui-es-en.csv` (+ guía `ui-es-en.md`), lista del emulador `reports/etapa-8-verificacion.md`. Se agregó el aviso de Idioma (`settings_language_notice_text`, PROPUESTA: su texto exacto depende de lo que quede sin traducir en la etapa 10).
+  El aviso de la arena de A5 (`social_arena_questions_spanish_only`) **no se creó**: lo cubre D15 cuando se aplique la migración; si no se aplica antes de v2.4.0, hay que crearlo.
 
 ### Etapa 9 · Contenido JSON en inglés
 - Nuevos: JSON en inglés de lecciones, labs, examen y quiz; `LearningContentRepository` y el cargador del quiz eligen por idioma; pruebas de paridad (ids, `correctIndex`, número de opciones, comandos de laboratorio idénticos). Se puede cerrar en una versión posterior.
@@ -413,6 +417,9 @@ Otros casos menores ya anotados en 2.2-4 (divisor `#808080`, blanco sobre `#94A6
 
 ## 13. Decisiones del grupo para 5B (D15 a D18, 2026-11-02)
 
+**Estado de D15 a D18 (fin de la etapa 8):** D16 **hecho** (etapa 7, 7 archivos). D18 **documentado** (13.4 y 13.4.1). D17: el aviso de Idioma **existe** (PROPUESTA; texto sujeto a la etapa 10); el correo bilingüe y la Edge Function siguen **pendientes** (etapa 10).
+D15: diseño **hecho**, migración SQL y `p_lang` **pendientes** (etapa posterior); la app sigue mostrando las preguntas de batalla en español.
+
 ### 13.1 D15 · Banco de batallas en inglés (diseño; la migración SQL NO se escribe ni se ejecuta en la etapa 7)
 - **Principio:** una pregunta es una sola fila de `battle_questions` (misma `id`, mismo `correct`); solo cambia el texto mostrado. Ambos jugadores ven la misma pregunta y la misma respuesta correcta, cada uno en su idioma. El servidor sigue decidiendo todo; la app solo muestra.
 - **Tablas nuevas (PROPUESTA de nombres; migración `0013` o la siguiente libre, a mano en el SQL Editor):**
@@ -470,6 +477,15 @@ Sin renombrar ninguna clave ni cambiar ningún valor; con comentarios de secció
 6. Correos: texto del idioma en las plantillas de Auth y en la Edge Function.
 7. Glosario (`modulo-5-glosario.md`) y revisión humana del idioma nuevo.
 Nada de esto exige cambiar lógica de pantallas.
+
+#### 13.4.1 Lo aprendido en las etapas 7 y 8 al agregar el inglés (para el próximo idioma)
+- `TranslationParityTest` compara hoy solo `values` con `values-en`: para un idioma nuevo hay que parametrizarlo por carpeta (o duplicar la prueba).
+- Lint exige que **todos** los archivos tengan su gemelo (`MissingTranslation` es error): un idioma nuevo debe entrar con sus 7 archivos completos en el mismo PR, o con el lint en rojo.
+- Lo marcado `translatable="false"` (nombres de idioma) vive solo en `values/`; no se repite.
+- Cadenas iguales en dos idiomas (nombres propios, "Social", "LVL", "VS"…) van a la lista corta de excepciones de la prueba, con motivo; los textos sin letras (emojis, "…", "$ %1$s") se aceptan solos.
+- Para `AppLanguage` agregar la entrada **y** su etiqueta nativa (`translatable="false"`) y revisar la pantalla Idioma (`LanguageContent` pinta dos filas fijas hoy) y `showsLanguageNotice`.
+- El `string-array` de iniciales de la semana cambia con el idioma (L M M J V S D → M T W T F S S); revisar qué día empieza la semana.
+- Con `bundle { language { enableSplit = false } }` (etapa 7) los idiomas nuevos no necesitan nada más en el bundle.
 
 ### 13.5 Etapa 7 · ajustes por esta sección
 Además de lo de la sección 7: fusión de archivos de textos (13.2), registro de D15–D18 y nombre del archivo de locales (`locales_config.xml`, el que usa la spec; el estándar de Android admite cualquier nombre).
