@@ -60,6 +60,13 @@ android {
         buildConfig = true
         compose = true
     }
+    // The language is chosen inside the app (AppCompatDelegate.setApplicationLocales): an app bundle must not split by language,
+    // or a language the phone did not ask for would not be installed.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
 }
 
 dependencies {
