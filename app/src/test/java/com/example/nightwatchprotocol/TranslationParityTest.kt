@@ -22,7 +22,6 @@ class TranslationParityTest {
      * list cannot go stale.
      */
     private val PENDING_PARTE_2: Set<String> = setOf(
-        "strings_auth.xml",
         "strings_quiz.xml",
         "strings_aprendizaje.xml",
         "strings_social.xml",

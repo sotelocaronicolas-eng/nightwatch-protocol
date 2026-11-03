@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    English of strings_auth.xml (Module 5, Stage 8): sign in, sign up, password recovery and new password. Prefix auth_.
+    Same keys as res/values/strings_auth.xml; the Spanish file is the golden reference. American English.
+-->
+<resources>
+    <!-- Shared by sign in, sign up and recovery -->
+    <string name="auth_password_label">Password</string>
+    <string name="auth_google_account_hint">This account was created with Google. Use \"Continue with Google\"</string>
+    <string name="auth_error_no_google_account">Add a Google account to your phone to continue</string>
+    <string name="auth_error_dialog_network">No internet connection. Check your connection and try again.</string>
+
+    <!-- Sign in -->
+    <string name="auth_login_error_title">Sign-in error</string>
+    <string name="auth_login_error_unknown">An unexpected error occurred. Try signing in again.</string>
+    <string name="auth_login_username_label">Username/Email</string>
+    <string name="auth_login_enter_email">Enter your email</string>
+    <string name="auth_login_enter_password">Enter your password</string>
+    <string name="auth_login_forgot_password">Forgot your password?</string>
+    <string name="auth_login_keep_session">Keep me signed in</string>
+    <string name="auth_login_button">SIGN IN</string>
+    <string name="auth_login_or">OR</string>
+    <!-- The trailing space is part of the original text: it separates it from the link that follows -->
+    <string name="auth_login_no_account">"Don\'t have an account yet? "</string>
+    <string name="auth_login_register_here">Sign up here</string>
+
+    <!-- Sign up -->
+    <string name="auth_register_error_title">Sign-up error</string>
+    <string name="auth_register_error_unknown">An unexpected error occurred. Try signing up again.</string>
+    <string name="auth_register_title">User Sign-Up</string>
+    <string name="auth_register_subtitle">Enter the required information below</string>
+    <string name="auth_register_full_name">Full Name</string>
+    <string name="auth_register_email_registered_with_google">This email is already registered with Google. Use \"Continue with Google\"</string>
+    <string name="auth_register_weak_password">The password does not meet the security requirements</string>
+    <string name="auth_register_verify_password">Verify password</string>
+    <string name="auth_register_password_mismatch">Passwords don\'t match</string>
+    <string name="auth_register_button">SIGN UP</string>
+
+    <!-- Password recovery and new password -->
+    <string name="auth_recovery_title">Password Recovery</string>
+    <string name="auth_recovery_intro">To recover your password, enter your email address. You will receive a 6-digit verification code to continue the process.</string>
+    <string name="auth_recovery_email_not_found">Email not found</string>
+    <string name="auth_new_password_title">New Password</string>
+</resources>
