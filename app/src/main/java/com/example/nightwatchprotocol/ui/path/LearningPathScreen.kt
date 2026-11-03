@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
@@ -259,6 +260,8 @@ private fun RouteMap(
         Image(
             painter = painterResource(id = R.drawable.img_route_path),
             contentDescription = null,
+            // The drawable is the dark look's gold (#E3B54F, 1.2:1 over the light background): in light it takes the `selection` token.
+            colorFilter = if (NightWatchTheme.colors.isLight) ColorFilter.tint(NightWatchTheme.colors.selection) else null,
             modifier = Modifier.offset(x = (-10.2).dp, y = 16.dp).requiredWidth(374.628.dp).height(1450.dp),
         )
         uiState.islands.forEachIndexed { index, island ->
