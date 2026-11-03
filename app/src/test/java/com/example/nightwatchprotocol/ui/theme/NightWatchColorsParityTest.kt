@@ -55,6 +55,26 @@ class NightWatchColorsParityTest {
     }
 
     @Test
+    fun darkTokens_matchTheStage5Colors() {
+        // The loose colors of the screens migrated in Stage 5.
+        assertSame("SheetBorderColor (Inicio)", Color(0xFF204143), dark.sheetBorder)
+        assertSame("PillColor (Inicio, Ruta)", Color(0xFF94A6A7), dark.noticeSurface)
+        assertSame("SocialCardTint", Color(0xFF94A6A7), dark.cardTint)
+        assertSame("SocialFail", Color(0xFFC0503E), dark.failAccent)
+        assertSame("BackgroundScrim", Color(0x73000000), dark.scrimSoft)
+        assertSame("edit-background button", Color(0xCC333333), dark.overlayDark)
+        assertSame("background picker", Color(0xFF8C8C8C), dark.pickerSurface)
+    }
+
+    @Test
+    fun theTokensThatDoNotDependOnTheTheme_areTheSameInLight() {
+        assertEquals(dark.scrimSoft, LightNightWatchColors.scrimSoft)
+        assertEquals(dark.overlayDark, LightNightWatchColors.overlayDark)
+        assertEquals(dark.pickerSurface, LightNightWatchColors.pickerSurface)
+        assertEquals(dark.brandWhite, LightNightWatchColors.brandWhite)
+    }
+
+    @Test
     fun darkTokens_matchWhatTheFieldsAndButtonsUsed() {
         // NightWatchTextField / SelectField: container A1A1A1, white text, red error. NightWatchButton: D9D9D9 with black text.
         assertSame("field container", Color(0xFFA1A1A1), dark.fieldSurface)
