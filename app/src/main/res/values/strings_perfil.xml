@@ -156,6 +156,8 @@
     <!-- Nombres de idioma en su propio idioma: no se traducen -->
     <string name="settings_language_spanish" translatable="false">Español</string>
     <string name="settings_language_english" translatable="false">English</string>
+    <!-- Aviso de la pantalla Idioma: solo se muestra con English activo. PROPUESTA: el texto exacto depende de lo que quede sin traducir en la etapa 10 -->
+    <string name="settings_language_notice_text">Algunos mensajes del servidor o correos pueden seguir llegando en español.</string>
 
     <!-- Privacidad y seguridad -->
     <string name="settings_privacy_section_account">SEGURIDAD DE LA CUENTA</string>

@@ -153,6 +153,8 @@
     <string name="settings_appearance_auto">Automatic</string>
     <string name="settings_appearance_auto_subtitle">Follows the system setting</string>
     <!-- The language names (settings_language_spanish / settings_language_english) are translatable="false": they only exist in res/values -->
+    <!-- Notice of the Language screen: shown only while English is active. PROPOSAL: the exact text depends on what is left untranslated in Stage 10 -->
+    <string name="settings_language_notice_text">Some server messages or emails may still arrive in Spanish.</string>
 
     <!-- Privacy and security -->
     <string name="settings_privacy_section_account">ACCOUNT SECURITY</string>

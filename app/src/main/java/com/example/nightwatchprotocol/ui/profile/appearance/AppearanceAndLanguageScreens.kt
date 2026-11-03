@@ -134,8 +134,22 @@ fun LanguageContent(
     ) {
         LanguageOption("🇪🇸", R.string.settings_language_spanish, AppLanguage.ES, selected, onLanguageSelected)
         LanguageOption("🇺🇸", R.string.settings_language_english, AppLanguage.EN, selected, onLanguageSelected)
+        // Only with English: some texts do not come from the app (server messages, emails) and still arrive in Spanish. PROPUESTA.
+        if (showsLanguageNotice(selected)) {
+            Text(
+                text = stringResource(R.string.settings_language_notice_text),
+                color = NightWatchOnBackground,
+                fontFamily = NightWatchBodyFontFamily,
+                fontSize = 13.sp,
+                // Same 8 dp inside the cards' left edge as the intro of Apariencia.
+                modifier = Modifier.padding(start = 8.dp),
+            )
+        }
     }
 }
+
+/** The notice about texts that may still arrive in Spanish is shown only while English is the active language. */
+internal fun showsLanguageNotice(selected: AppLanguage): Boolean = selected == AppLanguage.EN
 
 @Composable
 private fun LanguageOption(
