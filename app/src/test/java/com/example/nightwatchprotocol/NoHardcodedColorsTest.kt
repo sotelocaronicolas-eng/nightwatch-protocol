@@ -26,10 +26,7 @@ class NoHardcodedColorsTest {
      * into a bitmap and does not depend on the theme (spec 4.3): it will stay on the permanent allowlist.
      */
     private val PENDING_STAGE_5 = setOf(
-        "social/ProfileSections.kt",
-        "social/QuickSearchScreen.kt",
         "social/SocialAvatar.kt",
-        "social/SocialComponents.kt",
     )
 
     private val hardcodedColor = Regex("""\bColor\(\s*0x[0-9A-Fa-f_]+|\bColor\.(Black|White)\b""")

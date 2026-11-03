@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -57,6 +58,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 import kotlinx.coroutines.delay
 
 /*
@@ -66,16 +68,16 @@ import kotlinx.coroutines.delay
  */
 
 /** Figma color/bg/elevated (#3E6E71): the icon circle and the chips (as in Labs, 2271:92). */
-internal val SocialElevated = Color(0xFF3E6E71)
+internal val SocialElevated: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.bgElevated
 
 /** The grey-green card of "Tu código de amigo" and of the stats (Figma 2446:212, 2446:265). */
-internal val SocialCardTint = Color(0xFF94A6A7)
+internal val SocialCardTint: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.cardTint
 
 /** Figma color/text/on-light (#162523). */
-internal val SocialOnLight = Color(0xFF162523)
+internal val SocialOnLight: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.textOnLight
 
 /** The red of a failure and of the rival's side in a battle (Figma "Incorrecto" and the arena's bar). */
-internal val SocialFail = Color(0xFFC0503E)
+internal val SocialFail: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.failAccent
 
 private val CardShape = RoundedCornerShape(16.dp)
 private val PillShape = RoundedCornerShape(100.dp)
@@ -163,7 +165,7 @@ fun EmojiCircle(emoji: String, modifier: Modifier = Modifier, size: Int = 48) {
         contentAlignment = Alignment.Center,
         modifier = modifier.size(size.dp).background(SocialElevated, CircleShape),
     ) {
-        Text(text = emoji, fontSize = (size * 0.46f).sp, color = Color.Black, modifier = Modifier.clearAndSetSemantics {})
+        Text(text = emoji, fontSize = (size * 0.46f).sp, color = NightWatchTheme.colors.onSurfaceButton, modifier = Modifier.clearAndSetSemantics {})
     }
 }
 

@@ -36,7 +36,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
 
-private val FailRed = SocialFail
+private val FailRed: Color @Composable get() = SocialFail
 
 /** "¡Ulti disponible!" (Figma 2449:290): put it aside ("Guardar para después" sends nothing) or use it now. */
 @Composable

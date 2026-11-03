@@ -35,6 +35,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /** "Buscando oponente" (Figma 2448:223). */
 @Composable
@@ -112,7 +113,7 @@ internal fun QuickSearchContent(
                     fontSize = 20.sp,
                 )
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.size(80.dp).background(NightWatchSurfaceButtonMuted, CircleShape)) {
-                    Text(text = stringResource(R.string.social_search_unknown), color = Color.White, fontSize = 36.sp, fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(R.string.social_search_unknown), color = NightWatchTheme.colors.fieldText, fontSize = 36.sp, fontWeight = FontWeight.Bold)
                 }
             }
             when (status) {
