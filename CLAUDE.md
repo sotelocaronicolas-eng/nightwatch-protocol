@@ -75,6 +75,8 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
     (`AppCompatLanguageRepository`), nunca en DataStore (solo `language_initialized`); el primer arranque fija español (`LanguageBootstrap`); la pantalla Idioma ya funciona, pero **sin `values-en` elegir English no cambia los textos**.
     Los textos están en **7 archivos** (`strings.xml`, `_auth`, `_quiz`, `_perfil`, `_aprendizaje`, `_social`, `_social_pantallas`; 771 cadenas y 8 plurales). Decisiones D15 a D18 (banco de batallas traducido en Supabase, aviso de lo no traducible,
     procedimiento para nuevos idiomas) en la sección 13 de la spec; la migración SQL del banco **no existe aún**. Lista de verificación: `reports/etapa-7-verificacion.md`.
+    **Etapa 8 (rama `modulo-5-ingles-ui`, sin fusionar):** `res/values-en/` con los 7 archivos de textos (770 cadenas y 8 plurales traducidos), `TranslationParityTest` (paridad archivo por archivo; un archivo nuevo en `values/` exige su gemelo en `values-en/`),
+    aviso de Idioma (`settings_language_notice_text`, solo con English; PROPUESTA), tabla de revisión `docs/superpowers/translations/ui-es-en.csv` y lista `reports/etapa-8-verificacion.md`. El contenido JSON (etapa 9) y las preguntas de batalla siguen en español.
 - **Lecciones aprendidas:** los guiones SQL deben acotar los conteos a las cuentas de prueba; Brevo permite unos 300 correos al día; el login con Google falla en silencio si el SHA-1 de depuración
   no está registrado en un cliente OAuth Android de Google Cloud (paquete `com.example.nightwatchprotocol`); la regla de "solo Write/Edit" se rompió varias veces con `sed -i`: sigue vigente.
 

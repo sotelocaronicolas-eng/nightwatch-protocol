@@ -75,3 +75,31 @@ Reglas: (1) un término = una traducción en toda la app; (2) los **comandos de 
 
 ## Pendiente de completar antes de la etapa 8
 Revisar el JSON de lecciones, labs, examen y quiz y los `strings*.xml` para añadir los términos que falten. Un término nuevo se agrega aquí **antes** de usarse.
+
+## Términos nuevos de la Parte 2 (PROPUESTA hasta que el grupo los apruebe)
+Usados en `values-en/strings_aprendizaje.xml`, `strings_social.xml` y `strings_social_pantallas.xml`. No cambian los términos ya aprobados de arriba.
+| Español | Inglés | Nota |
+|---|---|---|
+| Ulti (forma corta en frases) | Ulti | el glosario dice "Ultimate (Ulti)"; en el juego se usa siempre la forma corta "Ulti" (títulos, avisos y botones) |
+| Reto de Ulti / Desafío de tu Ulti | Ulti challenge / Your Ulti challenge | |
+| Escudo | Shield | |
+| Combatiente (nivel de combatiente) | Fighter (fighter level) | |
+| Racha de batallas | Battle streak | |
+| Victorias / Derrotas / Empates | Wins / Losses / Draws | en el marcador compacto: W / L / D |
+| Winrate | Win rate | |
+| Revancha | Rematch | |
+| Empate | Draw | |
+| Estadísticas | Stats | |
+| Historial de batallas | Battle history | |
+| Emparejamiento | Matchmaking | |
+| Oponente / Rival | Opponent / Rival | "Opponent" en la búsqueda, "rival" en la arena |
+| Objetivos (del lab) | Objectives | |
+| Terminal | Terminal | igual en ambos idiomas |
+| Persona bloqueada | Blocked person | plural "Blocked people" |
+| Foto de perfil | Profile photo | |
+| Fondo (del perfil) | Background | |
+| Tu turno / Turno de X | Your turn / X's turn | |
+| ACEPTAR (botón del resultado del examen) | OK | igual que `common_accept` |
+| Hecho/cumplido, pendiente (objetivo del lab) | done, pending | |
+| Mantén la app abierta | Keep the app open | |
+| Semana (iniciales L M M J V S D) | M T W T F S S | la semana empieza el lunes en ambos idiomas |
