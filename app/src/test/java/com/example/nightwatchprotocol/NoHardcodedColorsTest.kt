@@ -26,13 +26,6 @@ class NoHardcodedColorsTest {
      * into a bitmap and does not depend on the theme (spec 4.3): it will stay on the permanent allowlist.
      */
     private val PENDING_STAGE_5 = setOf(
-        "exam/ExamIntroScreen.kt",
-        "exam/ExamScreen.kt",
-        "examresult/ExamResultScreen.kt",
-        "lab/LabScreen.kt",
-        "labreport/LabReportScreen.kt",
-        "labs/LabsScreen.kt",
-        "lesson/LessonScreen.kt",
         "social/ProfileSections.kt",
         "social/QuickSearchScreen.kt",
         "social/SocialAvatar.kt",

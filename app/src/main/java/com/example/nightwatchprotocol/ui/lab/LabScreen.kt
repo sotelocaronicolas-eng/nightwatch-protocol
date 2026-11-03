@@ -31,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -66,12 +67,13 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /** Figma color/bg/elevated (#3E6E71): objective cards, output and input (2374:279, 2374:294, 2374:296). */
-private val ElevatedColor = Color(0xFF3E6E71)
+private val ElevatedColor: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.bgElevated
 
 /** Figma color/text/on-light (#162523). */
-private val TextOnLight = Color(0xFF162523)
+private val TextOnLight: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.textOnLight
 
 /** SUPUESTO: Figma uses IBM Plex Mono, which is not in the project; the system monospace font stands in for it. */
 private val MonoFamily = FontFamily.Monospace
@@ -222,7 +224,7 @@ private fun LabHeader(title: String, onClose: () -> Unit) {
                 .align(Alignment.BottomStart)
                 .fillMaxWidth()
                 .height(4.dp)
-                .background(Color.White),
+                .background(NightWatchTheme.colors.headerLine),
         )
     }
 }
