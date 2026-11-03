@@ -2,7 +2,7 @@
 <!--
     Textos de Perfil y Ajustes (Módulo 5, Etapa 3, parte A). Prefijos: settings_ (menú y ajustes), profile_ (perfil y cuenta),
     devices_ (dispositivos), verify_code_ (verificar código). Son los textos que estaban en el código, sin cambios; el inglés
-    va en otra etapa. Los textos de las insignias están en strings_comunes.xml (prefijo badge_), como pide la spec.
+    va en otra etapa. Los textos de las insignias están en strings.xml (prefijo badge_), como pide la spec.
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Menú de usuario -->
