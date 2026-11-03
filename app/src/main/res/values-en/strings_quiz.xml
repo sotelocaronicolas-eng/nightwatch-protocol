@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    English of strings_quiz.xml (Module 5, Stage 8): placement quiz and its result. Prefix quiz_. The questions and their options
+    are not here: they live in assets/quiz_questions.json (content, English in Stage 9).
+-->
+<resources>
+    <string name="quiz_progress">Question %1$d of %2$d</string>
+    <string name="quiz_saving">Saving…</string>
+    <string name="quiz_finish">Finish</string>
+    <string name="quiz_next">Next</string>
+    <string name="quiz_category_basics">🛡️ Basic Concepts</string>
+    <string name="quiz_category_passwords">🔑 Passwords and Authentication</string>
+    <string name="quiz_category_social">🎣 Phishing / Social Engineering</string>
+    <string name="quiz_category_networks">🌐 Networks and Malware</string>
+    <string name="quiz_result_title">Results are in!</string>
+    <string name="quiz_result_level">Your level: %1$s</string>
+    <string name="quiz_result_plan_title">Your recommended study plan:</string>
+    <string name="quiz_result_save_failed">We couldn\'t save your result; you may see this quiz again next time.</string>
+    <string name="quiz_result_continue">Continue</string>
+</resources>
