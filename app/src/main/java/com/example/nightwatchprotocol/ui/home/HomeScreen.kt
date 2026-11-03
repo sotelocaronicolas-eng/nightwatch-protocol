@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -63,13 +64,14 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.ui.labs.LabsTab
 import com.example.nightwatchprotocol.ui.path.LearningPathTab
 import com.example.nightwatchprotocol.ui.social.SocialTab
 
 /** Figma 49:15 "MAIN MENU": the colours of the bar line, the panel behind the pill and the sheet border/handle (113:145, 113:150). */
-private val SheetBorderColor = Color(0xFF204143)
+private val SheetBorderColor: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.sheetBorder
 
 /** The opacity of what is not available yet, as the locked labs of Figma 2271:84 (opacity 60%). */
 private const val DIMMED_ALPHA = 0.6f

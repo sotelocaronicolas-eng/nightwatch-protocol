@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -30,12 +29,12 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /** Figma BottomNav (2264:116): light bar, top corners 28, shadow (0, -2, 8, 20%), padding-top 14. */
 private val BarShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
 
 /** Figma text/on-light (#162523), the colour of an inactive label. */
-private val LabelColor = Color(0xFF162523)
 
 /** An inactive tab is drawn at 55% (Figma, e.g. 49:15 "Tab Ruta"). */
 private const val INACTIVE_ALPHA = 0.55f
@@ -135,7 +134,7 @@ private fun RowScope.TabContent(
         Text(
             text = emoji,
             fontSize = 20.sp,
-            color = Color.Black,
+            color = NightWatchTheme.colors.onSurfaceButton,
             textAlign = TextAlign.Center,
             modifier = Modifier.alpha(alpha).clearAndSetSemantics {},
         )
@@ -144,7 +143,7 @@ private fun RowScope.TabContent(
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 11.sp,
-            color = if (isSelected) NightWatchGold else LabelColor,
+            color = if (isSelected) NightWatchGold else NightWatchTheme.colors.textOnLight,
             textAlign = TextAlign.Center,
             modifier = Modifier.alpha(if (isSelected) 1f else alpha),
         )

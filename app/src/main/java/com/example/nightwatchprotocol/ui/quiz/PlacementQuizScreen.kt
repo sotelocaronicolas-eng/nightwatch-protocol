@@ -27,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +47,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
 import com.example.nightwatchprotocol.ui.theme.NightWatchSectionTitleStyle
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 @Composable
 fun PlacementQuizScreen(
@@ -124,7 +124,7 @@ private fun PlacementQuizScreenContent(
                             val borderColor = if (isSelected) NightWatchLinkAccent else NightWatchBorderAccent
                             Text(
                                 text = "${'a' + index})  $option",
-                                color = Color.Black,
+                                color = NightWatchTheme.colors.onSurfaceButton,
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontSize = 14.sp,
                                 modifier = Modifier

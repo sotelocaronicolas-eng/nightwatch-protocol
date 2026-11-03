@@ -30,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
@@ -64,9 +63,9 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /** Figma color/bg/elevated (#3E6E71): the ring of a completed island (2266:98). */
-private val CompletedRing = Color(0xFF3E6E71)
 
 /** The design is drawn on a 412 dp wide map (MapContent 2266:82) and scaled to the width of the phone. */
 private const val DESIGN_WIDTH = 412f
@@ -334,7 +333,7 @@ private fun IslandNode(
             Text(
                 text = emoji,
                 fontSize = emojiSize,
-                color = Color.Black,
+                color = NightWatchTheme.colors.onSurfaceButton,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.clearAndSetSemantics {},
             )
@@ -359,7 +358,7 @@ private fun IslandNode(
 private fun Modifier.islandLook(state: IslandState): Modifier = when (state) {
     IslandState.Completed -> this
         .background(NightWatchGold, CircleShape)
-        .border(3.dp, CompletedRing, CircleShape)
+        .border(3.dp, NightWatchTheme.colors.bgElevated, CircleShape)
     IslandState.Available -> this
         .background(NightWatchSurfaceButton, CircleShape)
         .border(4.dp, NightWatchGold, CircleShape)
