@@ -22,7 +22,6 @@ class TranslationParityTest {
      * list cannot go stale.
      */
     private val PENDING_PARTE_2: Set<String> = setOf(
-        "strings_social.xml",
         "strings_social_pantallas.xml",
     )
 
@@ -35,6 +34,7 @@ class TranslationParityTest {
      *  - `common_month_short_N` for February, March, June, July, September, October and November: the abbreviation is the same in both.
      *  - `learning_tab_social`, `learning_tab_labs`, `learning_lab_terminal`, `learning_home_app_name`: "Social", "Labs", "Terminal" and
      *    the app name are the same word in both languages. `learning_lesson_close` is the letter "X".
+     *  - `social_level_chip`, `social_card_profile_unavailable`: "LVL" is the same game abbreviation in both languages.
      *  - A text with no letters at all once the placeholders are removed (emojis, "…", "—", ">", "$ %1$s", "%1$d%%") is also the same in
      *    both languages by nature: see [hasNoWords].
      */
@@ -49,6 +49,8 @@ class TranslationParityTest {
         "learning_lab_terminal",
         "learning_home_app_name",
         "learning_lesson_close",
+        "social_level_chip",
+        "social_card_profile_unavailable",
     ) + listOf(2, 3, 6, 7, 9, 10, 11).map { "common_month_short_$it" }
 
     /** True when the text has no letter once the placeholders are taken out: symbols and emojis only. */
