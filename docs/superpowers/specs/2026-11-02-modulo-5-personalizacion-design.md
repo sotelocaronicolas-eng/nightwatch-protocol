@@ -18,8 +18,8 @@ se conserve. El español sigue siendo el idioma base y el oscuro el aspecto por 
 **Dentro (IN).** Tema oscuro, claro y automático (sigue al sistema) en toda la app. Inglés en toda la app: interfaz, notificaciones, fechas y
 formatos, mensajes de error y, como última etapa, el contenido JSON (lecciones, labs, examen, quiz).
 
-**Fuera (OUT).** Tamaño de fuente, color de acento, Material You/color dinámico, preguntas de batalla y retos de ulti (viven en Postgres, `0009`;
-futuro módulo), preferencia por cuenta (se guarda por dispositivo), hacer funcionales Ayuda y Acerca de (solo se traducen y se les da tema).
+**Fuera (OUT).** Tamaño de fuente, color de acento, Material You/color dinámico, ~~preguntas de batalla y retos de ulti~~ (**ahora DENTRO por D15**, 2026-11-02;
+la migración SQL es de una etapa posterior), preferencia por cuenta (se guarda por dispositivo), hacer funcionales Ayuda y Acerca de (solo se traducen y se les da tema).
 
 ### Reglas de prioridad (ya decididas)
 1. **Modo oscuro:** lo que existe hoy no cambia. Si se encuentra una diferencia visual real en oscuro, se **reporta** (sección 2.2) y no se corrige.
@@ -44,6 +44,10 @@ futuro módulo), preferencia por cuenta (se guarda por dispositivo), hacer funci
 | D12 | Fechas y formatos se localizan para mostrar; la zona `America/Bogota` de las reglas de negocio (racha, XP, parejas) **no cambia** con el idioma ni el sistema | Dos cosas distintas: cómo se ve y qué día cuenta |
 | D13 | El contenido JSON va en un archivo por idioma, con pruebas de paridad (mismos ids, mismas respuestas correctas del examen, mismos comandos de laboratorio); es la última etapa y puede cerrarse en una versión posterior | Es el volumen mayor y el que más revisión humana necesita |
 | D14 | Etapas 0 a 10 de la sección 7, cada una con `./gradlew assembleDebug testDebugUnitTest lintDebug` y mergeable por sí sola | Un PR revisable por etapa |
+| D15 | **(2026-11-02, grupo)** Toda la app se traduce al inglés, **incluidas las 72 preguntas de batalla y los 12 retos de ulti** (Postgres). Tablas de traducciones en Supabase; el servidor recibe el idioma del jugador y devuelve el texto en ese idioma. **Reemplaza** el OUT de D1 y a A5 (ver sección 13.1) | "El servidor decide, la app muestra": pregunta y respuesta correcta son las mismas para ambos jugadores |
+| D16 | **(2026-11-02, grupo)** Los archivos de textos pasan de 11 a 7 **sin renombrar claves ni cambiar valores** (sección 13.2) | Menos archivos que traducir y revisar |
+| D17 | **(2026-11-02, grupo)** Lo que no controla la app (correos de Auth, Edge Function, mensajes del servidor, texto de usuarios): primero se resuelve lo posible y para el resto se muestra un **aviso** al activar English (sección 13.3) | Honestidad con la persona; el aviso lo aprobó el grupo, su diseño es PROPUESTA |
+| D18 | **(2026-11-02, grupo)** Agregar un idioma debe ser copiar una carpeta `values-xx` y una carpeta de contenido por idioma (procedimiento en la sección 13.4) | Escalar sin tocar lógica |
 
 ### Decisiones adicionales tomadas al escribir esta spec (también vetables)
 | Id | Decisión | Motivo |
@@ -52,7 +56,7 @@ futuro módulo), preferencia por cuenta (se guarda por dispositivo), hacer funci
 | A2 | **Decidido por el grupo:** la selección clara usa `#926A1B` (ajuste mínimo del `#B2842C` del Figma, que da 2.39:1 y 2.70:1) para el **borde** de 3 px, y el **✓ usa `#1C2B29`** (como el Figma, 10.43:1 sobre `#D9D9D9`) | D6 exige ≥ 3:1 en componentes; el ✓ gana contraste y coincide con el Figma |
 | A3 | El idioma se guarda en un solo lugar: el de `AppCompatDelegate` (en Android 13+ lo comparte con los ajustes del sistema); el DataStore guarda solo el tema y un indicador "primer arranque ya resuelto" | Evita dos fuentes de verdad |
 | A4 | **Decidido por el grupo:** al primer arranque la app fija **español** de forma explícita, aunque el teléfono esté en inglés; la persona cambia el idioma en la pantalla Idioma | Con `values-en` presente, un teléfono en inglés mostraría inglés por sí solo y rompería D2 |
-| A5 | **Decidido por el grupo:** las preguntas de batalla y los retos de ulti siguen en español en v2.4.0, y la arena muestra un **aviso corto traducido** ("Las preguntas están disponibles solo en español" / "Questions are only available in Spanish") | Se acepta la mezcla y se avisa; ver riesgo 8.9 |
+| A5 | **REEMPLAZADA por D15 (2026-11-02):** ya no habrá aviso de "solo en español" si la migración de traducciones se aplica antes de v2.4.0; si no se aplica, el aviso sigue vigente como respaldo (sección 13.1). Texto original: las preguntas de batalla y los retos de ulti siguen en español en v2.4.0, y la arena muestra un **aviso corto traducido** ("Las preguntas están disponibles solo en español" / "Questions are only available in Spanish") | Se acepta la mezcla y se avisa; ver riesgo 8.9 |
 | A6 | El splash conserva `#2C595D` en ambos aspectos | El splash de Android 12+ lo dibuja el sistema antes de leer la preferencia |
 | A7 | El interruptor (toggle) claro es PROPUESTA: el Figma solo trae un SVG (`2286:106`) sin colores definidos | Ver 4.2 |
 
@@ -313,7 +317,7 @@ Un PR por bloque: (5a) autenticación y verificación, (5b) quiz y onboarding, (
 - Riesgos: **tema AppCompat vs Material.Light**; recreación; `FragmentActivity` → `AppCompatActivity` con `androidx.biometric`.
 
 ### Etapa 8 · `values-en` para toda la UI
-- Nuevos: `res/values-en/` con los mismos 11 archivos de strings; test de paridad (claves y placeholders `%1$s`, `%d`, plurales); el inglés lo redacta Claude Code con `modulo-5-glosario.md` y **cada integrante revisa un módulo**; aviso de la arena "Las preguntas están disponibles solo en español" (A5, `social_arena_questions_spanish_only`, visible en `ArenaScreen`).
+- Nuevos: `res/values-en/` con los mismos 7 archivos de strings (D16, sección 13.2; antes 11); test de paridad (claves y placeholders `%1$s`, `%d`, plurales); el inglés lo redacta Claude Code con `modulo-5-glosario.md` y **cada integrante revisa un módulo**; aviso de la arena "Las preguntas están disponibles solo en español" (A5, `social_arena_questions_spanish_only`, visible en `ArenaScreen`).
 - Pruebas: paridad `values`/`values-en`; prueba de que ninguna cadena en inglés queda vacía o igual al español sin motivo (lista blanca: nombres propios como "NightWatch Protocol", emojis).
 - Hecho cuando: la UI completa se ve en inglés sin truncamientos (lista visual, fuente grande).
 - Riesgo: **calidad y volumen de traducción** (≈ 780 cadenas); textos más largos que rompan diseños.
@@ -404,3 +408,68 @@ Contrastes bajos del **modo oscuro actual**, ya reportados en 2.2-4. Por la regl
 Otros casos menores ya anotados en 2.2-4 (divisor `#808080`, blanco sobre `#94A6A7`, ✓ dorado sobre `#D9D9D9`, dorado 11 sp sobre `#2C595D`) siguen igual. `ContrastTest` (etapa 4) **no** incluye estos pares del oscuro actual en las comprobaciones que fallan; los lista como excepciones documentadas.
 
 **R-01** se mantiene como **"verificar"** en la etapa 7 (ya está corregido en el código, ver 2.2-1).
+
+---
+
+## 13. Decisiones del grupo para 5B (D15 a D18, 2026-11-02)
+
+### 13.1 D15 · Banco de batallas en inglés (diseño; la migración SQL NO se escribe ni se ejecuta en la etapa 7)
+- **Principio:** una pregunta es una sola fila de `battle_questions` (misma `id`, mismo `correct`); solo cambia el texto mostrado. Ambos jugadores ven la misma pregunta y la misma respuesta correcta, cada uno en su idioma. El servidor sigue decidiendo todo; la app solo muestra.
+- **Tablas nuevas (PROPUESTA de nombres; migración `0013` o la siguiente libre, a mano en el SQL Editor):**
+  ```sql
+  battle_question_translations (
+    question_id integer not null references battle_questions(id) on delete cascade,
+    lang        text    not null check (lang in ('es','en')),
+    question    text    not null check (char_length(question) between 1 and 400),
+    option_a text not null, option_b text not null, option_c text not null, option_d text not null,  -- 1 a 200
+    primary key (question_id, lang)
+  );
+  ulti_challenge_translations (
+    challenge_id    integer not null references ulti_challenges(id) on delete cascade,
+    lang            text    not null check (lang in ('es','en')),
+    objective_title text    not null check (char_length(objective_title) between 1 and 120),
+    primary key (challenge_id, lang)
+  );
+  ```
+  Cerradas como las originales (RLS activo, sin `GRANT` a `anon` ni `authenticated`). Las columnas de texto de `battle_questions`/`ulti_challenges` se conservan como respaldo en español (no se editan; una migración aplicada no se toca). `expected_command` **no se traduce** (es el comando del laboratorio).
+- **Idioma por llamada:** las funciones públicas que devuelven texto de pregunta o de reto (`battle_sync`, y `battle_play` si devuelve la siguiente pregunta) ganan un parámetro `p_lang text default 'es'`. El cliente lo envía desde `LanguageRepository` en cada llamada. Un valor desconocido o una traducción ausente cae en español (`coalesce`). Se guardan dos firmas o se reemplaza la función (decisión de la migración; la app vieja sin `p_lang` sigue funcionando con el valor por defecto).
+- **No se guarda el idioma en el servidor** (cada jugador puede cambiarlo en mitad de una batalla; el texto se resuelve en cada sondeo).
+- **App:** `SupabaseBattle*` agrega `lang` a los parámetros; `ui/social` no cambia salvo quitar el aviso de A5 cuando la migración esté aplicada. Hasta entonces la app envía `p_lang` solo si el servidor lo acepta (detección por el error de función no encontrada → reintento sin `p_lang`, PROPUESTA) y muestra el aviso de A5.
+- **Verificación:** guion nuevo en `supabase/verificacion/` con las dos cuentas de prueba: 72 de 72 preguntas y 12 de 12 retos con `es` y `en`, misma `correct` por pregunta, y que `p_lang='xx'` cae en español. Las 72 + 12 traducciones las redacta Claude Code con el glosario y las revisa el grupo (como 11.5).
+- **Orden de entrega:** (1) etapa 8/9: texto de la app; (2) etapa posterior: migración + guion + app; hasta entonces rige el aviso de A5.
+
+### 13.2 D16 · Archivos de textos: 11 → 7 (hecho en la etapa 7)
+Sin renombrar ninguna clave ni cambiar ningún valor; con comentarios de sección y los prefijos por área. Resultado:
+| Archivo (`values/`) | Contiene |
+|---|---|
+| `strings.xml` | `app_name` + las antiguas `strings_comunes.xml` y `strings_notificaciones.xml` (`common_`, `badge_`, `plan_`, `error_`, `notif_`) |
+| `strings_auth.xml` | sin cambios |
+| `strings_quiz.xml` | sin cambios |
+| `strings_perfil.xml` | sin cambios |
+| `strings_aprendizaje.xml` | sin cambios |
+| `strings_social.xml` | las antiguas `strings_social.xml` y `strings_social_moderacion.xml` y `strings_social_perfil.xml` |
+| `strings_social_pantallas.xml` | sin cambios (el más grande: 236) |
+`values-xx/` repite exactamente estos 7 nombres. Cifras antes y después: **771 `<string>` y 8 `<plurals>` (+1 `string-array`)**, idénticas.
+
+### 13.3 D17 · Lo que la app no controla
+**(a) Primero se resuelve lo posible (etapa 10, PROPUESTA):**
+- Correo de verificación de cuenta (plantilla de Supabase Auth, hoy solo en español): se hace **bilingüe** en el mismo correo, asunto "Tu código de verificación / Your verification code", con `{{ .Token }}`. Es un ajuste del panel (lo hace el usuario a mano; se documenta en `supabase-configuracion.md`).
+- Correos de la Edge Function `send-recovery-email-code` (recuperación y cambio de correo): la app envía el idioma (`lang`) y la función elige el texto; si falta, correo bilingüe. Se despliega a mano.
+**(b) Lo que quede sin traducir → AVISO (PROPUESTA de diseño; el grupo aprobó que exista un aviso):**
+- **Dónde:** en la pantalla Idioma, una nota corta bajo las opciones, visible **solo mientras English está activo** (y una vez, como `Snackbar`, al tocarlo). No bloquea nada.
+- **Texto (ambos idiomas en el mismo recurso):** "Algunos mensajes enviados por el servidor, como ciertos correos, pueden llegar en español. / Some messages sent by our servers, such as certain emails, may arrive in Spanish." (claves `settings_language_notice_*`, etapa 10).
+- **Lo que quedaría en español (lista inicial):** textos de usuario (nombres de usuario y de perfil); mensajes de error crudos del servidor que no tengan código mapeado; correos de Auth que no se logren hacer bilingües; las preguntas y retos de batalla **hasta** que se aplique la migración de 13.1.
+- La lista se confirma al cierre de la etapa 10 con pruebas manuales.
+
+### 13.4 D18 · Procedimiento para agregar un idioma `xx`
+1. `res/values-xx/` copiando los 7 archivos de `values/` y traduciendo (las claves y placeholders no cambian; la prueba de paridad de la etapa 8 lo exige).
+2. `res/xml/locales_config.xml`: agregar `<locale android:name="xx"/>`.
+3. `AppLanguage` (`data/preferences`): agregar la entrada `XX("xx")` y su etiqueta nativa; la pantalla Idioma lista las entradas de la enumeración.
+4. Contenido JSON: carpeta `assets/content/xx/` (o la convención que fije la etapa 9) con los 4 archivos, con las mismas pruebas de paridad (ids, `correctIndex`, comandos).
+5. Servidor: filas `lang='xx'` en las tablas de 13.1 y ampliar su `check`.
+6. Correos: texto del idioma en las plantillas de Auth y en la Edge Function.
+7. Glosario (`modulo-5-glosario.md`) y revisión humana del idioma nuevo.
+Nada de esto exige cambiar lógica de pantallas.
+
+### 13.5 Etapa 7 · ajustes por esta sección
+Además de lo de la sección 7: fusión de archivos de textos (13.2), registro de D15–D18 y nombre del archivo de locales (`locales_config.xml`, el que usa la spec; el estándar de Android admite cualquier nombre).

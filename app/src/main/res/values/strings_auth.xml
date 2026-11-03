@@ -2,7 +2,7 @@
 <!--
     Textos de autenticación (Módulo 5, Etapa 3, parte B1): inicio de sesión, registro, recuperación de contraseña y nueva
     contraseña. Prefijo auth_. Son los textos que estaban en el código, sin cambios; el inglés va en otra etapa.
-    Los que comparten con Perfil están en strings_comunes.xml (common_, error_auth_) y strings_perfil.xml.
+    Los que comparten con Perfil están en strings.xml (common_, error_auth_) y strings_perfil.xml.
 -->
 <resources>
     <!-- Compartidos por inicio de sesión, registro y recuperación -->

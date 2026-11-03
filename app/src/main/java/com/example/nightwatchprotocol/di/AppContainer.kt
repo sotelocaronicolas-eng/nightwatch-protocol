@@ -31,6 +31,9 @@ import com.example.nightwatchprotocol.data.notifications.NotificationPermission
 import com.example.nightwatchprotocol.data.notifications.ReminderCoordinator
 import com.example.nightwatchprotocol.data.notifications.ReminderScheduler
 import com.example.nightwatchprotocol.data.notifications.WorkManagerReminderScheduler
+import com.example.nightwatchprotocol.data.language.AppCompatLanguageRepository
+import com.example.nightwatchprotocol.data.language.LanguageBootstrap
+import com.example.nightwatchprotocol.data.language.LanguageRepository
 import com.example.nightwatchprotocol.data.preferences.AppearanceRepository
 import com.example.nightwatchprotocol.data.preferences.DataStoreAppearanceRepository
 import com.example.nightwatchprotocol.data.preferences.UserPreferences
@@ -96,6 +99,8 @@ interface AppContainer {
     val avatarImageProcessor: AvatarImageProcessor
     val userPreferences: UserPreferences
     val appearanceRepository: AppearanceRepository
+    val languageRepository: LanguageRepository
+    val languageBootstrap: LanguageBootstrap
     val biometricCapabilities: BiometricCapabilities
     val profileExtrasRepository: ProfileExtrasRepository
     val profileDataExporter: ProfileDataExporter
@@ -193,6 +198,9 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val avatarImageProcessor: AvatarImageProcessor = BitmapAvatarImageProcessor(context.contentResolver)
     override val userPreferences: UserPreferences = UserPreferences(context.userDataStore)
     override val appearanceRepository: AppearanceRepository = DataStoreAppearanceRepository(context.userDataStore)
+    // The language lives in AppCompat, not in DataStore (A3); the DataStore only keeps "the first launch already fixed Spanish".
+    override val languageRepository: LanguageRepository = AppCompatLanguageRepository()
+    override val languageBootstrap: LanguageBootstrap = LanguageBootstrap(languageRepository, appearanceRepository)
     override val biometricCapabilities: BiometricCapabilities = AndroidBiometricCapabilities(context)
     override val profileExtrasRepository: ProfileExtrasRepository =
         ProfileExtrasRepository(profileRepository, DataStoreProfileExtrasCache(context.userDataStore))
@@ -202,7 +210,8 @@ class DefaultAppContainer(context: Context) : AppContainer {
             profileRepository,
             quizResultRepository,
             profileExtrasRepository,
-            ContextTextResolver(context),
+            // The export is written in the language the app is in, also before Android 13 (the application context does not follow it).
+            ContextTextResolver(context, language = { languageRepository.currentLanguage() }),
         )
     override val dataExportWriter: DataExportWriter = ContentResolverDataExportWriter(context.contentResolver)
     override val notificationPermission: NotificationPermission = AndroidNotificationPermission(context)

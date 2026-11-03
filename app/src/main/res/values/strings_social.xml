@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Textos de la interfaz del módulo 4 (Social): prefijo social_.
+    Textos de la interfaz del módulo 4 (Social): prefijo social_. Módulo 5, Etapa 7: este archivo junta los antiguos strings_social.xml (errores),
+    strings_social_moderacion.xml (reportar y bloquear) y strings_social_perfil.xml (perfil propio y editable). Las pantallas siguen en
+    strings_social_pantallas.xml. Sin cambios de clave ni de valor.
+
     Aquí van los mensajes de error: la interfaz NUNCA muestra un código crudo del servidor (no_session, rate_limited...);
     cada error y cada motivo de rechazo de SocialError tiene su mensaje. Todos son "propuestos": no están en Figma (diferencia
-    F13 de la spec). Las pantallas del módulo agregan aquí sus textos en las etapas siguientes.
+    F13 de la spec).
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ============================== Errores (SocialError) ============================== -->
     <!-- Fallas de la llamada (SocialError). "momento" y "comando" son español correcto: el aviso de Typos es del diccionario en inglés
          (la misma exclusión que usa strings_aprendizaje.xml). -->
     <string name="social_error_offline">Sin conexión. Revisa tu internet e inténtalo de nuevo.</string>
@@ -49,5 +54,90 @@
     <!-- Motivos de rechazo: nombre de usuario -->
     <string name="social_rejected_username_taken">Ese nombre de usuario ya está en uso.</string>
     <string name="social_rejected_invalid_username">Usa de 3 a 20 letras, números o guion bajo (_).</string>
-</resources>
 
+    <!-- ============================== Reportar y bloquear (módulo 4, script 0011) ============================== -->
+
+    <!-- Error: el servidor todavía no tiene las acciones nuevas (0011 sin aplicar) -->
+    <string name="social_error_unavailable">Función no disponible por ahora.</string>
+
+    <!-- Enlaces de reportar y bloquear (perfil del amigo, búsqueda, solicitudes, arena y fin de batalla) -->
+    <string name="social_report_link">Reportar</string>
+    <string name="social_block_link">Bloquear</string>
+    <string name="social_report_link_desc">Reportar a %1$s</string>
+    <string name="social_block_link_desc">Bloquear a %1$s</string>
+
+    <!-- Reportar -->
+    <string name="social_report_title">Reportar a %1$s</string>
+    <string name="social_report_intro">Elige el motivo. El equipo de NightWatch revisará el reporte; la persona reportada no sabrá quién lo envió.</string>
+    <string name="social_report_reason_inappropriate_photo">Foto inapropiada</string>
+    <string name="social_report_reason_offensive_name">Nombre de usuario ofensivo</string>
+    <string name="social_report_reason_harassment">Acoso o mal comportamiento</string>
+    <string name="social_report_reason_other">Otro motivo</string>
+    <string name="social_report_note_label">Nota (opcional)</string>
+    <string name="social_report_note_counter">%1$d/%2$d</string>
+    <string name="social_report_send">Enviar reporte</string>
+    <string name="social_report_sending">Enviando…</string>
+    <string name="social_report_cancel">Cancelar</string>
+    <string name="social_report_done_title">Reporte enviado</string>
+    <string name="social_report_done_body">Gracias. El equipo lo revisará. Reportar no bloquea a %1$s: si quieres dejar de interactuar con esa persona, también puedes bloquearla.</string>
+    <string name="social_report_done_close">Listo</string>
+
+    <!-- Bloquear (confirmación) -->
+    <string name="social_block_title">¿Bloquear a %1$s?</string>
+    <string name="social_block_body">Dejarán de ser amigos, se terminará su racha en pareja y se cancelarán los retos pendientes. Ninguno de los dos podrá buscar, invitar ni retar al otro. Si hay una batalla en curso, no se termina. Puedes desbloquear desde Amigos > Personas bloqueadas.</string>
+    <string name="social_block_confirm">Bloquear</string>
+    <string name="social_block_blocking">Bloqueando…</string>
+    <string name="social_block_cancel">Cancelar</string>
+    <string name="social_block_done_title">Persona bloqueada</string>
+    <string name="social_block_done_body">Bloqueaste a %1$s. Puedes desbloquear desde Amigos > Personas bloqueadas.</string>
+    <string name="social_block_done_close">Listo</string>
+
+    <!-- Personas bloqueadas -->
+    <string name="social_blocked_link">🚫 Personas bloqueadas</string>
+    <string name="social_blocked_title">Personas bloqueadas</string>
+    <string name="social_blocked_intro">Ninguno de los dos puede buscar, invitar ni retar al otro. Al desbloquear no se recupera la amistad ni la racha en pareja.</string>
+    <string name="social_blocked_empty">No has bloqueado a nadie.</string>
+    <string name="social_blocked_unblock">Desbloquear</string>
+
+    <!-- ============================== Perfil social propio y editable (módulo 4, script 0012) ============================== -->
+
+    <!-- Social - Inicio: tarjeta "Tu Perfil" (Figma 2643:294) -->
+    <string name="social_card_profile_title">Tu Perfil</string>
+    <string name="social_card_profile_button">Ver Perfil →</string>
+    <string name="social_level_chip">LVL %1$d</string>
+    <string name="social_card_profile_unavailable">LVL -</string>
+
+    <!-- Tu perfil / Editar tu perfil (Figma 2653:543 y 2653:611) -->
+    <string name="social_myprofile_title">Tu perfil</string>
+    <string name="social_myprofile_edit">EDITAR PERFIL</string>
+    <string name="social_myprofile_save">GUARDAR CAMBIOS</string>
+    <string name="social_myprofile_saving">GUARDANDO…</string>
+    <string name="social_myprofile_cancel">CANCELAR</string>
+    <string name="social_myprofile_you_trained_today">✅ Ya entrenaste hoy</string>
+    <string name="social_myprofile_pending_today">⏳ Pendiente hoy</string>
+
+    <!-- Apartados del perfil (el del amigo y el propio) -->
+    <string name="social_profile_stats">Estadísticas</string>
+    <string name="social_profile_stat_played">Batallas jugadas</string>
+    <string name="social_profile_stat_wins">Victorias</string>
+    <string name="social_profile_stat_winrate">Winrate</string>
+    <string name="social_profile_winrate_none">-</string>
+    <string name="social_profile_percent">%1$d%%</string>
+    <string name="social_profile_history_none">Aún no hay batallas</string>
+    <string name="social_profile_won_plain">Ganaste contra %1$s</string>
+    <string name="social_profile_lost_plain">Perdiste contra %1$s</string>
+    <string name="social_profile_draw_plain">Empataste con %1$s</string>
+    <string name="social_profile_row_age">%1$s, %2$s</string>
+
+    <!-- Ojos de visibilidad (editor) -->
+    <string name="social_eye_desc">Visibilidad de %1$s</string>
+    <string name="social_eye_visible">Visible para tus amigos</string>
+    <string name="social_eye_hidden">Oculto para tus amigos</string>
+
+    <!-- Fondo del perfil -->
+    <string name="social_bg_change">Cambiar fondo</string>
+    <string name="social_bg_none">Sin fondo</string>
+    <string name="social_bg_option">Fondo %1$d</string>
+    <string name="social_bg_selected">Seleccionado</string>
+    <string name="social_bg_not_selected">No seleccionado</string>
+</resources>

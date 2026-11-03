@@ -2,8 +2,11 @@
 <resources>
 
     <!-- The window shows between the splash and the first frame: the dark background (the app's default look). The real
-         one is set in code once the look is known (see ui/theme/SystemChrome.kt). -->
-    <style name="Theme.NightWatchProtocol" parent="android:Theme.Material.Light.NoActionBar">
+         one is set in code once the look is known (see ui/theme/SystemChrome.kt).
+         The parent is an AppCompat theme (Etapa 7): AppCompatActivity and AppCompatDelegate.setApplicationLocales need one. It is NOT
+         DayNight on purpose: the look is chosen by the app (Apariencia), never by the phone's uiMode. All the screens are Compose and
+         draw their own colors, so only the window and the system dialogs depend on this theme. -->
+    <style name="Theme.NightWatchProtocol" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">#2C595D</item>
     </style>
 

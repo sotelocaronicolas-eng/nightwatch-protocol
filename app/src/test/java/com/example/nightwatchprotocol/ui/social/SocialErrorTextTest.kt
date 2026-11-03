@@ -21,10 +21,15 @@ class SocialErrorTextTest {
         File("app/src/main/res/values/strings_social.xml"),
     ).first { it.isFile }
 
-    /** name -> text of every `<string>` of the file. */
+    /**
+     * name -> text of the `<string>` of the file that are messages of [SocialError] (`social_error_*` and `social_rejected_*`). Since the
+     * Etapa 7 the file also holds the moderation and own-profile texts (it joined three files); `social_error_unavailable` is the
+     * message of the moderation actions (0011), not one of the call failures, so it is left out as before.
+     */
     private fun strings(): Map<String, String> =
         Regex("""<string name="([a-z_]+)"[^>]*>(.*?)</string>""").findAll(stringsFile().readText())
             .associate { it.groupValues[1] to it.groupValues[2] }
+            .filterKeys { (it.startsWith("social_error_") || it.startsWith("social_rejected_")) && it != "social_error_unavailable" }
 
     private fun snake(name: String) = name.replace(Regex("([a-z])([A-Z])"), "$1_$2").lowercase()
 

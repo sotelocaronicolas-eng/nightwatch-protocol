@@ -60,6 +60,13 @@ android {
         buildConfig = true
         compose = true
     }
+    // The language is chosen inside the app (AppCompatDelegate.setApplicationLocales): an app bundle must not split by language,
+    // or a language the phone did not ask for would not be installed.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
 }
 
 dependencies {
@@ -72,6 +79,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.lifecycle.runtime.ktx)

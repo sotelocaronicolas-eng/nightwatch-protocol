@@ -6,6 +6,7 @@ import android.os.SystemClock
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -43,11 +43,14 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
 import com.example.nightwatchprotocol.ui.theme.SystemChromeEffect
 import com.example.nightwatchprotocol.ui.theme.applyThemeChrome
 import com.example.nightwatchprotocol.ui.theme.isDarkTheme
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class MainActivity : FragmentActivity() {
+// AppCompatActivity extends FragmentActivity (the biometric prompt still gets what it needs) and is what
+// AppCompatDelegate.setApplicationLocales needs to apply the language and recreate the Activity.
+class MainActivity : AppCompatActivity() {
     private val appLockViewModel: AppLockViewModel by viewModels { AppLockViewModel.Factory }
     private val deviceSessionViewModel: DeviceSessionViewModel by viewModels { DeviceSessionViewModel.Factory }
     private val startupViewModel: StartupViewModel by viewModels { StartupViewModel.Factory }
@@ -74,6 +77,15 @@ class MainActivity : FragmentActivity() {
         // chosen look is read, so the first frame already has the right theme (no dark -> light flash).
         splashScreen.setKeepOnScreenCondition { startupViewModel.startRoute.value == null || initialThemeMode == null }
         lifecycleScope.launch {
+            // First launch: Spanish is fixed explicitly (A4). It is the first thing so that, if AppCompat recreates the Activity to apply it,
+            // it happens behind the splash and only once. A failed write is not fatal: the next launch tries again.
+            try {
+                (application as NightWatchApplication).container.languageBootstrap.ensureInitialized()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // The language stays as AppCompat has it.
+            }
             val route = startupViewModel.startRoute.filterNotNull().first()
             val startDestination: Any = when (route) {
                 StartRoute.PostAuthGate -> PostAuthGate

@@ -132,9 +132,15 @@ fun LeaveScreenEffect(key: Any, onLeft: () -> Unit) {
     val activity = LocalActivity.current
     val currentOnLeft by rememberUpdatedState(onLeft)
     DisposableEffect(key) {
-        onDispose { if (activity?.isChangingConfigurations != true) currentOnLeft() }
+        onDispose { if (leftForGood(activity?.isChangingConfigurations)) currentOnLeft() }
     }
 }
+
+/**
+ * The decision of [LeaveScreenEffect], apart so a plain unit test can check it (Etapa 7, R-01): the screen left for good unless the Activity
+ * is being recreated. Without an Activity (a preview, a test) there is nothing to recreate, so it counts as leaving.
+ */
+internal fun leftForGood(isChangingConfigurations: Boolean?): Boolean = isChangingConfigurations != true
 
 /**
  * True inside the content of a profile that shows a background picture ([SocialProfileScreen]). The picture and its dark layer do not
