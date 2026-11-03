@@ -37,7 +37,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -61,6 +60,7 @@ import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.theme.NightWatchHeaderPanel
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 import com.example.nightwatchprotocol.ui.theme.NightWatchSuccess
 import kotlinx.coroutines.launch
 
@@ -142,15 +142,15 @@ private fun RegisterScreenContent(
                     .background(NightWatchHeaderPanel, RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp)),
             ) {
                 Column(modifier = Modifier.padding(30.dp)) {
-                    Text(stringResource(R.string.auth_register_title), style = MaterialTheme.typography.titleLarge, color = Color.Black)
+                    Text(stringResource(R.string.auth_register_title), style = MaterialTheme.typography.titleLarge, color = NightWatchTheme.colors.onSurfaceButton)
                     Text(
                         stringResource(R.string.auth_register_subtitle),
-                        color = Color.Black,
+                        color = NightWatchTheme.colors.onSurfaceButton,
                         modifier = Modifier.padding(top = 6.dp),
                     )
                 }
                 IconButton(onClick = onCloseClicked, modifier = Modifier.align(Alignment.TopEnd)) {
-                    Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.common_close), tint = Color.Black)
+                    Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.common_close), tint = NightWatchTheme.colors.onSurfaceButton)
                 }
             }
             Column(
