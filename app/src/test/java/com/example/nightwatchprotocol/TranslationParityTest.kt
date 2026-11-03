@@ -23,7 +23,6 @@ class TranslationParityTest {
      */
     private val PENDING_PARTE_2: Set<String> = setOf(
         "strings_auth.xml",
-        "strings_perfil.xml",
         "strings_quiz.xml",
         "strings_aprendizaje.xml",
         "strings_social.xml",
@@ -34,12 +33,16 @@ class TranslationParityTest {
      * Keys whose English text is allowed to equal the Spanish one (checked per key, in any file). Each one says why.
      *  - `app_name`, `common_app_title`: proper names of the app (they are never translated).
      *  - `common_error_icon_description`: "Error" is the same word in both languages.
+     *  - `settings_menu_footer` ("Nightwatch Protocol · v%1$s") and `profile_member_since_value` ("%1$s %2$d"): only a proper name,
+     *    a symbol and placeholders; nothing to translate.
      *  - `common_month_short_N` for February, March, June, July, September, October and November: the abbreviation is the same in both.
      */
     private val sameInBothLanguages: Set<String> = setOf(
         "app_name",
         "common_app_title",
         "common_error_icon_description",
+        "settings_menu_footer",
+        "profile_member_since_value",
     ) + listOf(2, 3, 6, 7, 9, 10, 11).map { "common_month_short_$it" }
 
     private fun folder(name: String): File = listOf(File("src/main/res/$name"), File("app/src/main/res/$name")).firstOrNull { it.isDirectory }
@@ -55,7 +58,8 @@ class TranslationParityTest {
         val strings: Map<String, String>,
         val plurals: Map<String, Map<String, String>>,
         val arrays: Map<String, List<String>>,
-        val translatable: Map<String, String>,
+        /** Names marked `translatable="false"`: they are left out of the three maps above and must exist only in `res/values`. */
+        val nonTranslatable: Set<String>,
     )
 
     private fun parse(file: File): Entries {
@@ -64,12 +68,15 @@ class TranslationParityTest {
         val strings = LinkedHashMap<String, String>()
         val plurals = LinkedHashMap<String, Map<String, String>>()
         val arrays = LinkedHashMap<String, List<String>>()
-        val translatable = LinkedHashMap<String, String>()
+        val nonTranslatable = LinkedHashSet<String>()
         val children = root.childNodes
         for (i in 0 until children.length) {
             val node = children.item(i) as? Element ?: continue
             val name = node.getAttribute("name")
-            translatable[name] = node.getAttribute("translatable").ifEmpty { "true" }
+            if (node.getAttribute("translatable") == "false") {
+                nonTranslatable += name
+                continue
+            }
             when (node.tagName) {
                 "string" -> strings[name] = node.textContent
                 "plurals" -> {
@@ -85,7 +92,7 @@ class TranslationParityTest {
                 }
             }
         }
-        return Entries(strings, plurals, arrays, translatable)
+        return Entries(strings, plurals, arrays, nonTranslatable)
     }
 
     /** index -> conversion for every placeholder: explicit `%2$d` keeps its number, a plain `%s` takes the next one. */
@@ -161,7 +168,10 @@ class TranslationParityTest {
         translatedFiles.forEach { name ->
             val es = parse(File(spanish, name))
             val en = parse(File(english, name))
-            assertEquals("$name: atributo translatable distinto", es.translatable, en.translatable)
+            // What the Spanish marks translatable="false" (the language names) is not repeated in English, and English marks nothing itself.
+            assertEquals("$name: values-en marca translatable=false", emptySet<String>(), en.nonTranslatable)
+            val repeated = es.nonTranslatable.filter { it in en.strings.keys || it in en.plurals.keys || it in en.arrays.keys }
+            assertEquals("$name: values-en repite cadenas translatable=false", emptyList<String>(), repeated)
         }
     }
 
