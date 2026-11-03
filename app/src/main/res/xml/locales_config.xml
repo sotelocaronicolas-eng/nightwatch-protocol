@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Idiomas de la app (Android 13+ los muestra en Ajustes > Aplicaciones > NightWatch > Idioma). Español es el idioma base de res/values.
+    Para agregar un idioma: una línea aquí, su carpeta values-xx y su entrada en AppLanguage (spec del módulo 5, sección 13.4).
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="es" />
+    <locale android:name="en" />
+</locale-config>

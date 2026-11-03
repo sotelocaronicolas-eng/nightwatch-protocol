@@ -6,6 +6,7 @@ import android.os.SystemClock
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -47,7 +47,9 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class MainActivity : FragmentActivity() {
+// AppCompatActivity extends FragmentActivity (the biometric prompt still gets what it needs) and is what
+// AppCompatDelegate.setApplicationLocales needs to apply the language and recreate the Activity.
+class MainActivity : AppCompatActivity() {
     private val appLockViewModel: AppLockViewModel by viewModels { AppLockViewModel.Factory }
     private val deviceSessionViewModel: DeviceSessionViewModel by viewModels { DeviceSessionViewModel.Factory }
     private val startupViewModel: StartupViewModel by viewModels { StartupViewModel.Factory }
