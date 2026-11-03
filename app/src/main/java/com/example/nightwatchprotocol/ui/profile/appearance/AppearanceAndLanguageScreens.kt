@@ -5,7 +5,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.nightwatchprotocol.data.language.AppLanguage
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
@@ -30,8 +33,8 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
-// "Apariencia" chooses the look (Module 5, Stage 4). "Idioma" still chooses nothing: the app stays in Spanish until
-// Stage 7, so tapping "English" does nothing.
+// "Apariencia" chooses the look (Module 5, Stage 4). "Idioma" chooses the language through AppCompat (Stage 7); until
+// Stage 8 adds `values-en`, tapping "English" saves the choice but the texts stay in Spanish.
 
 /**
  * Both screens center their whole block (options + illustration) in the space under the header, with the scroll as a
@@ -104,8 +107,24 @@ private fun ThemeOption(
     )
 }
 
+/** "Idioma": reads and saves the language through AppCompat with [LanguageViewModel]; AppCompat recreates the Activity to apply it. */
 @Composable
-fun LanguageScreen(onClose: () -> Unit) {
+fun LanguageScreen(
+    onClose: () -> Unit,
+    viewModel: LanguageViewModel = viewModel(factory = LanguageViewModel.Factory),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refresh() }
+    LanguageContent(selected = uiState.selected, onLanguageSelected = viewModel::onLanguageSelected, onClose = onClose)
+}
+
+/** The stateless body of [LanguageScreen]: the marked card (✓ and 3 dp border) is the one of [selected]. */
+@Composable
+fun LanguageContent(
+    selected: AppLanguage,
+    onLanguageSelected: (AppLanguage) -> Unit,
+    onClose: () -> Unit,
+) {
     SettingsScaffold(
         title = stringResource(R.string.settings_menu_language),
         onClose = onClose,
@@ -113,9 +132,28 @@ fun LanguageScreen(onClose: () -> Unit) {
         centerVertically = true,
         footer = { Illustration(R.drawable.img_language_bg, LanguageIllustrationRatio, alpha = 0.7f) },
     ) {
-        SettingsRow(emoji = "🇪🇸", label = stringResource(R.string.settings_language_spanish), highlighted = true, trailing = { CheckMark() })
-        SettingsRow(emoji = "🇺🇸", label = stringResource(R.string.settings_language_english), trailing = { NoTrailing() })
+        LanguageOption("🇪🇸", R.string.settings_language_spanish, AppLanguage.ES, selected, onLanguageSelected)
+        LanguageOption("🇺🇸", R.string.settings_language_english, AppLanguage.EN, selected, onLanguageSelected)
     }
+}
+
+@Composable
+private fun LanguageOption(
+    emoji: String,
+    @StringRes label: Int,
+    option: AppLanguage,
+    current: AppLanguage,
+    onSelected: (AppLanguage) -> Unit,
+) {
+    val isSelected = option == current
+    SettingsRow(
+        emoji = emoji,
+        label = stringResource(label),
+        highlighted = isSelected,
+        trailing = { if (isSelected) CheckMark() else NoTrailing() },
+        onClick = { onSelected(option) },
+        modifier = Modifier.semantics { selected = isSelected },
+    )
 }
 
 @Composable

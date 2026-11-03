@@ -43,6 +43,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
 import com.example.nightwatchprotocol.ui.theme.SystemChromeEffect
 import com.example.nightwatchprotocol.ui.theme.applyThemeChrome
 import com.example.nightwatchprotocol.ui.theme.isDarkTheme
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -76,6 +77,15 @@ class MainActivity : AppCompatActivity() {
         // chosen look is read, so the first frame already has the right theme (no dark -> light flash).
         splashScreen.setKeepOnScreenCondition { startupViewModel.startRoute.value == null || initialThemeMode == null }
         lifecycleScope.launch {
+            // First launch: Spanish is fixed explicitly (A4). It is the first thing so that, if AppCompat recreates the Activity to apply it,
+            // it happens behind the splash and only once. A failed write is not fatal: the next launch tries again.
+            try {
+                (application as NightWatchApplication).container.languageBootstrap.ensureInitialized()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // The language stays as AppCompat has it.
+            }
             val route = startupViewModel.startRoute.filterNotNull().first()
             val startDestination: Any = when (route) {
                 StartRoute.PostAuthGate -> PostAuthGate

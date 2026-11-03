@@ -1,8 +1,11 @@
 package com.example.nightwatchprotocol.data.common
 
 import android.content.Context
+import android.content.res.Configuration
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
+import com.example.nightwatchprotocol.data.language.AppLanguage
+import java.util.Locale
 
 /**
  * A text that is **resolved when it is shown**, not when it is built (Module 5, decision D10). View models, data classes and
@@ -51,11 +54,26 @@ fun UiText.resolve(resolver: TextResolver): String = when (this) {
 private fun Any.resolvedWith(resolver: TextResolver): Any = if (this is UiText) resolve(resolver) else this
 
 /** A [TextResolver] over Android resources: used outside Compose (notifications, workers) with the context that has the right language. */
-class ContextTextResolver(private val context: Context) : TextResolver {
-    override fun string(id: Int, args: List<Any>): String = context.getString(id, *args.toTypedArray())
+class ContextTextResolver(
+    private val context: Context,
+    /**
+     * The language the app is in right now, read at every call (Etapa 7). An application [Context] does not follow AppCompat's language
+     * before Android 13 (only an Activity's does), so a data export or a notification would come out in the phone's language. With a
+     * language here the text is looked up with that locale; null (the default) uses [context] as it is.
+     */
+    private val language: () -> AppLanguage? = { null },
+) : TextResolver {
+    private fun localized(): Context {
+        val tag = language()?.tag ?: return context
+        val configuration = Configuration(context.resources.configuration)
+        configuration.setLocale(Locale.forLanguageTag(tag))
+        return context.createConfigurationContext(configuration)
+    }
+
+    override fun string(id: Int, args: List<Any>): String = localized().getString(id, *args.toTypedArray())
 
     override fun plural(id: Int, count: Int, args: List<Any>): String =
-        context.resources.getQuantityString(id, count, *args.toTypedArray())
+        localized().resources.getQuantityString(id, count, *args.toTypedArray())
 }
 
 /** The text of this [UiText] with the resources of [context]. */
