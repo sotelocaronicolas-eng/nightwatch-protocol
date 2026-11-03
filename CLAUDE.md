@@ -70,8 +70,11 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
     claro/oscuro y Apariencia funcional (etapa 4) y toda la app migrada al modo elegido (etapas 5 y 6). `NoHardcodedColorsTest` cubre todo `app/src/main/java` fuera de `ui/theme` (única excepción:
     el bitmap de `SocialAvatar`); el oscuro es idéntico al de v2.2.0 (`NightWatchColorsParityTest`); `ContrastTest` lleva la lista de pares oscuros bajo la meta, que no se corrige. Los valores claros
     sin frame en el Figma son PROPUESTA hasta que el grupo los apruebe. Informes: `reports/modulo-5a-cierre.md` y `reports/etapa-5-verificacion-visual.md` (lista para el emulador; nada se ha visto en un teléfono).
-  - **5B (idioma), pendiente (etapas 7 a 10, v2.4.0):** verificar R-01 y AppCompat (7), `values-en` para toda la UI (8), contenido JSON en inglés (9), notificaciones, fechas y cierre (10). Hoy la pantalla de Idioma
-    sigue **sin lógica**.
+  - **5B (idioma), en curso (etapas 7 a 10, v2.4.0):** verificar R-01 y AppCompat (7, rama `modulo-5-idioma-base`, hecha pero sin fusionar), `values-en` para toda la UI (8), contenido JSON en inglés (9), notificaciones, fechas y cierre (10).
+    **Etapa 7:** `MainActivity` es `AppCompatActivity` (appcompat 1.8.0), el tema base es `Theme.AppCompat.Light.NoActionBar` (NO DayNight), `res/xml/locales_config.xml` (es, en); el idioma vive en AppCompat
+    (`AppCompatLanguageRepository`), nunca en DataStore (solo `language_initialized`); el primer arranque fija español (`LanguageBootstrap`); la pantalla Idioma ya funciona, pero **sin `values-en` elegir English no cambia los textos**.
+    Los textos están en **7 archivos** (`strings.xml`, `_auth`, `_quiz`, `_perfil`, `_aprendizaje`, `_social`, `_social_pantallas`; 771 cadenas y 8 plurales). Decisiones D15 a D18 (banco de batallas traducido en Supabase, aviso de lo no traducible,
+    procedimiento para nuevos idiomas) en la sección 13 de la spec; la migración SQL del banco **no existe aún**. Lista de verificación: `reports/etapa-7-verificacion.md`.
 - **Lecciones aprendidas:** los guiones SQL deben acotar los conteos a las cuentas de prueba; Brevo permite unos 300 correos al día; el login con Google falla en silencio si el SHA-1 de depuración
   no está registrado en un cliente OAuth Android de Google Cloud (paquete `com.example.nightwatchprotocol`); la regla de "solo Write/Edit" se rompió varias veces con `sed -i`: sigue vigente.
 
