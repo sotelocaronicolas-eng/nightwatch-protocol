@@ -100,6 +100,14 @@ class NightWatchColors(
     val overlayDark: Color,
     /** Small panel of the background picker (Stage 5). */
     val pickerSurface: Color,
+    /** The gold when it is TEXT (or a small glyph) over [bgBase], [bgElevated] or [surfaceButton]; [selection] stays for fills and borders. */
+    val goldText: Color,
+    /** Text and glyphs drawn over a [selection] fill (gold pills, chosen options, count badges). */
+    val onGold: Color,
+    /** Text and glyphs over a picture or a scrim (profile backgrounds). It does not depend on the theme. */
+    val onBackdrop: Color,
+    /** The gold accent over a picture or a scrim (the streak line of a profile). It does not depend on the theme. */
+    val backdropAccent: Color,
 )
 
 val DarkNightWatchColors = NightWatchColors(
@@ -147,6 +155,10 @@ val DarkNightWatchColors = NightWatchColors(
     scrimSoft = Color(0x73000000),
     overlayDark = Color(0xCC333333),
     pickerSurface = Color(0xFF8C8C8C),
+    goldText = Color(0xFFE3B54F),
+    onGold = Color(0xFF162523),
+    onBackdrop = Color.White,
+    backdropAccent = Color(0xFFE3B54F),
 )
 
 val LightNightWatchColors = NightWatchColors(
@@ -209,6 +221,13 @@ val LightNightWatchColors = NightWatchColors(
     overlayDark = Color(0xCC333333),
     // PROPUESTA (4.3): small panel over the background images, same as dark.
     pickerSurface = Color(0xFF8C8C8C),
+    // PROPUESTA: the gold as text needs 4.5:1 on #AEF5D5, #F7F4EC and #D9D9D9 (selection #926A1B only reaches 3.91, 4.44 and 3.46).
+    goldText = Color(0xFF7A5612),
+    // PROPUESTA: white over the #926A1B fill.
+    onGold = Color.White,
+    // Over pictures: the same as dark.
+    onBackdrop = Color.White,
+    backdropAccent = Color(0xFFE3B54F),
 )
 
 val LocalNightWatchColors = staticCompositionLocalOf { DarkNightWatchColors }

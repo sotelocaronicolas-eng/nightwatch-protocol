@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
-import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
@@ -148,7 +148,7 @@ internal fun ExamHeader(title: String, tag: String?, onClose: () -> Unit) {
             if (tag != null) {
                 Text(
                     text = tag,
-                    color = NightWatchGold,
+                    color = NightWatchGoldText,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 11.sp,

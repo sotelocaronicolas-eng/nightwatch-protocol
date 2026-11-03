@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
-import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
@@ -260,7 +260,7 @@ private fun StatBox(passed: Boolean, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = stringResource(if (passed) R.string.learning_exam_result_pass_stat else R.string.learning_exam_result_fail_stat),
-            color = NightWatchGold,
+            color = NightWatchGoldText,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = if (passed) 22.sp else 32.sp,
@@ -299,7 +299,7 @@ private fun SaveNotice(save: ExamSaveStatus, onRetry: () -> Unit, modifier: Modi
             TextButton(onClick = onRetry) {
                 Text(
                     text = stringResource(R.string.learning_report_retry_save),
-                    color = NightWatchGold,
+                    color = NightWatchGoldText,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp,

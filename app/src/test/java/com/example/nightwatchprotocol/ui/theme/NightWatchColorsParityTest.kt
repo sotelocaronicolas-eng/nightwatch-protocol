@@ -67,7 +67,17 @@ class NightWatchColorsParityTest {
     }
 
     @Test
+    fun darkTokens_matchTheContrastFixColors() {
+        assertSame("the gold as text (it was NightWatchGold)", Color(0xFFE3B54F), dark.goldText)
+        assertSame("text over gold fills (it was 0xFF162523)", Color(0xFF162523), dark.onGold)
+        assertSame("text over profile pictures (it was white)", Color.White, dark.onBackdrop)
+        assertSame("streak over profile pictures (it was gold)", Color(0xFFE3B54F), dark.backdropAccent)
+    }
+
+    @Test
     fun theTokensThatDoNotDependOnTheTheme_areTheSameInLight() {
+        assertEquals(dark.onBackdrop, LightNightWatchColors.onBackdrop)
+        assertEquals(dark.backdropAccent, LightNightWatchColors.backdropAccent)
         assertEquals(dark.scrimSoft, LightNightWatchColors.scrimSoft)
         assertEquals(dark.overlayDark, LightNightWatchColors.overlayDark)
         assertEquals(dark.pickerSurface, LightNightWatchColors.pickerSurface)

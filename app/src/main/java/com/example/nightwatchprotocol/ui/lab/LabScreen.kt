@@ -60,6 +60,7 @@ import com.example.nightwatchprotocol.data.learning.LabObjective
 import com.example.nightwatchprotocol.data.learning.LabTerminal
 import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.keepVisibleWithKeyboard
 import com.example.nightwatchprotocol.ui.theme.NightWatchBackground
@@ -195,7 +196,7 @@ private fun LabHeader(title: String, onClose: () -> Unit) {
             )
             Text(
                 text = stringResource(R.string.learning_lab_terminal),
-                color = NightWatchGold,
+                color = NightWatchGoldText,
                 fontFamily = MonoFamily,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 20.dp, top = 40.dp),
@@ -330,7 +331,7 @@ private fun ObjectiveCard(objective: LabObjective, done: Boolean, onClick: () ->
             ) {
                 Text(
                     text = objective.command,
-                    color = NightWatchGold,
+                    color = NightWatchGoldText,
                     fontFamily = MonoFamily,
                     fontSize = 11.sp,
                 )

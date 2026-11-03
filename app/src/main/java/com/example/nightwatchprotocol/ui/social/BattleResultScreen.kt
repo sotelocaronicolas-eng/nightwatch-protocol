@@ -27,7 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.social.BattleEndReason
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
-import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 
@@ -157,7 +157,7 @@ private fun Headline(uiState: BattleResultUiState, kind: EndKind) {
     Text(text = stringResource(icon), fontSize = 56.sp)
     Text(
         text = stringResource(title),
-        color = if (kind == EndKind.Victory) NightWatchGold else NightWatchOnBackground,
+        color = if (kind == EndKind.Victory) NightWatchGoldText else NightWatchOnBackground,
         fontFamily = NightWatchBodyFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 24.sp,

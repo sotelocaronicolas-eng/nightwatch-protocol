@@ -40,6 +40,7 @@ import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.components.SettingsScaffold
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
@@ -106,7 +107,7 @@ private fun CounterLine(uiState: AchievementsUiState, onRetry: () -> Unit) {
             TextButton(onClick = onRetry) {
                 Text(
                     text = stringResource(R.string.learning_retry),
-                    color = NightWatchGold,
+                    color = NightWatchGoldText,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 12.sp,

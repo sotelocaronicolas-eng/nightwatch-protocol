@@ -80,6 +80,17 @@ class ContrastTest {
         Pair("textOnLight/noticeSurface", c.textOnLight, c.noticeSurface, text),
         Pair("textOnLight/cardTint", c.textOnLight, c.cardTint, text),
         Pair("brandWhite/overlayDark (worst case, over white)", c.brandWhite, over(c.overlayDark, Color.White), text),
+        // The gold as text, over every background it is drawn on (contrast fix).
+        Pair("goldText/bgBase", c.goldText, c.bgBase, text),
+        Pair("goldText/bgElevated", c.goldText, c.bgElevated, text),
+        Pair("goldText/surfaceButton", c.goldText, c.surfaceButton, text),
+        Pair("goldText/noticeSurface", c.goldText, c.noticeSurface, text),
+        Pair("onGold/selection", c.onGold, c.selection, text),
+        // Over the profile pictures (with the 45 % dark layer): the darkest pixel and the lightest pixel measured in the five pictures
+        // (the lightest is #8B8B8B, 3.4:1 with white; 1.9 % of profile_bg_5 and 0.2 % of profile_bg_1 are under 4.5:1).
+        Pair("onBackdrop/darkest picture pixel", c.onBackdrop, Color.Black, text),
+        Pair("onBackdrop/lightest picture pixel (large text or glyph)", c.onBackdrop, Color(0xFF8B8B8B), large),
+        Pair("backdropAccent/darkest picture pixel", c.backdropAccent, Color.Black, text),
         // Components (borders, fills and glyphs that carry meaning).
         Pair("selection/surfaceButton", c.selection, c.surfaceButton, component),
         Pair("selection/bgBase", c.selection, c.bgBase, component),
@@ -132,6 +143,11 @@ class ContrastTest {
         "failAccent/cardTint" to 1.86, // the same red over the 94A6A7 cards
         "selection/bgElevated" to 2.99, // the gold over the 3E6E71 cards (just under 3:1)
         "bgElevated ring/selection" to 2.99, // the teal ring of the gold icon circles
+        // Found while writing the pairs of the gold-text fix: the old dark gold as text, reported, not fixed.
+        "goldText/bgBase" to 4.08, // gold labels over the background (Lab "Terminal", lesson module)
+        "goldText/bgElevated" to 2.99, // gold values over the 3E6E71 cards (stats, commands)
+        "goldText/surfaceButton" to 1.35, // the gold label of the selected tab of the bottom bar over D9D9D9
+        "goldText/noticeSurface" to 1.33, // the gold text over the 94A6A7 chapa/cards
     )
 
     private fun rounded(value: Double): Double = kotlin.math.round(value * 100) / 100

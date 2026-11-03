@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nightwatchprotocol.R
-import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
@@ -143,7 +143,7 @@ private fun RowScope.TabContent(
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 11.sp,
-            color = if (isSelected) NightWatchGold else NightWatchTheme.colors.textOnLight,
+            color = if (isSelected) NightWatchGoldText else NightWatchTheme.colors.textOnLight,
             textAlign = TextAlign.Center,
             modifier = Modifier.alpha(if (isSelected) 1f else alpha),
         )

@@ -29,6 +29,7 @@ import com.example.nightwatchprotocol.data.social.BattleState
 import com.example.nightwatchprotocol.data.social.UltiAttemptResult
 import com.example.nightwatchprotocol.data.social.UltiRole
 import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.lab.CommandInput
 import com.example.nightwatchprotocol.ui.lab.SendButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
@@ -45,7 +46,7 @@ internal fun UltiChoice(enabled: Boolean, onSave: () -> Unit, onUse: () -> Unit)
         BigIcon(stringResource(R.string.social_ulti_choice_icon), NightWatchGold)
         Text(
             text = stringResource(R.string.social_ulti_choice_title),
-            color = NightWatchGold,
+            color = NightWatchGoldText,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
@@ -194,7 +195,7 @@ internal fun UltiResultPanel(result: UltiResultView, rival: String) {
         BigIcon(icon, if (good) NightWatchGold else NightWatchSurfaceButtonMuted)
         Text(
             text = title,
-            color = if (good) NightWatchGold else NightWatchOnBackground,
+            color = if (good) NightWatchGoldText else NightWatchOnBackground,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,

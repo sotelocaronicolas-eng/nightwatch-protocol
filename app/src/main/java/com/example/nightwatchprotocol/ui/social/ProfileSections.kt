@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,10 +66,10 @@ import com.example.nightwatchprotocol.data.social.BattleStats
 import com.example.nightwatchprotocol.data.social.PROFILE_BG_COUNT
 import com.example.nightwatchprotocol.data.social.normalizeProfileBg
 import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.TitleTopBar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
@@ -133,13 +134,16 @@ fun SocialProfileScreen(
             TitleTopBar(title = title, onClose = onClose)
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 ProfileBackground(profileBg)
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .navigationBarsPadding()
-                        .padding(top = SocialContentTopSpacing),
-                    content = content,
-                )
+                // What is drawn straight on the picture takes the backdrop ink (see LocalProfileBackdrop).
+                CompositionLocalProvider(LocalProfileBackdrop provides (profileBackgroundRes(profileBg) != null)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding()
+                            .padding(top = SocialContentTopSpacing),
+                        content = content,
+                    )
+                }
             }
         }
     }
@@ -272,7 +276,7 @@ fun ProfileHeader(content: ProfileContent, avatar: @Composable () -> Unit, modif
                     R.string.social_profile_streak,
                     pluralStringResource(R.plurals.social_days, content.streakDays, content.streakDays),
                 ),
-                color = NightWatchGold,
+                color = if (LocalProfileBackdrop.current) NightWatchTheme.colors.backdropAccent else NightWatchGoldText,
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 13.sp,
@@ -320,7 +324,7 @@ private fun ProfileSectionTitle(title: String, section: ProfileSection, eyes: Pr
     ) {
         Text(
             text = title,
-            color = NightWatchOnBackground,
+            color = BackdropText,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 14.sp,
@@ -359,7 +363,7 @@ fun VisibilityEye(visible: Boolean, sectionName: String, onToggle: () -> Unit, m
                 stateDescription = state
             },
     ) {
-        val ink = NightWatchOnBackground
+        val ink = BackdropText
         Canvas(modifier = Modifier.size(16.dp)) {
             val w = size.width
             val h = size.height
@@ -516,7 +520,7 @@ fun EditBackgroundButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
             .clickable(role = Role.Button, onClick = onClick)
             .semantics { contentDescription = description },
     ) {
-        Text(text = "✎", color = NightWatchOnBackground, fontSize = 16.sp, modifier = Modifier.clearAndSetSemantics {})
+        Text(text = "✎", color = NightWatchTheme.colors.onBackdrop, fontSize = 16.sp, modifier = Modifier.clearAndSetSemantics {})
     }
 }
 

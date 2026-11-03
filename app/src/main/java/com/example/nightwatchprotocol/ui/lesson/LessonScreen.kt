@@ -53,6 +53,7 @@ import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.Lesson
 import com.example.nightwatchprotocol.data.learning.LessonCard
 import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.home.PillColor
 import com.example.nightwatchprotocol.ui.home.showNotice
@@ -180,7 +181,7 @@ private fun LessonHeader(title: String, moduleNumber: Int, moduleTotal: Int, onC
             )
             Text(
                 text = stringResource(R.string.learning_lesson_module, moduleNumber, moduleTotal),
-                color = NightWatchGold,
+                color = NightWatchGoldText,
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 11.sp,

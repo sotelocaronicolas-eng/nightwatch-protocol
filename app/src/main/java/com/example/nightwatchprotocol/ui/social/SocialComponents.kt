@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberUpdatedState
@@ -135,11 +136,23 @@ fun LeaveScreenEffect(key: Any, onLeft: () -> Unit) {
     }
 }
 
+/**
+ * True inside the content of a profile that shows a background picture ([SocialProfileScreen]). The picture and its dark layer do not
+ * change with the theme, so the text over them takes the `onBackdrop` ink instead of the theme's main text color (which is dark in the
+ * light theme). It is false everywhere else, and when the person chose "sin fondo" (then the app's own background shows).
+ */
+val LocalProfileBackdrop = compositionLocalOf { false }
+
+/** The main text color for what is drawn directly on the page: over a profile picture it is [NightWatchColors.onBackdrop]. */
+val BackdropText: Color
+    @Composable @ReadOnlyComposable
+    get() = if (LocalProfileBackdrop.current) NightWatchTheme.colors.onBackdrop else NightWatchOnBackground
+
 @Composable
 fun SocialBodyText(text: String, modifier: Modifier = Modifier, alpha: Float = 0.85f) {
     Text(
         text = text,
-        color = NightWatchOnBackground,
+        color = BackdropText,
         fontFamily = NightWatchBodyFontFamily,
         fontSize = 13.sp,
         modifier = modifier.alpha(alpha),
@@ -336,7 +349,8 @@ fun SocialPill(
     ) {
         Text(
             text = text,
-            color = SocialOnLight,
+            // Over the gold fill the text takes `onGold` (white in light: the dark text only reached 2.9:1 over #926A1B).
+            color = if (style == PillStyle.Gold) NightWatchTheme.colors.onGold else SocialOnLight,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 13.sp,
@@ -382,7 +396,7 @@ fun SocialLinkRow(text: String, onClick: () -> Unit, modifier: Modifier = Modifi
         )
         if (badge > 0) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp).background(NightWatchGold, CircleShape)) {
-                Text(text = badge.toString(), color = SocialOnLight, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Text(text = badge.toString(), color = NightWatchTheme.colors.onGold, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.Bold, fontSize = 12.sp)
             }
         }
     }
@@ -394,7 +408,7 @@ fun ErrorNotice(error: SocialError, onRetry: (() -> Unit)?, modifier: Modifier =
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.fillMaxWidth().padding(vertical = 6.dp)) {
         Text(
             text = stringResource(error.messageRes()),
-            color = NightWatchOnBackground,
+            color = BackdropText,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 13.sp,
             modifier = Modifier.weight(1f),
@@ -403,7 +417,7 @@ fun ErrorNotice(error: SocialError, onRetry: (() -> Unit)?, modifier: Modifier =
             TextButton(onClick = onRetry) {
                 Text(
                     text = stringResource(R.string.social_retry),
-                    color = NightWatchOnBackground,
+                    color = BackdropText,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp,
@@ -416,9 +430,11 @@ fun ErrorNotice(error: SocialError, onRetry: (() -> Unit)?, modifier: Modifier =
 /** The error under a field or a button: red, like the other forms of the app. */
 @Composable
 fun InlineError(error: SocialError, modifier: Modifier = Modifier) {
+    // Over a profile picture in the light theme the red/dark error text would not read: the backdrop ink with the ⚠ mark does.
+    val overPicture = LocalProfileBackdrop.current && NightWatchTheme.colors.isLight
     Text(
-        text = stringResource(error.messageRes()),
-        color = NightWatchError,
+        text = stringResource(error.messageRes()).let { if (overPicture) "⚠ $it" else it },
+        color = if (overPicture) NightWatchTheme.colors.onBackdrop else NightWatchError,
         fontFamily = NightWatchBodyFontFamily,
         fontSize = 12.sp,
         modifier = modifier.padding(top = 6.dp),
@@ -428,7 +444,7 @@ fun InlineError(error: SocialError, modifier: Modifier = Modifier) {
 @Composable
 fun SocialLoading(modifier: Modifier = Modifier) {
     Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth().padding(32.dp)) {
-        CircularProgressIndicator(color = NightWatchOnBackground)
+        CircularProgressIndicator(color = BackdropText)
     }
 }
 

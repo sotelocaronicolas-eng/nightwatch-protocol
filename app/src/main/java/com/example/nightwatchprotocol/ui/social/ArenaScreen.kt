@@ -44,6 +44,8 @@ import com.example.nightwatchprotocol.data.social.LastTurn
 import com.example.nightwatchprotocol.data.social.TurnOutcome
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchError
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
@@ -283,7 +285,7 @@ private fun TurnPill(battle: BattleState, ulti: Boolean) {
         if (turn != null) {
             val seconds by rememberSecondsLeft(turn.timeLeft)
             val time = stringResource(R.string.social_countdown, seconds / 60, seconds % 60)
-            val textColor = if (turn.isMine || ulti) SocialOnLight else NightWatchOnBackground
+            val textColor = if (turn.isMine || ulti) NightWatchTheme.colors.onGold else NightWatchOnBackground
             // R-03: the turn ("Tu turno") and the seconds are two texts. Only the turn is a live region, so a screen reader announces
             // the change of turn and not the countdown, which is redrawn four times a second.
             Row(
@@ -348,6 +350,8 @@ private fun OptionRow(
     selectedColor: Color = NightWatchGold,
     mark: String? = null,
 ) {
+    // Over the gold fill of a chosen option the text takes `onGold`; over the grey or the light card it stays as it was.
+    val ink = if (selected && selectedColor == NightWatchGold) NightWatchTheme.colors.onGold else SocialOnLight
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -357,10 +361,10 @@ private fun OptionRow(
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
-        Text(text = option.letter.toString(), color = SocialOnLight, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        Text(text = option.letter.toString(), color = ink, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp)
         Text(
             text = option.text,
-            color = SocialOnLight,
+            color = ink,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 14.sp,
             modifier = Modifier.padding(start = 24.dp).weight(1f),
@@ -461,7 +465,7 @@ private fun Feedback(battle: BattleState, uiState: ArenaUiState) {
             .padding(horizontal = 16.dp, vertical = 16.dp)
             .politeAnnouncement(),
     ) {
-        Text(text = title, color = if (correct) NightWatchGold else IncorrectBorder, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text(text = title, color = if (correct) NightWatchGoldText else IncorrectBorder, fontFamily = NightWatchBodyFontFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         SocialBodyText(detail, alpha = 1f, modifier = Modifier.padding(top = 4.dp))
     }
 }

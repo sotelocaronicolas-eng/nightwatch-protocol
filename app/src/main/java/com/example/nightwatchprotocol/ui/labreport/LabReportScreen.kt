@@ -44,7 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.learning.LearningTopic
-import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
@@ -233,7 +233,7 @@ private fun SaveNotice(save: LabSaveStatus, onRetry: () -> Unit, modifier: Modif
             TextButton(onClick = onRetry) {
                 Text(
                     text = stringResource(R.string.learning_report_retry_save),
-                    color = NightWatchGold,
+                    color = NightWatchGoldText,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp,
@@ -272,7 +272,7 @@ private fun StatBox(content: LabReportContent, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = value,
-            color = NightWatchGold,
+            color = NightWatchGoldText,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 32.sp,

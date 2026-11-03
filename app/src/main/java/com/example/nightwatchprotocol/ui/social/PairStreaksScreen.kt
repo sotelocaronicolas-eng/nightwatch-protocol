@@ -23,7 +23,7 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.social.PairState
 import com.example.nightwatchprotocol.data.social.PairStatus
 import com.example.nightwatchprotocol.data.social.PairStreak
-import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 
 /** "Racha en pareja": the list that replaces "Racha grupal" (decision D15). Tapping an active pair opens its detail. */
@@ -154,7 +154,7 @@ private fun ActivePairRow(pair: PairStreak, onClick: () -> Unit) {
                     } else {
                         stringResource(R.string.social_card_pair_none)
                     },
-                    color = if (metrics.currentDays > 0) NightWatchGold else SocialOnLight,
+                    color = if (metrics.currentDays > 0) NightWatchGoldText else SocialOnLight,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 12.sp,
