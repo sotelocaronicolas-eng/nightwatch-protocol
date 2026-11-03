@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -33,6 +32,7 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.components.NightWatchTextField
 import com.example.nightwatchprotocol.ui.theme.NightWatchLinkAccent
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeContent
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeEvent
 import com.example.nightwatchprotocol.ui.verifycode.VerifyCodeLayout
@@ -137,7 +137,7 @@ private fun RecoveryEmailDialog(
                 enabled = !state.isSending && state.email.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = NightWatchLinkAccent,
-                    contentColor = Color.Black,
+                    contentColor = NightWatchTheme.colors.onLink,
                 ),
             ) { Text(stringResource(R.string.verify_code_confirm_short)) }
         },

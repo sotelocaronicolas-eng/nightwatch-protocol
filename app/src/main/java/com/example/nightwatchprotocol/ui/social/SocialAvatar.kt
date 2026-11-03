@@ -43,6 +43,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchGold
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -56,8 +57,6 @@ import kotlin.math.sin
 /** How much the hat rises above the circle and how much the wand drops below it, as a part of the circle's size. */
 private const val HAT_HEADROOM = 0.30f
 private const val WAND_FOOTROOM = 0.18f
-
-private val HatBody = SocialOnLight
 
 /**
  * [photo] is null while it loads, when it failed or when the person has none: the [emoji] shows instead. [contentDescription] is what
@@ -96,7 +95,7 @@ fun SocialAvatar(
             if (photo != null) {
                 Image(bitmap = photo, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
             } else {
-                Text(text = emoji, fontSize = (size.value * 0.46f).sp, color = Color.Black, modifier = Modifier.clearAndSetSemantics {})
+                Text(text = emoji, fontSize = (size.value * 0.46f).sp, color = NightWatchTheme.colors.onSurfaceButton, modifier = Modifier.clearAndSetSemantics {})
             }
         }
         if (withWizardGear) {
@@ -104,8 +103,9 @@ fun SocialAvatar(
             val outlineColor = NightWatchOnBackground
             val stickColor = NightWatchSurfaceButton
             val gold = NightWatchGold
+            val hatBody = SocialOnLight
             Canvas(modifier = Modifier.matchParentSize()) {
-                drawWizardHat(headroom.toPx(), outlineColor, gold)
+                drawWizardHat(headroom.toPx(), outlineColor, gold, hatBody)
                 drawWizardWand(headroom.toPx(), outlineColor, stickColor, gold)
             }
         }
@@ -113,7 +113,7 @@ fun SocialAvatar(
 }
 
 /** A tilted pointed hat: dark body with a light outline, a gold band and a gold sparkle. [headroom] is where the circle starts. */
-private fun DrawScope.drawWizardHat(headroom: Float, gearOutline: Color, gold: Color) {
+private fun DrawScope.drawWizardHat(headroom: Float, gearOutline: Color, gold: Color, hatBody: Color) {
     val s = size.width
     val cx = s * 0.5f
     val brimY = headroom + s * 0.16f
@@ -122,7 +122,7 @@ private fun DrawScope.drawWizardHat(headroom: Float, gearOutline: Color, gold: C
     rotate(degrees = -12f, pivot = Offset(cx, brimY)) {
         val brimTopLeft = Offset(cx - s * 0.42f, brimY - s * 0.09f)
         val brimSize = Size(s * 0.84f, s * 0.18f)
-        drawOval(HatBody, topLeft = brimTopLeft, size = brimSize)
+        drawOval(hatBody, topLeft = brimTopLeft, size = brimSize)
         drawOval(gearOutline, topLeft = brimTopLeft, size = brimSize, style = outline)
 
         val cone = Path().apply {
@@ -131,7 +131,7 @@ private fun DrawScope.drawWizardHat(headroom: Float, gearOutline: Color, gold: C
             quadraticTo(cx + s * 0.16f, baseY - s * 0.24f, cx + s * 0.30f, baseY)
             close()
         }
-        drawPath(cone, HatBody)
+        drawPath(cone, hatBody)
         drawPath(cone, gearOutline, style = outline)
 
         val band = Path().apply {

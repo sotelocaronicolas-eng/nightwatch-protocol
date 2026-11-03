@@ -1,8 +1,6 @@
 package com.example.nightwatchprotocol.ui.theme
 
 import com.example.nightwatchprotocol.data.preferences.ThemeMode
-import com.example.nightwatchprotocol.ui.navigation.followsChosenTheme
-import com.example.nightwatchprotocol.ui.verifycode.CodePurpose
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -60,12 +58,5 @@ class ThemeModeTest {
         // Decision A2: #926A1B for the border, #1C2B29 for the check.
         assertEquals(androidx.compose.ui.graphics.Color(0xFF926A1B), LightNightWatchColors.selection)
         assertEquals(androidx.compose.ui.graphics.Color(0xFF1C2B29), LightNightWatchColors.selectionCheck)
-    }
-
-    @Test
-    fun onlyTheSignUpCodeScreen_staysDark() {
-        assertFalse(CodePurpose.SIGN_UP.followsChosenTheme())
-        assertTrue(CodePurpose.EMAIL_CHANGE.followsChosenTheme())
-        assertTrue(CodePurpose.RECOVERY_EMAIL.followsChosenTheme())
     }
 }

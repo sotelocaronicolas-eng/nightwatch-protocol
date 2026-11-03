@@ -28,6 +28,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -64,12 +66,13 @@ import com.example.nightwatchprotocol.data.social.BattleStats
 import com.example.nightwatchprotocol.data.social.PROFILE_BG_COUNT
 import com.example.nightwatchprotocol.data.social.normalizeProfileBg
 import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.TitleTopBar
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /*
  * The pieces shared by "Perfil amigo" and "Tu perfil" (Figma SOCIAL UPDATE 2638:374 and 2653:543) and by "Editar tu perfil"
@@ -93,7 +96,7 @@ private val ProfileBackgrounds = intArrayOf(
 internal fun profileBackgroundRes(profileBg: Int): Int? = ProfileBackgrounds.getOrNull(normalizeProfileBg(profileBg) - 1)
 
 /** A soft dark layer over the pictures so the light text and the cards stay readable on every one of them. */
-private val BackgroundScrim = Color(0x73000000)
+private val BackgroundScrim: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.scrimSoft
 
 /**
  * The picture of [profileBg] cropped to the center, under a soft dark layer; nothing for "sin fondo" (the green of the app shows).
@@ -131,13 +134,16 @@ fun SocialProfileScreen(
             TitleTopBar(title = title, onClose = onClose)
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 ProfileBackground(profileBg)
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .navigationBarsPadding()
-                        .padding(top = SocialContentTopSpacing),
-                    content = content,
-                )
+                // What is drawn straight on the picture takes the backdrop ink (see LocalProfileBackdrop).
+                CompositionLocalProvider(LocalProfileBackdrop provides (profileBackgroundRes(profileBg) != null)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding()
+                            .padding(top = SocialContentTopSpacing),
+                        content = content,
+                    )
+                }
             }
         }
     }
@@ -270,7 +276,7 @@ fun ProfileHeader(content: ProfileContent, avatar: @Composable () -> Unit, modif
                     R.string.social_profile_streak,
                     pluralStringResource(R.plurals.social_days, content.streakDays, content.streakDays),
                 ),
-                color = NightWatchGold,
+                color = if (LocalProfileBackdrop.current) NightWatchTheme.colors.backdropAccent else NightWatchGoldText,
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 13.sp,
@@ -318,7 +324,7 @@ private fun ProfileSectionTitle(title: String, section: ProfileSection, eyes: Pr
     ) {
         Text(
             text = title,
-            color = NightWatchOnBackground,
+            color = BackdropText,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 14.sp,
@@ -357,7 +363,7 @@ fun VisibilityEye(visible: Boolean, sectionName: String, onToggle: () -> Unit, m
                 stateDescription = state
             },
     ) {
-        val ink = NightWatchOnBackground
+        val ink = BackdropText
         Canvas(modifier = Modifier.size(16.dp)) {
             val w = size.width
             val h = size.height
@@ -510,11 +516,11 @@ fun EditBackgroundButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         modifier = modifier
             .size(32.dp)
             .clip(CircleShape)
-            .background(Color(0xCC333333))
+            .background(NightWatchTheme.colors.overlayDark)
             .clickable(role = Role.Button, onClick = onClick)
             .semantics { contentDescription = description },
     ) {
-        Text(text = "✎", color = NightWatchOnBackground, fontSize = 16.sp, modifier = Modifier.clearAndSetSemantics {})
+        Text(text = "✎", color = NightWatchTheme.colors.onBackdrop, fontSize = 16.sp, modifier = Modifier.clearAndSetSemantics {})
     }
 }
 
@@ -547,7 +553,7 @@ fun ProfileBackgroundPicker(
 fun BackgroundOptions(selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.spacedBy(6.dp),
-        modifier = modifier.width(200.dp).height(82.dp).background(Color(0xFF8C8C8C), PickerShape).padding(8.dp),
+        modifier = modifier.width(200.dp).height(82.dp).background(NightWatchTheme.colors.pickerSurface, PickerShape).padding(8.dp),
     ) {
         for (rowStart in 0..PROFILE_BG_COUNT step 3) {
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.weight(1f).fillMaxWidth()) {

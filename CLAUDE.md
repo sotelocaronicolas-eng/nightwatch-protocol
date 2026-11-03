@@ -12,7 +12,7 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
   lecciones, laboratorios, examen final, racha e insignias; Social: amigos, racha en pareja, batallas, fotos, reportar y bloquear).
   Los módulos 1 a 4 ya están en `main` (el módulo 4 y sus mejoras del perfil social, PR #10, merge `3db30b4`). **Siguiente: Módulo 5 =
   personalización** (ver la sección "Módulo 5" al final de esta sección 1).
-- **v2.2.0** (`versionName` 2.2.0, `versionCode` 5; la v2.1.0 fue el módulo 3). La migración de Firebase a Supabase fue la v2.0.0: **Firebase ya no
+- **v2.3.0** (`versionName` 2.3.0, `versionCode` 6; en la rama `modulo-5-tema-completo`, cierre de la parte 5A). Antes: v2.2.0 (`versionCode` 5; la v2.1.0 fue el módulo 3). La migración de Firebase a Supabase fue la v2.0.0: **Firebase ya no
   existe** (no hay código, dependencias ni plugin) y `google-services.json` no se usa. Historial de la migración:
   `docs/superpowers/reports/migracion-supabase.md`.
 - **Módulo 3, lo que hay que saber:**
@@ -64,9 +64,14 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
     examen en el servidor si hay ranking o XP, las notificaciones push y una pantalla de moderación.
 - **Extras ya hechos (posteriores al módulo 4):** las 6 pantallas de lecciones según Figma ("LECCION UPDATE - <Módulo>", con scroll; rama `lecciones-update`, probada en el teléfono) y
   ajustes de la ruta ("Prueba final" a la izquierda y arriba, "Bahía del Phishing" hacia arriba). Un segundo compañero se sumó el 2026-10-23 para extras de los módulos 3 y 4.
-- **Módulo 5 = personalización (por empezar; sin spec ni plan escritos).** Alcance acordado por el equipo: tema claro (claro/oscuro), idioma inglés (español sigue siendo el actual) y el resto
-  de personalización que esté en el plan o en el Figma. Hoy: Apariencia e Idioma existen como pantallas **sin lógica** (decisión del Módulo 2), la app fuerza `darkColorScheme` y la mayoría
-  de textos de los módulos 1 y 2 siguen en el código (F-09, probable requisito previo para traducir). Revisión previa: pendiente de decisiones del grupo.
+- **Módulo 5 = personalización (5A hecho, 5B pendiente).** Alcance acordado por el equipo: tema claro (claro/oscuro/automático), idioma inglés (español sigue siendo el actual) y el resto
+  de personalización que esté en el plan o en el Figma. Spec y plan: `docs/superpowers/specs/2026-11-02-modulo-5-personalizacion-design.md` (etapas 0 a 10).
+  - **5A (tema), hecho en la rama `modulo-5-tema-completo` (etapas 1 a 6, v2.3.0):** preferencias (etapa 2), textos en recursos con guarda (etapa 3), tokens `NightWatchColors`
+    claro/oscuro y Apariencia funcional (etapa 4) y toda la app migrada al modo elegido (etapas 5 y 6). `NoHardcodedColorsTest` cubre todo `app/src/main/java` fuera de `ui/theme` (única excepción:
+    el bitmap de `SocialAvatar`); el oscuro es idéntico al de v2.2.0 (`NightWatchColorsParityTest`); `ContrastTest` lleva la lista de pares oscuros bajo la meta, que no se corrige. Los valores claros
+    sin frame en el Figma son PROPUESTA hasta que el grupo los apruebe. Informes: `reports/modulo-5a-cierre.md` y `reports/etapa-5-verificacion-visual.md` (lista para el emulador; nada se ha visto en un teléfono).
+  - **5B (idioma), pendiente (etapas 7 a 10, v2.4.0):** verificar R-01 y AppCompat (7), `values-en` para toda la UI (8), contenido JSON en inglés (9), notificaciones, fechas y cierre (10). Hoy la pantalla de Idioma
+    sigue **sin lógica**.
 - **Lecciones aprendidas:** los guiones SQL deben acotar los conteos a las cuentas de prueba; Brevo permite unos 300 correos al día; el login con Google falla en silencio si el SHA-1 de depuración
   no está registrado en un cliente OAuth Android de Google Cloud (paquete `com.example.nightwatchprotocol`); la regla de "solo Write/Edit" se rompió varias veces con `sed -i`: sigue vigente.
 

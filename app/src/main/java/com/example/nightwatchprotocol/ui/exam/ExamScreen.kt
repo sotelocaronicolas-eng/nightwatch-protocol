@@ -24,6 +24,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -41,15 +42,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
-import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /** Figma color/bg/elevated (#3E6E71): the option cards (2492:254). */
-private val ElevatedColor = Color(0xFF3E6E71)
+private val ElevatedColor: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.bgElevated
 
 /**
  * One question of the exam, full screen and without the bottom bar (Figma 2491:243 and the other five). [onClose] leaves
@@ -146,7 +148,7 @@ internal fun ExamHeader(title: String, tag: String?, onClose: () -> Unit) {
             if (tag != null) {
                 Text(
                     text = tag,
-                    color = NightWatchGold,
+                    color = NightWatchGoldText,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 11.sp,
@@ -178,7 +180,7 @@ internal fun ExamHeader(title: String, tag: String?, onClose: () -> Unit) {
                 .align(Alignment.BottomStart)
                 .fillMaxWidth()
                 .height(4.dp)
-                .background(Color.White),
+                .background(NightWatchTheme.colors.headerLine),
         )
     }
 }

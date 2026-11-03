@@ -24,6 +24,9 @@ val NightWatchSuccess: Color @Composable @ReadOnlyComposable get() = NightWatchT
 /** The gold of the selection (it used to live in `ui/components`). */
 val NightWatchGold: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.selection
 
+/** The gold as text or as a small glyph (the fills and borders use [NightWatchGold]). */
+val NightWatchGoldText: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.goldText
+
 /** Secondary text over the screen background (in the dark theme it is the same color as [NightWatchHeaderPanel]). */
 val NightWatchSecondaryText: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.textSecondary
 

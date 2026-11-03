@@ -76,6 +76,21 @@ class ContrastTest {
         Pair("textSecondary/confirmationPanel", c.textSecondary, c.confirmationPanel, text),
         Pair("textPrimary/menuPill over bgBase", c.textPrimary, over(c.menuPill, c.bgBase), text),
         Pair("selectionCheck/surfaceButton", c.selectionCheck, c.surfaceButton, text),
+        // Tokens of Stage 5.
+        Pair("textOnLight/noticeSurface", c.textOnLight, c.noticeSurface, text),
+        Pair("textOnLight/cardTint", c.textOnLight, c.cardTint, text),
+        Pair("brandWhite/overlayDark (worst case, over white)", c.brandWhite, over(c.overlayDark, Color.White), text),
+        // The gold as text, over every background it is drawn on (contrast fix).
+        Pair("goldText/bgBase", c.goldText, c.bgBase, text),
+        Pair("goldText/bgElevated", c.goldText, c.bgElevated, text),
+        Pair("goldText/surfaceButton", c.goldText, c.surfaceButton, text),
+        Pair("goldText/noticeSurface", c.goldText, c.noticeSurface, text),
+        Pair("onGold/selection", c.onGold, c.selection, text),
+        // Over the profile pictures (with the 45 % dark layer): the darkest pixel and the lightest pixel measured in the five pictures
+        // (the lightest is #8B8B8B, 3.4:1 with white; 1.9 % of profile_bg_5 and 0.2 % of profile_bg_1 are under 4.5:1).
+        Pair("onBackdrop/darkest picture pixel", c.onBackdrop, Color.Black, text),
+        Pair("onBackdrop/lightest picture pixel (large text or glyph)", c.onBackdrop, Color(0xFF8B8B8B), large),
+        Pair("backdropAccent/darkest picture pixel", c.backdropAccent, Color.Black, text),
         // Components (borders, fills and glyphs that carry meaning).
         Pair("selection/surfaceButton", c.selection, c.surfaceButton, component),
         Pair("selection/bgBase", c.selection, c.bgBase, component),
@@ -89,6 +104,14 @@ class ContrastTest {
         Pair("codeBorder/bgBase", c.codeBorder, c.bgBase, component),
         Pair("switchOn/bgBase", c.switchOn, c.bgBase, component),
         Pair("switchOff or its border/bgBase", if (c.isLight) c.switchBorder else c.switchOff, c.bgBase, component),
+        // Tokens of Stage 5.
+        Pair("sheetBorder/bgBase", c.sheetBorder, c.bgBase, component),
+        Pair("failAccent/bgBase", c.failAccent, c.bgBase, component),
+        Pair("failAccent/bgElevated", c.failAccent, c.bgElevated, component),
+        Pair("failAccent/cardTint", c.failAccent, c.cardTint, component),
+        Pair("selection/bgElevated", c.selection, c.bgElevated, component),
+        // The ring of the gold icon circles (lesson, exam intro, finished island) against the gold fill.
+        Pair("bgElevated ring/selection", c.bgElevated, c.selection, component),
     )
 
     /**
@@ -113,6 +136,18 @@ class ContrastTest {
         "divider/fieldSurface" to 1.53, // 808080 divider on the A1A1A1 card
         "selection/surfaceButton" to 1.35, // the gold border of the selected row on its D9D9D9 card (the spec's gold-over-card case)
         "borderAccent/fieldSurface" to 1.70, // decorative border of the A1A1A1 fields and cards
+        // Found while writing the pairs of the Stage 5 tokens: the old dark colors, reported, not fixed.
+        "sheetBorder/bgBase" to 1.42, // the 204143 border of the sheet of Inicio (decorative)
+        "failAccent/bgBase" to 1.65, // the C0503E red of a lost battle over the background
+        "failAccent/bgElevated" to 1.21, // the same red over the 3E6E71 cards
+        "failAccent/cardTint" to 1.86, // the same red over the 94A6A7 cards
+        "selection/bgElevated" to 2.99, // the gold over the 3E6E71 cards (just under 3:1)
+        "bgElevated ring/selection" to 2.99, // the teal ring of the gold icon circles
+        // Found while writing the pairs of the gold-text fix: the old dark gold as text, reported, not fixed.
+        "goldText/bgBase" to 4.08, // gold labels over the background (Lab "Terminal", lesson module)
+        "goldText/bgElevated" to 2.99, // gold values over the 3E6E71 cards (stats, commands)
+        "goldText/surfaceButton" to 1.35, // the gold label of the selected tab of the bottom bar over D9D9D9
+        "goldText/noticeSurface" to 1.33, // the gold text over the 94A6A7 chapa/cards
     )
 
     private fun rounded(value: Double): Double = kotlin.math.round(value * 100) / 100

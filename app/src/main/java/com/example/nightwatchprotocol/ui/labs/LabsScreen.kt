@@ -24,6 +24,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -58,12 +59,13 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /** Figma color/bg/elevated (#3E6E71): the icon circle and the difficulty chip (2271:92, 2271:95). */
-private val ElevatedColor = Color(0xFF3E6E71)
+private val ElevatedColor: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.bgElevated
 
 /** Figma color/text/on-light (#162523). */
-private val TextOnLight = Color(0xFF162523)
+private val TextOnLight: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.textOnLight
 
 /** The opacity of a locked lab card (2271:113, opacity 60%). */
 private const val LOCKED_ALPHA = 0.6f
@@ -236,7 +238,7 @@ private fun LabCard(
             contentAlignment = Alignment.Center,
             modifier = Modifier.size(48.dp).background(ElevatedColor, CircleShape),
         ) {
-            Text(text = emoji, fontSize = 22.sp, color = Color.Black, modifier = Modifier.clearAndSetSemantics {})
+            Text(text = emoji, fontSize = 22.sp, color = NightWatchTheme.colors.onSurfaceButton, modifier = Modifier.clearAndSetSemantics {})
         }
         Column(modifier = Modifier.padding(start = 12.dp).weight(1f)) {
             Text(

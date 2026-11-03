@@ -86,6 +86,28 @@ class NightWatchColors(
     val onLink: Color,
     /** Border of the code boxes of the verification screen (the error state uses [error]). */
     val codeBorder: Color,
+    /** Border of the bottom sheet of Inicio (Stage 5). */
+    val sheetBorder: Color,
+    /** Pills and notices of Inicio, over [bgBase] (Stage 5). */
+    val noticeSurface: Color,
+    /** Tint of the Social cards that show a state (Stage 5). */
+    val cardTint: Color,
+    /** The "lost" accent of the battles (Stage 5). */
+    val failAccent: Color,
+    /** Soft dark layer over the background images of a profile; it does not depend on the theme (Stage 5). */
+    val scrimSoft: Color,
+    /** Dark layer behind the white text over the background images; it does not depend on the theme (Stage 5). */
+    val overlayDark: Color,
+    /** Small panel of the background picker (Stage 5). */
+    val pickerSurface: Color,
+    /** The gold when it is TEXT (or a small glyph) over [bgBase], [bgElevated] or [surfaceButton]; [selection] stays for fills and borders. */
+    val goldText: Color,
+    /** Text and glyphs drawn over a [selection] fill (gold pills, chosen options, count badges). */
+    val onGold: Color,
+    /** Text and glyphs over a picture or a scrim (profile backgrounds). It does not depend on the theme. */
+    val onBackdrop: Color,
+    /** The gold accent over a picture or a scrim (the streak line of a profile). It does not depend on the theme. */
+    val backdropAccent: Color,
 )
 
 val DarkNightWatchColors = NightWatchColors(
@@ -126,6 +148,17 @@ val DarkNightWatchColors = NightWatchColors(
     brandWhite = Color.White,
     onLink = Color.Black,
     codeBorder = Color.White,
+    sheetBorder = Color(0xFF204143),
+    noticeSurface = Color(0xFF94A6A7),
+    cardTint = Color(0xFF94A6A7),
+    failAccent = Color(0xFFC0503E),
+    scrimSoft = Color(0x73000000),
+    overlayDark = Color(0xCC333333),
+    pickerSurface = Color(0xFF8C8C8C),
+    goldText = Color(0xFFE3B54F),
+    onGold = Color(0xFF162523),
+    onBackdrop = Color.White,
+    backdropAccent = Color(0xFFE3B54F),
 )
 
 val LightNightWatchColors = NightWatchColors(
@@ -175,6 +208,26 @@ val LightNightWatchColors = NightWatchColors(
     onLink = Color.White,
     // PROPUESTA: the Figma does not show the code bar's idle border.
     codeBorder = Color(0xFF597F82),
+    // PROPUESTA (4.3): the border of the sheet, over the light background 3.52:1.
+    sheetBorder = Color(0xFF597F82),
+    // PROPUESTA (4.3): same as bgElevated (13.39 with the main text); the notice also gets a border of borderAccent.
+    noticeSurface = Color(0xFFF7F4EC),
+    // PROPUESTA (4.3): the "surface/button" of the Figma, 10.43 with the main text.
+    cardTint = Color(0xFFD9D9D9),
+    // PROPUESTA (4.3): 6.06 over bgElevated.
+    failAccent = Color(0xFFA13A2A),
+    // Images and their layers do not depend on the theme: same as dark.
+    scrimSoft = Color(0x73000000),
+    overlayDark = Color(0xCC333333),
+    // PROPUESTA (4.3): small panel over the background images, same as dark.
+    pickerSurface = Color(0xFF8C8C8C),
+    // PROPUESTA: the gold as text needs 4.5:1 on #AEF5D5, #F7F4EC and #D9D9D9 (selection #926A1B only reaches 3.91, 4.44 and 3.46).
+    goldText = Color(0xFF7A5612),
+    // PROPUESTA: white over the #926A1B fill.
+    onGold = Color.White,
+    // Over pictures: the same as dark.
+    onBackdrop = Color.White,
+    backdropAccent = Color(0xFFE3B54F),
 )
 
 val LocalNightWatchColors = staticCompositionLocalOf { DarkNightWatchColors }

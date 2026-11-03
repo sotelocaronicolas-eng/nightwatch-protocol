@@ -30,7 +30,7 @@ import com.example.nightwatchprotocol.data.social.ChallengeStatus
 import com.example.nightwatchprotocol.data.social.Friend
 import com.example.nightwatchprotocol.data.social.ReceivedChallenge
 import com.example.nightwatchprotocol.data.social.SentChallenge
-import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 
@@ -183,7 +183,7 @@ private fun WaitingCard(sent: SentChallenge, onCancel: () -> Unit) {
                 fontSize = 14.sp,
                 modifier = Modifier.weight(1f),
             )
-            CountdownText(sent.timeLeft, color = NightWatchGold, fontSize = 16.sp)
+            CountdownText(sent.timeLeft, color = NightWatchGoldText, fontSize = 16.sp)
         }
         SocialBodyText(stringResource(R.string.social_battles_waiting_body), modifier = Modifier.padding(top = 4.dp, bottom = 10.dp))
         SocialPill(stringResource(R.string.social_battles_waiting_cancel), onCancel, style = PillStyle.Outlined)

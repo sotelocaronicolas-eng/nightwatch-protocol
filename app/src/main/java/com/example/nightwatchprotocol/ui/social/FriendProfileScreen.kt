@@ -30,7 +30,6 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.social.SocialError
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 
 /**
  * "Perfil amigo" (Figma 2446:265, replaced by "SOCIAL UPDATE - PERFIL AMIGO" 2638:374). The screen itself does not scroll: the
@@ -159,7 +158,7 @@ private fun FriendActions(
         }
         Text(
             text = stringResource(R.string.social_profile_remove),
-            color = NightWatchOnBackground,
+            color = BackdropText,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 13.sp,
             textAlign = TextAlign.Center,

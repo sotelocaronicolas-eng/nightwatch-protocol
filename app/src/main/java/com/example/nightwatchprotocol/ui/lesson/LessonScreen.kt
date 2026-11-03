@@ -27,6 +27,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -52,16 +53,18 @@ import com.example.nightwatchprotocol.data.learning.LearningTopic
 import com.example.nightwatchprotocol.data.learning.Lesson
 import com.example.nightwatchprotocol.data.learning.LessonCard
 import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.home.PillColor
 import com.example.nightwatchprotocol.ui.home.showNotice
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /** Figma color/bg/elevated (#3E6E71), the ring of the lesson icon (2294:117), and color/text/on-light (#162523). */
-private val IconRing = Color(0xFF3E6E71)
-private val TextOnLight = Color(0xFF162523)
+private val IconRing: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.bgElevated
+private val TextOnLight: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.textOnLight
 
 /**
  * A lesson, full screen and without the bottom bar (Figma 2294:112 to 2294:202). [onClose] goes back to where the person
@@ -178,7 +181,7 @@ private fun LessonHeader(title: String, moduleNumber: Int, moduleTotal: Int, onC
             )
             Text(
                 text = stringResource(R.string.learning_lesson_module, moduleNumber, moduleTotal),
-                color = NightWatchGold,
+                color = NightWatchGoldText,
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 11.sp,
@@ -208,7 +211,7 @@ private fun LessonHeader(title: String, moduleNumber: Int, moduleTotal: Int, onC
                 .align(Alignment.BottomStart)
                 .fillMaxWidth()
                 .height(4.dp)
-                .background(Color.White),
+                .background(NightWatchTheme.colors.headerLine),
         )
     }
 }
@@ -233,7 +236,7 @@ private fun LessonBody(lesson: Lesson, onGoToLab: () -> Unit) {
                 .background(NightWatchGold, CircleShape)
                 .border(4.dp, IconRing, CircleShape),
         ) {
-            Text(text = lesson.emoji, fontSize = 42.sp, color = Color.Black, modifier = Modifier.clearAndSetSemantics {})
+            Text(text = lesson.emoji, fontSize = 42.sp, color = NightWatchTheme.colors.onSurfaceButton, modifier = Modifier.clearAndSetSemantics {})
         }
         // The cards (2621:386): 38 dp below the circle, 14 dp of margin above the first card, 24 dp between cards.
         Column(

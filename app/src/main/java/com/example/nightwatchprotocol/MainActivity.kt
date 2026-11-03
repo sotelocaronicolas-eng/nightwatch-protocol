@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.SystemClock
 import androidx.activity.compose.BackHandler
@@ -22,7 +23,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.nightwatchprotocol.data.preferences.ThemeMode
 import com.example.nightwatchprotocol.ui.applock.AppLockScreen
@@ -32,14 +32,13 @@ import com.example.nightwatchprotocol.ui.biometric.BiometricResult
 import com.example.nightwatchprotocol.ui.navigation.Login
 import com.example.nightwatchprotocol.ui.navigation.NightWatchNavHost
 import com.example.nightwatchprotocol.ui.navigation.PostAuthGate
-import com.example.nightwatchprotocol.ui.navigation.followsChosenTheme
 import com.example.nightwatchprotocol.ui.session.DeviceSessionViewModel
 import com.example.nightwatchprotocol.ui.social.LocalSocialPhotoSource
 import com.example.nightwatchprotocol.ui.social.RepositorySocialPhotoSource
 import com.example.nightwatchprotocol.ui.startup.StartRoute
 import com.example.nightwatchprotocol.ui.startup.StartupViewModel
 import com.example.nightwatchprotocol.ui.theme.DarkNightWatchColors
-import com.example.nightwatchprotocol.ui.theme.LocalChosenThemeMode
+import com.example.nightwatchprotocol.ui.theme.LightNightWatchColors
 import com.example.nightwatchprotocol.ui.theme.NightWatchProtocolTheme
 import com.example.nightwatchprotocol.ui.theme.SystemChromeEffect
 import com.example.nightwatchprotocol.ui.theme.applyThemeChrome
@@ -69,7 +68,7 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        // The app starts dark (the look it has always had); the chosen look is applied by the screens that follow it.
+        // Until the saved look is read the window is dark (the splash covers it); then the chosen look replaces it (below).
         applyThemeChrome(dark = true, windowBackground = DarkNightWatchColors.bgBase.toArgb())
         // The splash stays up (the main thread is never blocked) until the session is readable, the route is known and the
         // chosen look is read, so the first frame already has the right theme (no dark -> light flash).
@@ -83,6 +82,10 @@ class MainActivity : FragmentActivity() {
             val appearance = (application as NightWatchApplication).container.appearanceRepository
             val themeMode = appearance.themeMode.first()
             initialThemeMode = themeMode
+            // The window background and the system bars already match the chosen look in the first frame.
+            val systemDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+            val dark = isDarkTheme(themeMode, systemDark)
+            applyThemeChrome(dark, (if (dark) DarkNightWatchColors else LightNightWatchColors).bgBase.toArgb())
             showContent(startDestination, themeMode)
             sessionReady = true
             // onStart already ran while the session was loading: report it now.
@@ -93,18 +96,17 @@ class MainActivity : FragmentActivity() {
     private fun showContent(startDestination: Any, initialThemeMode: ThemeMode) {
         val appearance = (application as NightWatchApplication).container.appearanceRepository
         setContent {
-            // TRANSITION (Stage 4 -> 5): the root stays dark; only Perfil y Ajustes follow the chosen look (see
-            // ThemedDestinations.kt). A change of the look is a new value here: nothing is recreated.
-            NightWatchProtocolTheme(ThemeMode.DARK) {
-                val chosenMode by appearance.themeMode.collectAsStateWithLifecycle(initialValue = initialThemeMode)
+            // The whole app follows the look the person chose in "Apariencia". A change of the look is a new value here:
+            // the activity is not recreated and nothing below it is cancelled (R-01).
+            val chosenMode by appearance.themeMode.collectAsStateWithLifecycle(initialValue = initialThemeMode)
+            NightWatchProtocolTheme(chosenMode) {
                 val lockState by appLockViewModel.uiState.collectAsStateWithLifecycle()
                 val sessionEnded by deviceSessionViewModel.sessionEndedByAnotherDevice.collectAsStateWithLifecycle()
                 val navController = rememberNavController()
 
-                // System bars and window background follow the look of the screen that is on, not the phone's.
-                val currentEntry by navController.currentBackStackEntryAsState()
+                // System bars and window background follow the look the person chose, not the phone's (unless "Automático").
                 val systemDark = isSystemInDarkTheme()
-                SystemChromeEffect(dark = !currentEntry.followsChosenTheme() || isDarkTheme(chosenMode, systemDark))
+                SystemChromeEffect(dark = isDarkTheme(chosenMode, systemDark))
 
                 // Another device asked this one to sign out: back to Login, wherever the user was.
                 // (Only once the graph exists: while the app lock hides the content there is nothing to navigate.)
@@ -124,10 +126,7 @@ class MainActivity : FragmentActivity() {
                     )
                 }
 
-                CompositionLocalProvider(
-                    LocalSocialPhotoSource provides socialPhotoSource,
-                    LocalChosenThemeMode provides chosenMode,
-                ) {
+                CompositionLocalProvider(LocalSocialPhotoSource provides socialPhotoSource) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         if (lockState.showContent) {
                             NightWatchNavHost(navController = navController, startDestination = startDestination)

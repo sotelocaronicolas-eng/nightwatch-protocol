@@ -42,7 +42,6 @@ import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.social.REPORT_NOTE_MAX_LENGTH
 import com.example.nightwatchprotocol.data.social.ReportReason
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
-import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 
 /*
  * "Reportar" and the confirmation of "Bloquear" (script 0011). They are dialogs and not routes of their own on purpose: from the arena
@@ -108,7 +107,7 @@ fun ReportBlockLinks(
     onReport: () -> Unit,
     onBlock: () -> Unit,
     modifier: Modifier = Modifier,
-    color: Color = NightWatchOnBackground,
+    color: Color = BackdropText,
     arrangement: Arrangement.Horizontal = Arrangement.Center,
 ) {
     Row(horizontalArrangement = arrangement, verticalAlignment = Alignment.CenterVertically, modifier = modifier) {

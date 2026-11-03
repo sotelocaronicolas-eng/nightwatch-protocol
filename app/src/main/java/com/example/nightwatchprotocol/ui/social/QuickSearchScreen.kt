@@ -31,10 +31,11 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
-import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /** "Buscando oponente" (Figma 2448:223). */
 @Composable
@@ -106,13 +107,13 @@ internal fun QuickSearchContent(
                 EmojiCircle(stringResource(R.string.social_search_icon_you), size = 80)
                 Text(
                     text = stringResource(R.string.social_search_vs),
-                    color = NightWatchGold,
+                    color = NightWatchGoldText,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                 )
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.size(80.dp).background(NightWatchSurfaceButtonMuted, CircleShape)) {
-                    Text(text = stringResource(R.string.social_search_unknown), color = Color.White, fontSize = 36.sp, fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(R.string.social_search_unknown), color = NightWatchTheme.colors.fieldText, fontSize = 36.sp, fontWeight = FontWeight.Bold)
                 }
             }
             when (status) {

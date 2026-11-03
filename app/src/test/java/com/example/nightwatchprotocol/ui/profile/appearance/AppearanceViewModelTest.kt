@@ -51,6 +51,20 @@ class AppearanceViewModelTest {
     }
 
     @Test
+    fun everyMode_canBeSelectedAndIsSaved() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        for (mode in listOf(ThemeMode.LIGHT, ThemeMode.SYSTEM, ThemeMode.DARK, ThemeMode.SYSTEM, ThemeMode.LIGHT)) {
+            vm.onThemeSelected(mode)
+            advanceUntilIdle()
+
+            assertEquals(mode, vm.uiState.value.themeMode)
+            assertEquals(mode, repository.themeMode.first())
+        }
+    }
+
+    @Test
     fun aChangeMadeElsewhere_isShown() = runTest {
         val vm = viewModel()
         advanceUntilIdle()

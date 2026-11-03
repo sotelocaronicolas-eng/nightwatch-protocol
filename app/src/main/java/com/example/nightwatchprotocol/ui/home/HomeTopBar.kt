@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -23,8 +22,8 @@ import androidx.compose.ui.unit.sp
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.theme.NightWatchBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
-private val TopBarTextColor = Color(0xFFDDDDDD)
 
 /**
  * Logo, [title] and the white line of the tabs of Home (Figma 49:15 and 2266:72), below the status bar. The title is
@@ -47,7 +46,7 @@ internal fun HomeTopBar(
             )
             Text(
                 text = title,
-                color = TopBarTextColor,
+                color = NightWatchTheme.colors.topBarText,
                 fontFamily = NightWatchBodyFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
@@ -60,7 +59,7 @@ internal fun HomeTopBar(
                 .align(Alignment.BottomStart)
                 .fillMaxWidth()
                 .height(4.dp)
-                .background(Color.White),
+                .background(NightWatchTheme.colors.headerLine),
         )
     }
 }

@@ -43,6 +43,8 @@ import com.example.nightwatchprotocol.data.social.PairMetrics
 import com.example.nightwatchprotocol.data.social.PairState
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 
@@ -116,7 +118,7 @@ internal fun PairDetailContent(
         Text(text = stringResource(R.string.social_icon_pair), fontSize = 48.sp)
         Text(
             text = metrics.currentDays.toString(),
-            color = NightWatchGold,
+            color = NightWatchGoldText,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 48.sp,
@@ -164,7 +166,7 @@ private fun WeekStrip(week: List<WeekDay>) {
                         .background(if (day.shared) NightWatchGold else SocialElevated, CircleShape)
                         .let { if (day.today) it.border(BorderStroke(2.dp, NightWatchOnBackground), CircleShape) else it },
                 ) {
-                    if (day.shared) Text(text = stringResource(R.string.social_pair_check), color = SocialOnLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    if (day.shared) Text(text = stringResource(R.string.social_pair_check), color = NightWatchTheme.colors.onGold, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
                 Text(
                     text = initials.getOrElse(index) { "" },

@@ -24,6 +24,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -43,18 +44,19 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.learning.LearningTopic
-import com.example.nightwatchprotocol.ui.theme.NightWatchGold
+import com.example.nightwatchprotocol.ui.theme.NightWatchGoldText
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchBodyFontFamily
 import com.example.nightwatchprotocol.ui.theme.NightWatchBorderAccent
 import com.example.nightwatchprotocol.ui.theme.NightWatchOnBackground
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 /** Figma color/bg/elevated (#3E6E71): the StatBox (2404:190). */
-private val ElevatedColor = Color(0xFF3E6E71)
+private val ElevatedColor: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.bgElevated
 
 /** Figma color/text/on-light (#162523). */
-private val TextOnLight = Color(0xFF162523)
+private val TextOnLight: Color @Composable @ReadOnlyComposable get() = NightWatchTheme.colors.textOnLight
 
 /**
  * The report of a lab, full screen and without the bottom bar (Figma 2273:131, 2404:243, 2374:336, 2400:144 and the other
@@ -160,7 +162,7 @@ private fun ReportBody(
                 Text(
                     text = stringResource(R.string.learning_report_trophy),
                     fontSize = 64.sp,
-                    color = Color.Black,
+                    color = NightWatchTheme.colors.onSurfaceButton,
                     modifier = Modifier.clearAndSetSemantics {},
                 )
             } else {
@@ -231,7 +233,7 @@ private fun SaveNotice(save: LabSaveStatus, onRetry: () -> Unit, modifier: Modif
             TextButton(onClick = onRetry) {
                 Text(
                     text = stringResource(R.string.learning_report_retry_save),
-                    color = NightWatchGold,
+                    color = NightWatchGoldText,
                     fontFamily = NightWatchBodyFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp,
@@ -270,7 +272,7 @@ private fun StatBox(content: LabReportContent, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = value,
-            color = NightWatchGold,
+            color = NightWatchGoldText,
             fontFamily = NightWatchBodyFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 32.sp,

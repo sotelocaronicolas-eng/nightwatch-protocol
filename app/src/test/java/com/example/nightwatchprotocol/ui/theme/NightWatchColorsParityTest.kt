@@ -55,6 +55,36 @@ class NightWatchColorsParityTest {
     }
 
     @Test
+    fun darkTokens_matchTheStage5Colors() {
+        // The loose colors of the screens migrated in Stage 5.
+        assertSame("SheetBorderColor (Inicio)", Color(0xFF204143), dark.sheetBorder)
+        assertSame("PillColor (Inicio, Ruta)", Color(0xFF94A6A7), dark.noticeSurface)
+        assertSame("SocialCardTint", Color(0xFF94A6A7), dark.cardTint)
+        assertSame("SocialFail", Color(0xFFC0503E), dark.failAccent)
+        assertSame("BackgroundScrim", Color(0x73000000), dark.scrimSoft)
+        assertSame("edit-background button", Color(0xCC333333), dark.overlayDark)
+        assertSame("background picker", Color(0xFF8C8C8C), dark.pickerSurface)
+    }
+
+    @Test
+    fun darkTokens_matchTheContrastFixColors() {
+        assertSame("the gold as text (it was NightWatchGold)", Color(0xFFE3B54F), dark.goldText)
+        assertSame("text over gold fills (it was 0xFF162523)", Color(0xFF162523), dark.onGold)
+        assertSame("text over profile pictures (it was white)", Color.White, dark.onBackdrop)
+        assertSame("streak over profile pictures (it was gold)", Color(0xFFE3B54F), dark.backdropAccent)
+    }
+
+    @Test
+    fun theTokensThatDoNotDependOnTheTheme_areTheSameInLight() {
+        assertEquals(dark.onBackdrop, LightNightWatchColors.onBackdrop)
+        assertEquals(dark.backdropAccent, LightNightWatchColors.backdropAccent)
+        assertEquals(dark.scrimSoft, LightNightWatchColors.scrimSoft)
+        assertEquals(dark.overlayDark, LightNightWatchColors.overlayDark)
+        assertEquals(dark.pickerSurface, LightNightWatchColors.pickerSurface)
+        assertEquals(dark.brandWhite, LightNightWatchColors.brandWhite)
+    }
+
+    @Test
     fun darkTokens_matchWhatTheFieldsAndButtonsUsed() {
         // NightWatchTextField / SelectField: container A1A1A1, white text, red error. NightWatchButton: D9D9D9 with black text.
         assertSame("field container", Color(0xFFA1A1A1), dark.fieldSurface)

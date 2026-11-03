@@ -18,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.nightwatchprotocol.R
@@ -37,6 +36,7 @@ import com.example.nightwatchprotocol.ui.theme.NightWatchPillShape
 import com.example.nightwatchprotocol.ui.theme.NightWatchSectionTitleStyle
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButton
 import com.example.nightwatchprotocol.ui.theme.NightWatchSurfaceButtonMuted
+import com.example.nightwatchprotocol.ui.theme.NightWatchTheme
 
 @Composable
 fun PlacementResultScreen(
@@ -107,7 +107,7 @@ private fun PlacementResultScreenContent(
             uiState.studyPlan.forEach { topic ->
                 Text(
                     text = topic.asString(),
-                    color = Color.Black,
+                    color = NightWatchTheme.colors.onSurfaceButton,
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 14.sp,
                     modifier = Modifier

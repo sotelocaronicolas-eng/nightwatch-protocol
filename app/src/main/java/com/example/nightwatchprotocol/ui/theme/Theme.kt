@@ -7,7 +7,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
 import com.example.nightwatchprotocol.data.preferences.ThemeMode
 
 // Dark: exactly the scheme the app has always had (the other roles keep Material's dark defaults, as before).
@@ -69,9 +68,6 @@ fun isDarkTheme(themeMode: ThemeMode, systemDark: Boolean): Boolean = when (them
     ThemeMode.LIGHT -> false
     ThemeMode.SYSTEM -> systemDark
 }
-
-/** The look the person chose in "Apariencia"; the screens migrated to the light theme follow it (see `NightWatchNavHost`). */
-val LocalChosenThemeMode = compositionLocalOf { ThemeMode.DEFAULT }
 
 @Composable
 fun NightWatchProtocolTheme(themeMode: ThemeMode = ThemeMode.DEFAULT, content: @Composable () -> Unit) {
