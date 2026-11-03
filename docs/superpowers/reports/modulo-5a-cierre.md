@@ -118,3 +118,15 @@ Revisados y **no cambiados** salvo el camino de la Ruta (ver 4.4). Reportados pa
 ☐ Las ilustraciones con transparencia sobre fondo claro (6): cuáles hay que rehacer.
 ☐ La lista oscura de contraste (5) sigue sin corregirse en este módulo.
 ☐ La lista visual de `etapa-5-verificacion-visual.md` pasada en emulador, oscuro y claro, fuente normal y grande, con rotación.
+
+## 10. Arreglo de contraste posterior (probado el claro en el emulador)
+
+- **Dorado como texto:** token `goldText` (oscuro `#E3B54F`, idéntico; claro **PROPUESTA** `#7A5612`: 5.31 sobre `#AEF5D5`, 6.03 sobre `#F7F4EC`, 4.70 sobre `#D9D9D9`).
+  `selection` (`#926A1B`) queda para rellenos y bordes. Token `onGold` (texto sobre rellenos dorados: oscuro `#162523` idéntico; claro blanco, 5.2 sobre `#926A1B`) para las píldoras
+  doradas, la opción elegida de la arena, la píldora de turno, la insignia de cuenta y el ✓ de la pareja.
+- **Texto sobre imágenes de perfil:** `onBackdrop` (blanco en ambos modos) y `backdropAccent` (`#E3B54F` en ambos). Solo se aplican cuando el perfil tiene imagen
+  (`LocalProfileBackdrop`): con "sin fondo" sigue el color del tema. No hizo falta `onBackdropMuted` ni `backdropDivider`: no hay texto secundario ni divisores sobre las imágenes.
+- **Imágenes** (con la capa `scrimSoft` al 45 %, contraste del blanco): fondo 1 peor píxel 3.58 (0.2 % bajo 4.5, zona x 104–242, y 298–490 de 412 × 844); fondo 2 peor 4.61;
+  fondo 3 peor 13.3; fondo 4 peor 8.26; fondo 5 peor 3.42 (1.9 % bajo 4.5, disperso). Todas las medianas superan 9.9. **PROPUESTA:** capa de ≈ 53 % (`0x87000000`) solo para el fondo 5
+  llevaría su peor píxel a 4.5; no se aplicó.
+- Los seis pares oscuros de dorado-como-texto (4.08, 2.99, 1.35, 1.33) se documentan en `ContrastTest.knownDarkShortfalls`; no se corrigen.

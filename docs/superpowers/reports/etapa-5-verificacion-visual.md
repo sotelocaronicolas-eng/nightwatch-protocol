@@ -107,3 +107,21 @@ del teléfono esté al revés. Sin salto al navegar entre pantallas.
 
 Para cada problema: pantalla, modo (oscuro/claro), fuente (normal/grande), rotación, y una captura. Los de contraste dudoso en claro
 anótalos aunque se vean "bien": el cálculo está en `ContrastTest`, pero lo que importa es cómo se lee en el teléfono.
+
+## J. Arreglos de contraste (dorado como texto y texto sobre imágenes de perfil)
+
+Tras probar el claro en el emulador: el dorado `#926A1B` como **texto** no llegaba a 4.5:1 y los textos de Social dibujados sobre las imágenes de
+fondo salían oscuros sobre oscuro. Revisar cada pantalla en **claro y oscuro** (el oscuro debe verse igual que antes), fuente normal y grande:
+
+| Pantalla | Qué mirar |
+|---|---|
+| Lab (terminal) | "Terminal" bajo el título y los comandos de los objetivos (`crack 123456`…) en dorado oscuro `#7A5612`, legibles sobre el verde y la tarjeta |
+| Informe del lab / Resultado del examen | Valores de las cajas de estadísticas y "Reintentar guardado" en dorado oscuro |
+| Lección, Examen, Logros | "Módulo N de M", etiqueta del examen y "Reintentar" legibles |
+| Barra inferior | Etiqueta de la pestaña activa sobre `#D9D9D9` legible (4.7:1) |
+| Batallas | Cuenta regresiva de un reto enviado; arena: título de feedback, píldora "Tu turno" (texto blanco sobre el dorado oscuro) y opción elegida (texto blanco) |
+| Resultado de batalla, ulti, rachas, amigos, detalle de pareja | Rachas y títulos en dorado oscuro; el ✓ de la tira de la semana en blanco sobre el dorado |
+| Social: perfil de amigo con cada fondo (1 a 5) y **sin fondo** | Con fondo: "Estadísticas", "Historial de batallas", "Insignias", "Sin racha activa", la racha dorada, "Eliminar amigo", "Reportar", "Bloquear" y los mensajes de error en **blanco**. Sin fondo (claro): esos mismos textos **oscuros** sobre el verde. El botón "Invitar a una racha en pareja" con texto blanco sobre el dorado oscuro |
+| Mi perfil y Editar perfil social | Lo mismo; los ojos (visibilidad) de las secciones en blanco con fondo, oscuros sin fondo; el lápiz del selector siempre blanco |
+| Selector de fondos | Panel gris, cuadro elegido con borde dorado; el lápiz blanco sobre el círculo oscuro |
+| Fondo 5 y fondo 1 | Buscar zonas donde el texto blanco se pierda (1.9 % de los píxeles del fondo 5 y 0.2 % del fondo 1 quedan bajo 4.5:1, ver `modulo-5a-cierre.md`) |
