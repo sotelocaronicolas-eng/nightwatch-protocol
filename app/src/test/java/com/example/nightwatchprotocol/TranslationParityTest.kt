@@ -22,7 +22,6 @@ class TranslationParityTest {
      * list cannot go stale.
      */
     private val PENDING_PARTE_2: Set<String> = setOf(
-        "strings_aprendizaje.xml",
         "strings_social.xml",
         "strings_social_pantallas.xml",
     )
@@ -34,6 +33,10 @@ class TranslationParityTest {
      *  - `settings_menu_footer` ("Nightwatch Protocol · v%1$s") and `profile_member_since_value` ("%1$s %2$d"): only a proper name,
      *    a symbol and placeholders; nothing to translate.
      *  - `common_month_short_N` for February, March, June, July, September, October and November: the abbreviation is the same in both.
+     *  - `learning_tab_social`, `learning_tab_labs`, `learning_lab_terminal`, `learning_home_app_name`: "Social", "Labs", "Terminal" and
+     *    the app name are the same word in both languages. `learning_lesson_close` is the letter "X".
+     *  - A text with no letters at all once the placeholders are removed (emojis, "…", "—", ">", "$ %1$s", "%1$d%%") is also the same in
+     *    both languages by nature: see [hasNoWords].
      */
     private val sameInBothLanguages: Set<String> = setOf(
         "app_name",
@@ -41,7 +44,18 @@ class TranslationParityTest {
         "common_error_icon_description",
         "settings_menu_footer",
         "profile_member_since_value",
+        "learning_tab_social",
+        "learning_tab_labs",
+        "learning_lab_terminal",
+        "learning_home_app_name",
+        "learning_lesson_close",
     ) + listOf(2, 3, 6, 7, 9, 10, 11).map { "common_month_short_$it" }
+
+    /** True when the text has no letter once the placeholders are taken out: symbols and emojis only. */
+    private fun hasNoWords(text: String): Boolean =
+        text.replace(Regex("""%(?:\d+\$)?[sdfxXc]"""), "").replace("%%", "").none { it.isLetter() }
+
+    private fun mayBeSame(key: String, text: String): Boolean = key in sameInBothLanguages || hasNoWords(text)
 
     private fun folder(name: String): File = listOf(File("src/main/res/$name"), File("app/src/main/res/$name")).firstOrNull { it.isDirectory }
         ?: File("src/main/res/$name")
@@ -180,12 +194,12 @@ class TranslationParityTest {
             val en = parse(File(english, name))
             en.strings.forEach { (key, text) ->
                 assertTrue("$name: $key está vacío en inglés", text.isNotBlank())
-                if (key !in sameInBothLanguages) assertFalse("$name: $key es idéntico al español", text == es.strings.getValue(key))
+                if (!mayBeSame(key, text)) assertFalse("$name: $key es idéntico al español", text == es.strings.getValue(key))
             }
             en.plurals.forEach { (key, items) ->
                 items.forEach { (quantity, text) ->
                     assertTrue("$name: $key/$quantity está vacío en inglés", text.isNotBlank())
-                    if (key !in sameInBothLanguages) assertFalse("$name: $key/$quantity es idéntico al español", text == es.plurals.getValue(key)[quantity])
+                    if (!mayBeSame(key, text)) assertFalse("$name: $key/$quantity es idéntico al español", text == es.plurals.getValue(key)[quantity])
                 }
             }
             en.arrays.forEach { (key, items) -> items.forEach { assertTrue("$name: $key tiene un elemento vacío", it.isNotBlank()) } }

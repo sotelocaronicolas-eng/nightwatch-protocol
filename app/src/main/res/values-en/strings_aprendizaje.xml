@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    English of strings_aprendizaje.xml (Module 5, Stage 8, part 2): the texts of module 3 (home, path, labs, lessons, exam). Prefix learning_.
+    Same keys as res/values/strings_aprendizaje.xml; the Spanish file is the golden reference. Follows modulo-5-glosario.md. American English.
+    The content (lessons, labs, questions) is JSON and is translated in Stage 9; lab commands are never translated.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Bottom bar -->
+    <string name="learning_tab_home">Home</string>
+    <string name="learning_tab_path">Path</string>
+    <string name="learning_tab_labs">Labs</string>
+    <string name="learning_tab_social">Social</string>
+    <string name="learning_tab_profile">Profile</string>
+
+    <!-- Emoji icons of the bar, the lock of what is blocked and the "…" of what is being read -->
+    <string name="learning_icon_home">🏠</string>
+    <string name="learning_icon_path">🗺️</string>
+    <string name="learning_icon_labs">🧪</string>
+    <string name="learning_icon_social">👥</string>
+    <string name="learning_icon_profile">👤</string>
+    <string name="learning_icon_lock">🔒</string>
+    <string name="learning_loading_dots">…</string>
+
+    <!-- "Coming soon" notice -->
+    <string name="learning_coming_soon">Coming soon</string>
+    <string name="learning_state_unavailable">Not available</string>
+    <!-- Accessibility of the dimmed cards of Home -->
+    <string name="learning_card_coming_soon_description">%1$s, coming soon</string>
+
+    <!-- Home -->
+    <string name="learning_home_app_name">Nightwatch Protocol</string>
+    <!-- Real streak (Home, user menu and My Profile) -->
+    <plurals name="learning_streak_active">
+        <item quantity="one">Active Streak: %1$d day 🔥</item>
+        <item quantity="other">Active Streak: %1$d days 🔥</item>
+    </plurals>
+    <plurals name="learning_streak_value">
+        <item quantity="one">%1$d day 🔥</item>
+        <item quantity="other">%1$d days 🔥</item>
+    </plurals>
+    <!-- Achievements and badges -->
+    <string name="learning_badges_title">Achievements and Badges</string>
+    <string name="learning_badges_counter" tools:ignore="PluralsCandidate">%1$d of %2$d badges unlocked</string>
+    <string name="learning_badges_loading">Loading your badges…</string>
+    <string name="learning_badges_error_offline">No connection. We couldn\'t load your badges.</string>
+    <string name="learning_badges_error">We couldn\'t load your badges.</string>
+    <string name="learning_badges_stale">May be out of date</string>
+    <string name="learning_badges_card_unlocked">%1$s, unlocked</string>
+    <string name="learning_badges_card_locked">%1$s, locked</string>
+
+    <!-- Streak: states -->
+    <string name="learning_streak_loading">Active Streak: … days 🔥</string>
+    <string name="learning_streak_unavailable">Streak not available</string>
+    <string name="learning_streak_value_unavailable">Not available</string>
+    <string name="learning_home_daily_lesson">Daily lesson</string>
+    <string name="learning_home_new_concept">New concept</string>
+    <string name="learning_home_cibermynd">Get ready with CiberMynd</string>
+
+    <!-- Home: proposed texts -->
+    <string name="learning_home_sign_out">Sign out</string>
+    <string name="learning_home_level">Current level: %1$s</string>
+    <string name="learning_home_next_lesson">Next: %1$s</string>
+    <string name="learning_home_no_pending_lessons">You have no pending lessons</string>
+    <string name="learning_home_loading_progress">Loading your progress…</string>
+    <string name="learning_home_progress_error_offline">No connection. We couldn\'t load your progress.</string>
+    <string name="learning_home_progress_error">We couldn\'t load your progress.</string>
+    <string name="learning_home_retry">Retry</string>
+
+    <!-- Labs -->
+    <string name="learning_labs_title">Labs</string>
+    <string name="learning_labs_subtitle">Hands-on challenges for each topic on your path. Learn by doing, just like in a real environment.</string>
+    <string name="learning_labs_difficulty_easy">Easy</string>
+    <string name="learning_labs_difficulty_medium">Medium</string>
+    <string name="learning_labs_difficulty_hard">Hard</string>
+    <string name="learning_labs_difficulty_exam">Exam</string>
+    <string name="learning_labs_completed">✅ Completed</string>
+    <string name="learning_labs_start">Start →</string>
+    <string name="learning_labs_final_exam">Final Exam</string>
+    <string name="learning_labs_final_exam_emoji">📝</string>
+
+    <!-- Labs: proposed texts. The lock ones were confirmed by the group (Q6) -->
+    <string name="learning_labs_locked_lab">Complete the previous island</string>
+    <string name="learning_labs_locked_exam">Complete all 6 islands</string>
+    <string name="learning_labs_error_offline">No connection. We couldn\'t load your progress.</string>
+    <string name="learning_labs_error">We couldn\'t load your progress.</string>
+    <string name="learning_labs_card_description">%1$s, %2$s, %3$s</string>
+
+    <!-- Learning Path -->
+    <string name="learning_path_title">Learning Path</string>
+    <string name="learning_path_level">🧭 Your level: %1$s</string>
+    <string name="learning_path_progress" tools:ignore="PluralsCandidate">%1$d of %2$d islands completed</string>
+    <string name="learning_path_final_test">Final Exam</string>
+
+    <!-- Path: proposed texts -->
+    <string name="learning_path_error_offline">No connection. We couldn\'t load your progress.</string>
+    <string name="learning_path_error">We couldn\'t load your progress.</string>
+    <!-- Lock texts confirmed by the group (Q6) -->
+    <string name="learning_path_locked_island">Complete the previous island</string>
+    <string name="learning_path_locked_final_test">Complete all 6 islands</string>
+    <!-- Accessibility of the islands -->
+    <string name="learning_island_state_completed">Completed</string>
+    <string name="learning_island_state_available">Available</string>
+    <string name="learning_island_state_locked">Locked</string>
+
+    <!-- Lesson -->
+    <string name="learning_lesson_module">MODULE %1$d of %2$d</string>
+    <string name="learning_lesson_go_to_lab">🧪 Go to the lab →</string>
+    <string name="learning_lesson_close">X</string>
+
+    <!-- Lesson: proposed texts -->
+    <string name="learning_lesson_close_description">Close lesson</string>
+    <string name="learning_lesson_loading">Loading the lesson…</string>
+    <string name="learning_lesson_error">We couldn\'t load the lesson.</string>
+    <string name="learning_lesson_save_failed_offline">No connection: your progress wasn\'t saved, but you can keep reading.</string>
+    <string name="learning_lesson_save_failed">Your progress couldn\'t be saved, but you can keep reading.</string>
+    <string name="learning_retry">Retry</string>
+
+    <!-- Lab (terminal) -->
+    <string name="learning_lab_terminal">Terminal</string>
+    <string name="learning_lab_objectives">OBJECTIVES · TAP TO USE THE COMMAND</string>
+    <string name="learning_lab_input_prompt">&gt;</string>
+    <string name="learning_lab_input_placeholder">type a command…</string>
+    <string name="learning_lab_send">Send</string>
+    <string name="learning_lab_finish">Finish lab</string>
+    <!-- Prefix of each line typed into the output -->
+    <string name="learning_lab_transcript_command">$ %1$s</string>
+    <!-- Answer of the terminal to a command that is not on the list -->
+    <string name="learning_lab_unrecognized_command">Command not recognized. Tap an objective to use its command.</string>
+
+    <!-- Lab: proposed texts -->
+    <string name="learning_lab_close_description">Close lab</string>
+    <string name="learning_lab_loading">Loading the lab…</string>
+    <string name="learning_lab_error">We couldn\'t load the lab.</string>
+    <string name="learning_lab_input_description">Command</string>
+    <string name="learning_lab_objective_description">%1$s, command %2$s, %3$s</string>
+    <string name="learning_lab_objective_done">done</string>
+    <string name="learning_lab_objective_pending">pending</string>
+
+    <!-- Lab report -->
+    <string name="learning_report_trophy">🏆</string>
+    <string name="learning_report_percent">%1$d%%</string>
+    <string name="learning_report_item_done">✅  %1$s</string>
+    <string name="learning_report_item_missed">❌  %1$s</string>
+    <string name="learning_report_retry">Retry</string>
+    <string name="learning_report_back_to_path">Back to the path</string>
+    <!-- Common title of the failure report (group decision P6) -->
+    <string name="learning_report_failure_title">Lab not completed</string>
+
+    <!-- Final Exam, introduction -->
+    <string name="learning_exam_intro_title">Final Exam</string>
+    <string name="learning_exam_intro_tag">FINAL EXAM</string>
+    <string name="learning_exam_intro_what_title">🧭 What does it cover?</string>
+    <string name="learning_exam_intro_what_text">It reviews everything you\'ve learned: passwords, phishing, malware, social engineering, networks and firewall.</string>
+    <string name="learning_exam_intro_how_title">📊 How does it work?</string>
+    <string name="learning_exam_intro_how_text">Answer the 6 questions, one for each topic. You can miss at most 1 to pass.</string>
+    <string name="learning_exam_intro_gain_title">🏆 What do I get?</string>
+    <string name="learning_exam_intro_gain_text">By passing you complete the Learning Path.</string>
+    <string name="learning_exam_intro_important_title">💡 Important</string>
+    <string name="learning_exam_intro_important_text">If you miss more than 1 question you won\'t pass, and we won\'t tell you which ones they were, so you review everything calmly. If you get them all right or miss just 1, you\'ll pass! and we\'ll tell you exactly how you did.</string>
+    <string name="learning_exam_intro_start">Start Exam →</string>
+
+    <!-- Final Exam, questions -->
+    <string name="learning_exam_question_number">Question %1$d of %2$d</string>
+    <string name="learning_exam_question_topic">%1$s %2$s</string>
+
+    <!-- Final Exam, result -->
+    <string name="learning_exam_result_pass_title">Exam passed!</string>
+    <string name="learning_exam_result_pass_summary">You showed that you master everything you\'ve learned so far.</string>
+    <string name="learning_exam_result_pass_row_1">✅ Passwords and Phishing</string>
+    <string name="learning_exam_result_pass_row_2">✅ Malware and Social Engineering</string>
+    <string name="learning_exam_result_pass_row_3">✅ Networks and Firewall</string>
+    <string name="learning_exam_result_one_error_title">Exam passed with 1 mistake!</string>
+    <string name="learning_exam_result_one_error_summary">You showed that you master almost everything you\'ve learned.</string>
+    <string name="learning_exam_result_one_error_row_1">⚠️ 1 incorrect answer</string>
+    <string name="learning_exam_result_one_error_topic">Topic: %1$s</string>
+    <string name="learning_exam_result_one_error_correct">Correct: %1$s</string>
+    <string name="learning_exam_result_accept">OK</string>
+    <string name="learning_exam_result_fail_emoji">📖</string>
+    <string name="learning_exam_result_fail_title">Exam not passed</string>
+    <string name="learning_exam_result_fail_summary">Review the lessons and try again. You can do it!</string>
+    <string name="learning_exam_result_fail_stat">Keep practicing</string>
+    <string name="learning_exam_result_fail_stat_label">Review the Learning Path before your next attempt.</string>
+    <string name="learning_exam_result_fail_row_path">📚 Review the Learning Path</string>
+    <string name="learning_exam_result_fail_row_labs">🧪 Practice in the Labs</string>
+    <string name="learning_exam_result_fail_row_retry">🔁 Try the exam again</string>
+    <string name="learning_exam_result_retry">Retry</string>
+    <string name="learning_exam_result_home">Back to home</string>
+
+    <!-- Passed result: proposed texts (passing does not change the level) -->
+    <string name="learning_exam_result_pass_stat">Congratulations on passing the final exam!</string>
+    <string name="learning_exam_result_pass_stat_label">You completed the NightWatch Protocol Learning Path.</string>
+
+    <!-- Result: proposed texts -->
+    <string name="learning_exam_result_loading">Loading your result…</string>
+    <string name="learning_exam_result_error">We couldn\'t load the result.</string>
+    <string name="learning_exam_result_save_failed_offline">No connection: your attempt hasn\'t been saved yet.</string>
+    <string name="learning_exam_result_save_failed">Your attempt couldn\'t be saved.</string>
+
+    <!-- Exam: proposed texts -->
+    <string name="learning_exam_close_description">Close exam</string>
+    <string name="learning_exam_loading">Loading the exam…</string>
+    <string name="learning_exam_error">We couldn\'t load the exam.</string>
+
+    <!-- Report: proposed texts -->
+    <string name="learning_report_no_time">—</string>
+    <string name="learning_report_loading">Loading the report…</string>
+    <string name="learning_report_error">We couldn\'t load the report.</string>
+    <string name="learning_report_trophy_broken_description">Broken trophy</string>
+    <string name="learning_report_saving">Saving your progress…</string>
+    <string name="learning_report_saved">Progress saved</string>
+    <string name="learning_report_save_failed_offline">No connection: the lab hasn\'t been saved yet.</string>
+    <string name="learning_report_save_failed">The lab couldn\'t be saved.</string>
+    <string name="learning_report_retry_save">Retry saving</string>
+</resources>
