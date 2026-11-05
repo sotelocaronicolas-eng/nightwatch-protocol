@@ -1,5 +1,6 @@
 package com.example.nightwatchprotocol.data.learning
 
+import com.example.nightwatchprotocol.data.language.AppLanguage
 import java.io.File
 import kotlinx.coroutines.runBlocking
 
@@ -8,17 +9,21 @@ import kotlinx.coroutines.runBlocking
  * unit tests from the module folder (`app`); the second path covers a run from the repository root.
  */
 object LearningAssets {
-    fun read(name: String): String {
-        val candidates = listOf(File("src/main/assets/$name"), File("app/src/main/assets/$name"))
+    /** [path] is relative to `assets/` (for example `content/en/learning_exam.json`); a bare file name means the Spanish copy. */
+    fun read(path: String): String {
+        val relative = if ('/' in path) path else "content/es/$path"
+        val candidates = listOf(File("src/main/assets/$relative"), File("app/src/main/assets/$relative"))
         val file = candidates.firstOrNull { it.isFile }
-            ?: error("No se encontró el asset $name (probado: ${candidates.joinToString { it.path }})")
+            ?: error("No se encontró el asset $relative (probado: ${candidates.joinToString { it.path }})")
         return file.readText(Charsets.UTF_8)
     }
+
+    fun exists(path: String): Boolean = runCatching { read(path) }.isSuccess
 }
 
-/** The real content, parsed with the real repository. */
-fun realLearningContent(): LearningContent =
-    runBlocking { LocalLearningContentRepository(LearningAssets::read).getContent() }
+/** The real content (Spanish unless [language] says otherwise), parsed with the real repository. */
+fun realLearningContent(language: AppLanguage? = null): LearningContent =
+    runBlocking { LocalLearningContentRepository(language = { language }, readAsset = LearningAssets::read).getContent() }
 
 /** A small valid content (six topics, three objectives, six questions) for tests that do not care about the real texts. */
 fun sampleLearningContent(): LearningContent = LearningContent(

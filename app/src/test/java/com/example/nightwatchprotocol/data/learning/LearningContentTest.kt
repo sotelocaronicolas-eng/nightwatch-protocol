@@ -259,15 +259,19 @@ class LearningContentTest {
     @Test
     fun repository_readsEachAssetOnce_andKeepsTheContentInMemory() = runTest {
         val reads = mutableListOf<String>()
-        val repository = LocalLearningContentRepository { name ->
-            reads += name
-            LearningAssets.read(name)
+        val repository = LocalLearningContentRepository { path ->
+            reads += path
+            LearningAssets.read(path)
         }
 
         val first = repository.getContent()
         val second = repository.getContent()
 
-        assertEquals(listOf(LESSONS_ASSET, LABS_ASSET, EXAM_ASSET).sorted(), reads.sorted())
+        // Spanish is the base language: its files live in assets/content/es/.
+        assertEquals(
+            listOf(LESSONS_ASSET, LABS_ASSET, EXAM_ASSET).map { "content/es/$it" }.sorted(),
+            reads.sorted(),
+        )
         assertTrue(first === second)
     }
 
