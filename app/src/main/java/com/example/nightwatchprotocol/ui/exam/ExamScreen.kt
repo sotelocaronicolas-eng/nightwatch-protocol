@@ -206,7 +206,9 @@ private fun QuestionBody(question: ExamQuestionUi, onOptionClick: (questionIndex
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp,
                 // 272 dp from the top in Figma (2492:253); its box is 60 dp tall, so the options start at 332 (2492:254).
-                modifier = Modifier.padding(start = 8.dp, top = 200.dp).heightIn(min = 60.dp),
+                // The 60 dp box is only a minimum: a question of two or more lines fills it and touched option A. 20 dp (twice the
+                // 10 dp between options) keeps the question apart from A; the column scrolls, so a long question still fits.
+                modifier = Modifier.padding(start = 8.dp, top = 200.dp, bottom = 20.dp).heightIn(min = 60.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = 90.dp)) {
                 question.options.forEachIndexed { optionIndex, label ->

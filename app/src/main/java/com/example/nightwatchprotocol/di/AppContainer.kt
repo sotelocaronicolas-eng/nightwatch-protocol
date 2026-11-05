@@ -167,7 +167,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val googleWebClientId: String = BuildConfig.GOOGLE_WEB_CLIENT_ID
     override val authRepository: AuthRepository = supabaseAuthRepository
     override val sessionPreferences: SessionPreferences = SessionPreferences(context.sessionDataStore)
-    override val quizContentRepository: QuizContentRepository = LocalQuizContentRepository(context)
+    override val quizContentRepository: QuizContentRepository = LocalQuizContentRepository(context, language = { languageRepository.currentLanguage() })
     override val quizResultRepository: QuizResultRepository =
         SupabasePlacementRepository(supabaseClient.postgrest, sessionUserId)
     override val accountRepository: AccountRepository =
@@ -225,7 +225,10 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val deviceSessionManager: DeviceSessionManager =
         DeviceSessionManager(authRepository, deviceRepository, deviceIdStore, deviceInfoProvider, avatarRepository)
     override val learningContentRepository: LearningContentRepository =
-        LocalLearningContentRepository { name -> context.assets.open(name).bufferedReader().use { it.readText() } }
+        LocalLearningContentRepository(
+            language = { languageRepository.currentLanguage() },
+            readAsset = { path -> context.assets.open(path).bufferedReader().use { it.readText() } },
+        )
     override val learningProgressRepository: LearningProgressRepository =
         SupabaseLearningProgressRepository(supabaseClient.postgrest, sessionUserId)
     override val progressSummaryProvider: ProgressSummaryProvider = ProgressSummaryProvider(learningProgressRepository)
