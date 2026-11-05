@@ -37,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.ui.common.asString
+import com.example.nightwatchprotocol.ui.common.displayText
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
 import com.example.nightwatchprotocol.ui.components.ProfileButton
 import com.example.nightwatchprotocol.ui.components.ProfileTopBar
@@ -189,7 +190,7 @@ private fun InfoCard(uiState: MyProfileUiState, modifier: Modifier = Modifier) {
         InfoDivider()
         InfoRow(stringResource(R.string.profile_field_gender), uiState.gender?.asString() ?: "—", rowHeight = 43.dp)
         InfoDivider()
-        InfoRow(stringResource(R.string.profile_field_birth_date), uiState.birthDate ?: "—", rowHeight = 43.dp)
+        InfoRow(stringResource(R.string.profile_field_birth_date), uiState.birthDate?.displayText() ?: "—", rowHeight = 43.dp)
         InfoDivider()
         InfoRow(
             // (Figma writes "recuperacion" without the accent; the correct spelling is used.)

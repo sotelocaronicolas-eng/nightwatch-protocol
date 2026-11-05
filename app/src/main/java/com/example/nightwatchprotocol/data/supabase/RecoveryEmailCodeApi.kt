@@ -34,16 +34,27 @@ interface RecoveryEmailCodeApi {
     suspend fun verifyCode(code: String)
 }
 
+/**
+ * The body of the Edge Function call. [lang] ("en") only goes when it is not Spanish or null: the function answers in Spanish without it,
+ * which is what every older app version gets, and a function not yet redeployed ignores the extra field.
+ */
+internal fun sendCodeBody(email: String, lang: String?): String = buildJsonObject {
+    put("email", email)
+    if (!lang.isNullOrBlank() && lang != "es") put("lang", lang)
+}.toString()
+
 class SupabaseRecoveryEmailCodeApi(
     private val functions: Functions,
     private val postgrest: Postgrest,
+    /** The tag of the app's language right now, read at every send. */
+    private val language: () -> String? = { null },
 ) : RecoveryEmailCodeApi {
 
     override suspend fun sendCode(email: String) {
         try {
             functions(SEND_RECOVERY_CODE_FUNCTION) {
                 contentType(ContentType.Application.Json)
-                setBody(buildJsonObject { put("email", email) }.toString())
+                setBody(sendCodeBody(email, language()))
             }
         } catch (e: CancellationException) {
             throw e

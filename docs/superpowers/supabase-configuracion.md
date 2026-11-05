@@ -583,6 +583,19 @@ funciones que `0010` reemplaza (`social_friends`, `social_pairs`, `battle_lobby`
 `battle_sync` y `battle_play`) conservan su aceptación (S1 a S5). Nota: la tabla del final de `0010` dice «las 4 filas de 0008» y nombra cinco
 funciones; las filas aceptadas son cinco (S1 a S5).
 
+### Tras `0013` (batallas en inglés, aplicada el 2026-11-05)
+
+| # | Advertencia | Objeto | Por qué se acepta |
+|---|---|---|---|
+| S9 | "Signed-In Users Can Execute SECURITY DEFINER Function" | `public.battle_sync(uuid, text)` y `public.battle_play(uuid, text, integer, text, text)` | Son las MISMAS funciones de S4 y S5; solo cambió la firma (se agregó `p_lang`, con valor por defecto `'es'`). Mismo motivo: vista personal de la batalla y única vía de escritura, solo sobre `auth.uid()`. `p_lang` solo elige el texto devuelto (traducción o respaldo en español); no cambia aciertos, daño ni turnos |
+| S10 | (Info) "RLS Enabled No Policy" | 2 tablas: `battle_question_translations` y `ulti_challenge_translations` | Intencional, igual que S6: RLS activo sin políticas ni `GRANT`; solo las lee `sx_battle_state` (función interna sin `EXECUTE` para la app). La respuesta correcta y el comando esperado no se duplican ahí |
+
+Las firmas viejas (`battle_sync(uuid)`, `battle_play(uuid, text, integer, text)`, `sx_battle_state(uuid, uuid)`) ya no existen: S4 y S5 pasan a ser S9. Por tanto el
+total de advertencias de función no sube (siguen 10) y las sugerencias pasan de 14 a **16** (las 2 tablas de S10). Si el Advisor muestra otra cifra, se corrige aquí.
+
+**Desplegado a mano (2026-11-05):** las tres plantillas bilingües de Auth (`docs/supabase/plantillas-correo-bilingue.md`: Confirm sign up, Change email address y
+Reset password) y la Edge Function `send-recovery-email-code` con `lang`, probadas por el equipo.
+
 No hay advertencias de "Public Can Execute SECURITY DEFINER Function" ni de "Function Search Path Mutable" para Social: ninguna función se puede
 llamar sin sesión y todas declaran `set search_path = ''`. `social_new_code()` es `SECURITY INVOKER` y las 20 funciones internas `sx_*` no
 tienen `EXECUTE` para `anon` ni `authenticated`.

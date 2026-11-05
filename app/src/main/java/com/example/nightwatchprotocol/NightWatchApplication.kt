@@ -24,7 +24,7 @@ class NightWatchApplication : Application() {
             container.authRepository.signOut()
         }
 
-        ReminderNotifier.createChannels(this)
+        ReminderNotifier.createChannels(this) { container.languageRepository.currentLanguage() }
         // Puts the planned reminders back in line with the switches (e.g. after the permission was revoked).
         appScope.launch { container.reminderCoordinator.sync() }
     }

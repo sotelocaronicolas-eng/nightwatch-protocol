@@ -66,6 +66,9 @@ private fun isUuid(text: String): Boolean = runCatching { UUID.fromString(text) 
 
 private val invalidInput = SocialResult.Failure(SocialError.InvalidInput)
 
+/** The base language: never sent as `p_lang` (the server's default). */
+private const val SPANISH_TAG = "es"
+
 /** Calls [function] and reads the answer with [parse]; a failed call comes back as the same failure. */
 private suspend fun <T> SocialRpcClient.callAndParse(
     function: String,
@@ -186,14 +189,24 @@ class SupabaseBattleLobbyRepository(
         rpc.callAndParse(BATTLE_LOBBY_RPC, actionParams(action), ::parseQuickMatch)
 }
 
+/**
+ * [language] is the tag of the app's language ("es", "en") or null. The questions and ulti titles come in that language from
+ * `0013_batallas_ingles.sql` (`p_lang`). Spanish is never sent (it is the server's default, and what every older server
+ * understands). A server WITHOUT 0013 does not know `p_lang` and answers "function not found", which is
+ * [SocialError.Unavailable] here: the call is repeated at once without `p_lang` and, from then on, this repository stops sending it
+ * (the battle goes on in Spanish; nothing was run on the server by the failed call).
+ */
 class SupabaseBattleRepository(
     private val rpc: SocialRpcClient,
     private val clock: MonotonicClock = SystemMonotonicClock,
+    private val language: () -> String? = { null },
 ) : BattleRepository {
+    @Volatile
+    private var serverAcceptsLang = true
 
     override suspend fun sync(battleId: String): SocialResult<BattleState> {
         if (!isUuid(battleId)) return invalidInput
-        return rpc.callAndParse(BATTLE_SYNC_RPC, syncParams(battleId)) { parseBattleState(it, clock) }
+        return callWithLang(BATTLE_SYNC_RPC) { lang -> syncParams(battleId, lang) }
     }
 
     override suspend fun answer(battleId: String, turnNumber: Int, option: Char): SocialResult<BattleState> {
@@ -212,6 +225,17 @@ class SupabaseBattleRepository(
 
     private suspend fun play(battleId: String, action: String, turnNumber: Int? = null, arg: String? = null): SocialResult<BattleState> {
         if (!isUuid(battleId)) return invalidInput
-        return rpc.callAndParse(BATTLE_PLAY_RPC, playParams(battleId, action, turnNumber, arg)) { parseBattleState(it, clock) }
+        return callWithLang(BATTLE_PLAY_RPC) { lang -> playParams(battleId, action, turnNumber, arg, lang) }
+    }
+
+    private suspend fun callWithLang(function: String, params: (lang: String?) -> kotlinx.serialization.json.JsonObject): SocialResult<BattleState> {
+        val lang = if (serverAcceptsLang) language()?.takeIf { it.isNotBlank() && it != SPANISH_TAG } else null
+        if (lang == null) return rpc.call(function, params(null)).flatMap { parseBattleState(it, clock) }
+        val first = rpc.callNewAction(function, params(lang)).flatMap { parseBattleState(it, clock) }
+        if (first is SocialResult.Failure && first.error == SocialError.Unavailable) {
+            serverAcceptsLang = false
+            return rpc.call(function, params(null)).flatMap { parseBattleState(it, clock) }
+        }
+        return first
     }
 }

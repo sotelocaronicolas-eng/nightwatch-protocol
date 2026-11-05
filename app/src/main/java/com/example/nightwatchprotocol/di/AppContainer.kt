@@ -177,7 +177,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
             supabaseClient.postgrest,
             SupabaseAvatarStorage(supabaseClient.storage[AVATAR_BUCKET]),
             sessionUserId,
-            SupabaseRecoveryEmailCodeApi(supabaseClient.functions, supabaseClient.postgrest),
+            SupabaseRecoveryEmailCodeApi(supabaseClient.functions, supabaseClient.postgrest) { languageRepository.currentLanguage()?.tag },
         )
 
     // Social: the SQL functions travel through one client; the person always comes from the session (no id is sent). It is built
@@ -237,7 +237,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val friendsRepository: FriendsRepository = SupabaseFriendsRepository(socialRpcClient)
     override val pairStreakRepository: PairStreakRepository = SupabasePairStreakRepository(socialRpcClient)
     override val battleLobbyRepository: BattleLobbyRepository = SupabaseBattleLobbyRepository(socialRpcClient)
-    override val battleRepository: BattleRepository = SupabaseBattleRepository(socialRpcClient)
+    override val battleRepository: BattleRepository = SupabaseBattleRepository(socialRpcClient, language = { languageRepository.currentLanguage()?.tag })
     override val battlePoller: BattlePoller = BattlePoller(battleRepository)
     override val quickMatchPoller: QuickMatchPoller = QuickMatchPoller(battleLobbyRepository)
     override val challengesPoller: ChallengesPoller = ChallengesPoller(battleLobbyRepository)
