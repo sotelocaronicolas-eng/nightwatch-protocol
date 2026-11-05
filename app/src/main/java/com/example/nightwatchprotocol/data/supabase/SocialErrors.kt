@@ -58,10 +58,18 @@ fun classifyNewActionFailure(error: Throwable): SocialError {
     if (error is PostgrestRestException && error.code == POSTGRES_RAISE_EXCEPTION && error.error.trim() == BAD_ACTION_CODE) {
         return SocialError.Unavailable
     }
+    // PostgREST answers "function not found with those parameters" (PGRST202) when the call carries a parameter the server's
+    // function does not have yet, such as `p_lang` before 0013_batallas_ingles.sql.
+    if (error is PostgrestRestException && error.code == POSTGREST_FUNCTION_NOT_FOUND) {
+        return SocialError.Unavailable
+    }
     return classifySocialFailure(error)
 }
 
 private const val BAD_ACTION_CODE = "bad_action"
+
+/** PostgREST: no function with that name and those named parameters. */
+const val POSTGREST_FUNCTION_NOT_FOUND = "PGRST202"
 
 /**
  * Runs a Social call with a time limit and returns its result or a classified failure; nothing is thrown, except the

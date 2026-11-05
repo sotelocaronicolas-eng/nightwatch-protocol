@@ -262,7 +262,7 @@ class SupabaseSocialRepositoriesTest {
         lobby.quickJoin(); lobby.quickPoll(); lobby.sendChallenge("NIGHT-9H4M5P"); lobby.challenges()
         battles.sync(BATTLE_ID); battles.answer(BATTLE_ID, 1, 'A'); battles.abandon(BATTLE_ID)
 
-        val allowed = setOf("p_action", "p_arg", "p_battle", "p_turn")
+        val allowed = setOf("p_action", "p_arg", "p_battle", "p_turn", "p_lang")
         rpc.calls.forEach { call ->
             assertTrue("${call.function} envía ${call.params.keys}", call.params.keys.all { it in allowed })
         }

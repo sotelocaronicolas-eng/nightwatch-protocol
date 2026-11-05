@@ -40,14 +40,25 @@ fun actionParams(action: String, arg: String? = null): JsonObject = buildJsonObj
     if (arg != null) put("p_arg", arg)
 }
 
-fun syncParams(battleId: String): JsonObject = buildJsonObject { put("p_battle", battleId) }
+/** `battle_sync(p_battle, p_lang)`: [lang] (0013) only goes when it is not null; without it the server answers in Spanish. */
+fun syncParams(battleId: String, lang: String? = null): JsonObject = buildJsonObject {
+    put("p_battle", battleId)
+    if (lang != null) put("p_lang", lang)
+}
 
-/** `battle_play(p_battle, p_action, p_turn, p_arg)`: the turn and the argument only go when the action uses them. */
-fun playParams(battleId: String, action: String, turnNumber: Int? = null, arg: String? = null): JsonObject = buildJsonObject {
+/** `battle_play(p_battle, p_action, p_turn, p_arg, p_lang)`: the turn, the argument and [lang] only go when they are used. */
+fun playParams(
+    battleId: String,
+    action: String,
+    turnNumber: Int? = null,
+    arg: String? = null,
+    lang: String? = null,
+): JsonObject = buildJsonObject {
     put("p_battle", battleId)
     put("p_action", action)
     if (turnNumber != null) put("p_turn", turnNumber)
     if (arg != null) put("p_arg", arg)
+    if (lang != null) put("p_lang", lang)
 }
 
 // ---- the envelope ----
