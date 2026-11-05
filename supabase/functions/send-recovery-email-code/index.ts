@@ -51,7 +51,8 @@ const TEXTS: Record<Lang, { subject: string; intro: string; expires: string; ign
 /** El idioma pedido si es uno de los que hay; si no, el español. Nunca falla por un "lang" raro. */
 function pickLang(raw: unknown): Lang {
   const tag = typeof raw === "string" ? raw.trim().toLowerCase().split("-")[0] : "";
-  return tag in TEXTS ? (tag as Lang) : DEFAULT_LANG;
+  // Object.hasOwn y no "in": un valor como "constructor" o "toString" está en el prototipo y no debe contar como idioma.
+  return Object.hasOwn(TEXTS, tag) ? (tag as Lang) : DEFAULT_LANG;
 }
 
 function json(status: number, body: Record<string, unknown>, headers: Record<string, string> = {}): Response {

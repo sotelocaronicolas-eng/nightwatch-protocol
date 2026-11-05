@@ -45,7 +45,7 @@ el de Supabase.
 ## Idioma del correo (etapa 10 del módulo 5)
 
 El cuerpo acepta un campo opcional `"lang"` (`"es"` o `"en"`). La app v2.4.0 lo manda solo con inglés. Sin `lang`, o con uno desconocido,
-el correo sale en español, como antes: las apps v2.3.0 y anteriores no cambian. Redesplegar a mano (`supabase functions deploy` o el
+el correo sale en español (también con valores como `constructor`, que no son un idioma), como antes: las apps v2.3.0 y anteriores no cambian. Redesplegar a mano (`supabase functions deploy` o el
 panel) cuando el equipo apruebe; mientras no se redespliegue, la función vieja ignora el campo y todo sale en español. Un idioma nuevo es
 una entrada más en `TEXTS` de `index.ts`.
 
