@@ -1,0 +1,80 @@
+[
+  {
+    "topic": "CONTRASENAS",
+    "title": "Passwords and Authentication",
+    "islandName": "Password Island",
+    "emoji": "🔑",
+    "cards": [
+      { "emoji": "🧭", "title": "What is it?", "text": "Passwords are keys that protect our accounts and devices from unauthorized access.\n\nA strong password should be long, hard to guess and different for every account. It can combine letters, numbers and symbols, although a long, unpredictable phrase can also be very secure.\n\nTwo-factor authentication (2FA) adds a second verification, such as a temporary code or a security key." },
+      { "emoji": "⚠️", "title": "Why does it matter?", "text": "Weak or reused passwords make it easier for accounts to be stolen.\n\nIf you use the same password on different sites and one of them suffers a breach, attackers can try to get into your other accounts using that same data.\n\nEven a complex password can be vulnerable if it shows up in a breach or is obtained through deception." },
+      { "emoji": "🔍", "title": "Types and techniques", "text": "Dictionary attack: trying common passwords or well-known words until a match is found.\n\nPassword spraying: trying a few common passwords against many accounts, aiming to avoid lockouts caused by failed attempts.\n\nSalted hash: a method used by secure systems to store passwords. The password is transformed with a slow hashing algorithm and a random salt, without saving its original text.\n\nFIDO2 keys: physical authentication devices that protect against phishing by verifying the site where they are used." },
+      { "emoji": "🛡️", "title": "How to protect yourself", "text": "• Use long, unique passwords that are hard to predict.\n\n• Use a password manager to store them securely.\n\n• Turn on two-factor authentication (2FA).\n\n• Never share your passwords, not even with someone who says they are from tech support.\n\n• If a password appears in a breach, change it on every account where you used it.\n\n• Prefer FIDO2 keys or phishing-resistant methods when they are available." }
+    ],
+    "source": "Figma LECCION UPDATE - Contraseñas y Autenticación (2621:252); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+  },
+  {
+    "topic": "PHISHING",
+    "title": "Phishing",
+    "islandName": "Phishing Bay",
+    "emoji": "🎣",
+    "cards": [
+      { "emoji": "🧭", "title": "What is it?", "text": "Phishing is a deception technique in which an attacker pretends to be a trusted person, company or institution to obtain passwords, personal information or money.\n\nIt usually shows up as emails, messages, fake websites or malicious links.\n\nAttackers can copy the logos, names and designs of real companies to make their messages look legitimate." },
+      { "emoji": "⚠️", "title": "Why does it matter?", "text": "Phishing is one of the most widely used attack methods because it takes advantage of human error.\n\nA single malicious link can take you to a fake page where you hand over your credentials.\n\nAttackers often create a sense of urgency, such as warnings about blocked accounts, pending payments or prizes that are about to expire." },
+      { "emoji": "🔍", "title": "Types and techniques", "text": "Spear phishing: a personalized attack aimed at a specific person, using information about them to build trust.\n\nSmishing: phishing carried out through text messages (SMS).\n\nBEC (Business Email Compromise): fraud in which someone impersonates an executive, employee or supplier to request money transfers or information.\n\nDomain spoofing: creating addresses that look like the original ones. For example, banco-ejemp1o.com uses the number 1 instead of the letter l.\n\nDisguised files: a file named factura.pdf.exe can look like a PDF document, but it is actually an executable program.\n\nSPF, DKIM and DMARC: mechanisms that help verify the authenticity of emails and make domain spoofing harder." },
+      { "emoji": "🛡️", "title": "How to protect yourself", "text": "• Check the sender's real address.\n\n• Review links before opening them; on your phone you can press and hold them to see where they lead.\n\n• Don't open suspicious attachments.\n\n• Be wary of messages that demand immediate action.\n\n• Report or delete suspicious emails.\n\n• Use a password manager: if it doesn't recognize the domain and doesn't autofill your details, it could be a warning sign.\n\n• Remember that HTTPS encrypts the connection, but it doesn't guarantee that a page is legitimate." }
+    ],
+    "source": "Figma LECCION UPDATE - Phishing (2621:269); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+  },
+  {
+    "topic": "MALWARE",
+    "title": "Malware",
+    "islandName": "Malware Reef",
+    "emoji": "🦠",
+    "cards": [
+      { "emoji": "🧭", "title": "What is it?", "text": "Malware is any software designed to damage, spy on, steal information from or take control of a device without authorization.\n\nIt can arrive through downloaded files, fake apps, malicious links or security vulnerabilities.\n\nSome malicious programs hide inside apps that seem legitimate." },
+      { "emoji": "⚠️", "title": "Why does it matter?", "text": "An infection can cause data loss, password theft, locked files or unauthorized access to other devices on a network.\n\nSome types of malware can spread quickly without any user action.\n\nThey can also let an attacker control the device remotely." },
+      { "emoji": "🔍", "title": "Types and techniques", "text": "Ransomware: encrypts files and demands a payment to try to get them back.\n\nSpyware: a spy program that collects the user's information without their consent.\n\nTrojan: a program that looks legitimate but introduces malicious functions.\n\nWorm: malware able to spread automatically across a network.\n\nKeylogger: a malicious tool that records what you type, including possible passwords.\n\nBotnet: a group of infected devices controlled remotely by an attacker.\n\nRootkit: malware designed to hide its presence and keep privileged access to the system.\n\nSandbox: an isolated environment used to run and observe suspicious files, reducing the risk to the main device." },
+      { "emoji": "🛡️", "title": "How to protect yourself", "text": "• Download apps from official, trusted sources.\n\n• Keep your operating system and programs up to date.\n\n• Use an active, up-to-date antivirus.\n\n• Avoid installing pirated programs or files of unknown origin.\n\n• Make regular backups, including copies disconnected from the network.\n\n• If you suspect an infection, disconnect the device from the network and run a security scan.\n\n• Don't run suspicious files directly on your device." }
+    ],
+    "source": "Figma LECCION UPDATE - Malware (2621:286); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+  },
+  {
+    "topic": "INGENIERIA_SOCIAL",
+    "title": "Social Engineering",
+    "islandName": "Social Deception Cave",
+    "emoji": "🎭",
+    "cards": [
+      { "emoji": "🧭", "title": "What is it?", "text": "Social engineering is the psychological manipulation of people to obtain information, gain access to systems or get them to take unsafe actions.\n\nUnlike other attacks, it doesn't need to directly exploit a technical vulnerability.\n\nAttackers can use trust, fear, authority, curiosity or urgency to convince their victims." },
+      { "emoji": "⚠️", "title": "Why does it matter?", "text": "Even a system with good security measures can be compromised if a person hands over confidential information or allows improper access.\n\nAttackers can pose as coworkers, relatives, technicians or superiors.\n\nThey can also use information posted on social media to create more believable deceptions." },
+      { "emoji": "🔍", "title": "Types and techniques", "text": "Pretexting: inventing a convincing story or identity to gain trust and obtain information.\n\nBaiting: offering something attractive to provoke an unsafe action, such as leaving infected USB drives in public places.\n\nTailgating: entering a restricted area by closely following an authorized person.\n\nShoulder surfing: looking over someone's shoulder to discover passwords or information shown on a screen.\n\nVishing: phishing carried out through phone calls.\n\nQuishing: phishing that uses malicious QR codes to lead people to fraudulent pages.\n\nUrgency manipulation: pressuring the victim with short deadlines so they act without verifying." },
+      { "emoji": "🛡️", "title": "How to protect yourself", "text": "• Verify suspicious requests through another known communication channel.\n\n• Never give your passwords to supposed support technicians.\n\n• Don't plug in unknown USB drives.\n\n• Avoid showing confidential information in public places.\n\n• Be wary of urgent or unusual orders, even if they seem to come from a superior.\n\n• Avoid posting information that could be used to answer security questions, such as pet names, schools or hometowns.\n\n• Follow the physical access protocols for restricted facilities." }
+    ],
+    "source": "Figma LECCION UPDATE - Ingeniería Social (2621:303); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72)"
+  },
+  {
+    "topic": "REDES_SEGURAS",
+    "title": "Secure Networks Islands",
+    "islandName": "Secure Networks Islands",
+    "emoji": "📡",
+    "cards": [
+      { "emoji": "🧭", "title": "What is it?", "text": "Network security is about protecting communication between devices and preventing unauthorized access.\n\nA secure network uses encryption, authentication and device separation to reduce risks.\n\nFor example, WPA3 and WPA2 are security protocols used to protect Wi-Fi networks.\n\nThere are also technologies such as VPNs, which create encrypted tunnels to transmit information." },
+      { "emoji": "⚠️", "title": "Why does it matter?", "text": "Public or poorly configured networks can make it easier for information to be intercepted.\n\nOn an open Wi-Fi network, an attacker could observe communications that aren't protected by encryption.\n\nAlso, if all devices share the same network without separation, one compromised device could make attacks against others easier." },
+      { "emoji": "🔍", "title": "Types and techniques", "text": "Man-in-the-middle (MITM): an attack in which a third party gets between two devices to observe or modify their communications.\n\nEvil twin: a fake Wi-Fi network that imitates the name of a legitimate one to trick users.\n\nDNS spoofing: forging DNS responses to redirect a person to a fraudulent page.\n\nWPS: a system that makes connecting to the router easier, but whose PIN method has known weaknesses.\n\nSSH: a protocol that lets you manage devices remotely through encrypted communications, unlike Telnet.\n\nPort scanning: analyzing the services reachable on a network. Tools such as Nmap can identify open ports.\n\nGuest network: a separate network that helps keep visitors' devices from reaching the main devices." },
+      { "emoji": "🛡️", "title": "How to protect yourself", "text": "• Use WPA3 or WPA2 with a strong password.\n\n• Change the router's default administration password.\n\n• Turn off WPS when you don't need it.\n\n• Use a trusted VPN on public networks when you need extra protection.\n\n• Check that sensitive pages use HTTPS.\n\n• Set up a separate guest network.\n\n• Close ports and services you don't use.\n\n• Use SSH instead of Telnet for remote administration.\n\n• Regularly review which services are exposed on your own network." }
+    ],
+    "source": "Figma LECCION UPDATE - Islas de Redes Seguras (2621:320); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72). SUPUESTO: el mapa muestra 🔒 (bloqueada) en vez del ícono de esta isla, así que se usa el de la lección"
+  },
+  {
+    "topic": "FIREWALL",
+    "title": "Firewall Fortress",
+    "islandName": "Firewall Fortress",
+    "emoji": "🧱",
+    "cards": [
+      { "emoji": "🧭", "title": "What is it?", "text": "A firewall is a security system that controls network traffic according to established rules.\n\nIt can work as a program installed on a device or as a device that protects a network.\n\nFirewalls let you allow or block connections based on characteristics such as IP addresses, ports and protocols.\n\nA port is a number that identifies a network service. For example, HTTPS normally uses port 443." },
+      { "emoji": "⚠️", "title": "Why does it matter?", "text": "Without a properly configured firewall, unnecessary services could be exposed to outside connections.\n\nAn attacker can look for open ports to identify vulnerable services.\n\nThe firewall helps reduce the chances of unauthorized access, although it doesn't replace other measures such as updates, strong passwords and antivirus." },
+      { "emoji": "🔍", "title": "Types and techniques", "text": "Stateful firewall: monitors the state of connections to tell apart traffic that belongs to existing communications.\n\nDeny by default: a policy that blocks all traffic that hasn't been explicitly authorized.\n\nDMZ (demilitarized zone): a separate network segment where services exposed to the Internet are placed, keeping them isolated from the internal network.\n\nWAF (Web Application Firewall): a specialized firewall that inspects HTTP traffic to protect web applications against attacks such as SQL injection and XSS.\n\nDROP: silently discards a packet without responding to the source.\n\nREJECT: rejects a packet and tells the source that it was rejected.\n\nRule order: in many firewalls, rules are evaluated in sequence and the first one that matches is applied." },
+      { "emoji": "🛡️", "title": "How to protect yourself", "text": "• Keep the system firewall turned on.\n\n• Apply a deny-by-default policy when appropriate.\n\n• Allow only the ports and services you need.\n\n• Don't turn off the firewall because an unknown program asks you to.\n\n• Regularly review the configured rules.\n\n• Separate public services from internal devices using a DMZ when needed.\n\n• Use tools such as UFW on Linux to manage security rules.\n\nFor example, these UFW commands let you set specific rules:\n\n• ufw allow 22/tcp: allows incoming connections to port 22, normally used by SSH.\n\n• ufw deny from 198.51.100.9: blocks traffic coming from that IP address." }
+    ],
+    "source": "Figma LECCION UPDATE - Fortaleza del Firewall (2621:337); isla en RUTA DE APRENDIZAJE (MAPA) (2266:72). SUPUESTO: el mapa muestra 🔒 (bloqueada) en vez del ícono de esta isla, así que se usa el de la lección"
+  }
+]

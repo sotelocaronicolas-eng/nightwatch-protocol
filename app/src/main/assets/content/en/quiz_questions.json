@@ -1,0 +1,162 @@
+[
+  {
+    "id": "cb1",
+    "category": "CONCEPTOS_BASICOS",
+    "difficulty": 1,
+    "text": "What does the acronym CIA stand for in information security?",
+    "options": ["Confidentiality, Integrity and Availability", "Control, Inspection and Audit", "Encryption, Identity and Authentication", "Trust, Integrity and Anonymity"],
+    "correctIndex": 0
+  },
+  {
+    "id": "cb2",
+    "category": "CONCEPTOS_BASICOS",
+    "difficulty": 2,
+    "text": "What is the main difference between a vulnerability and a threat?",
+    "options": ["A vulnerability is an exploitable weakness; a threat is what could exploit it", "They are synonyms and are used interchangeably", "A threat is a type of malware; a vulnerability is a misconfigured firewall", "A vulnerability only exists in software; a threat only exists in hardware"],
+    "correctIndex": 0
+  },
+  {
+    "id": "cb3",
+    "category": "CONCEPTOS_BASICOS",
+    "difficulty": 2,
+    "text": "Which security principle states that a user or process should have only the minimum permissions needed to do its task?",
+    "options": ["Defense in depth", "Principle of least privilege", "Separation of duties", "Non-repudiation"],
+    "correctIndex": 1
+  },
+  {
+    "id": "cb4",
+    "category": "CONCEPTOS_BASICOS",
+    "difficulty": 3,
+    "text": "What is a zero-day vulnerability?",
+    "options": ["A security flaw that has been publicly known for more than a year", "A vulnerability that already has an official patch available", "A flaw unknown to the vendor, with no patch available when it is exploited", "A configuration error detected by an antivirus"],
+    "correctIndex": 2
+  },
+  {
+    "id": "cb5",
+    "category": "CONCEPTOS_BASICOS",
+    "difficulty": 2,
+    "text": "What is 'defense in depth'?",
+    "options": ["Using a single, very robust security tool", "Applying multiple layers of independent security controls", "Encrypting only the network layer", "Relying only on the firewall's perimeter security"],
+    "correctIndex": 1
+  },
+  {
+    "id": "pw1",
+    "category": "CONTRASENAS",
+    "difficulty": 1,
+    "text": "Why is a long passphrase usually more secure than a short password with symbols?",
+    "options": ["Because it has more entropy by being longer, even if it uses simple words", "Because passphrases can never be guessed by brute force", "Because special symbols weaken security", "Because systems don't allow short passwords"],
+    "correctIndex": 0
+  },
+  {
+    "id": "pw2",
+    "category": "CONTRASENAS",
+    "difficulty": 2,
+    "text": "What is 'credential stuffing'?",
+    "options": ["An attack that tries username/password combinations leaked from other sites to access an account", "A method for generating secure random passwords", "A technique for encrypting passwords in the database", "A type of firewall that blocks suspicious logins"],
+    "correctIndex": 0
+  },
+  {
+    "id": "pw3",
+    "category": "CONTRASENAS",
+    "difficulty": 1,
+    "text": "In multi-factor authentication (MFA), what do 'something you know, something you have and something you are' represent?",
+    "options": ["The three types of firewall", "The three layers of the OSI model related to login", "The three classic categories of authentication factors", "The three steps of a phishing attack"],
+    "correctIndex": 2
+  },
+  {
+    "id": "pw4",
+    "category": "CONTRASENAS",
+    "difficulty": 3,
+    "text": "What is the purpose of adding a 'salt' when hashing passwords before storing them?",
+    "options": ["To speed up the login verification process", "To prevent identical passwords from producing the same hash and to defeat attacks with precomputed tables (rainbow tables)", "To compress the size of the stored hash", "To make it easy to recover the original password"],
+    "correctIndex": 1
+  },
+  {
+    "id": "pw5",
+    "category": "CONTRASENAS",
+    "difficulty": 2,
+    "text": "What is the main risk of reusing the same password on several sites?",
+    "options": ["None, as long as the password is long enough", "If one site suffers a breach, an attacker can try that same password on your other accounts", "Browsers automatically block reuse", "It only affects the website's performance"],
+    "correctIndex": 1
+  },
+  {
+    "id": "is1",
+    "category": "INGENIERIA_SOCIAL",
+    "difficulty": 1,
+    "text": "What sets 'spear phishing' apart from generic phishing?",
+    "options": ["Spear phishing is targeted and personalized for a specific person or organization", "Spear phishing only happens by phone", "Generic phishing always includes attached malware", "There is no real difference"],
+    "correctIndex": 0
+  },
+  {
+    "id": "is2",
+    "category": "INGENIERIA_SOCIAL",
+    "difficulty": 2,
+    "text": "What is 'pretexting' in social engineering?",
+    "options": ["Sending mass emails without personalizing them", "Creating a false story or identity to gain the victim's trust and obtain information", "A type of encryption used by attackers", "Scanning a network's ports before an attack"],
+    "correctIndex": 1
+  },
+  {
+    "id": "is3",
+    "category": "INGENIERIA_SOCIAL",
+    "difficulty": 2,
+    "text": "What is the social engineering attack carried out by phone or voice messages called?",
+    "options": ["Smishing", "Vishing", "Whaling", "Tailgating"],
+    "correctIndex": 1
+  },
+  {
+    "id": "is4",
+    "category": "INGENIERIA_SOCIAL",
+    "difficulty": 1,
+    "text": "Which of the following is NOT a typical sign of a phishing email?",
+    "options": ["Extreme urgency to act immediately", "Sender domain slightly different from the official one", "The email was verifiably digitally signed by the company", "Links that don't match the expected domain when you hover over them"],
+    "correctIndex": 2
+  },
+  {
+    "id": "is5",
+    "category": "INGENIERIA_SOCIAL",
+    "difficulty": 3,
+    "text": "What is 'baiting' in social engineering?",
+    "options": ["Offering something attractive (like a USB drive or a free download) to induce the victim to compromise their security", "Spying on conversations on social media", "Sending advertising spam without malicious intent", "Blocking access to a system until a ransom is paid"],
+    "correctIndex": 0
+  },
+  {
+    "id": "nm1",
+    "category": "REDES_MALWARE",
+    "difficulty": 1,
+    "text": "What is the main difference between a virus and a worm?",
+    "options": ["The worm spreads automatically across the network without needing a host file; the virus does need one", "They are exactly the same", "The virus only affects servers, the worm only affects personal computers", "The worm cannot damage files"],
+    "correctIndex": 0
+  },
+  {
+    "id": "nm2",
+    "category": "REDES_MALWARE",
+    "difficulty": 1,
+    "text": "At a basic level, what does a firewall do?",
+    "options": ["Removes viruses already installed on the system", "Filters and controls allowed network traffic according to defined rules", "Encrypts all files on the hard drive", "Automatically generates secure passwords"],
+    "correctIndex": 1
+  },
+  {
+    "id": "nm3",
+    "category": "REDES_MALWARE",
+    "difficulty": 2,
+    "text": "What characterizes a ransomware attack?",
+    "options": ["It encrypts the victim's files and demands a payment to restore them", "It only steals passwords saved in the browser", "It is a misconfigured type of firewall", "It only affects email servers"],
+    "correctIndex": 0
+  },
+  {
+    "id": "nm4",
+    "category": "REDES_MALWARE",
+    "difficulty": 3,
+    "text": "What is a man-in-the-middle attack?",
+    "options": ["An attacker intercepts and potentially alters the communication between two parties without them noticing", "An attacker floods a server with traffic until it goes down", "An attacker installs a physical keylogger", "An attacker guesses passwords by brute force"],
+    "correctIndex": 0
+  },
+  {
+    "id": "nm5",
+    "category": "REDES_MALWARE",
+    "difficulty": 2,
+    "text": "What does the use of HTTPS/TLS mainly protect in web communication?",
+    "options": ["The server's availability during outages", "The confidentiality and integrity of data in transit, through encryption", "The page's loading speed", "The creation of automatic backups"],
+    "correctIndex": 1
+  }
+]

@@ -1,0 +1,215 @@
+[
+  {
+    "topic": "CONTRASENAS",
+    "cardTitle": "Password Strength",
+    "terminalTitle": "Password Strength",
+    "emoji": "🔑",
+    "difficulty": "FACIL",
+    "briefing": "Pick a candidate password and run the command to estimate how long an attacker would take to crack it.",
+    "objectives": [
+      {
+        "title": "Test a weak password",
+        "command": "crack 123456",
+        "output": "Estimated time: less than 1 second (top 20 most used passwords)",
+        "estimatedTime": "less than 1 second",
+        "reportLabel": "Weak password tested"
+      },
+      {
+        "title": "Test a password with a pattern",
+        "command": "crack Nightwatch2024",
+        "output": "Estimated time: 4 hours (brand name + year, dictionary pattern)",
+        "estimatedTime": "4 hours",
+        "reportLabel": "Password with a pattern tested"
+      },
+      {
+        "title": "Test a strong password",
+        "command": "crack N!ghtW4tch#7kQ2",
+        "output": "Estimated time: 300 years (length, symbols and no recognizable pattern)",
+        "estimatedTime": "300 years",
+        "reportLabel": "Strong password tested"
+      }
+    ],
+    "report": {
+      "successTitle": "Lab completed!",
+      "successSummary": "You saw why length and randomness matter more than a single symbol.",
+      "failureSummary": "You didn't see why length and randomness matter more than a single symbol.",
+      "metricLabel": "Estimated time for your strongest password"
+    },
+    "source": "Figma LABORATORIOS (2271:84); LAB - FUERZA DE CONTRASEÑAS (2374:273) y (Resuelto) (2374:303); informes LAB - INFORME DE CONTRASEÑAS (2374:336) y (ERROR) (2400:144). estimatedTime sale de la parte entre 'Tiempo estimado:' y el paréntesis de cada salida (SUPUESTO, ver spec sección 14, Q2)"
+  },
+  {
+    "topic": "PHISHING",
+    "cardTitle": "Spot the Fake Email",
+    "terminalTitle": "Suspicious Email",
+    "emoji": "🎣",
+    "difficulty": "FACIL",
+    "briefing": "Before you click, investigate the email that claims to be from NightWatch Support.",
+    "objectives": [
+      {
+        "title": "Inspect the sender",
+        "command": "whois nightwatch-secure-verify.com",
+        "output": "Domain registered 6 days ago. It does not belong to NightWatch.",
+        "reportLabel": "Sender's domain investigated"
+      },
+      {
+        "title": "Check the link in the email",
+        "command": "curl -I hxxp://nw-verify.io",
+        "output": "Redirects to a fake login form.",
+        "reportLabel": "Email link checked"
+      },
+      {
+        "title": "Compare with the official domain",
+        "command": "diff nightwatch-verify.io nw.app",
+        "output": "The real domain is nightwatch.app — this one is an imitation.",
+        "reportLabel": "Comparison with the official domain done"
+      }
+    ],
+    "report": {
+      "successTitle": "Mission completed!",
+      "successSummary": "You confirmed that the email does not come from a real NightWatch domain.",
+      "failureSummary": "You didn't confirm that the email does not come from a real NightWatch domain.",
+      "metricLabel": "Analysis accuracy"
+    },
+    "source": "Figma LABORATORIOS (2271:84); LAB - CORREO SOSPECHOSO (Terminal) (2383:141) y (Resuelto) (2383:173); informes LAB - INFORME DE LA MISIÓN (2273:131) y (ERROR) (2404:243). Figma dice 'este es una imitación'; se corrigió a 'esta es una imitación' (diferencia F15 de la spec)"
+  },
+  {
+    "topic": "MALWARE",
+    "cardTitle": "Analyze the Suspicious File",
+    "terminalTitle": "Suspicious File",
+    "emoji": "🦠",
+    "difficulty": "MEDIO",
+    "briefing": "Analyze sospechoso.exe before it runs on the corporate network.",
+    "objectives": [
+      {
+        "title": "Scan the file with the antivirus",
+        "command": "scan sospechoso.exe",
+        "output": "Signature detected: Trojan.Generic.NW",
+        "reportLabel": "File scanned"
+      },
+      {
+        "title": "Check the running processes",
+        "command": "ps aux | grep sospechoso",
+        "output": "sospechoso.exe is trying to connect to 45.33.12.9:4444",
+        "reportLabel": "Suspicious process identified"
+      },
+      {
+        "title": "Quarantine the file",
+        "command": "quarantine sospechoso.exe",
+        "output": "File isolated. Network connection blocked.",
+        "reportLabel": "File quarantined"
+      }
+    ],
+    "report": {
+      "successTitle": "Lab completed!",
+      "successSummary": "You detected the Trojan before it connected to its remote server.",
+      "failureSummary": "You didn't detect the Trojan before it connected to its remote server.",
+      "metricLabel": "Analysis accuracy"
+    },
+    "source": "Figma LABORATORIOS (2271:84); LAB - ARCHIVO SOSPECHOSO (2374:357) y (Resuelto) (2374:387); informes LAB - INFORME DE MALWARE (2374:420) y (ERROR) (2404:154)"
+  },
+  {
+    "topic": "INGENIERIA_SOCIAL",
+    "cardTitle": "Call Simulation",
+    "terminalTitle": "Call Simulation",
+    "emoji": "📞",
+    "difficulty": "MEDIO",
+    "briefing": "A caller claiming to be from IT Support asked for a user's password. Investigate the call.",
+    "objectives": [
+      {
+        "title": "Verify the caller's identity",
+        "command": "lookup +1-555-0134",
+        "output": "Number not registered in NightWatch's internal directory.",
+        "reportLabel": "Caller's identity verified"
+      },
+      {
+        "title": "Check whether the user shared their password",
+        "command": "check-log usuario47",
+        "output": "The user did not share their password — they hung up in time.",
+        "reportLabel": "User's log checked"
+      },
+      {
+        "title": "Report the social engineering attempt",
+        "command": "report-incident social-engineering",
+        "output": "Incident reported to the security team.",
+        "reportLabel": "Incident reported"
+      }
+    ],
+    "report": {
+      "successTitle": "Simulation completed!",
+      "successSummary": "You confirmed that the user did not share their password and you reported the incident.",
+      "failureSummary": "You didn't confirm that the user did not share their password and you reported the incident.",
+      "metricLabel": "Response accuracy"
+    },
+    "source": "Figma LABORATORIOS (2271:84); LAB - SIMULACIÓN DE LLAMADA (Terminal) (2383:206) y (Resuelto) (2383:238); informes LAB - INFORME DE LA LLAMADA (2348:156) y (ERROR) (2404:261)"
+  },
+  {
+    "topic": "REDES_SEGURAS",
+    "cardTitle": "Network Security",
+    "terminalTitle": "Network Security",
+    "emoji": "🌐",
+    "difficulty": "DIFICIL",
+    "briefing": "Analyze the server logs and detect the suspicious access.",
+    "objectives": [
+      {
+        "title": "View the access log",
+        "command": "cat access.log",
+        "output": "203.0.113.55 - - \"GET /login\" 401\n203.0.113.55 - - \"GET /admin\" 403",
+        "reportLabel": "Access log reviewed"
+      },
+      {
+        "title": "Filter the failed attempts",
+        "command": "grep failed access.log",
+        "output": "14 failed attempts detected",
+        "reportLabel": "Failed attempts filtered"
+      },
+      {
+        "title": "Investigate the suspicious IP",
+        "command": "whois 203.0.113.55",
+        "output": "Origin: external network, outside the corporate range. Flagged as suspicious.",
+        "reportLabel": "Suspicious IP identified"
+      }
+    ],
+    "report": {
+      "successTitle": "Lab completed!",
+      "successSummary": "You identified the suspicious access by analyzing the server logs.",
+      "failureSummary": "You didn't identify the suspicious access by analyzing the server logs.",
+      "metricLabel": "Investigation accuracy"
+    },
+    "source": "Figma LABORATORIOS (2271:84); LAB - SEGURIDAD EN REDES (2299:118) y (Resuelto) (2299:148); informes LAB - INFORME DE RED (2299:181) y (ERROR) (2370:139). Los saltos de línea de la salida de cat se confirmaron en la captura de 2299:148"
+  },
+  {
+    "topic": "FIREWALL",
+    "cardTitle": "Set Up Your Firewall",
+    "terminalTitle": "Set Up Your Firewall",
+    "emoji": "🧱",
+    "difficulty": "DIFICIL",
+    "briefing": "Set up the firewall to block the dangerous incoming connections from the log.",
+    "objectives": [
+      {
+        "title": "Block the exposed SSH",
+        "command": "ufw deny 203.0.113.77 port 22",
+        "output": "Rule added: SSH blocked from 203.0.113.77",
+        "reportLabel": "Exposed SSH blocked"
+      },
+      {
+        "title": "Block the foreign remote desktop",
+        "command": "ufw deny 198.51.100.23 port 3389",
+        "output": "Rule added: RDP blocked from 198.51.100.23",
+        "reportLabel": "Foreign remote desktop blocked"
+      },
+      {
+        "title": "Verify the active rules",
+        "command": "iptables -L INPUT",
+        "output": "2 DENY rules active. The rest of the known traffic is still allowed.",
+        "reportLabel": "Rules verified"
+      }
+    ],
+    "report": {
+      "successTitle": "Firewall configured!",
+      "successSummary": "You blocked the dangerous connections and confirmed the active rules.",
+      "failureSummary": "You didn't block the dangerous connections and confirm the active rules.",
+      "metricLabel": "Configuration accuracy"
+    },
+    "source": "Figma LABORATORIOS (2271:84); LAB - CONFIGURA TU FIREWALL (Terminal) (2383:271) y (Resuelto) (2383:303); informes LAB - INFORME DEL FIREWALL (2348:201) y (ERROR) (2404:279)"
+  }
+]

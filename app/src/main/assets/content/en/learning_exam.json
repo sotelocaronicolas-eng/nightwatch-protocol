@@ -1,0 +1,81 @@
+[
+  {
+    "topic": "CONTRASENAS",
+    "topicLabel": "Passwords and Authentication",
+    "emoji": "🔑",
+    "text": "Which of these passwords is the strongest?",
+    "options": ["123456", "Your_Name2024", "k7#mQ!9zRt$2", "password"],
+    "correctIndex": 2,
+    "source": "Figma EXAMEN PREGUNTA 1 (2491:243). Respuesta C: verificada por el grupo y mostrada en EXAMEN - APROBADO (1 error - P1) (2498:512)"
+  },
+  {
+    "topic": "PHISHING",
+    "topicLabel": "Phishing",
+    "emoji": "🎣",
+    "text": "Which of these signs suggests an email could be phishing?",
+    "options": [
+      "The sender is a known, verified contact",
+      "A link that doesn't match the official domain",
+      "The email has no attachments",
+      "It includes the full corporate signature"
+    ],
+    "correctIndex": 1,
+    "source": "Figma EXAMEN PREGUNTA 2 (2491:260). Respuesta B: verificada por el grupo y mostrada en EXAMEN - APROBADO (1 error - P2) (2498:524)"
+  },
+  {
+    "topic": "MALWARE",
+    "topicLabel": "Malware",
+    "emoji": "🦠",
+    "text": "What should you do if you download a suspicious file?",
+    "options": [
+      "Open it to see what it contains",
+      "Forward it to a coworker",
+      "Scan it with an antivirus before opening it",
+      "Change its extension and run it"
+    ],
+    "correctIndex": 2,
+    "source": "Figma EXAMEN PREGUNTA 3 (2491:277). Respuesta C: verificada por el grupo y mostrada en EXAMEN - APROBADO (1 error - P3) (2498:536)"
+  },
+  {
+    "topic": "INGENIERIA_SOCIAL",
+    "topicLabel": "Social Engineering",
+    "emoji": "🎭",
+    "text": "Someone calls claiming to be tech support and asks for your password. What do you do?",
+    "options": [
+      "Give it to them because they sound convincing",
+      "Hang up and verify through an official channel",
+      "Give them only part of it",
+      "Ask them to guess it"
+    ],
+    "correctIndex": 1,
+    "source": "Figma EXAMEN PREGUNTA 4 (2491:294). Respuesta B: verificada por el grupo y mostrada en EXAMEN - APROBADO (1 error - P4) (2498:548)"
+  },
+  {
+    "topic": "REDES_SEGURAS",
+    "topicLabel": "Secure Networks",
+    "emoji": "🔒",
+    "text": "What is the safest practice when using public Wi-Fi?",
+    "options": [
+      "Do online banking without protection",
+      "Use a VPN to encrypt your traffic",
+      "Turn off your antivirus for more speed",
+      "Share the network with strangers"
+    ],
+    "correctIndex": 1,
+    "source": "Figma EXAMEN PREGUNTA 5 (2491:311). Respuesta B: verificada por el grupo y mostrada en EXAMEN - APROBADO (1 error - P5) (2498:560)"
+  },
+  {
+    "topic": "FIREWALL",
+    "topicLabel": "Firewall",
+    "emoji": "🧱",
+    "text": "What is the main function of a firewall?",
+    "options": [
+      "Speed up the internet connection",
+      "Filter unauthorized network traffic",
+      "Store passwords securely",
+      "Scan files for viruses"
+    ],
+    "correctIndex": 1,
+    "source": "Figma EXAMEN PREGUNTA 6 (2491:328). Respuesta B: verificada por el grupo y mostrada en EXAMEN - APROBADO (1 error - P6) (2498:572)"
+  }
+]
