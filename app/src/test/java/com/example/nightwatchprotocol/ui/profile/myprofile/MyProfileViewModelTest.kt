@@ -227,7 +227,8 @@ class MyProfileViewModelTest {
         advanceUntilIdle()
 
         assertEquals("Femenino", vm.uiState.value.gender.text())
-        assertEquals("07/03/1999", vm.uiState.value.birthDate)
+        assertEquals(BirthDate(1999, 3, 7), vm.uiState.value.birthDate)
+        assertEquals("07/03/1999", vm.uiState.value.birthDate?.display())
     }
 
     @Test
@@ -247,7 +248,7 @@ class MyProfileViewModelTest {
         advanceUntilIdle()
 
         assertEquals("Otro", vm.uiState.value.gender.text())
-        assertEquals("25/12/1990", vm.uiState.value.birthDate)
+        assertEquals(BirthDate(1990, 12, 25), vm.uiState.value.birthDate)
     }
 
     @Test

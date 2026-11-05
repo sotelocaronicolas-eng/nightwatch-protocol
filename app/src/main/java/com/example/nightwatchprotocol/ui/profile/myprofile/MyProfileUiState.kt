@@ -3,6 +3,7 @@ package com.example.nightwatchprotocol.ui.profile.myprofile
 import com.example.nightwatchprotocol.data.avatar.AvatarDisplay
 import com.example.nightwatchprotocol.data.common.UiText
 import com.example.nightwatchprotocol.data.learning.StreakState
+import com.example.nightwatchprotocol.data.profile.BirthDate
 
 data class MyProfileUiState(
     val displayName: UiText = UiText.dynamic(""),
@@ -16,7 +17,7 @@ data class MyProfileUiState(
     val recoveryEmail: String? = null,
     /** Label of the chosen gender; null when not defined (shown as "—"). */
     val gender: UiText? = null,
-    /** `dd/MM/yyyy`; null when not defined (shown as "—"). */
-    val birthDate: String? = null,
+    /** Null when not defined (shown as "—"). The screen formats it in the language it is in (`BirthDate.display`). */
+    val birthDate: BirthDate? = null,
     val avatar: AvatarDisplay = AvatarDisplay.Initial("?"),
 )

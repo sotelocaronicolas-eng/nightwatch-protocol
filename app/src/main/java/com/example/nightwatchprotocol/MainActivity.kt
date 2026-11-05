@@ -24,6 +24,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.example.nightwatchprotocol.data.notifications.ReminderNotifier
 import com.example.nightwatchprotocol.data.preferences.ThemeMode
 import com.example.nightwatchprotocol.ui.applock.AppLockScreen
 import com.example.nightwatchprotocol.ui.applock.AppLockViewModel
@@ -73,6 +74,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // Until the saved look is read the window is dark (the splash covers it); then the chosen look replaces it (below).
         applyThemeChrome(dark = true, windowBackground = DarkNightWatchColors.bgBase.toArgb())
+        // A change of language recreates this Activity: the channels are named again in the new language (same ids, so Android renames them).
+        (application as NightWatchApplication).container.let { app ->
+            ReminderNotifier.createChannels(this) { app.languageRepository.currentLanguage() }
+        }
         // The splash stays up (the main thread is never blocked) until the session is readable, the route is known and the
         // chosen look is read, so the first frame already has the right theme (no dark -> light flash).
         splashScreen.setKeepOnScreenCondition { startupViewModel.startRoute.value == null || initialThemeMode == null }

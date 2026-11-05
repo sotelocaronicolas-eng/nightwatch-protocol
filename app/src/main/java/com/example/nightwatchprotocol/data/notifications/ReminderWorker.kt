@@ -25,7 +25,8 @@ class ReminderWorker(
             return Result.success()
         }
         if (container.authRepository.currentUserUid != null && container.notificationPermission.isGranted()) {
-            ReminderNotifier.post(applicationContext, kind)
+            // The language is read now, when the notification is posted: a change of language shows in the very next reminder.
+            ReminderNotifier.post(applicationContext, kind) { container.languageRepository.currentLanguage() }
         }
         return Result.success()
     }

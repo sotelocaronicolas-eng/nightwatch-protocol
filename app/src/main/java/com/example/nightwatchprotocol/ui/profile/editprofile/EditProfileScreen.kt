@@ -37,6 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.res.stringResource
 import com.example.nightwatchprotocol.R
 import com.example.nightwatchprotocol.ui.common.asString
+import com.example.nightwatchprotocol.ui.common.displayText
 import com.example.nightwatchprotocol.data.profile.BirthDate
 import com.example.nightwatchprotocol.data.profile.Gender
 import com.example.nightwatchprotocol.ui.components.BirthDatePickerDialog
@@ -233,7 +234,7 @@ private fun EditProfileContent(
                     }
                     NightWatchSelectField(
                         label = stringResource(R.string.profile_field_birth_date),
-                        valueText = uiState.birthDate?.display().orEmpty(),
+                        valueText = uiState.birthDate?.displayText().orEmpty(),
                         onClick = { showDatePicker = true },
                         isError = uiState.birthDateError != null,
                         supportingText = uiState.birthDateError?.asString(),

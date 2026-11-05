@@ -29,6 +29,30 @@ class BirthDateTest {
     }
 
     @Test
+    fun spanishDisplay_isIdenticalToBefore_withOrWithoutTheLanguage() {
+        val date = BirthDate(1999, 3, 7)
+        assertEquals("07/03/1999", date.display())
+        assertEquals("07/03/1999", date.display(com.example.nightwatchprotocol.data.language.AppLanguage.ES))
+        assertEquals("01/01/0999", BirthDate(999, 1, 1).display())
+    }
+
+    @Test
+    fun englishDisplay_spellsTheMonth_andDoesNotDependOnTheDeviceZone() {
+        val en = com.example.nightwatchprotocol.data.language.AppLanguage.EN
+        val saved = TimeZone.getDefault()
+        try {
+            listOf("America/Bogota", "Pacific/Kiritimati", "Pacific/Pago_Pago").forEach { zone ->
+                TimeZone.setDefault(TimeZone.getTimeZone(zone))
+                assertEquals(zone, "Mar 7, 1999", BirthDate(1999, 3, 7).display(en))
+                assertEquals(zone, "Dec 31, 1999", BirthDate(1999, 12, 31).display(en))
+                assertEquals(zone, "Jan 1, 2000", BirthDate(2000, 1, 1).display(en))
+            }
+        } finally {
+            TimeZone.setDefault(saved)
+        }
+    }
+
+    @Test
     fun isoRoundTrips() {
         val date = BirthDate(1988, 2, 29)
 

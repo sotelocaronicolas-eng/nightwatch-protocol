@@ -63,7 +63,7 @@ class MyProfileViewModel(
         viewModelScope.launch {
             extrasRepository.extras.collect { extras ->
                 val gender = extras.gender?.let { UiText.of(it.labelRes) }
-                _uiState.update { it.copy(gender = gender, birthDate = extras.birthDate?.display()) }
+                _uiState.update { it.copy(gender = gender, birthDate = extras.birthDate) }
             }
         }
         if (uid == null) {
