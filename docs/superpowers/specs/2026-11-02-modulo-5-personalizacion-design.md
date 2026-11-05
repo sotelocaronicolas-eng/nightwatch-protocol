@@ -472,7 +472,7 @@ Sin renombrar ninguna clave ni cambiar ningún valor; con comentarios de secció
 1. `res/values-xx/` copiando los 7 archivos de `values/` y traduciendo (las claves y placeholders no cambian; la prueba de paridad de la etapa 8 lo exige).
 2. `res/xml/locales_config.xml`: agregar `<locale android:name="xx"/>`.
 3. `AppLanguage` (`data/preferences`): agregar la entrada `XX("xx")` y su etiqueta nativa; la pantalla Idioma lista las entradas de la enumeración.
-4. Contenido JSON: carpeta `assets/content/xx/` (o la convención que fije la etapa 9) con los 4 archivos, con las mismas pruebas de paridad (ids, `correctIndex`, comandos).
+4. Contenido JSON: carpeta `assets/content/xx/` (convención fijada en la etapa 9; el español vive en `assets/content/es/`) con los 4 archivos, con las mismas pruebas de paridad (ids, `correctIndex`, comandos), que recorren `AppLanguage.entries`. Si falta un archivo, la app usa el español.
 5. Servidor: filas `lang='xx'` en las tablas de 13.1 y ampliar su `check`.
 6. Correos: texto del idioma en las plantillas de Auth y en la Edge Function.
 7. Glosario (`modulo-5-glosario.md`) y revisión humana del idioma nuevo.

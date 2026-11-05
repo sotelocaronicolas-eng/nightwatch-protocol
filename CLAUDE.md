@@ -77,6 +77,9 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
     procedimiento para nuevos idiomas) en la sección 13 de la spec; la migración SQL del banco **no existe aún**. Lista de verificación: `reports/etapa-7-verificacion.md`.
     **Etapa 8 (rama `modulo-5-ingles-ui`, sin fusionar):** `res/values-en/` con los 7 archivos de textos (770 cadenas y 8 plurales traducidos), `TranslationParityTest` (paridad archivo por archivo; un archivo nuevo en `values/` exige su gemelo en `values-en/`),
     aviso de Idioma (`settings_language_notice_text`, solo con English; PROPUESTA), tabla de revisión `docs/superpowers/translations/ui-es-en.csv` y lista `reports/etapa-8-verificacion.md`. El contenido JSON (etapa 9) y las preguntas de batalla siguen en español.
+    **Etapa 9 (rama `modulo-5-ingles-contenido`, sin fusionar):** el contenido JSON vive en `assets/content/<es|en>/` (`learning_lessons`, `learning_labs`, `learning_exam`, `quiz_questions`); los repositorios leen la carpeta del idioma activo y caen al
+    español si falta o falla un archivo (`data/content/LocalizedContent.kt`). El español no cambió (lo vigila `SpanishContentGoldenTest`); `ContentParityTest` exige mismos ids, estructura, respuestas correctas y comandos de labs. Tabla de revisión:
+    `docs/superpowers/translations/contenido-es-en.csv`; informe y lista del emulador: `reports/etapa-9-verificacion.md` (nombres de islas y salidas en prosa de los labs son PROPUESTA).
 - **Lecciones aprendidas:** los guiones SQL deben acotar los conteos a las cuentas de prueba; Brevo permite unos 300 correos al día; el login con Google falla en silencio si el SHA-1 de depuración
   no está registrado en un cliente OAuth Android de Google Cloud (paquete `com.example.nightwatchprotocol`); la regla de "solo Write/Edit" se rompió varias veces con `sed -i`: sigue vigente.
 
