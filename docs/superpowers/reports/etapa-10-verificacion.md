@@ -46,11 +46,19 @@ cuando los dos juegan en idiomas distintos. **Si el grupo prefiere "idioma del q
 
 Tras aplicar `0013`, documentar en `supabase-configuracion.md` las advertencias esperadas (misma razón que `0008`; 2 tablas cerradas más).
 
-## 6. Pendiente que NO se hizo a propósito
+## 6. Estado de los pendientes (actualizado el 2026-11-05)
 
-- **Quitar el aviso `social_arena_questions_spanish_only`**: se deja hasta que el equipo aplique `0013` y apruebe un commit final que lo elimine
-  (con su gemelo en `values-en`; `TranslationParityTest` exige quitar las dos).
-- `settings_language_notice_text` no cambia: sigue siendo cierto (los correos de Auth llevan ambos idiomas y los textos que llegan del servidor no se traducen).
+**Cerrados:**
+- `0013` aplicada y verificada por el equipo; su encabezado dice "APLICADA el 2026-11-05".
+- Plantillas de Auth bilingües y Edge Function desplegadas y probadas (la corrección de `pickLang` con `Object.hasOwn` está en el repo y el equipo la despliega a mano).
+- Aviso de la arena `social_arena_questions_spanish_only`: **nunca existió en el código**, no había nada que quitar; los conteos de cadenas no cambiaron.
+- Advertencias esperadas del Security Advisor documentadas (S9 y S10 en `supabase-configuracion.md`).
+
+**Abiertos:**
+- Revisión del grupo de `translations/ui-es-en.csv` y `translations/contenido-es-en.csv` (las traducciones de batalla están en `0013`).
+- Valores claros del tema sin frame en Figma (PROPUESTA) y la lista visual del emulador.
+- Deuda conocida: sección 8 de este informe y sección 12 de la spec.
+- `settings_language_notice_text`: ver la respuesta en el mensaje de cierre (se propone mantenerlo o ajustarlo; no se cambió).
 
 ## 7. B3: otros textos fuera de recursos
 

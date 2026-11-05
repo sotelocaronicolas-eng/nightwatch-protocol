@@ -394,7 +394,7 @@ Un PR por bloque: (5a) autenticación y verificación, (5b) quiz y onboarding, (
 ## 11. Decisiones del grupo (antes "preguntas abiertas"; respondidas)
 
 1. **Selección clara:** el ✓ usa `#1C2B29` (como el Figma, 10.43:1 sobre `#D9D9D9`) y el borde usa `#926A1B` (3.46:1 sobre `#D9D9D9`). Ver A2 y token `selectionCheck` en 4.1.
-2. **Social en inglés:** las preguntas de batalla y los retos de ulti siguen en español en v2.4.0. La arena muestra un aviso corto traducido: "Las preguntas están disponibles solo en español" / "Questions are only available in Spanish" (cadena nueva `social_arena_questions_spanish_only`, etapa 8; el texto en inglés es PROPUESTA de redacción). Un módulo posterior traducirá el banco de preguntas (fuera de alcance, D1).
+2. **Social en inglés (CERRADO, 2026-11-05):** el banco de preguntas y los retos de ulti SÍ salen en inglés en v2.4.0 (D15, migración `0013` aplicada). El aviso de la arena `social_arena_questions_spanish_only` ya no hace falta y **nunca se creó** en el código (ni en `values` ni en `values-en`), así que no hubo nada que quitar.
 3. **Pantallas sin frame claro** (Confirmar identidad y el diálogo de recuperación): se derivan con la paleta propuesta (sección 4) y se revisan con capturas en la lista visual del grupo (sección 9, etapa 5a). **No se pide diseño nuevo** al Figma.
 4. **Primer arranque:** se fija español de forma explícita (A4); la persona cambia el idioma en la pantalla Idioma. El indicador `language_initialized` vive en el DataStore (etapa 2) y el idioma en AppCompat (etapa 7).
 5. **Traducción:** Claude Code redacta el inglés con un **glosario técnico fijo** (`docs/superpowers/specs/modulo-5-glosario.md`: phishing, hash, firewall, etc.); **cada integrante del grupo revisa un módulo**; en los labs los **comandos no se traducen**. El glosario se completa y el grupo lo aprueba antes de la etapa 8.
@@ -491,7 +491,9 @@ Nada de esto exige cambiar lógica de pantallas.
 Además de lo de la sección 7: fusión de archivos de textos (13.2), registro de D15–D18 y nombre del archivo de locales (`locales_config.xml`, el que usa la spec; el estándar de Android admite cualquier nombre).
 
 ### 13.6 Etapa 10 · lo que quedó hecho (v2.4.0)
-- **Batallas (D15):** `supabase/migrations/0013_batallas_ingles.sql` (BORRADOR hasta que el equipo la aplique), con reversa en `supabase/rollback/0013_rollback.sql` y comprobaciones en `supabase/verificacion/0013_verificacion.sql`.
+**Cerrado el 2026-11-05:** `0013` APLICADA y verificada (72/72, 12/12, 2 tablas con RLS sin políticas, 3 funciones con `p_lang`); plantillas de Auth bilingües y Edge Function desplegadas y probadas; el aviso de la arena no existe.
+**Sigue abierto:** revisión del grupo de `ui-es-en.csv` y `contenido-es-en.csv` (y de las traducciones de batalla), valores claros de tema sin frame en Figma (PROPUESTA) y la deuda de la sección 12.
+- **Batallas (D15):** `supabase/migrations/0013_batallas_ingles.sql` (aplicada), con reversa en `supabase/rollback/0013_rollback.sql` y comprobaciones en `supabase/verificacion/0013_verificacion.sql`.
   Tablas cerradas `battle_question_translations` y `ulti_challenge_translations`; `battle_sync`/`battle_play`/`sx_battle_state` reciben `p_lang` (por defecto `'es'`, respaldo al español). **Regla: el idioma es el de quien mira** (cada llamada manda el suyo), no uno por batalla.
   La app manda `p_lang` solo con inglés y, si el servidor no lo conoce (sin `0013`), repite la llamada sin él.
 - **Notificaciones y fechas:** idioma explícito al publicar (`ReminderNotifier`, `ContextTextResolver`), `BirthDate.display(language)`; la zona `America/Bogota` de las reglas de día no cambia.

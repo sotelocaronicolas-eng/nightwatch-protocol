@@ -1,10 +1,9 @@
 -- =====================================================================================================
 -- NightWatch Protocol - Script 0013: preguntas de batalla y retos de ulti en inglés (decisión D15 del módulo 5)
 --
--- BORRADOR sin aplicar. NO se ejecuta desde la app ni desde el repositorio: el equipo lo revisa y, si lo aprueba,
--- lo pega a mano en el SQL Editor, DESPUÉS de 0001 a 0012 y de una sola vez. Se puede ejecutar más de una vez
--- (es idempotente). Mientras tenga esta línea de "BORRADOR" puede editarse; una vez aplicado deja de editarse y
--- cualquier corrección va en un script nuevo (0014 o posterior).
+-- APLICADA el 2026-11-05 (no se edita más; cualquier corrección va en un script nuevo, 0014 o posterior).
+-- NO se ejecuta desde la app ni desde el repositorio: el equipo la pegó a mano en el SQL Editor, DESPUÉS de 0001 a 0012 y de
+-- una sola vez. Se puede ejecutar más de una vez (es idempotente).
 --
 -- QUÉ HACE
 --   1. Crea battle_question_translations (texto de cada pregunta por idioma) y ulti_challenge_translations (título
