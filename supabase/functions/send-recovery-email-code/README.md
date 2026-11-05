@@ -42,6 +42,13 @@ Esta carpeta no se despliega sola: se pega a mano en el panel (no se usa la CLI 
 Estos correos salen por la **API de Brevo**, no por el SMTP de Supabase: cuentan en el límite diario de Brevo, no en
 el de Supabase.
 
+## Idioma del correo (etapa 10 del módulo 5)
+
+El cuerpo acepta un campo opcional `"lang"` (`"es"` o `"en"`). La app v2.4.0 lo manda solo con inglés. Sin `lang`, o con uno desconocido,
+el correo sale en español, como antes: las apps v2.3.0 y anteriores no cambian. Redesplegar a mano (`supabase functions deploy` o el
+panel) cuando el equipo apruebe; mientras no se redespliegue, la función vieja ignora el campo y todo sale en español. Un idioma nuevo es
+una entrada más en `TEXTS` de `index.ts`.
+
 ## Prueba rápida sin la app (opcional)
 
 Con una sesión real, `POST https://<proyecto>.supabase.co/functions/v1/send-recovery-email-code` con la cabecera

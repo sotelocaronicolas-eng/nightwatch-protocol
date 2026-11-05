@@ -5,7 +5,8 @@
 // hash en public.recovery_email_codes (migración 0006) y el correo sale por la API transaccional de Brevo.
 // La app comprueba el código con la función SQL public.verify_recovery_email_code.
 //
-// Petición:  POST  { "email": "respaldo@example.com" }  con el JWT del usuario en Authorization.
+// Petición:  POST  { "email": "respaldo@example.com", "lang": "en" }  con el JWT del usuario en Authorization.
+//            "lang" es opcional ("es" | "en"); sin él, o desconocido, el correo sale en español.
 // Respuestas (JSON):
 //   200 { ok: true }
 //   400 { error: "invalid_email" | "same_as_primary" | "invalid_request" }
@@ -27,7 +28,31 @@ const MAX_SENDS_PER_WINDOW = 5; // ...con un máximo de 5 envíos
 const MAX_EMAIL_LENGTH = 254;
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const SUBJECT = "Verifica tu correo de recuperación de NightWatch Protocol";
+// Idioma del correo (módulo 5, etapa 10). La app manda "lang" ("es" | "en"); sin "lang" o con un valor desconocido sale en español,
+// que es lo que hacían las versiones anteriores de la app (v2.3.0 y antes no mandan "lang"). Para un idioma nuevo: una entrada aquí.
+type Lang = "es" | "en";
+const DEFAULT_LANG: Lang = "es";
+
+const TEXTS: Record<Lang, { subject: string; intro: string; expires: string; ignore: string }> = {
+  es: {
+    subject: "Verifica tu correo de recuperación de NightWatch Protocol",
+    intro: "Tu código para verificar el correo de recuperación:",
+    expires: "Este código vence en 10 minutos.",
+    ignore: "Si no fuiste tú, ignora este correo.",
+  },
+  en: {
+    subject: "Verify your NightWatch Protocol recovery email",
+    intro: "Your code to verify the recovery email:",
+    expires: "This code expires in 10 minutes.",
+    ignore: "If this wasn't you, ignore this email.",
+  },
+};
+
+/** El idioma pedido si es uno de los que hay; si no, el español. Nunca falla por un "lang" raro. */
+function pickLang(raw: unknown): Lang {
+  const tag = typeof raw === "string" ? raw.trim().toLowerCase().split("-")[0] : "";
+  return tag in TEXTS ? (tag as Lang) : DEFAULT_LANG;
+}
 
 function json(status: number, body: Record<string, unknown>, headers: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(body), {
@@ -59,16 +84,17 @@ async function sha256Hex(text: string): Promise<string> {
 }
 
 /** Mismo estilo que las plantillas de Supabase: el código grande y poco más. `code` son solo dígitos. */
-function emailHtml(code: string): string {
+function emailHtml(code: string, lang: Lang): string {
+  const t = TEXTS[lang];
   return `<!doctype html>
-<html lang="es">
+<html lang="${lang}">
   <body style="margin:0;padding:24px;background:#0f1d1c;font-family:Arial,Helvetica,sans-serif;color:#e8f1f0;">
     <div style="max-width:420px;margin:0 auto;background:#162523;border-radius:16px;padding:32px 24px;text-align:center;">
       <h1 style="margin:0 0 8px;font-size:20px;">NightWatch Protocol</h1>
-      <p style="margin:0 0 24px;font-size:14px;color:#a9c3c0;">Tu código para verificar el correo de recuperación:</p>
+      <p style="margin:0 0 24px;font-size:14px;color:#a9c3c0;">${t.intro}</p>
       <p style="margin:0 0 24px;font-size:36px;font-weight:bold;letter-spacing:8px;color:#ffffff;">${code}</p>
-      <p style="margin:0 0 8px;font-size:13px;color:#a9c3c0;">Este código vence en 10 minutos.</p>
-      <p style="margin:0;font-size:13px;color:#a9c3c0;">Si no fuiste tú, ignora este correo.</p>
+      <p style="margin:0 0 8px;font-size:13px;color:#a9c3c0;">${t.expires}</p>
+      <p style="margin:0;font-size:13px;color:#a9c3c0;">${t.ignore}</p>
     </div>
   </body>
 </html>`;
@@ -100,8 +126,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   // 2. Cuerpo.
   let rawEmail: unknown;
+  let lang: Lang = DEFAULT_LANG;
   try {
-    rawEmail = (await req.json())?.email;
+    const body = await req.json();
+    rawEmail = body?.email;
+    lang = pickLang(body?.lang);
   } catch {
     return json(400, { error: "invalid_request" });
   }
@@ -172,8 +201,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         sender: { name: senderName, email: senderEmail },
         to: [{ email }],
-        subject: SUBJECT,
-        htmlContent: emailHtml(code),
+        subject: TEXTS[lang].subject,
+        htmlContent: emailHtml(code, lang),
       }),
     });
     sent = response.ok;

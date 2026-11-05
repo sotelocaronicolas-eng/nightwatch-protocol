@@ -91,6 +91,13 @@ class RecoveryEmailCodeApiTest {
     fun theNamesMatchTheServerSide() {
         // Typos here would only show up on a device: the names must be the ones in the migration and the function.
         assertEquals("send-recovery-email-code", SEND_RECOVERY_CODE_FUNCTION)
+    }
+
+    @Test
+    fun sendCodeBody_addsLangOnlyForEnglish_soOlderFunctionsAndSpanishStayAsBefore() {
+        assertEquals("""{"email":"a@b.co","lang":"en"}""", sendCodeBody("a@b.co", "en"))
+        assertEquals("""{"email":"a@b.co"}""", sendCodeBody("a@b.co", "es"))
+        assertEquals("""{"email":"a@b.co"}""", sendCodeBody("a@b.co", null))
         assertEquals("verify_recovery_email_code", VERIFY_RECOVERY_CODE_RPC)
     }
 }

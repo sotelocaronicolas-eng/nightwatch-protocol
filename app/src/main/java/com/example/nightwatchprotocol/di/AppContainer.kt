@@ -177,7 +177,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
             supabaseClient.postgrest,
             SupabaseAvatarStorage(supabaseClient.storage[AVATAR_BUCKET]),
             sessionUserId,
-            SupabaseRecoveryEmailCodeApi(supabaseClient.functions, supabaseClient.postgrest),
+            SupabaseRecoveryEmailCodeApi(supabaseClient.functions, supabaseClient.postgrest) { languageRepository.currentLanguage()?.tag },
         )
 
     // Social: the SQL functions travel through one client; the person always comes from the session (no id is sent). It is built
