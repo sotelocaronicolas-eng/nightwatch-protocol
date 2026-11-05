@@ -489,3 +489,12 @@ Nada de esto exige cambiar lógica de pantallas.
 
 ### 13.5 Etapa 7 · ajustes por esta sección
 Además de lo de la sección 7: fusión de archivos de textos (13.2), registro de D15–D18 y nombre del archivo de locales (`locales_config.xml`, el que usa la spec; el estándar de Android admite cualquier nombre).
+
+### 13.6 Etapa 10 · lo que quedó hecho (v2.4.0)
+- **Batallas (D15):** `supabase/migrations/0013_batallas_ingles.sql` (BORRADOR hasta que el equipo la aplique), con reversa en `supabase/rollback/0013_rollback.sql` y comprobaciones en `supabase/verificacion/0013_verificacion.sql`.
+  Tablas cerradas `battle_question_translations` y `ulti_challenge_translations`; `battle_sync`/`battle_play`/`sx_battle_state` reciben `p_lang` (por defecto `'es'`, respaldo al español). **Regla: el idioma es el de quien mira** (cada llamada manda el suyo), no uno por batalla.
+  La app manda `p_lang` solo con inglés y, si el servidor no lo conoce (sin `0013`), repite la llamada sin él.
+- **Notificaciones y fechas:** idioma explícito al publicar (`ReminderNotifier`, `ContextTextResolver`), `BirthDate.display(language)`; la zona `America/Bogota` de las reglas de día no cambia.
+- **Correo:** plantillas bilingües en `docs/supabase/plantillas-correo-bilingue.md`; la Edge Function acepta `lang`.
+- **Cómo agregar un tercer idioma, además de 13.4:** (1) `res/values-xx/` con los 7 archivos; (2) `assets/content/xx/` con los 4 JSON; (3) un script nuevo (0014 o posterior) que inserte en `battle_question_translations` y
+  `ulti_challenge_translations` con `lang = 'xx'` (sin tocar las funciones: ya leen cualquier código de 2 letras); (4) una entrada en `TEXTS` de la Edge Function y un párrafo más en las tres plantillas de Auth; (5) el formato de fecha ya sale del idioma (`DateFormat`).
