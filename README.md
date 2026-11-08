@@ -14,7 +14,7 @@ Proyecto del curso *Android Basics with Compose*, cuyos patrones sigue (MVVM, `U
 
 ## Rama de la última versión funcional
 
-**`main`**, marcada con la etiqueta **`v2.4.0`**. Es la rama principal: no se sube nada directo a ella y cada cambio entró por un Pull Request revisado por otro integrante (ver [Flujo de trabajo del equipo](#flujo-de-trabajo-del-equipo)).
+**`main`**, marcada con la etiqueta **`v2.4.0`**. Es la rama de entrega y está protegida con una regla de GitHub: los cambios solo entran por Pull Request con al menos 1 aprobación de otro integrante (ver [Flujo de trabajo del equipo](#flujo-de-trabajo-del-equipo)).
 
 ## Qué hace la app
 
