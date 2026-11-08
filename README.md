@@ -133,7 +133,7 @@ Pantalla (Compose)  →  ViewModel (UiState + eventos)  →  Repositorio (interf
 ./gradlew assembleDebug testDebugUnitTest lintDebug
 ```
 
-El último recuento escrito en los informes del repositorio es de **1508 pruebas unitarias, 0 fallos, lint con 0 errores** (cierre de la etapa 9 del módulo 5; ver `docs/superpowers/reports/etapa-9-verificacion.md`). Hay además pruebas que vigilan que no queden colores fijos fuera del tema, que los textos en español e inglés tengan los mismos recursos y que el contenido de ambos idiomas tenga la misma estructura.
+La versión 2.4.0 tiene **1526 pruebas unitarias, 0 fallos, 0 omitidas (100 % exitosas)**, verificado con `./gradlew testDebugUnitTest` sobre la versión 2.4.0 (informe de Gradle en `app/build/reports/tests/testDebugUnitTest/index.html`, que no se versiona). Hay además pruebas que vigilan que no queden colores fijos fuera del tema, que los textos en español e inglés tengan los mismos recursos y que el contenido de ambos idiomas tenga la misma estructura.
 
 ## Estructura del repositorio y documentación
 
