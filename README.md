@@ -10,6 +10,8 @@ Aplicación Android para aprender ciberseguridad con lecciones, laboratorios sim
 - David Alejandro Escobar Pasión
 - Juan David Tellez Esquibel
 
+Proyecto desarrollado por el equipo con apoyo de Claude Code (Anthropic) como asistente de programación. Las decisiones de diseño, la revisión del código y la integración las hizo el equipo mediante Pull Requests revisados.
+
 Proyecto del curso *Android Basics with Compose*, cuyos patrones sigue (MVVM, `UiState`, `ViewModel`, inyección de dependencias manual) junto con el diseño de Figma del proyecto.
 
 ## Rama de la última versión funcional
