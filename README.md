@@ -1,35 +1,120 @@
 # NightWatch Protocol
 
-Aplicación Android para aprender ciberseguridad (**versión 2.2.0**). La persona se registra (con un código de 6 dígitos
-que llega a su correo) o inicia sesión (también con Google), hace un cuestionario de nivelación (BAJO, MEDIO o ALTO),
-recorre una ruta de aprendizaje con lecciones, laboratorios y un examen final, se conecta con amigos (rachas en pareja y
-batallas) y administra su perfil y sus ajustes. Está
-hecha en Kotlin con Jetpack Compose y **Supabase**, siguiendo los patrones del curso
-*Android Basics with Compose* (MVVM, `UiState`, `ViewModel`, inyección de dependencias manual) y el diseño de Figma del
-proyecto.
+Aplicación Android para aprender ciberseguridad con lecciones, laboratorios simulados, un examen final y batallas de preguntas con amigos.
 
-> **Importante:** la app **no compila ni arranca sin tu `local.properties`** (no está en el repositorio). Mira
-> [Puesta en marcha](#puesta-en-marcha-para-un-integrante-nuevo).
+**Versión actual: 2.4.0** (`versionCode` 7)
 
-## Tecnologías
+## Integrantes
+
+- Nicolás Sotelo Caro
+- David Alejandro Escobar Pasión
+- Juan David Tellez Esquibel
+
+Proyecto del curso *Android Basics with Compose*, cuyos patrones sigue (MVVM, `UiState`, `ViewModel`, inyección de dependencias manual) junto con el diseño de Figma del proyecto.
+
+## Rama de la última versión funcional
+
+**`main`**, marcada con la etiqueta **`v2.4.0`**. Es la rama principal: no se sube nada directo a ella y cada cambio entró por un Pull Request revisado por otro integrante (ver [Flujo de trabajo del equipo](#flujo-de-trabajo-del-equipo)).
+
+## Qué hace la app
+
+- **Cuenta:** registro con un código de 6 dígitos que llega al correo, inicio de sesión con correo o con Google, recuperación y cambio de contraseña, cambio de correo.
+- **Quiz de nivelación:** al empezar, determina el nivel de la persona (BAJO, MEDIO o ALTO).
+- **Ruta de aprendizaje:** un mapa de 6 islas (Contraseñas, Phishing, Malware, entre otras) y una prueba final. Cada isla tiene una lección y un laboratorio con una terminal simulada, y se desbloquean en orden.
+- **Examen final:** 6 preguntas; se aprueba con 5 o más aciertos y no tiene límite de intentos.
+- **Racha e insignias:** calculadas a partir del progreso guardado.
+- **Social:** amigos (búsqueda por nombre de usuario o por código), racha en pareja, perfil social editable con fondo y foto, y reportar o bloquear personas.
+- **Arena de batallas:** partida rápida o reto a un amigo, preguntas por turnos y «Ulti». El servidor decide aciertos, daño, turnos y plazos.
+- **Perfil y ajustes:** nombre, género, fecha de nacimiento, foto, correo de recuperación, bloqueo biométrico, dispositivos con sesión abierta, descarga de los datos y recordatorios locales.
+- **Apariencia:** tema claro, oscuro o automático.
+- **Idioma:** español o inglés (interfaz, lecciones, labs, examen, quiz y preguntas de batalla).
+
+Algunas cosas aún son solo visuales: Ayuda, Acerca de y los interruptores de notificaciones de «Logros» y «Nuevos laboratorios» (necesitarían notificaciones push).
+
+## Capturas
+
+| Inicio de sesión | Inicio | Ruta de aprendizaje |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/login.jpeg" width="220" alt="Pantalla de inicio de sesión"> | <img src="docs/screenshots/inicio.jpeg" width="220" alt="Pantalla de inicio"> | <img src="docs/screenshots/ruta.jpeg" width="220" alt="Ruta de aprendizaje"> |
+
+| Laboratorios | Arena de batalla | Idioma |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/labs.jpeg" width="220" alt="Lista de laboratorios"> | <img src="docs/screenshots/arena.jpeg" width="220" alt="Arena de batalla"> | <img src="docs/screenshots/idioma.jpeg" width="220" alt="Selector de idioma"> |
+
+## Cómo instalar la aplicación
+
+La forma soportada de probar la app es el **APK de la pestaña Releases**, que ya viene configurado para conectarse al servidor del proyecto.
+
+### Opción A (recomendada): instalar el APK en un teléfono Android
+
+**Requisito:** Android 8.0 o superior y conexión a internet.
+
+1. **Descarga el APK.** Desde el teléfono, abre la pestaña **Releases** del repositorio (<https://github.com/sotelocaronicolas-eng/nightwatch-protocol/releases>), entra a la versión **v2.4.0** y, en *Assets*, toca el archivo que termina en **`.apk`**.
+2. **Permite instalar apps de origen desconocido.** Al abrir el archivo, Android avisará que el navegador (o el gestor de archivos) no puede instalar apps. Toca **Ajustes** en ese aviso y activa **Permitir desde esta fuente**. Si no aparece el aviso, busca en **Ajustes → Aplicaciones → Acceso especial → Instalar apps desconocidas** (o escribe «apps desconocidas» en el buscador de Ajustes) y activa el permiso para la app con la que descargaste el archivo. La ruta exacta cambia según la marca del teléfono.
+3. **Instala.** Abre el `.apk` descargado (en la barra de notificaciones o en la carpeta *Descargas*) y toca **Instalar**.
+4. **Primera apertura.** La app arranca en **español**. Regístrate o inicia sesión; el idioma y el tema (claro, oscuro o automático) se cambian en **Perfil → Ajustes**.
+5. *(Opcional)* Después de instalar, puedes volver a desactivar el permiso de orígenes desconocidos.
+
+**Posibles problemas**
+
+| Problema | Qué hacer |
+|---|---|
+| Aviso de **Play Protect** («app no verificada» o «bloqueada») | La app no está en Google Play y por eso Play Protect la marca. Toca **Más detalles → Instalar de todos modos**. |
+| **«App no instalada»** | Desinstala cualquier versión anterior de NightWatch Protocol, comprueba que el archivo se descargó completo (vuelve a descargarlo) y reintenta. |
+| **Falta de espacio** | Libera algunos cientos de MB de almacenamiento e inténtalo de nuevo. |
+| **«No compatible» o no se puede instalar** | La app necesita Android 8.0 o superior. Revisa la versión en **Ajustes → Acerca del teléfono**. |
+| La app no deja iniciar sesión o dice que no hay conexión | Comprueba tu internet. El servidor usa un plan gratuito de Supabase que se pausa tras 7 días sin actividad; si sigue fallando, avisa al equipo para que lo reactive. |
+| Los correos con códigos tardan o no llegan | Revisa la carpeta de spam (el remitente es una cuenta de Gmail enviada por Brevo). |
+
+### Opción B: instalar en el emulador de Android Studio
+
+1. En Android Studio, abre **Device Manager** y crea o inicia un emulador con **API 34 o 35**, imagen **Google APIs** (Google Play Services es necesario para el inicio de sesión con Google) y arquitectura **x86_64**.
+2. Descarga el `.apk` de la versión v2.4.0 desde Releases en tu computadora.
+3. **Arrastra el archivo `.apk` a la ventana del emulador**. Se instala solo y aparece en la lista de aplicaciones.
+
+### Opción C: compilar desde el código (para revisarlo)
+
+Esta opción es para quien quiera leer o modificar el código. **No es la forma soportada de probar la app.**
+
+**Requisitos:** Android Studio reciente, JDK 25 para ejecutar Gradle (el proyecto lo declara en `gradle/gradle-daemon-jvm.properties` y Gradle puede descargarlo) y Android SDK 37.
+
+1. Clona el repositorio y abre la carpeta en Android Studio.
+2. Crea en la raíz un archivo **`local.properties`** copiando `local.properties.example`, con estas tres claves:
+   ```
+   SUPABASE_URL=<la URL del proyecto de Supabase>
+   SUPABASE_PUBLISHABLE_KEY=<la clave publishable de Supabase>
+   GOOGLE_WEB_CLIENT_ID=<el ID de cliente OAuth de tipo Web de Google>
+   ```
+3. Compila con:
+   ```
+   ./gradlew assembleDebug
+   ```
+   El APK queda en `app/build/outputs/apk/debug/`.
+
+`local.properties` **no está en el repositorio por seguridad** (está en el `.gitignore`) y esos valores pertenecen al servidor del equipo, así que sin ellos la app compila pero se detiene al iniciar con un mensaje que dice qué clave falta. Por eso el APK de Releases es el camino para probar la app. Para el inicio de sesión con Google en una compilación propia además hay que registrar la huella SHA-1 del computador en Google Cloud (ver `docs/superpowers/supabase-configuracion.md`).
+
+## Video tutorial de instalación
+
+<!-- pegar aquí el enlace del video -->
+
+## Tecnologías y arquitectura
 
 | Área | Qué se usa |
 |---|---|
 | Lenguaje | Kotlin 2.2.10 |
 | Interfaz | Jetpack Compose (BOM 2026.02.01) con Material 3 |
-| Arquitectura | MVVM: pantalla con estado + `ViewModel` con `StateFlow<UiState>` y eventos por `Channel`; repositorios con interfaz y *fakes* para las pruebas; DI manual en `AppContainer` (sin Hilt) |
+| Arquitectura | MVVM: pantalla con estado + `ViewModel` con `StateFlow<UiState>` inmutable y eventos de una sola vez por `Channel`; repositorios con interfaz y *fakes* para las pruebas; inyección de dependencias manual en `AppContainer` (sin Hilt) |
 | Navegación | Navigation Compose 2.9.7 con rutas tipadas `@Serializable` |
-| Backend | **Supabase** (supabase-kt 3.2.4, Ktor 3.3.0): **Auth** (correo y contraseña, Google, códigos de un solo uso), **Postgres** (con RLS), **Storage** (foto de perfil) y **Edge Functions** (código del correo de recuperación) |
-| Correos | **Brevo**: SMTP para los correos de Auth y API transaccional para la Edge Function |
-| Inicio de sesión con Google | Credential Manager 1.5.0 + `googleid` 1.1.1 (flujo nativo con ID token y *nonce*) |
-| Preferencias locales | DataStore 1.2.1 |
+| Backend | **Supabase** (supabase-kt 3.2.4, Ktor 3.3.0): Auth (correo, Google, códigos de un solo uso), Postgres con RLS, Storage (fotos) y Edge Functions (código del correo de recuperación) |
+| Correos | Brevo: SMTP para los correos de Auth y API para la Edge Function |
+| Inicio de sesión con Google | Credential Manager 1.5.0 + `googleid` 1.1.1 |
+| Preferencias locales | DataStore 1.2.1 (tema y otras preferencias) |
 | Segundo plano | WorkManager 2.12.0 (recordatorios locales) |
-| Biometría | `androidx.biometric` 1.1.0 (bloqueo de la app) |
+| Biometría | `androidx.biometric` 1.1.0 |
+| Idiomas | Recursos `values/` (español) y `values-en/` (inglés) con AppCompat 1.8.0; contenido de lecciones en `assets/content/es/` y `assets/content/en/` |
 | Serialización | kotlinx.serialization 1.8.0 |
 | Pruebas | JUnit 4, Turbine 1.2.1, `kotlinx-coroutines-test`, Compose UI Test |
-| Compilación | Android Gradle Plugin 9.3.3, Gradle 9.5.0 (wrapper incluido) |
-
-## Arquitectura
+| Compilación | Android Gradle Plugin 9.3.3, Gradle 9.5.0 (wrapper incluido), `minSdk` 26, `compileSdk` y `targetSdk` 37 |
 
 ```
 Pantalla (Compose)  →  ViewModel (UiState + eventos)  →  Repositorio (interfaz)  →  Supabase
@@ -37,206 +122,57 @@ Pantalla (Compose)  →  ViewModel (UiState + eventos)  →  Repositorio (interf
        └──────────── UiState (StateFlow) ◄──────────────────────┘
 ```
 
-- Las pantallas y los ViewModels **solo conocen interfaces** (`AuthRepository`, `AccountRepository`,
-  `ProfileRepository`, `DeviceRepository`, `QuizResultRepository`, `LearningContentRepository`,
-  `LearningProgressRepository`). Solo `di/AppContainer` y las clases `Supabase*` conocen la librería de Supabase; en las
-  pruebas se usan *fakes*.
-- El progreso de la ruta de aprendizaje se guarda en tres tablas pequeñas y **todo lo demás se deriva de él** (islas,
-  desbloqueo, "lección diaria", racha e insignias): son funciones puras en `data/learning`, con pruebas.
-- Un solo flujo de **código de 6 dígitos** (`ui/verifycode`) sirve para el registro, el cambio de correo, la
-  recuperación de contraseña y la verificación del correo de recuperación.
-- La sesión vive en supabase-kt; la fila de cada usuario se identifica siempre por la sesión, nunca por un dato de la
-  pantalla. La seguridad real está en la base de datos (RLS y privilegios mínimos), no en la app.
+- Las pantallas y los ViewModels solo conocen interfaces; solo `di/AppContainer` y las clases `Supabase*` conocen la librería.
+- La fila de cada persona se identifica siempre por la sesión, nunca por un dato de la pantalla. La seguridad real está en la base de datos (RLS y privilegios mínimos).
+- El progreso de la ruta se guarda en tres tablas y todo lo demás (islas, desbloqueo, racha, insignias) se calcula de ahí con funciones puras.
+- En Social, el servidor decide todo el juego; la app consulta el estado cada 2 a 3 segundos mientras la arena está visible.
 
-## Funciones
-
-- **Cuenta:** registro con código por correo, inicio de sesión con correo o Google, recuperación de contraseña con
-  código, cambio de correo con código, cambio de contraseña, "Confirma tu identidad".
-- **Quiz de nivelación** (20 preguntas locales, 11 por intento) con el resultado guardado en Supabase.
-- **Perfil:** nombre, género, fecha de nacimiento, foto (Supabase Storage), correo de recuperación verificado con código
-  y descarga de los datos en JSON.
-- **Seguridad:** bloqueo biométrico de la app, dispositivos con cierre de sesión (marca cooperativa + revocación real de
-  las demás sesiones).
-- **Recordatorios** locales (lección diaria y racha en riesgo).
-- **Ruta de aprendizaje (módulo 3):**
-  - **Inicio y barra inferior** (Inicio, Ruta, Labs, Social, Perfil): chapa con nombre, nivel y **racha real**; "Lección diaria".
-  - **Ruta:** mapa de 6 islas y la Prueba Final; una isla se completa con la lección vista y el laboratorio completado, y se
-    desbloquean en orden.
-  - **6 lecciones** y **6 laboratorios** con una terminal simulada (solo reconoce los comandos del diseño), informe de éxito o
-    de "Laboratorio no completado" y precisión.
-  - **Examen Final** de 6 preguntas (se aprueba con 5 o más aciertos, sin límite de intentos), con el resultado guardado; no
-    cambia el nivel del quiz.
-  - **Logros e insignias reales** (9) y racha actual, calculadas del progreso guardado.
-  - "Concepto nuevo" y "Prepárate con CiberMynd" siguen sin hacerse.
-- **Social (módulo 4):**
-  - **Amigos:** búsqueda por nombre de usuario exacto o por código (`NIGHT-XXXXXX`), solicitudes, perfil del amigo (racha,
-    insignias e historial entre los dos; se puede ocultar el progreso) y foto de perfil.
-  - **Racha en pareja:** con un amigo, hasta 6 días (hay 6 islas), calculada por el servidor con hora de Colombia.
-  - **Batallas:** partida rápida contra desconocidos o reto a un amigo, preguntas por turnos, "Ulti" con un reto de
-    terminal, XP y nivel de combatiente. **El servidor decide todo** (aciertos, daño, turnos y plazos); la app solo sondea
-    el estado cada 2 a 3 segundos mientras la arena está visible.
-  - **Reportar y bloquear** personas, y "Personas bloqueadas" en Amigos. No hay pantalla de moderación: el equipo revisa los
-    reportes en el panel de Supabase.
-- Solo visuales o con datos fijos: Apariencia, Idioma, Ayuda, Acerca de; los interruptores de notificaciones de "Logros" y
-  "Nuevos laboratorios" no tienen efecto (necesitan notificaciones push).
-
-La migración desde Firebase, las decisiones y los problemas encontrados están en
-[`docs/superpowers/reports/migracion-supabase.md`](docs/superpowers/reports/migracion-supabase.md) y la guía técnica de
-Supabase en [`docs/superpowers/supabase-configuracion.md`](docs/superpowers/supabase-configuracion.md).
-
-## Requisitos
-
-- **Android Studio** reciente.
-- **JDK 25 para ejecutar Gradle.** `gradle/gradle-daemon-jvm.properties` fija `toolchainVersion=25` y el resolver
-  *foojay* de `settings.gradle.kts` puede descargarlo solo si no lo tienes. El código se compila para Java 11.
-- **Android SDK 37** (`compileSdk` y `targetSdk` = 37). `minSdk` = **26** (Android 8.0).
-- **Emulador recomendado:** API 34 o 35 con imagen **Google APIs** (necesita Google Play Services para el login con
-  Google), arquitectura **x86_64** y **sin** "16 KB Page Size". También sirve un teléfono real con Android 8.0 o superior.
-  Para probar el bloqueo biométrico hace falta una huella registrada en el dispositivo.
-
-## Puesta en marcha para un integrante nuevo
-
-1. **Clona** el repositorio.
-2. **Pide acceso a la organización de Supabase** con el rol **Developer** a quien sea dueño del proyecto (ver la
-   [tabla de responsables](#responsables)).
-3. **Crea tu `local.properties`** en la raíz copiando `local.properties.example`, y completa:
-   - `SUPABASE_URL` y `SUPABASE_PUBLISHABLE_KEY`: en el panel de Supabase, botón **Connect** del proyecto (la clave es la
-     *publishable*; **nunca** pongas la `secret` ni la `service_role` en la app).
-   - `GOOGLE_WEB_CLIENT_ID`: el ID de cliente OAuth de tipo **Web** que usa el proveedor Google de Supabase
-     (*Authentication > Sign In / Providers > Google*), con la forma `NNNN.apps.googleusercontent.com`.
-
-   `local.properties` está en el `.gitignore` y **nunca se sube**. Si falta una de las tres claves, la app se detiene al
-   iniciar con un mensaje que dice cuál.
-4. **Registra la huella SHA-1 de tu computador** para que funcione el login con Google (cada computador tiene la suya):
-   1. Ejecuta `./gradlew signingReport` y copia el **SHA-1** de la variante `debug`.
-   2. Entra a [console.cloud.google.com](https://console.cloud.google.com/), elige el proyecto de Google Cloud del
-      equipo y ve a **APIs y servicios > Credenciales > Crear credenciales > ID de cliente de OAuth**.
-   3. Tipo de aplicación **Android**, paquete **`com.example.nightwatchprotocol`** y tu **SHA-1**. Guarda.
-5. **Sincroniza Gradle** (*Gradle Sync*) y pulsa **Run** en el emulador o dispositivo.
-
-Desde la terminal:
+## Calidad
 
 ```
-./gradlew assembleDebug      # compila el APK de depuración
-./gradlew installDebug       # lo instala en el dispositivo conectado
+./gradlew assembleDebug testDebugUnitTest lintDebug
 ```
 
-## Base de datos y funciones del servidor
+El último recuento escrito en los informes del repositorio es de **1508 pruebas unitarias, 0 fallos, lint con 0 errores** (cierre de la etapa 9 del módulo 5; ver `docs/superpowers/reports/etapa-9-verificacion.md`). Hay además pruebas que vigilan que no queden colores fijos fuera del tema, que los textos en español e inglés tengan los mismos recursos y que el contenido de ambos idiomas tenga la misma estructura.
 
-Todo el servidor está en `supabase/` y **se despliega a mano** desde el panel (no se usa la CLI de Supabase):
-
-- **Migraciones** (`supabase/migrations/0001` a `0011`; `0007` crea las tablas de progreso del módulo 3 y `0008` a `0011` las de
-  Social: tablas y funciones de amigos, parejas y batallas, el banco de preguntas, las fotos y los reportes y bloqueos): se
-  ejecutan **en orden numérico, una sola vez por proyecto**, a mano en el **SQL Editor** del panel. **Una migración ya
-  aplicada no se edita**: cualquier cambio va en una migración nueva con el siguiente número (`0012`...). Cada archivo
-  explica qué hace y trae consultas de verificación comentadas al final.
-- **Guiones de comprobación** (`supabase/verificacion/0008_escenarios.sql` y `0011_escenarios.sql`): no son migraciones. Se
-  corren a mano con dos cuentas de prueba y dejan una tabla de comprobaciones (OK o FALLA); se limpian solos.
-- **Edge Function** `send-recovery-email-code` (`supabase/functions/`): envía el código del correo de recuperación por la
-  API de Brevo. Su `README.md` explica cómo desplegarla (*Edge Functions > Deploy a new function*) y los tres secretos
-  que necesita (`BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME`).
-- **Ajustes del panel** (SMTP de Brevo, plantillas de correo con `{{ .Token }}`, longitud y vencimiento del código,
-  proveedor Google, *Confirm email*, *Allow manual linking*): lista exacta en
-  [`docs/superpowers/supabase-configuracion.md`](docs/superpowers/supabase-configuracion.md).
-
-## Responsables
-
-Aquí van **roles**, no contraseñas ni claves (esas se piden en persona o por un canal privado).
-
-| Servicio | Quién lo administra | Qué hay que saber |
-|---|---|---|
-| **Supabase** (organización y proyecto) | La persona dueña de la organización; los demás son **Developers** | Un solo proyecto compartido. Los Developers ven y usan el panel (SQL Editor, Edge Functions, Auth) pero no gestionan la organización |
-| **Brevo** | Una sola cuenta del equipo (plan gratuito, **un solo usuario**) | De ahí salen la clave SMTP (correos de Auth) y la API key (Edge Function). Quien necesite cambiar algo lo pide a esa persona |
-| **Google Cloud** (proyecto con el cliente OAuth de Google) | La persona dueña del proyecto | Cada integrante agrega su propio ID de cliente Android con su SHA-1. El proyecto lo creó en su momento Firebase y se conserva por el cliente OAuth |
-| **GitHub** | La persona dueña del repositorio | Pull Requests con aprobación (ver "Cómo trabajamos en equipo") |
-
-## Limitaciones del plan gratuito
-
-- **Supabase pausa el proyecto tras 7 días sin actividad.** La app y el login dejan de funcionar hasta reactivarlo:
-  entra al panel, abre el proyecto y pulsa **Restore project** (tarda unos minutos). Un proyecto pausado se puede
-  restaurar durante unos **90 días**; pasado ese plazo ya no se restaura desde el panel (solo se puede descargar una
-  copia). Usar la app o el panel de vez en cuando evita la pausa.
-- **Límite de correos.** El SMTP integrado de Supabase permite muy pocos correos por hora, por eso se usa Brevo, cuyo
-  plan gratuito permite unos **300 correos al día** en total. Los correos de la Edge Function (verificación del correo de
-  recuperación) salen por la API de Brevo y **cuentan en ese mismo límite**, no en el de Supabase. Demostraciones con
-  muchas altas seguidas pueden agotarlo.
-- **Remitente `@gmail.com`.** Los correos enviados desde una dirección de Gmail por Brevo pueden caer en **spam** o ser
-  rechazados por DMARC. Para una demostración, pide que revisen la carpeta de spam; la solución real es un dominio
-  propio con SPF y DKIM.
-- **Sin modo sin conexión.** Lo que se guarda sin internet falla como "sin conexión"; el género, la fecha y la foto
-  conservan una copia local hasta el siguiente guardado.
-
-## Cómo correr las pruebas
-
-```
-./gradlew testDebugUnitTest                  # pruebas unitarias (JVM, con fakes; no necesitan dispositivo)
-./gradlew compileDebugAndroidTestKotlin      # comprueba que las pruebas instrumentadas compilan
-./gradlew connectedDebugAndroidTest          # pruebas instrumentadas (necesitan un dispositivo o emulador)
-./gradlew lintDebug                          # revisión estática (debe quedar en 0 errores)
-```
-
-Todas las pruebas unitarias deben pasar antes de abrir un Pull Request. Las pruebas de ViewModel usan
-`MainDispatcherRule` y Turbine; los repositorios se sustituyen por *fakes* (`FakeAuthRepository`,
-`FakeProfileRepository`, etc.). Las pruebas instrumentadas de Compose solo se ejecutan con un dispositivo.
-
-## Estructura de carpetas
+## Estructura del repositorio y documentación
 
 ```
 NightWatchProtocol/
-├── app/
-│   ├── build.gradle.kts              # configuración del módulo (minSdk 26, compileSdk 37, BuildConfig desde local.properties)
-│   └── src/
-│       ├── main/
-│       │   ├── AndroidManifest.xml
-│       │   ├── assets/                       # quiz_questions.json (20 preguntas) y learning_*.json (lecciones, labs, examen)
-│       │   ├── res/                          # íconos, fuentes (Iceland, Inter), imágenes, textos
-│       │   └── java/com/example/nightwatchprotocol/
-│       │       ├── MainActivity.kt           # FragmentActivity: navegación, bloqueo y sesión del dispositivo
-│       │       ├── NightWatchApplication.kt  # contenedor de dependencias, canales y recordatorios
-│       │       ├── di/                       # AppContainer (DI manual) y validación de local.properties
-│       │       ├── data/                     # repositorios e interfaces
-│       │       │   ├── auth/  account/  session/  quiz/  profile/  avatar/  device/  learning/  social/
-│       │       │   ├── supabase/             # errores y llamadas comunes a Supabase
-│       │       │   ├── common/  preferences/  biometric/  notifications/
-│       │       └── ui/                       # pantallas (Compose) y ViewModels
-│       │           ├── auth/  verifycode/  quiz/  postauth/  navigation/  startup/  theme/
-│       │           ├── home/  path/  lesson/  labs/  lab/  labreport/  exam/  examresult/   # módulo 3
-│       │           ├── social/                # módulo 4: amigos, parejas, batallas, reportar y bloquear
-│       │           ├── components/           # componentes compartidos
-│       │           ├── profile/              # las pantallas de perfil y ajustes
-│       │           └── applock/  biometric/  session/
-│       ├── test/                             # pruebas unitarias (JVM)
-│       └── androidTest/                      # pruebas instrumentadas (dispositivo)
+├── app/src/main/           # código (java/.../data, ui, di), recursos (res/values, res/values-en) y contenido (assets/content/es y en)
+├── app/src/test/           # pruebas unitarias
+├── app/src/androidTest/    # pruebas instrumentadas
 ├── supabase/
-│   ├── migrations/                   # 0001 a 0011: SQL que se ejecuta a mano, en orden y una sola vez
-│   ├── verificacion/                 # guiones de escenarios de 0008 y 0011 (no son migraciones)
+│   ├── migrations/         # 0001 a 0013: SQL que se ejecuta a mano, en orden y una sola vez
+│   ├── rollback/           # reversa de la migración 0013
+│   ├── verificacion/       # guiones de comprobación (no son migraciones)
 │   └── functions/send-recovery-email-code/   # Edge Function (Deno/TypeScript) y su README
-├── docs/superpowers/
-│   ├── supabase-configuracion.md     # guía técnica: ajustes del panel, flujos, limitaciones
-│   ├── specs/  plans/                # diseños y planes (los módulos 1 y 2 son históricos; las specs de los módulos 3 y 4 están vigentes)
-│   └── reports/                      # informes: migración a Supabase, revisión de código y cierres de módulo (módulos 3 y 4)
-├── local.properties.example          # plantilla de tu local.properties
-├── gradle/libs.versions.toml         # catálogo de versiones
-├── build.gradle.kts  settings.gradle.kts  gradle.properties
-└── gradlew  gradlew.bat              # wrapper de Gradle
+├── docs/
+│   ├── screenshots/        # capturas de este README
+│   └── superpowers/
+│       ├── specs/          # diseños de cada módulo
+│       ├── plans/          # planes (los de los módulos 1 y 2 son históricos)
+│       ├── reports/        # informes de cierre, verificación, revisión de código y auditoría de secretos
+│       ├── translations/   # tablas de revisión de las traducciones (UI y contenido)
+│       └── supabase-configuracion.md   # ajustes del panel, flujos y limitaciones
+├── local.properties.example  # plantilla (el archivo real no se versiona)
+└── gradle/libs.versions.toml # catálogo de versiones
 ```
 
-## Control de versiones
+Documentos para empezar: [`docs/superpowers/supabase-configuracion.md`](docs/superpowers/supabase-configuracion.md), la spec del módulo 5 en [`docs/superpowers/specs/2026-11-02-modulo-5-personalizacion-design.md`](docs/superpowers/specs/2026-11-02-modulo-5-personalizacion-design.md), el informe del módulo 4 en [`docs/superpowers/reports/modulo-4-informe.md`](docs/superpowers/reports/modulo-4-informe.md) y la [auditoría de secretos](docs/superpowers/reports/auditoria-secretos-entrega.md).
 
-El `.gitignore` excluye lo generado y lo sensible: `build/`, `.gradle/`, `.idea/`, `local.properties`, `*.jks`,
-`*.keystore`, `*.apk` y `*.aab`. No subas credenciales, llaves de firma ni archivos con claves.
+La base de datos y la Edge Function **se despliegan a mano** desde el panel de Supabase. Una migración ya aplicada no se edita: un cambio va en una migración nueva.
 
-## Cómo trabajamos en equipo
+## Flujo de trabajo del equipo
 
-- Nadie sube cambios directo a `main`. Todo entra por Pull Request con al menos 1 aprobación de otro integrante.
-- Una rama por tarea, con un nombre descriptivo (por ejemplo `modulo-3-...`, `mantenimiento/...` o `experimento/...`).
-- Nunca se usa `git push --force`.
-- `local.properties` nunca se sube al repositorio: cada integrante crea el suyo desde `local.properties.example`. Las
-  claves `secret` y `service_role` de Supabase y las claves de Brevo no van en la app ni en el repositorio.
-- Las migraciones de `supabase/migrations/` no se editan una vez aplicadas: un cambio va en una migración nueva.
-- No se actualizan AGP, Gradle, Kotlin, supabase-kt ni Ktor desde el Upgrade Assistant sin acordarlo antes en equipo
-  (supabase-kt 3.8.0 exige un Kotlin más nuevo que el del proyecto).
+- Una rama por tarea; un commit por etapa o por tema.
+- Todo entra a `main` por Pull Request con **1 aprobación** de otro integrante, usando **«Create a merge commit»**.
+- Nunca se usa `git push --force` y `local.properties` nunca se sube.
+- Cada versión se marca con una etiqueta `vX.Y.Z` y un Release (el último es `v2.4.0`).
+- No se actualizan AGP, Gradle, Kotlin, supabase-kt ni Ktor sin acuerdo previo del equipo.
 
-Esto es un acuerdo entre nosotros, no una protección automática: las reglas de protección de ramas de GitHub
-requieren un plan de pago en repositorios privados, así que nada impide técnicamente subir a `main`. Depende de que
-cada quien lo cumpla.
+## Limitaciones conocidas
+
+- El servidor usa planes gratuitos: Supabase pausa el proyecto tras 7 días sin actividad y Brevo permite unos 300 correos al día.
+- No hay modo sin conexión: guardar sin internet falla con un aviso (el informe del lab y el resultado del examen ofrecen «Reintentar guardado»).
+- El examen se corrige en el teléfono y no hay pantalla de moderación (los reportes los revisa el equipo en el panel de Supabase).
