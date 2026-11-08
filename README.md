@@ -97,7 +97,9 @@ Esta opción es para quien quiera leer o modificar el código. **No es la forma 
 
 ## Video tutorial de instalación
 
-<!-- pegar aquí el enlace del video -->
+El video muestra la instalación del APK de la versión 2.4.0 y un recorrido breve por la app.
+
+[Ver el video de instalación en YouTube](https://youtu.be/nQ3FZVkF3bM)
 
 ## Tecnologías y arquitectura
 
