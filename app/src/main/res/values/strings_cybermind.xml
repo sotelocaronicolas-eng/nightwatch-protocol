@@ -92,6 +92,7 @@
     <string name="cybermind_csv_err_too_many_topics">Estudiante %1$s: más de %2$d filas</string>
     <string name="cybermind_csv_err_experience_differs">Estudiante %1$s: experiencia_previa distinta entre sus filas</string>
     <string name="cybermind_csv_err_global_differs">Estudiante %1$s: puntaje_global distinto entre sus filas</string>
+    <string name="cybermind_csv_err_global_not_average">Estudiante %1$s: puntaje_global no coincide con el promedio de sus temas</string>
 
     <!-- Entrada -->
     <string name="cybermind_hub_title">Prepárate con CyberMind</string>

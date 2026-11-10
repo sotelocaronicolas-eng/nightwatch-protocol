@@ -181,10 +181,52 @@ class ValidadorCsvTest {
         )
     }
 
+    private val cincoTemas = listOf("fundamentos_redes", "criptografia", "seguridad_web", "ingenieria_social", "gestion_vulnerabilidades")
+
+    /** Cinco filas de un estudiante con `puntaje_tema` 66.7 cada una (promedio 66.7) y el `puntaje_global` dado. */
+    private fun cincoFilas(id: String = "E00012", pg: String) = cincoTemas.map { fila(id = id, tema = it, pg = pg) }.toTypedArray()
+
+    @Test
+    fun conCincoFilas_elPuntajeGlobalIgualAlPromedio_esValido() {
+        assertTrue(ValidadorCsv.validar(csv(*cincoFilas(pg = "66.7"))) is ResultadoValidacionCsv.Valido)
+    }
+
+    @Test
+    fun conCincoFilas_dentroDeLaToleranciaDe0coma1_esValido() {
+        assertTrue(ValidadorCsv.validar(csv(*cincoFilas(pg = "66.8"))) is ResultadoValidacionCsv.Valido)
+        assertTrue(ValidadorCsv.validar(csv(*cincoFilas(pg = "66.6"))) is ResultadoValidacionCsv.Valido)
+    }
+
+    @Test
+    fun conCincoFilas_fueraDeLaTolerancia_esInvalido() {
+        assertEquals(
+            listOf<ErrorCsv>(ErrorCsv.PuntajeGlobalNoPromedio("E00012")),
+            errores(csv(*cincoFilas(pg = "66.9"))),
+        )
+        assertEquals(
+            listOf<ErrorCsv>(ErrorCsv.PuntajeGlobalNoPromedio("E00012")),
+            errores(csv(*cincoFilas(pg = "70.0"))),
+        )
+    }
+
+    @Test
+    fun conMenosDeCincoFilas_noSeComparaConElPromedio_soloSeExigeQueSeaIgual() {
+        val cuatro = cincoTemas.take(4).map { fila(id = "E00012", tema = it, pg = "99.0") }
+        assertTrue(ValidadorCsv.validar(csv(*cuatro.toTypedArray())) is ResultadoValidacionCsv.Valido)
+        val distinto = errores(csv(fila(id = "E00012", pg = "99.0"), fila(id = "E00012", tema = "seguridad_web", pg = "98.0")))
+        assertEquals(listOf<ErrorCsv>(ErrorCsv.PuntajeGlobalDistinto("E00012")), distinto)
+    }
+
+    @Test
+    fun conCincoFilas_yGlobalDistintoEntreFilas_soloSeInformaLaDiferencia() {
+        val filas = cincoTemas.mapIndexed { i, t -> fila(id = "E00012", tema = t, pg = if (i == 0) "60.0" else "66.7") }
+        assertEquals(listOf<ErrorCsv>(ErrorCsv.PuntajeGlobalDistinto("E00012")), errores(csv(*filas.toTypedArray())))
+    }
+
     @Test
     fun quinientasFilas_sonValidas_yQuinientasUna_seRechaza() {
-        val cinco = listOf("fundamentos_redes", "criptografia", "seguridad_web", "ingenieria_social", "gestion_vulnerabilidades")
-        val filas = (0 until 100).flatMap { s -> cinco.map { fila(id = "E%05d".format(s), tema = it) } }
+        val cinco = cincoTemas
+        val filas = (0 until 100).flatMap { s -> cinco.map { fila(id = "E%05d".format(s), tema = it, pg = "66.7") } }
         assertEquals(500, filas.size)
         assertTrue(ValidadorCsv.validar(csv(*filas.toTypedArray())) is ResultadoValidacionCsv.Valido)
 

@@ -57,6 +57,7 @@ class ErrorCsvTextoTest {
             ErrorCsv.TemaRepetido(3, "E1", "criptografia"),
             ErrorCsv.DemasiadosTemasPorEstudiante("E1", 5),
             ErrorCsv.PuntajeGlobalDistinto("E1"),
+            ErrorCsv.PuntajeGlobalNoPromedio("E1"),
         )
         todos.forEach { assertEquals(false, it.aTexto().text().isNullOrBlank()) }
     }

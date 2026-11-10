@@ -78,6 +78,9 @@ object ReglasCyberMind {
     /** Tolerancia al comparar `puntaje_tema` con lo calculado desde los aciertos. */
     const val TOLERANCIA_PUNTAJE = 0.05
 
+    /** Tolerancia al comparar `puntaje_global` con el promedio de los `puntaje_tema` de un estudiante con los 5 temas. */
+    const val TOLERANCIA_PROMEDIO_GLOBAL = 0.1
+
     /** `round(suma de los 3 aciertos / 9 * 100, 1)`. */
     fun calcularPuntajeTema(basico: Int, intermedio: Int, avanzado: Int): Double =
         ((basico + intermedio + avanzado) / 9.0 * 1000.0).roundToLong() / 10.0

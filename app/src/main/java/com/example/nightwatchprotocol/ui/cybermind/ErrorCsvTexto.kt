@@ -25,6 +25,7 @@ fun ErrorCsv.aTexto(): UiText = when (this) {
     is ErrorCsv.DemasiadosTemasPorEstudiante -> UiText.of(R.string.cybermind_csv_err_too_many_topics, UiText.dynamic(estudiante), maximo)
     is ErrorCsv.ExperienciaDistinta -> UiText.of(R.string.cybermind_csv_err_experience_differs, UiText.dynamic(estudiante))
     is ErrorCsv.PuntajeGlobalDistinto -> UiText.of(R.string.cybermind_csv_err_global_differs, UiText.dynamic(estudiante))
+    is ErrorCsv.PuntajeGlobalNoPromedio -> UiText.of(R.string.cybermind_csv_err_global_not_average, UiText.dynamic(estudiante))
 }
 
 private fun rangoDe(columna: String): UiText = when (columna) {

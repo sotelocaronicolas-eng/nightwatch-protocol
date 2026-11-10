@@ -92,6 +92,7 @@
     <string name="cybermind_csv_err_too_many_topics">Student %1$s: more than %2$d rows</string>
     <string name="cybermind_csv_err_experience_differs">Student %1$s: experiencia_previa differs between its rows</string>
     <string name="cybermind_csv_err_global_differs">Student %1$s: puntaje_global differs between its rows</string>
+    <string name="cybermind_csv_err_global_not_average">Student %1$s: puntaje_global does not match the average of its topics</string>
 
     <!-- Entry -->
     <string name="cybermind_hub_title">Get ready with CyberMind</string>

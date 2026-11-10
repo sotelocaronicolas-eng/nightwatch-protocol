@@ -21,6 +21,7 @@ sealed interface ErrorCsv {
     data class DemasiadosTemasPorEstudiante(val estudiante: String, val maximo: Int) : ErrorCsv
     data class ExperienciaDistinta(val estudiante: String) : ErrorCsv
     data class PuntajeGlobalDistinto(val estudiante: String) : ErrorCsv
+    data class PuntajeGlobalNoPromedio(val estudiante: String) : ErrorCsv
 }
 
 sealed interface ResultadoValidacionCsv {
@@ -217,7 +218,15 @@ object ValidadorCsv {
 
         filas.groupBy { it.idEstudiante }.forEach { (id, delEstudiante) ->
             if (delEstudiante.map { it.experiencia }.distinct().size > 1) errores += ErrorCsv.ExperienciaDistinta(id)
-            if (delEstudiante.map { it.puntajeGlobal }.distinct().size > 1) errores += ErrorCsv.PuntajeGlobalDistinto(id)
+            if (delEstudiante.map { it.puntajeGlobal }.distinct().size > 1) {
+                errores += ErrorCsv.PuntajeGlobalDistinto(id)
+            } else if (delEstudiante.size == ReglasCyberMind.MAX_TEMAS) {
+                // Con los 5 temas se puede comprobar; con menos no hay contra qué comparar y solo se exige que sea igual.
+                val promedio = delEstudiante.map { it.puntajeTema }.average()
+                if (abs(delEstudiante.first().puntajeGlobal - promedio) > ReglasCyberMind.TOLERANCIA_PROMEDIO_GLOBAL + 1e-9) {
+                    errores += ErrorCsv.PuntajeGlobalNoPromedio(id)
+                }
+            }
         }
     }
 }
