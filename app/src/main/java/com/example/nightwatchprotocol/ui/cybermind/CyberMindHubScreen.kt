@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,8 +79,8 @@ fun CyberMindHubScreen(
                     modifier = Modifier.padding(horizontal = 40.dp, vertical = 48.dp),
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(28.dp), modifier = Modifier.fillMaxWidth()) {
-                    OpcionHub(stringResource(R.string.cybermind_hub_csv), onOpenCsv)
-                    OpcionHub(stringResource(R.string.cybermind_hub_manual), onOpenManual)
+                    OpcionHub("📜", stringResource(R.string.cybermind_hub_csv_icon), stringResource(R.string.cybermind_hub_csv), onOpenCsv)
+                    OpcionHub("🖊", stringResource(R.string.cybermind_hub_manual_icon), stringResource(R.string.cybermind_hub_manual), onOpenManual)
                 }
             }
         }
@@ -86,7 +88,7 @@ fun CyberMindHubScreen(
 }
 
 @Composable
-private fun OpcionHub(texto: String, onClick: () -> Unit) {
+private fun OpcionHub(emoji: String, descripcionEmoji: String, texto: String, onClick: () -> Unit) {
     val colors = NightWatchTheme.colors
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -97,6 +99,13 @@ private fun OpcionHub(texto: String, onClick: () -> Unit) {
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 22.dp),
     ) {
+        Text(
+            text = emoji,
+            fontSize = 22.sp,
+            modifier = Modifier
+                .padding(end = 14.dp)
+                .semantics { contentDescription = descripcionEmoji },
+        )
         Text(
             text = texto,
             color = colors.onSurfaceButton,

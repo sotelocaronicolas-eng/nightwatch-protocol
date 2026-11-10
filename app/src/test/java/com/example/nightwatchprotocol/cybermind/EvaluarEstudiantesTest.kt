@@ -37,6 +37,28 @@ class EvaluarEstudiantesTest {
     }
 
     @Test
+    fun siElModeloNoSePuedeCrear_conUnError_seUsaLaReglaDel70_yNoSePropaga() = runTest {
+        var intentos = 0
+        // UnsatisfiedLinkError es un Error, no una Exception: la librería nativa de ONNX no está en esta arquitectura.
+        val evaluador = OnnxEvaluadorEstudiante {
+            intentos++
+            throw UnsatisfiedLinkError("libonnxruntime.so no está en esta arquitectura")
+        }
+        val filas = listOf(
+            fila("E1", Tema.CRIPTOGRAFIA, 3, 1, 0), // 44,4 -> REFUERZO
+            fila("E1", Tema.SEGURIDAD_WEB, 3, 3, 3), // 100 -> AVANCE
+        )
+
+        val r = evaluador.evaluarEstudiantes(filas, Dispatchers.Unconfined).single()
+
+        assertEquals(listOf(Veredicto.REFUERZO, Veredicto.AVANCE), r.temas.map { it.decision })
+        assertTrue(r.temas.all { it.origen == OrigenEvaluacion.REGLA_RESPALDO && it.confianza == null })
+        assertEquals(OrigenEvaluacion.REGLA_RESPALDO, r.origen)
+        assertEquals(null, evaluador.versionEmbebida)
+        assertEquals("el fallo se recuerda: no se reintenta por cada fila", 1, intentos)
+    }
+
+    @Test
     fun csvDemo_seEvaluaCompleto() = runTest {
         val texto = checkNotNull(javaClass.getResourceAsStream("/estudiantes_demo.csv")).bufferedReader().use { it.readText() }
         val filas = (ValidadorCsv.validar(texto) as ResultadoValidacionCsv.Valido).filas

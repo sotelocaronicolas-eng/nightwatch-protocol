@@ -178,10 +178,10 @@ private fun FilaEstudiante(estudiante: ResultadoEstudiante, onClick: () -> Unit)
     }
 }
 
-/** El color de cada decisión: verde para AVANCE y el acento de "perdido" del tema para REFUERZO. */
+/** El color de cada decisión: verde para AVANCE y el naranja propio de REFUERZO. */
 @Composable
 private fun colorDe(veredicto: Veredicto) =
-    if (veredicto == Veredicto.AVANCE) NightWatchTheme.colors.success else NightWatchTheme.colors.failAccent
+    if (veredicto == Veredicto.AVANCE) NightWatchTheme.colors.success else NightWatchTheme.colors.reinforce
 
 @Composable
 private fun ChipVeredicto(veredicto: Veredicto, cantidad: Int) {

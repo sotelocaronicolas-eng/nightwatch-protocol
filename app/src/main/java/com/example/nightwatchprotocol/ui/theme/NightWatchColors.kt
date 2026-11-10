@@ -94,6 +94,8 @@ class NightWatchColors(
     val cardTint: Color,
     /** The "lost" accent of the battles (Stage 5). */
     val failAccent: Color,
+    /** Fill of the REFUERZO chips of CyberMind (orange); the text over it is [brandWhite]. */
+    val reinforce: Color,
     /** Soft dark layer over the background images of a profile; it does not depend on the theme (Stage 5). */
     val scrimSoft: Color,
     /** Dark layer behind the white text over the background images; it does not depend on the theme (Stage 5). */
@@ -152,6 +154,8 @@ val DarkNightWatchColors = NightWatchColors(
     noticeSurface = Color(0xFF94A6A7),
     cardTint = Color(0xFF94A6A7),
     failAccent = Color(0xFFC0503E),
+    // New in CyberMind: white text over it measures 5.02:1 (the same orange works in both themes, the chip is a filled pill).
+    reinforce = Color(0xFFB45309),
     scrimSoft = Color(0x73000000),
     overlayDark = Color(0xCC333333),
     pickerSurface = Color(0xFF8C8C8C),
@@ -216,6 +220,8 @@ val LightNightWatchColors = NightWatchColors(
     cardTint = Color(0xFFD9D9D9),
     // PROPUESTA (4.3): 6.06 over bgElevated.
     failAccent = Color(0xFFA13A2A),
+    // PROPUESTA (CyberMind): white text over it measures 5.02:1.
+    reinforce = Color(0xFFB45309),
     // Images and their layers do not depend on the theme: same as dark.
     scrimSoft = Color(0x73000000),
     overlayDark = Color(0xCC333333),

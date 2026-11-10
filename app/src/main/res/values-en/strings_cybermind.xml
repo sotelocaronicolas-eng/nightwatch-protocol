@@ -99,6 +99,8 @@
     <string name="cybermind_hub_intro">Check whether a student advances or needs reinforcement.</string>
     <string name="cybermind_hub_csv">Evaluate from a CSV</string>
     <string name="cybermind_hub_manual">Enter data manually</string>
+    <string name="cybermind_hub_csv_icon">Scroll</string>
+    <string name="cybermind_hub_manual_icon">Pen</string>
 
     <!-- Results -->
     <string name="cybermind_results_title">Results</string>

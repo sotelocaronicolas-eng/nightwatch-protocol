@@ -99,6 +99,8 @@
     <string name="cybermind_hub_intro">Evalúa si un estudiante avanza o necesita refuerzo.</string>
     <string name="cybermind_hub_csv">Evaluar desde un CSV</string>
     <string name="cybermind_hub_manual">Ingresar datos de forma manual</string>
+    <string name="cybermind_hub_csv_icon">Pergamino</string>
+    <string name="cybermind_hub_manual_icon">Pluma</string>
 
     <!-- Resultados -->
     <string name="cybermind_results_title">Resultados</string>
