@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    CyberMind texts (AI module), English. Prefix: cybermind_. The values that go to the model and to the CSV (fundamentos_redes,
+    ninguna...) are NOT here: they live in the domain; only the names the person sees are here.
+-->
+<resources>
+    <!-- Names of the topics and of the experience -->
+    <string name="cybermind_topic_fundamentos_redes">Networking basics</string>
+    <string name="cybermind_topic_criptografia">Cryptography</string>
+    <string name="cybermind_topic_seguridad_web">Web security</string>
+    <string name="cybermind_topic_ingenieria_social">Social engineering</string>
+    <string name="cybermind_topic_gestion_vulnerabilidades">Vulnerability management</string>
+    <string name="cybermind_experience_ninguna">None</string>
+    <string name="cybermind_experience_cursos">Courses</string>
+    <string name="cybermind_experience_laboral">Work</string>
+
+    <!-- Decisions -->
+    <string name="cybermind_verdict_avance">ADVANCE</string>
+    <string name="cybermind_verdict_refuerzo">REINFORCE</string>
+
+    <!-- Manual entry -->
+    <string name="cybermind_manual_title">Manual entry</string>
+    <string name="cybermind_manual_intro">All fields are required. The student ID is assigned automatically.</string>
+    <string name="cybermind_manual_count_label">Number of topics to evaluate</string>
+    <string name="cybermind_manual_count_option">%1$d topics</string>
+    <string name="cybermind_manual_row_title">Topic %1$d of %2$d</string>
+    <string name="cybermind_manual_row_incomplete">Topic %1$d · incomplete</string>
+    <string name="cybermind_manual_row_with_topic">Topic %1$d · %2$s</string>
+    <string name="cybermind_manual_evaluate">Evaluate</string>
+    <string name="cybermind_manual_evaluating">Evaluating…</string>
+    <string name="cybermind_field_topic">Topic</string>
+    <string name="cybermind_field_experience">Previous experience</string>
+    <string name="cybermind_field_basic">Basic correct answers (0–3)</string>
+    <string name="cybermind_field_intermediate">Intermediate correct answers (0–3)</string>
+    <string name="cybermind_field_advanced">Advanced correct answers (0–3)</string>
+    <string name="cybermind_field_topic_score">Topic score (calculated)</string>
+    <string name="cybermind_field_topic_score_value">%1$s (sum ÷ 9)</string>
+    <string name="cybermind_field_topic_score_pending">Calculated automatically</string>
+    <string name="cybermind_field_global_score">Overall score (0–100)</string>
+    <string name="cybermind_field_time">Average time (4–180 sec)</string>
+    <string name="cybermind_error_number">Enter a valid number</string>
+    <string name="cybermind_error_range">Must be between %1$s and %2$s</string>
+    <string name="cybermind_error_topic_repeated">This topic is already in another row</string>
+    <string name="cybermind_error_experience_differs">Previous experience must be the same in every row.</string>
+    <string name="cybermind_error_global_differs">The overall score must be the same in every row.</string>
+    <string name="cybermind_error_evaluate">Could not evaluate. Please try again.</string>
+</resources>

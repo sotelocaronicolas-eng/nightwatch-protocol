@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Textos de CyberMind (módulo de IA). Prefijo: cybermind_. Los valores que van al modelo y al CSV (fundamentos_redes, ninguna...)
+    NO están aquí: viven en el dominio; aquí solo están los nombres que ve la persona.
+-->
+<resources>
+    <!-- Nombres de los temas y de la experiencia -->
+    <string name="cybermind_topic_fundamentos_redes">Fundamentos de redes</string>
+    <string name="cybermind_topic_criptografia">Criptografía</string>
+    <string name="cybermind_topic_seguridad_web">Seguridad web</string>
+    <string name="cybermind_topic_ingenieria_social">Ingeniería social</string>
+    <string name="cybermind_topic_gestion_vulnerabilidades">Gestión de vulnerabilidades</string>
+    <string name="cybermind_experience_ninguna">Ninguna</string>
+    <string name="cybermind_experience_cursos">Cursos</string>
+    <string name="cybermind_experience_laboral">Laboral</string>
+
+    <!-- Decisiones -->
+    <string name="cybermind_verdict_avance">AVANCE</string>
+    <string name="cybermind_verdict_refuerzo">REFUERZO</string>
+
+    <!-- Ingreso manual -->
+    <string name="cybermind_manual_title">Ingreso manual</string>
+    <string name="cybermind_manual_intro">Todos los campos son obligatorios. El ID del estudiante se asigna solo.</string>
+    <string name="cybermind_manual_count_label">Cantidad de temas a evaluar</string>
+    <string name="cybermind_manual_count_option">%1$d temas</string>
+    <string name="cybermind_manual_row_title">Tema %1$d de %2$d</string>
+    <string name="cybermind_manual_row_incomplete">Tema %1$d · sin completar</string>
+    <string name="cybermind_manual_row_with_topic">Tema %1$d · %2$s</string>
+    <string name="cybermind_manual_evaluate">Evaluar</string>
+    <string name="cybermind_manual_evaluating">Evaluando…</string>
+    <string name="cybermind_field_topic">Tema</string>
+    <string name="cybermind_field_experience">Experiencia previa</string>
+    <string name="cybermind_field_basic">Aciertos básico (0–3)</string>
+    <string name="cybermind_field_intermediate">Aciertos intermedio (0–3)</string>
+    <string name="cybermind_field_advanced">Aciertos avanzado (0–3)</string>
+    <string name="cybermind_field_topic_score">Puntaje del tema (calculado)</string>
+    <string name="cybermind_field_topic_score_value">%1$s (suma ÷ 9)</string>
+    <string name="cybermind_field_topic_score_pending">Se calcula solo</string>
+    <string name="cybermind_field_global_score">Puntaje global (0–100)</string>
+    <string name="cybermind_field_time">Tiempo promedio (4–180 seg)</string>
+    <string name="cybermind_error_number">Escribe un número válido</string>
+    <string name="cybermind_error_range">Debe estar entre %1$s y %2$s</string>
+    <string name="cybermind_error_topic_repeated">Este tema ya está en otra fila</string>
+    <string name="cybermind_error_experience_differs">La experiencia previa debe ser igual en todas las filas.</string>
+    <string name="cybermind_error_global_differs">El puntaje global debe ser igual en todas las filas.</string>
+    <string name="cybermind_error_evaluate">No se pudo evaluar. Inténtalo de nuevo.</string>
+</resources>

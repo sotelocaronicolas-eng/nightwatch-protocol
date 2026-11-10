@@ -6,6 +6,7 @@ import com.example.nightwatchprotocol.BuildConfig
 import com.example.nightwatchprotocol.cybermind.CyberMindModelo
 import com.example.nightwatchprotocol.cybermind.EvaluadorEstudiante
 import com.example.nightwatchprotocol.cybermind.OnnxEvaluadorEstudiante
+import com.example.nightwatchprotocol.cybermind.ResultadosEnMemoria
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.account.SupabaseAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
@@ -139,6 +140,9 @@ interface AppContainer {
 
     /** CyberMind (módulo de IA): el modelo ONNX corre en el teléfono; no usa Supabase ni guarda datos de estudiantes. */
     val evaluadorEstudiante: EvaluadorEstudiante
+
+    /** El resultado de la última evaluación de CyberMind, solo en memoria. */
+    val resultadosCyberMind: ResultadosEnMemoria
 }
 
 /**
@@ -250,4 +254,5 @@ class DefaultAppContainer(context: Context) : AppContainer {
 
     // The ONNX session is created once, the first time someone is evaluated (not at startup), and then reused.
     override val evaluadorEstudiante: EvaluadorEstudiante = OnnxEvaluadorEstudiante { CyberMindModelo(context.applicationContext) }
+    override val resultadosCyberMind: ResultadosEnMemoria = ResultadosEnMemoria()
 }
