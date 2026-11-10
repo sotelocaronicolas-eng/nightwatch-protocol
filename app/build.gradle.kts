@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.supabase.storage)
     implementation(libs.supabase.functions)
     implementation(libs.ktor.client.okhttp)
+    implementation(libs.onnxruntime.android)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
 }

@@ -56,7 +56,7 @@
     <string name="learning_streak_value_unavailable">No disponible</string>
     <string name="learning_home_daily_lesson">Lección diaria</string>
     <string name="learning_home_new_concept">Concepto nuevo</string>
-    <string name="learning_home_cibermynd">Prepárate con CiberMynd</string>
+    <string name="learning_home_cibermynd">Prepárate con CyberMind</string>
 
     <!-- Inicio: textos propuestos (no están en Figma) -->
     <string name="learning_home_sign_out">Cerrar sesión</string>

@@ -3,6 +3,12 @@ package com.example.nightwatchprotocol.di
 import android.content.Context
 import com.example.nightwatchprotocol.data.common.ContextTextResolver
 import com.example.nightwatchprotocol.BuildConfig
+import com.example.nightwatchprotocol.cybermind.ArchivosCsv
+import com.example.nightwatchprotocol.cybermind.ContentResolverArchivosCsv
+import com.example.nightwatchprotocol.cybermind.CyberMindModelo
+import com.example.nightwatchprotocol.cybermind.EvaluadorEstudiante
+import com.example.nightwatchprotocol.cybermind.OnnxEvaluadorEstudiante
+import com.example.nightwatchprotocol.cybermind.ResultadosEnMemoria
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.account.SupabaseAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
@@ -133,6 +139,15 @@ interface AppContainer {
     val battlePoller: BattlePoller
     val quickMatchPoller: QuickMatchPoller
     val challengesPoller: ChallengesPoller
+
+    /** CyberMind (módulo de IA): el modelo ONNX corre en el teléfono; no usa Supabase ni guarda datos de estudiantes. */
+    val evaluadorEstudiante: EvaluadorEstudiante
+
+    /** El resultado de la última evaluación de CyberMind, solo en memoria. */
+    val resultadosCyberMind: ResultadosEnMemoria
+
+    /** Leer el CSV y guardar la plantilla con el selector de archivos del sistema. */
+    val archivosCsv: ArchivosCsv
 }
 
 /**
@@ -241,4 +256,9 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val battlePoller: BattlePoller = BattlePoller(battleRepository)
     override val quickMatchPoller: QuickMatchPoller = QuickMatchPoller(battleLobbyRepository)
     override val challengesPoller: ChallengesPoller = ChallengesPoller(battleLobbyRepository)
+
+    // The ONNX session is created once, the first time someone is evaluated (not at startup), and then reused.
+    override val evaluadorEstudiante: EvaluadorEstudiante = OnnxEvaluadorEstudiante { CyberMindModelo(context.applicationContext) }
+    override val resultadosCyberMind: ResultadosEnMemoria = ResultadosEnMemoria()
+    override val archivosCsv: ArchivosCsv = ContentResolverArchivosCsv(context.contentResolver)
 }

@@ -80,6 +80,8 @@ class ContrastTest {
         Pair("textOnLight/noticeSurface", c.textOnLight, c.noticeSurface, text),
         Pair("textOnLight/cardTint", c.textOnLight, c.cardTint, text),
         Pair("brandWhite/overlayDark (worst case, over white)", c.brandWhite, over(c.overlayDark, Color.White), text),
+        // The REFUERZO chips of CyberMind: white text over the orange fill.
+        Pair("brandWhite/reinforce", c.brandWhite, c.reinforce, text),
         // The gold as text, over every background it is drawn on (contrast fix).
         Pair("goldText/bgBase", c.goldText, c.bgBase, text),
         Pair("goldText/bgElevated", c.goldText, c.bgElevated, text),

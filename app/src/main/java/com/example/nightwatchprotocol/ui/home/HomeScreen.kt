@@ -92,6 +92,7 @@ fun HomeScreen(
     onOpenPairStreaks: () -> Unit,
     onOpenBattles: () -> Unit,
     onOpenMyProfile: () -> Unit,
+    onOpenCyberMind: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -131,6 +132,7 @@ fun HomeScreen(
         onOpenMyProfile = onOpenMyProfile,
         onProfileClick = viewModel::onProfileClicked,
         onComingSoonCardClick = viewModel::onComingSoonCardClicked,
+        onCyberMindClick = onOpenCyberMind,
         onSignOut = viewModel::onSignOutClicked,
         onRetryProgress = viewModel::refreshProgress,
     )
@@ -151,6 +153,7 @@ private fun HomeContent(
     onOpenMyProfile: () -> Unit,
     onProfileClick: () -> Unit,
     onComingSoonCardClick: () -> Unit,
+    onCyberMindClick: () -> Unit,
     onSignOut: () -> Unit,
     onRetryProgress: () -> Unit,
 ) {
@@ -175,6 +178,7 @@ private fun HomeContent(
                         onSignOut = onSignOut,
                         onDailyLessonClick = onDailyLessonClick,
                         onComingSoonCardClick = onComingSoonCardClick,
+                        onCyberMindClick = onCyberMindClick,
                         onRetryProgress = onRetryProgress,
                     )
                     HomeTab.Ruta -> LearningPathTab(
@@ -207,6 +211,7 @@ private fun InicioTab(
     onSignOut: () -> Unit,
     onDailyLessonClick: () -> Unit,
     onComingSoonCardClick: () -> Unit,
+    onCyberMindClick: () -> Unit,
     onRetryProgress: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -261,11 +266,11 @@ private fun InicioTab(
                         imageSize = 79.dp,
                         onClick = onComingSoonCardClick,
                     )
-                    ComingSoonSection(
+                    OpenCardSection(
                         title = stringResource(R.string.learning_home_cibermynd),
                         imageRes = R.drawable.img_home_cibermynd,
                         imageSize = 61.dp,
-                        onClick = onComingSoonCardClick,
+                        onClick = onCyberMindClick,
                     )
                 }
             }
@@ -425,8 +430,22 @@ private fun CaptionText(text: String, modifier: Modifier = Modifier) {
     )
 }
 
+/** "Prepárate con CyberMind": a card like the others that opens the AI module. */
+@Composable
+private fun OpenCardSection(title: String, imageRes: Int, imageSize: Dp, onClick: () -> Unit) {
+    SectionTitle(title)
+    IllustratedCard(
+        imageRes = imageRes,
+        imageSize = imageSize,
+        modifier = Modifier
+            .clickable(role = Role.Button, onClick = onClick)
+            .semantics { contentDescription = title },
+    )
+    Box(modifier = Modifier.height(39.dp))
+}
+
 /**
- * "Concepto nuevo" and "Prepárate con CiberMynd": dimmed, and tapping only shows "Próximamente". They stay focusable so
+ * "Concepto nuevo": dimmed, and tapping only shows "Próximamente". It stays focusable so
  * TalkBack reads "…, próximamente" and "No disponible".
  */
 @Composable

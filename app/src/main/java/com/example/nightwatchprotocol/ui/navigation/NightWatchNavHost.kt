@@ -10,7 +10,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.nightwatchprotocol.R
+import com.example.nightwatchprotocol.cybermind.OrigenEntrada
 import com.example.nightwatchprotocol.data.quiz.QuizCategory
+import com.example.nightwatchprotocol.ui.cybermind.CyberMindCsvScreen
+import com.example.nightwatchprotocol.ui.cybermind.CyberMindDetalleScreen
+import com.example.nightwatchprotocol.ui.cybermind.CyberMindHubScreen
+import com.example.nightwatchprotocol.ui.cybermind.CyberMindManualScreen
+import com.example.nightwatchprotocol.ui.cybermind.CyberMindResultadosScreen
 import com.example.nightwatchprotocol.ui.auth.forgotpassword.NewPasswordScreen
 import com.example.nightwatchprotocol.ui.auth.login.LoginScreen
 import com.example.nightwatchprotocol.ui.auth.register.RegisterScreen
@@ -184,7 +190,42 @@ fun NightWatchNavHost(
                 onOpenPairStreaks = { navController.navigate(PairStreaksRoute) },
                 onOpenBattles = { navController.navigate(BattlesRoute) },
                 onOpenMyProfile = { navController.navigate(MyProfileRoute) },
+                onOpenCyberMind = { navController.navigate(CyberMindHubRoute) },
             )
+        }
+        composable<CyberMindHubRoute> {
+            CyberMindHubScreen(
+                onClose = { navController.popBackStack() },
+                onOpenCsv = { navController.navigate(CyberMindCsvRoute) },
+                onOpenManual = { navController.navigate(CyberMindManualRoute) },
+            )
+        }
+        composable<CyberMindManualRoute> {
+            CyberMindManualScreen(
+                onClose = { navController.popBackStack() },
+                onVerResultados = { navController.navigate(CyberMindResultadosRoute) },
+            )
+        }
+        composable<CyberMindCsvRoute> {
+            CyberMindCsvScreen(
+                onClose = { navController.popBackStack() },
+                onVerResultados = { navController.navigate(CyberMindResultadosRoute) },
+            )
+        }
+        composable<CyberMindResultadosRoute> {
+            CyberMindResultadosScreen(
+                // La X vuelve a Inicio; los resultados se borran al salir (ver CyberMindResultadosViewModel).
+                onClose = { navController.popBackStack<Home>(inclusive = false) },
+                onOpenEstudiante = { id -> navController.navigate(CyberMindDetalleRoute(id)) },
+                // Una evaluación nueva empieza de cero: una pantalla nueva, con su formulario vacío.
+                onNuevaEvaluacion = { origen ->
+                    val destino = if (origen == OrigenEntrada.MANUAL) CyberMindManualRoute else CyberMindCsvRoute
+                    navController.navigate(destino) { popUpTo<CyberMindHubRoute> { inclusive = false } }
+                },
+            )
+        }
+        composable<CyberMindDetalleRoute> {
+            CyberMindDetalleScreen(onClose = { navController.popBackStack() })
         }
         composable<BattlesRoute> {
             BattlesScreen(

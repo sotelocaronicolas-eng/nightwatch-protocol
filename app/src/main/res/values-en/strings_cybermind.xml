@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    CyberMind texts (AI module), English. Prefix: cybermind_. The values that go to the model and to the CSV (fundamentos_redes,
+    ninguna...) are NOT here: they live in the domain; only the names the person sees are here.
+-->
+<resources>
+    <!-- Names of the topics and of the experience -->
+    <string name="cybermind_topic_fundamentos_redes">Networking basics</string>
+    <string name="cybermind_topic_criptografia">Cryptography</string>
+    <string name="cybermind_topic_seguridad_web">Web security</string>
+    <string name="cybermind_topic_ingenieria_social">Social engineering</string>
+    <string name="cybermind_topic_gestion_vulnerabilidades">Vulnerability management</string>
+    <string name="cybermind_experience_ninguna">None</string>
+    <string name="cybermind_experience_cursos">Courses</string>
+    <string name="cybermind_experience_laboral">Work</string>
+
+    <!-- Decisions -->
+    <string name="cybermind_verdict_avance">ADVANCE</string>
+    <string name="cybermind_verdict_refuerzo">REINFORCE</string>
+
+    <!-- Manual entry -->
+    <string name="cybermind_manual_title">Manual entry</string>
+    <string name="cybermind_manual_intro">All fields are required. The student ID is assigned automatically.</string>
+    <string name="cybermind_manual_count_label">Number of topics to evaluate</string>
+    <string name="cybermind_manual_count_option">%1$d topics</string>
+    <string name="cybermind_manual_row_title">Topic %1$d of %2$d</string>
+    <string name="cybermind_manual_row_incomplete">Topic %1$d · incomplete</string>
+    <string name="cybermind_manual_row_with_topic">Topic %1$d · %2$s</string>
+    <string name="cybermind_manual_evaluate">Evaluate</string>
+    <string name="cybermind_manual_evaluating">Evaluating…</string>
+    <string name="cybermind_field_topic">Topic</string>
+    <string name="cybermind_field_experience">Previous experience</string>
+    <string name="cybermind_field_basic">Basic correct answers (0–3)</string>
+    <string name="cybermind_field_intermediate">Intermediate correct answers (0–3)</string>
+    <string name="cybermind_field_advanced">Advanced correct answers (0–3)</string>
+    <string name="cybermind_field_topic_score">Topic score (calculated)</string>
+    <string name="cybermind_field_topic_score_value">%1$s (sum ÷ 9)</string>
+    <string name="cybermind_field_topic_score_pending">Calculated automatically</string>
+    <string name="cybermind_field_global_score">Overall score (calculated)</string>
+    <string name="cybermind_field_global_score_value">%1$s (average of the topics)</string>
+    <string name="cybermind_field_global_score_pending" formatted="false">—</string>
+    <string name="cybermind_field_time">Average time (4–180 sec)</string>
+    <string name="cybermind_error_number">Enter a valid number</string>
+    <string name="cybermind_error_range">Must be between %1$s and %2$s</string>
+    <string name="cybermind_error_topic_repeated">This topic is already in another row</string>
+    <string name="cybermind_error_experience_differs">Previous experience must be the same in every row.</string>
+    <string name="cybermind_error_evaluate">Could not evaluate. Please try again.</string>
+
+    <!-- Evaluate from a CSV -->
+    <string name="cybermind_csv_title">Evaluate from a CSV</string>
+    <string name="cybermind_csv_format_title">File format</string>
+    <string name="cybermind_csv_format_columns_intro">Required columns, in this order:</string>
+    <string name="cybermind_csv_format_values">tema: %1$s · experiencia_previa: %2$s · aciertos: 0 to 3</string>
+    <string name="cybermind_csv_format_limits">Maximum %1$d rows · %2$d students · %3$d KB</string>
+    <string name="cybermind_csv_download_template">Download CSV template</string>
+    <string name="cybermind_csv_template_saved">Template saved.</string>
+    <string name="cybermind_csv_template_failed">Could not save the template.</string>
+    <string name="cybermind_csv_pick">Tap to choose a CSV file</string>
+    <string name="cybermind_csv_selected_label">Selected file</string>
+    <string name="cybermind_csv_unnamed">Unnamed file</string>
+    <string name="cybermind_csv_badge_valid">VALID</string>
+    <string name="cybermind_csv_badge_invalid">INVALID</string>
+    <string name="cybermind_csv_remove">Remove file</string>
+    <string name="cybermind_csv_stats_valid">%1$d KB · %2$d rows · %3$d students</string>
+    <string name="cybermind_csv_stats_invalid">%1$d KB · %2$d rows</string>
+    <string name="cybermind_csv_reading">Reading file…</string>
+    <string name="cybermind_csv_error_read">Could not read the file.</string>
+    <string name="cybermind_csv_invalid_partial">The file is not valid (first %1$d of %2$d errors)</string>
+    <plurals name="cybermind_csv_invalid_all">
+        <item quantity="one">The file is not valid (%1$d error)</item>
+        <item quantity="other">The file is not valid (%1$d errors)</item>
+    </plurals>
+    <plurals name="cybermind_csv_more_errors">
+        <item quantity="one">… and %1$d more error</item>
+        <item quantity="other">… and %1$d more errors</item>
+    </plurals>
+    <string name="cybermind_csv_range">%1$d to %2$d</string>
+    <string name="cybermind_csv_err_too_big">The file is larger than %1$d KB</string>
+    <string name="cybermind_csv_err_empty">The file is empty</string>
+    <string name="cybermind_csv_err_not_utf8">The file is not UTF-8</string>
+    <string name="cybermind_csv_err_header">The header does not match the required columns</string>
+    <string name="cybermind_csv_err_column_not_allowed">Column not allowed: %1$s</string>
+    <string name="cybermind_csv_err_too_many_rows">The file has more than %1$d data rows</string>
+    <string name="cybermind_csv_err_too_many_students">The file has more than %1$d students</string>
+    <string name="cybermind_csv_err_row_columns">Row %1$d: must have %2$d columns but has %3$d</string>
+    <string name="cybermind_csv_err_empty_value">Row %1$d: %2$s is empty</string>
+    <string name="cybermind_csv_err_not_allowed">Row %1$d: %2$s not recognized</string>
+    <string name="cybermind_csv_err_not_number">Row %1$d: %2$s is not a valid number</string>
+    <string name="cybermind_csv_err_out_of_range">Row %1$d: %2$s out of range (%3$s)</string>
+    <string name="cybermind_csv_err_score_mismatch">Row %1$d: puntaje_tema does not match the correct answers</string>
+    <string name="cybermind_csv_err_topic_repeated">Row %1$d: student %2$s repeats the topic %3$s</string>
+    <string name="cybermind_csv_err_too_many_topics">Student %1$s: more than %2$d rows</string>
+    <string name="cybermind_csv_err_experience_differs">Student %1$s: experiencia_previa differs between its rows</string>
+    <string name="cybermind_csv_err_global_differs">Student %1$s: puntaje_global differs between its rows</string>
+    <string name="cybermind_csv_err_global_not_average">Student %1$s: puntaje_global does not match the average of its topics</string>
+
+    <!-- Entry -->
+    <string name="cybermind_hub_title">Get ready with CyberMind</string>
+    <string name="cybermind_hub_intro">Check whether a student advances or needs reinforcement.</string>
+    <string name="cybermind_hub_csv">Evaluate from a CSV</string>
+    <string name="cybermind_hub_manual">Enter data manually</string>
+    <string name="cybermind_hub_csv_icon">Scroll</string>
+    <string name="cybermind_hub_manual_icon">Pen</string>
+
+    <!-- Results -->
+    <string name="cybermind_results_title">Results</string>
+    <string name="cybermind_results_hint">Students · tap one to see the topics</string>
+    <string name="cybermind_results_empty">There are no results to show.</string>
+    <string name="cybermind_results_new">New evaluation</string>
+    <string name="cybermind_results_another">Evaluate another</string>
+    <string name="cybermind_chip">%1$s %2$d</string>
+    <plurals name="cybermind_results_students">
+        <item quantity="one">student</item>
+        <item quantity="other">students</item>
+    </plurals>
+    <plurals name="cybermind_results_row_subtitle">
+        <item quantity="one">ADVANCE in %1$d of %2$d topic</item>
+        <item quantity="other">ADVANCE in %1$d of %2$d topics</item>
+    </plurals>
+
+    <!-- Detail of a student -->
+    <string name="cybermind_detail_summary">%1$s · %2$s</string>
+    <plurals name="cybermind_detail_avance_count">
+        <item quantity="one">ADVANCE in %1$d topic</item>
+        <item quantity="other">ADVANCE in %1$d topics</item>
+    </plurals>
+    <plurals name="cybermind_detail_refuerzo_count">
+        <item quantity="one">REINFORCE in %1$d topic</item>
+        <item quantity="other">REINFORCE in %1$d topics</item>
+    </plurals>
+    <!-- No arguments: read with stringResource(id) directly, and formatted="false" keeps the % as it is. -->
+    <string name="cybermind_detail_origin_model" formatted="false">Evaluated with the AI model on your phone</string>
+    <string name="cybermind_detail_origin_fallback" formatted="false">Evaluated with the fallback rule (70 %)</string>
+    <string name="cybermind_detail_note" formatted="false">If the model does not load, the app uses the 70 % rule and says so here.</string>
+    <string name="cybermind_detail_row_score">Score %1$s %%</string>
+    <string name="cybermind_detail_row_score_confidence">Score %1$s %% · Confidence %2$s %%</string>
+    <string name="cybermind_detail_model_version">Model version: %1$s</string>
+    <string name="cybermind_detail_model_version_embedded">Model version: %1$s (%2$s)</string>
+    <string name="cybermind_detail_back">Back to results</string>
+</resources>
