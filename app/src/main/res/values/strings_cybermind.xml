@@ -36,13 +36,14 @@
     <string name="cybermind_field_topic_score">Puntaje del tema (calculado)</string>
     <string name="cybermind_field_topic_score_value">%1$s (suma ÷ 9)</string>
     <string name="cybermind_field_topic_score_pending">Se calcula solo</string>
-    <string name="cybermind_field_global_score">Puntaje global (0–100)</string>
+    <string name="cybermind_field_global_score">Puntaje global (calculado)</string>
+    <string name="cybermind_field_global_score_value">%1$s (promedio de los temas)</string>
+    <string name="cybermind_field_global_score_pending" formatted="false">—</string>
     <string name="cybermind_field_time">Tiempo promedio (4–180 seg)</string>
     <string name="cybermind_error_number">Escribe un número válido</string>
     <string name="cybermind_error_range">Debe estar entre %1$s y %2$s</string>
     <string name="cybermind_error_topic_repeated">Este tema ya está en otra fila</string>
     <string name="cybermind_error_experience_differs">La experiencia previa debe ser igual en todas las filas.</string>
-    <string name="cybermind_error_global_differs">El puntaje global debe ser igual en todas las filas.</string>
     <string name="cybermind_error_evaluate">No se pudo evaluar. Inténtalo de nuevo.</string>
 
     <!-- Evaluar desde un CSV -->

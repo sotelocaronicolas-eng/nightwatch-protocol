@@ -41,6 +41,7 @@ import com.example.nightwatchprotocol.cybermind.Experiencia
 import com.example.nightwatchprotocol.cybermind.FilaManual
 import com.example.nightwatchprotocol.cybermind.ReglasCyberMind
 import com.example.nightwatchprotocol.cybermind.Tema
+import com.example.nightwatchprotocol.cybermind.ValidadorManual
 import com.example.nightwatchprotocol.ui.common.asString
 import com.example.nightwatchprotocol.ui.components.NightWatchButton
 import com.example.nightwatchprotocol.ui.components.NightWatchScreenBackground
@@ -93,6 +94,8 @@ internal fun CyberMindManualContent(
     onEvaluar: () -> Unit,
 ) {
     val validacion = uiState.validacion
+    val locale = idiomaActual()
+    val puntajeGlobal = ValidadorManual.calcularPuntajeGlobal(uiState.filas)?.let { formatoDecimal(it, locale) }
     NightWatchScreenBackground {
         Column(modifier = Modifier.fillMaxSize()) {
             TitleTopBar(title = stringResource(R.string.cybermind_manual_title), onClose = onClose)
@@ -118,6 +121,7 @@ internal fun CyberMindManualContent(
                             indice = indice,
                             total = uiState.cantidad,
                             fila = fila,
+                            puntajeGlobal = puntajeGlobal,
                             errores = validacion.filas.getOrNull(indice) ?: ErroresFilaManual(),
                             otrosTemas = uiState.filas.filterIndexed { i, _ -> i != indice }.mapNotNull { it.tema }.toSet(),
                             onChange = { cambio -> onFilaChange(indice, cambio) },
@@ -128,7 +132,6 @@ internal fun CyberMindManualContent(
                 }
 
                 if (validacion.experienciaDistinta) AvisoError(stringResource(R.string.cybermind_error_experience_differs))
-                if (validacion.puntajeGlobalDistinto) AvisoError(stringResource(R.string.cybermind_error_global_differs))
                 uiState.error?.let { AvisoError(it.asString()) }
             }
             Box(
@@ -229,6 +232,7 @@ private fun FilaAbierta(
     indice: Int,
     total: Int,
     fila: FilaManual,
+    puntajeGlobal: String?,
     errores: ErroresFilaManual,
     otrosTemas: Set<Tema>,
     onChange: ((FilaManual) -> FilaManual) -> Unit,
@@ -281,9 +285,21 @@ private fun FilaAbierta(
             },
         )
         DosColumnas(
-            izquierda = { PuntajeCalculado(fila.puntajeTema?.let { formatoDecimal(it, locale) }) },
+            izquierda = {
+                PuntajeCalculado(
+                    labelRes = R.string.cybermind_field_topic_score,
+                    valor = fila.puntajeTema?.let { formatoDecimal(it, locale) },
+                    textoValor = R.string.cybermind_field_topic_score_value,
+                    textoPendiente = R.string.cybermind_field_topic_score_pending,
+                )
+            },
             derecha = {
-                CampoDecimal(R.string.cybermind_field_global_score, fila.puntajeGlobal, errores.puntajeGlobal.texto()) { v -> onChange { it.copy(puntajeGlobal = v) } }
+                PuntajeCalculado(
+                    labelRes = R.string.cybermind_field_global_score,
+                    valor = puntajeGlobal,
+                    textoValor = R.string.cybermind_field_global_score_value,
+                    textoPendiente = R.string.cybermind_field_global_score_pending,
+                )
             },
         )
         CampoDecimal(R.string.cybermind_field_time, fila.tiempoPromedioSeg, errores.tiempoPromedioSeg.texto()) { v -> onChange { it.copy(tiempoPromedioSeg = v) } }
@@ -322,12 +338,12 @@ private fun CampoDecimal(labelRes: Int, valor: String, error: String?, onChange:
     )
 }
 
-/** El puntaje del tema: de solo lectura, se calcula desde los tres aciertos. */
+/** Un puntaje de solo lectura (del tema o global): se calcula solo y se recalcula en vivo. */
 @Composable
-private fun PuntajeCalculado(valor: String?) {
+private fun PuntajeCalculado(labelRes: Int, valor: String?, textoValor: Int, textoPendiente: Int) {
     Column {
         Text(
-            text = stringResource(R.string.cybermind_field_topic_score),
+            text = stringResource(labelRes),
             color = NightWatchOnBackground,
             fontFamily = NightWatchBodyFontFamily,
             fontSize = 14.sp,
@@ -339,7 +355,7 @@ private fun PuntajeCalculado(valor: String?) {
         ) {
             Box(contentAlignment = Alignment.CenterStart, modifier = Modifier.padding(horizontal = 16.dp)) {
                 Text(
-                    text = if (valor != null) stringResource(R.string.cybermind_field_topic_score_value, valor) else stringResource(R.string.cybermind_field_topic_score_pending),
+                    text = if (valor != null) stringResource(textoValor, valor) else stringResource(textoPendiente),
                     color = NightWatchTheme.colors.onSurfaceButton,
                     fontFamily = NightWatchBodyFontFamily,
                     fontSize = 14.sp,

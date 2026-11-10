@@ -36,13 +36,14 @@
     <string name="cybermind_field_topic_score">Topic score (calculated)</string>
     <string name="cybermind_field_topic_score_value">%1$s (sum ÷ 9)</string>
     <string name="cybermind_field_topic_score_pending">Calculated automatically</string>
-    <string name="cybermind_field_global_score">Overall score (0–100)</string>
+    <string name="cybermind_field_global_score">Overall score (calculated)</string>
+    <string name="cybermind_field_global_score_value">%1$s (average of the topics)</string>
+    <string name="cybermind_field_global_score_pending" formatted="false">—</string>
     <string name="cybermind_field_time">Average time (4–180 sec)</string>
     <string name="cybermind_error_number">Enter a valid number</string>
     <string name="cybermind_error_range">Must be between %1$s and %2$s</string>
     <string name="cybermind_error_topic_repeated">This topic is already in another row</string>
     <string name="cybermind_error_experience_differs">Previous experience must be the same in every row.</string>
-    <string name="cybermind_error_global_differs">The overall score must be the same in every row.</string>
     <string name="cybermind_error_evaluate">Could not evaluate. Please try again.</string>
 
     <!-- Evaluate from a CSV -->

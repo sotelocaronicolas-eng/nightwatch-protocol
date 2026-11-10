@@ -31,7 +31,7 @@ class CyberMindManualViewModelTest {
     private fun viewModel() = CyberMindManualViewModel(evaluador, resultados, Dispatchers.Unconfined)
 
     private fun completa(tema: Tema = Tema.CRIPTOGRAFIA) =
-        FilaManual(tema, Experiencia.CURSOS, 3, 1, 0, "61.0", "38")
+        FilaManual(tema, Experiencia.CURSOS, 3, 1, 0, "38")
 
     @Test
     fun alInicio_hayUnTema_yNoSePuedeEvaluar() {

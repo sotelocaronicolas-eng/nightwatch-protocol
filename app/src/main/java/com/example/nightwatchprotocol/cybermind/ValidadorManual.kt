@@ -1,13 +1,17 @@
 package com.example.nightwatchprotocol.cybermind
 
-/** Lo que la persona va llenando en una fila del ingreso manual. Los números decimales viajan como texto, tal como se escriben. */
+import kotlin.math.roundToLong
+
+/**
+ * Lo que la persona va llenando en una fila del ingreso manual. El tiempo viaja como texto, tal como se escribe. El puntaje global
+ * no se escribe: lo calcula [ValidadorManual.calcularPuntajeGlobal] desde las filas.
+ */
 data class FilaManual(
     val tema: Tema? = null,
     val experiencia: Experiencia? = null,
     val aciertosBasico: Int? = null,
     val aciertosIntermedio: Int? = null,
     val aciertosAvanzado: Int? = null,
-    val puntajeGlobal: String = "",
     val tiempoPromedioSeg: String = "",
 ) {
     /** Calculado solo desde los tres aciertos; `null` mientras falte alguno. */
@@ -32,11 +36,10 @@ data class ErroresFilaManual(
     val aciertosBasico: ErrorCampo? = null,
     val aciertosIntermedio: ErrorCampo? = null,
     val aciertosAvanzado: ErrorCampo? = null,
-    val puntajeGlobal: ErrorCampo? = null,
     val tiempoPromedioSeg: ErrorCampo? = null,
 ) {
     val hayError: Boolean
-        get() = listOf(tema, experiencia, aciertosBasico, aciertosIntermedio, aciertosAvanzado, puntajeGlobal, tiempoPromedioSeg)
+        get() = listOf(tema, experiencia, aciertosBasico, aciertosIntermedio, aciertosAvanzado, tiempoPromedioSeg)
             .any { it != null }
 }
 
@@ -44,7 +47,6 @@ data class ValidacionManual(
     val filas: List<ErroresFilaManual>,
     val cantidadInvalida: Boolean,
     val experienciaDistinta: Boolean,
-    val puntajeGlobalDistinto: Boolean,
     /** Las filas listas para evaluar; `null` si algo no es válido. */
     val entrada: List<FilaEstudiante>?,
 ) {
@@ -56,7 +58,6 @@ object ValidadorManual {
 
     fun validar(idEstudiante: String, filas: List<FilaManual>): ValidacionManual {
         val cantidadInvalida = filas.size !in ReglasCyberMind.MIN_TEMAS..ReglasCyberMind.MAX_TEMAS
-        val globales = filas.map { parseDecimal(it.puntajeGlobal, 0.0, ReglasCyberMind.MAX_PUNTAJE) }
         val tiempos = filas.map { parseDecimal(it.tiempoPromedioSeg, ReglasCyberMind.MIN_TIEMPO_SEG, ReglasCyberMind.MAX_TIEMPO_SEG) }
 
         val errores = filas.mapIndexed { i, fila ->
@@ -71,16 +72,15 @@ object ValidadorManual {
                 aciertosBasico = errorAcierto(fila.aciertosBasico),
                 aciertosIntermedio = errorAcierto(fila.aciertosIntermedio),
                 aciertosAvanzado = errorAcierto(fila.aciertosAvanzado),
-                puntajeGlobal = globales[i].error,
                 tiempoPromedioSeg = tiempos[i].error,
             )
         }
 
         val experienciaDistinta = filas.mapNotNull { it.experiencia }.distinct().size > 1
-        val puntajeGlobalDistinto = globales.mapNotNull { it.valor }.distinct().size > 1
 
-        val valido = !cantidadInvalida && errores.none { it.hayError } && !experienciaDistinta && !puntajeGlobalDistinto
-        val entrada = if (valido) {
+        val valido = !cantidadInvalida && errores.none { it.hayError } && !experienciaDistinta
+        val puntajeGlobal = calcularPuntajeGlobal(filas)
+        val entrada = if (valido && puntajeGlobal != null) {
             filas.mapIndexed { i, f ->
                 FilaEstudiante(
                     idEstudiante = idEstudiante,
@@ -90,14 +90,24 @@ object ValidadorManual {
                     aciertosIntermedio = f.aciertosIntermedio!!,
                     aciertosAvanzado = f.aciertosAvanzado!!,
                     puntajeTema = f.puntajeTema!!,
-                    puntajeGlobal = globales[i].valor!!,
+                    puntajeGlobal = puntajeGlobal,
                     tiempoPromedioSeg = tiempos[i].valor!!,
                 )
             }
         } else {
             null
         }
-        return ValidacionManual(errores, cantidadInvalida, experienciaDistinta, puntajeGlobalDistinto, entrada)
+        return ValidacionManual(errores, cantidadInvalida, experienciaDistinta, entrada)
+    }
+
+    /**
+     * Promedio de los `puntaje_tema` de las filas que ya tienen sus tres aciertos, redondeado a 1 decimal; `null` si ninguna
+     * está completa. Es la única cifra global para todas las filas.
+     */
+    fun calcularPuntajeGlobal(filas: List<FilaManual>): Double? {
+        val puntajes = filas.mapNotNull { it.puntajeTema }
+        if (puntajes.isEmpty()) return null
+        return (puntajes.average() * 10.0).roundToLong() / 10.0
     }
 
     private fun errorAcierto(valor: Int?): ErrorCampo? = when {

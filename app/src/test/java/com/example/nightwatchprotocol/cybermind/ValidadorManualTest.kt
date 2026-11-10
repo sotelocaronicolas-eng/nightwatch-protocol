@@ -14,9 +14,8 @@ class ValidadorManualTest {
         b: Int? = 3,
         i: Int? = 1,
         a: Int? = 0,
-        pg: String = "61.0",
         t: String = "38",
-    ) = FilaManual(tema, exp, b, i, a, pg, t)
+    ) = FilaManual(tema, exp, b, i, a, t)
 
     @Test
     fun puntajeTema_seCalculaDesdeLosAciertos() {
@@ -41,7 +40,7 @@ class ValidadorManualTest {
         val f = v.entrada!!.single()
         assertEquals("M00001", f.idEstudiante)
         assertEquals(44.4, f.puntajeTema, 0.0)
-        assertEquals(61.0, f.puntajeGlobal, 0.0)
+        assertEquals(44.4, f.puntajeGlobal, 0.0)
         assertEquals(38.0, f.tiempoPromedioSeg, 0.0)
     }
 
@@ -60,12 +59,11 @@ class ValidadorManualTest {
 
     @Test
     fun campoVacio_haceInvalida_yMarcaElCampo() {
-        val v = ValidadorManual.validar("M1", listOf(fila(exp = null, a = null, pg = "", t = "")))
+        val v = ValidadorManual.validar("M1", listOf(fila(exp = null, a = null, t = "")))
         assertFalse(v.esValido)
         val e = v.filas.single()
         assertEquals(ErrorCampo.Vacio, e.experiencia)
         assertEquals(ErrorCampo.Vacio, e.aciertosAvanzado)
-        assertEquals(ErrorCampo.Vacio, e.puntajeGlobal)
         assertEquals(ErrorCampo.Vacio, e.tiempoPromedioSeg)
         assertNull(e.tema)
     }
@@ -84,13 +82,6 @@ class ValidadorManualTest {
     }
 
     @Test
-    fun puntajeGlobalFueraDeRango_oNoNumerico() {
-        assertTrue(ValidadorManual.validar("M1", listOf(fila(pg = "100.1"))).filas.single().puntajeGlobal is ErrorCampo.FueraDeRango)
-        assertEquals(ErrorCampo.NoNumerico, ValidadorManual.validar("M1", listOf(fila(pg = "abc"))).filas.single().puntajeGlobal)
-        assertEquals(ErrorCampo.NoNumerico, ValidadorManual.validar("M1", listOf(fila(pg = "-5"))).filas.single().puntajeGlobal)
-    }
-
-    @Test
     fun tiempo_limitesDe4A180() {
         assertTrue(ValidadorManual.validar("M1", listOf(fila(t = "3.9"))).filas.single().tiempoPromedioSeg is ErrorCampo.FueraDeRango)
         assertTrue(ValidadorManual.validar("M1", listOf(fila(t = "180.1"))).filas.single().tiempoPromedioSeg is ErrorCampo.FueraDeRango)
@@ -100,9 +91,9 @@ class ValidadorManualTest {
 
     @Test
     fun decimalConComa_seAcepta() {
-        val v = ValidadorManual.validar("M1", listOf(fila(pg = "61,5", t = "38,2")))
+        val v = ValidadorManual.validar("M1", listOf(fila(t = "38,2")))
         assertTrue(v.esValido)
-        assertEquals(61.5, v.entrada!!.single().puntajeGlobal, 0.0)
+        assertEquals(38.2, v.entrada!!.single().tiempoPromedioSeg, 0.0)
     }
 
     @Test
@@ -115,19 +106,36 @@ class ValidadorManualTest {
         val v = ValidadorManual.validar("M1", listOf(fila(), fila(tema = Tema.SEGURIDAD_WEB, exp = Experiencia.LABORAL)))
         assertFalse(v.esValido)
         assertTrue(v.experienciaDistinta)
-        assertFalse(v.puntajeGlobalDistinto)
     }
 
     @Test
-    fun puntajeGlobalDistintoEntreFilas_esErrorGlobal() {
-        val v = ValidadorManual.validar("M1", listOf(fila(), fila(tema = Tema.SEGURIDAD_WEB, pg = "62.0")))
-        assertFalse(v.esValido)
-        assertTrue(v.puntajeGlobalDistinto)
-        assertFalse(v.experienciaDistinta)
+    fun puntajeGlobal_sinTemasCompletos_esNulo() {
+        assertNull(ValidadorManual.calcularPuntajeGlobal(emptyList()))
+        assertNull(ValidadorManual.calcularPuntajeGlobal(listOf(fila(a = null), FilaManual())))
     }
 
     @Test
-    fun puntajeGlobalIgualEscritoDistinto_esConsistente() {
-        assertTrue(ValidadorManual.validar("M1", listOf(fila(pg = "61"), fila(tema = Tema.SEGURIDAD_WEB, pg = "61,0"))).esValido)
+    fun puntajeGlobal_esElPromedioDeLosPuntajesDeTema_aUnDecimal() {
+        // 44.4 y 100.0 -> 72.2; 44.4, 55.6 y 66.7 -> 55.6 (55.566...)
+        assertEquals(44.4, ValidadorManual.calcularPuntajeGlobal(listOf(fila()))!!, 0.0)
+        assertEquals(72.2, ValidadorManual.calcularPuntajeGlobal(listOf(fila(), fila(b = 3, i = 3, a = 3)))!!, 0.0)
+        val tres = listOf(fila(b = 3, i = 1, a = 0), fila(b = 3, i = 2, a = 0), fila(b = 3, i = 2, a = 1))
+        assertEquals(55.6, ValidadorManual.calcularPuntajeGlobal(tres)!!, 0.0)
+    }
+
+    @Test
+    fun puntajeGlobal_seRecalculaAlCambiarLosAciertos_yIgnoraLasFilasIncompletas() {
+        val antes = listOf(fila(), fila(tema = Tema.SEGURIDAD_WEB, b = 0, i = 0, a = 0))
+        val despues = listOf(fila(), fila(tema = Tema.SEGURIDAD_WEB, b = 3, i = 3, a = 3))
+        assertEquals(22.2, ValidadorManual.calcularPuntajeGlobal(antes)!!, 0.0)
+        assertEquals(72.2, ValidadorManual.calcularPuntajeGlobal(despues)!!, 0.0)
+        assertEquals(44.4, ValidadorManual.calcularPuntajeGlobal(listOf(fila(), fila(tema = Tema.SEGURIDAD_WEB, a = null)))!!, 0.0)
+    }
+
+    @Test
+    fun puntajeGlobal_esUnaSolaCifraParaTodasLasFilas() {
+        val v = ValidadorManual.validar("M1", listOf(fila(), fila(tema = Tema.SEGURIDAD_WEB, b = 3, i = 3, a = 3)))
+        assertTrue(v.esValido)
+        assertEquals(setOf(72.2), v.entrada!!.map { it.puntajeGlobal }.toSet())
     }
 }
