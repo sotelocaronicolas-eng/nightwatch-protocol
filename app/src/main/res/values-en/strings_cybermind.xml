@@ -44,4 +44,51 @@
     <string name="cybermind_error_experience_differs">Previous experience must be the same in every row.</string>
     <string name="cybermind_error_global_differs">The overall score must be the same in every row.</string>
     <string name="cybermind_error_evaluate">Could not evaluate. Please try again.</string>
+
+    <!-- Evaluate from a CSV -->
+    <string name="cybermind_csv_title">Evaluate from a CSV</string>
+    <string name="cybermind_csv_format_title">File format</string>
+    <string name="cybermind_csv_format_columns_intro">Required columns, in this order:</string>
+    <string name="cybermind_csv_format_values">tema: %1$s · experiencia_previa: %2$s · aciertos: 0 to 3</string>
+    <string name="cybermind_csv_format_limits">Maximum %1$d rows · %2$d students · %3$d KB</string>
+    <string name="cybermind_csv_download_template">Download CSV template</string>
+    <string name="cybermind_csv_template_saved">Template saved.</string>
+    <string name="cybermind_csv_template_failed">Could not save the template.</string>
+    <string name="cybermind_csv_pick">Tap to choose a CSV file</string>
+    <string name="cybermind_csv_selected_label">Selected file</string>
+    <string name="cybermind_csv_unnamed">Unnamed file</string>
+    <string name="cybermind_csv_badge_valid">VALID</string>
+    <string name="cybermind_csv_badge_invalid">INVALID</string>
+    <string name="cybermind_csv_remove">Remove file</string>
+    <string name="cybermind_csv_stats_valid">%1$d KB · %2$d rows · %3$d students</string>
+    <string name="cybermind_csv_stats_invalid">%1$d KB · %2$d rows</string>
+    <string name="cybermind_csv_reading">Reading file…</string>
+    <string name="cybermind_csv_error_read">Could not read the file.</string>
+    <string name="cybermind_csv_invalid_partial">The file is not valid (first %1$d of %2$d errors)</string>
+    <plurals name="cybermind_csv_invalid_all">
+        <item quantity="one">The file is not valid (%1$d error)</item>
+        <item quantity="other">The file is not valid (%1$d errors)</item>
+    </plurals>
+    <plurals name="cybermind_csv_more_errors">
+        <item quantity="one">… and %1$d more error</item>
+        <item quantity="other">… and %1$d more errors</item>
+    </plurals>
+    <string name="cybermind_csv_range">%1$d to %2$d</string>
+    <string name="cybermind_csv_err_too_big">The file is larger than %1$d KB</string>
+    <string name="cybermind_csv_err_empty">The file is empty</string>
+    <string name="cybermind_csv_err_not_utf8">The file is not UTF-8</string>
+    <string name="cybermind_csv_err_header">The header does not match the required columns</string>
+    <string name="cybermind_csv_err_column_not_allowed">Column not allowed: %1$s</string>
+    <string name="cybermind_csv_err_too_many_rows">The file has more than %1$d data rows</string>
+    <string name="cybermind_csv_err_too_many_students">The file has more than %1$d students</string>
+    <string name="cybermind_csv_err_row_columns">Row %1$d: must have %2$d columns but has %3$d</string>
+    <string name="cybermind_csv_err_empty_value">Row %1$d: %2$s is empty</string>
+    <string name="cybermind_csv_err_not_allowed">Row %1$d: %2$s not recognized</string>
+    <string name="cybermind_csv_err_not_number">Row %1$d: %2$s is not a valid number</string>
+    <string name="cybermind_csv_err_out_of_range">Row %1$d: %2$s out of range (%3$s)</string>
+    <string name="cybermind_csv_err_score_mismatch">Row %1$d: puntaje_tema does not match the correct answers</string>
+    <string name="cybermind_csv_err_topic_repeated">Row %1$d: student %2$s repeats the topic %3$s</string>
+    <string name="cybermind_csv_err_too_many_topics">Student %1$s: more than %2$d rows</string>
+    <string name="cybermind_csv_err_experience_differs">Student %1$s: experiencia_previa differs between its rows</string>
+    <string name="cybermind_csv_err_global_differs">Student %1$s: puntaje_global differs between its rows</string>
 </resources>

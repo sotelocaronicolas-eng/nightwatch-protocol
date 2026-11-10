@@ -6,6 +6,7 @@ import kotlin.math.abs
 sealed interface ErrorCsv {
     data class ArchivoDemasiadoGrande(val bytes: Long) : ErrorCsv
     data object ArchivoVacio : ErrorCsv
+    data object NoEsUtf8 : ErrorCsv
     data object EncabezadoInvalido : ErrorCsv
     data class ColumnaNoPermitida(val nombre: String) : ErrorCsv
     data class DemasiadasFilas(val maximo: Int) : ErrorCsv
@@ -29,6 +30,9 @@ sealed interface ResultadoValidacionCsv {
     /** Se rechaza el archivo completo; [errores] trae todos (la pantalla muestra los primeros 5 y "… y N errores más"). */
     data class Invalido(val errores: List<ErrorCsv>) : ResultadoValidacionCsv
 }
+
+/** Lo que se sabe de un archivo leído: el veredicto y los conteos para mostrar en su tarjeta (también cuando es inválido). */
+data class LecturaCsv(val resultado: ResultadoValidacionCsv, val filasDeDatos: Int, val estudiantes: Int)
 
 /** Validación del CSV de estudiantes. Kotlin puro: sin Android, para probarla en la JVM. */
 object ValidadorCsv {
@@ -59,6 +63,29 @@ object ValidadorCsv {
 
     /** Se llama ANTES de leer el archivo, con el tamaño que informa el sistema. */
     fun validarTamano(bytes: Long): ErrorCsv? = if (bytes > MAX_BYTES) ErrorCsv.ArchivoDemasiadoGrande(bytes) else null
+
+    /**
+     * Valida los bytes de un archivo: el tamaño (antes de decodificar), UTF-8 estricto (un byte inválido rechaza el archivo en vez
+     * de cambiarlo por "?") y luego el contenido.
+     */
+    fun validarBytes(bytes: ByteArray): LecturaCsv {
+        validarTamano(bytes.size.toLong())?.let { return LecturaCsv(ResultadoValidacionCsv.Invalido(listOf(it)), 0, 0) }
+        val texto = try {
+            Charsets.UTF_8.newDecoder()
+                .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+                .decode(java.nio.ByteBuffer.wrap(bytes))
+                .toString()
+        } catch (e: java.nio.charset.CharacterCodingException) {
+            return LecturaCsv(ResultadoValidacionCsv.Invalido(listOf(ErrorCsv.NoEsUtf8)), 0, 0)
+        }
+        val datos = lineasDeDatos(texto)
+        val estudiantes = datos.map { it.substringBefore(',').trim() }.filter { it.isNotEmpty() }.distinct().size
+        return LecturaCsv(validar(texto), datos.size, estudiantes)
+    }
+
+    private fun lineasDeDatos(texto: String): List<String> =
+        texto.removePrefix(BOM.toString()).split('\n').map { it.removeSuffix("\r") }.dropLastWhile { it.isEmpty() }.drop(1)
 
     fun validar(texto: String): ResultadoValidacionCsv {
         val bytes = texto.toByteArray(Charsets.UTF_8).size.toLong()

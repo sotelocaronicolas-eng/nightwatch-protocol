@@ -3,6 +3,8 @@ package com.example.nightwatchprotocol.di
 import android.content.Context
 import com.example.nightwatchprotocol.data.common.ContextTextResolver
 import com.example.nightwatchprotocol.BuildConfig
+import com.example.nightwatchprotocol.cybermind.ArchivosCsv
+import com.example.nightwatchprotocol.cybermind.ContentResolverArchivosCsv
 import com.example.nightwatchprotocol.cybermind.CyberMindModelo
 import com.example.nightwatchprotocol.cybermind.EvaluadorEstudiante
 import com.example.nightwatchprotocol.cybermind.OnnxEvaluadorEstudiante
@@ -143,6 +145,9 @@ interface AppContainer {
 
     /** El resultado de la última evaluación de CyberMind, solo en memoria. */
     val resultadosCyberMind: ResultadosEnMemoria
+
+    /** Leer el CSV y guardar la plantilla con el selector de archivos del sistema. */
+    val archivosCsv: ArchivosCsv
 }
 
 /**
@@ -255,4 +260,5 @@ class DefaultAppContainer(context: Context) : AppContainer {
     // The ONNX session is created once, the first time someone is evaluated (not at startup), and then reused.
     override val evaluadorEstudiante: EvaluadorEstudiante = OnnxEvaluadorEstudiante { CyberMindModelo(context.applicationContext) }
     override val resultadosCyberMind: ResultadosEnMemoria = ResultadosEnMemoria()
+    override val archivosCsv: ArchivosCsv = ContentResolverArchivosCsv(context.contentResolver)
 }
