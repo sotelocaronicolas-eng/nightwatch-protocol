@@ -54,7 +54,7 @@
     <string name="learning_streak_value_unavailable">Not available</string>
     <string name="learning_home_daily_lesson">Daily lesson</string>
     <string name="learning_home_new_concept">New concept</string>
-    <string name="learning_home_cibermynd">Get ready with CiberMynd</string>
+    <string name="learning_home_cibermynd">Get ready with CyberMind</string>
 
     <!-- Home: proposed texts -->
     <string name="learning_home_sign_out">Sign out</string>

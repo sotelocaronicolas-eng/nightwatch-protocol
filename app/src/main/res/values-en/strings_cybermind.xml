@@ -91,4 +91,46 @@
     <string name="cybermind_csv_err_too_many_topics">Student %1$s: more than %2$d rows</string>
     <string name="cybermind_csv_err_experience_differs">Student %1$s: experiencia_previa differs between its rows</string>
     <string name="cybermind_csv_err_global_differs">Student %1$s: puntaje_global differs between its rows</string>
+
+    <!-- Entry -->
+    <string name="cybermind_hub_title">Get ready with CyberMind</string>
+    <string name="cybermind_hub_intro">Check whether a student advances or needs reinforcement.</string>
+    <string name="cybermind_hub_csv">Evaluate from a CSV</string>
+    <string name="cybermind_hub_manual">Enter data manually</string>
+
+    <!-- Results -->
+    <string name="cybermind_results_title">Results</string>
+    <string name="cybermind_results_hint">Students · tap one to see the topics</string>
+    <string name="cybermind_results_empty">There are no results to show.</string>
+    <string name="cybermind_results_new">New evaluation</string>
+    <string name="cybermind_results_another">Evaluate another</string>
+    <string name="cybermind_chip">%1$s %2$d</string>
+    <plurals name="cybermind_results_students">
+        <item quantity="one">student</item>
+        <item quantity="other">students</item>
+    </plurals>
+    <plurals name="cybermind_results_row_subtitle">
+        <item quantity="one">ADVANCE in %1$d of %2$d topic</item>
+        <item quantity="other">ADVANCE in %1$d of %2$d topics</item>
+    </plurals>
+
+    <!-- Detail of a student -->
+    <string name="cybermind_detail_summary">%1$s · %2$s</string>
+    <plurals name="cybermind_detail_avance_count">
+        <item quantity="one">ADVANCE in %1$d topic</item>
+        <item quantity="other">ADVANCE in %1$d topics</item>
+    </plurals>
+    <plurals name="cybermind_detail_refuerzo_count">
+        <item quantity="one">REINFORCE in %1$d topic</item>
+        <item quantity="other">REINFORCE in %1$d topics</item>
+    </plurals>
+    <!-- No arguments: read with stringResource(id) directly, and formatted="false" keeps the % as it is. -->
+    <string name="cybermind_detail_origin_model" formatted="false">Evaluated with the AI model on your phone</string>
+    <string name="cybermind_detail_origin_fallback" formatted="false">Evaluated with the fallback rule (70 %)</string>
+    <string name="cybermind_detail_note" formatted="false">If the model does not load, the app uses the 70 % rule and says so here.</string>
+    <string name="cybermind_detail_row_score">Score %1$s %%</string>
+    <string name="cybermind_detail_row_score_confidence">Score %1$s %% · Confidence %2$s %%</string>
+    <string name="cybermind_detail_model_version">Model version: %1$s</string>
+    <string name="cybermind_detail_model_version_embedded">Model version: %1$s (%2$s)</string>
+    <string name="cybermind_detail_back">Back to results</string>
 </resources>

@@ -175,3 +175,21 @@ data class PlacementResultRoute(
     val weakCategories: List<String>,
     val saveFailed: Boolean = false,
 )
+
+/** "Prepárate con CyberMind": elegir entre evaluar desde un CSV o ingresar los datos a mano. Full screen. */
+@Serializable
+object CyberMindHubRoute
+
+@Serializable
+object CyberMindManualRoute
+
+@Serializable
+object CyberMindCsvRoute
+
+/** La lista de estudiantes evaluados (los datos viven solo en memoria, ver `ResultadosEnMemoria`). */
+@Serializable
+object CyberMindResultadosRoute
+
+/** Los temas de un estudiante. [idEstudiante] es el id que trae el archivo o el que se asignó solo. */
+@Serializable
+data class CyberMindDetalleRoute(val idEstudiante: String)

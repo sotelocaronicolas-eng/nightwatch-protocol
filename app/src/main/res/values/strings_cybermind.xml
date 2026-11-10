@@ -91,4 +91,46 @@
     <string name="cybermind_csv_err_too_many_topics">Estudiante %1$s: más de %2$d filas</string>
     <string name="cybermind_csv_err_experience_differs">Estudiante %1$s: experiencia_previa distinta entre sus filas</string>
     <string name="cybermind_csv_err_global_differs">Estudiante %1$s: puntaje_global distinto entre sus filas</string>
+
+    <!-- Entrada -->
+    <string name="cybermind_hub_title">Prepárate con CyberMind</string>
+    <string name="cybermind_hub_intro">Evalúa si un estudiante avanza o necesita refuerzo.</string>
+    <string name="cybermind_hub_csv">Evaluar desde un CSV</string>
+    <string name="cybermind_hub_manual">Ingresar datos de forma manual</string>
+
+    <!-- Resultados -->
+    <string name="cybermind_results_title">Resultados</string>
+    <string name="cybermind_results_hint">Estudiantes · toca uno para ver los temas</string>
+    <string name="cybermind_results_empty">No hay resultados para mostrar.</string>
+    <string name="cybermind_results_new">Nueva evaluación</string>
+    <string name="cybermind_results_another">Evaluar otro</string>
+    <string name="cybermind_chip">%1$s %2$d</string>
+    <plurals name="cybermind_results_students">
+        <item quantity="one">estudiante</item>
+        <item quantity="other">estudiantes</item>
+    </plurals>
+    <plurals name="cybermind_results_row_subtitle">
+        <item quantity="one">AVANCE en %1$d de %2$d tema</item>
+        <item quantity="other">AVANCE en %1$d de %2$d temas</item>
+    </plurals>
+
+    <!-- Detalle de un estudiante -->
+    <string name="cybermind_detail_summary">%1$s · %2$s</string>
+    <plurals name="cybermind_detail_avance_count">
+        <item quantity="one">AVANCE en %1$d tema</item>
+        <item quantity="other">AVANCE en %1$d temas</item>
+    </plurals>
+    <plurals name="cybermind_detail_refuerzo_count">
+        <item quantity="one">REFUERZO en %1$d tema</item>
+        <item quantity="other">REFUERZO en %1$d temas</item>
+    </plurals>
+    <!-- Sin argumentos: se leen con stringResource(id) directo, y formatted="false" deja el % tal cual. -->
+    <string name="cybermind_detail_origin_model" formatted="false">Evaluado con el modelo de IA en tu celular</string>
+    <string name="cybermind_detail_origin_fallback" formatted="false">Evaluado con la regla de respaldo (70 %)</string>
+    <string name="cybermind_detail_note" formatted="false">Si el modelo no carga, la app usa la regla del 70 % y lo indica aquí.</string>
+    <string name="cybermind_detail_row_score">Puntaje %1$s %%</string>
+    <string name="cybermind_detail_row_score_confidence">Puntaje %1$s %% · Confianza %2$s %%</string>
+    <string name="cybermind_detail_model_version">Versión del modelo: %1$s</string>
+    <string name="cybermind_detail_model_version_embedded">Versión del modelo: %1$s (%2$s)</string>
+    <string name="cybermind_detail_back">Volver a resultados</string>
 </resources>
