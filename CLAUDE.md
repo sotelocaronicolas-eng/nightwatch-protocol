@@ -10,9 +10,11 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
   curso *Android Basics with Compose*.
 - **Módulos 1, 2, 3 y 4 terminados** (autenticación, onboarding, quiz de nivelación, perfil y ajustes; ruta de aprendizaje,
   lecciones, laboratorios, examen final, racha e insignias; Social: amigos, racha en pareja, batallas, fotos, reportar y bloquear).
-  Los módulos 1 a 4 ya están en `main` (el módulo 4 y sus mejoras del perfil social, PR #10, merge `3db30b4`). **Siguiente: Módulo 5 =
-  personalización** (ver la sección "Módulo 5" al final de esta sección 1).
-- **v2.3.0** (`versionName` 2.3.0, `versionCode` 6; en la rama `modulo-5-tema-completo`, cierre de la parte 5A). Antes: v2.2.0 (`versionCode` 5; la v2.1.0 fue el módulo 3). La migración de Firebase a Supabase fue la v2.0.0: **Firebase ya no
+  Los módulos 1 a 4 ya están en `main` (el módulo 4 y sus mejoras del perfil social, PR #10, merge `3db30b4`). **Módulo 5 = personalización: terminado**
+  (5A tema y 5B idioma, entrega del curso de Android v2.4.0). **Después: módulo de IA "Prepárate con CyberMind" (v2.5.0)**, ver la sección 10.
+- **Versión actual: v2.5.0** (módulo de IA; el tag y el Release los publica el usuario). **v2.4.0** (`versionName` 2.4.0, `versionCode` 7) es la entrega del curso de Android (módulos 1 a 5).
+  Nota: al escribir esto, `app/build.gradle.kts` todavía dice `versionName` 2.4.0; subirlo a 2.5.0 es una tarea aparte (los cambios de documentación no tocan el código).
+- **v2.3.0** (`versionName` 2.3.0, `versionCode` 6; cierre de la parte 5A, histórico). Antes: v2.2.0 (`versionCode` 5; la v2.1.0 fue el módulo 3). La migración de Firebase a Supabase fue la v2.0.0: **Firebase ya no
   existe** (no hay código, dependencias ni plugin) y `google-services.json` no se usa. Historial de la migración:
   `docs/superpowers/reports/migracion-supabase.md`.
 - **Módulo 3, lo que hay que saber:**
@@ -64,13 +66,13 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
     examen en el servidor si hay ranking o XP, las notificaciones push y una pantalla de moderación.
 - **Extras ya hechos (posteriores al módulo 4):** las 6 pantallas de lecciones según Figma ("LECCION UPDATE - <Módulo>", con scroll; rama `lecciones-update`, probada en el teléfono) y
   ajustes de la ruta ("Prueba final" a la izquierda y arriba, "Bahía del Phishing" hacia arriba). Un segundo compañero se sumó el 2026-10-23 para extras de los módulos 3 y 4.
-- **Módulo 5 = personalización (5A hecho, 5B pendiente).** Alcance acordado por el equipo: tema claro (claro/oscuro/automático), idioma inglés (español sigue siendo el actual) y el resto
+- **Módulo 5 = personalización (5A y 5B hechos; v2.4.0).** Alcance acordado por el equipo: tema claro (claro/oscuro/automático), idioma inglés (español sigue siendo el actual) y el resto
   de personalización que esté en el plan o en el Figma. Spec y plan: `docs/superpowers/specs/2026-11-02-modulo-5-personalizacion-design.md` (etapas 0 a 10).
   - **5A (tema), hecho en la rama `modulo-5-tema-completo` (etapas 1 a 6, v2.3.0):** preferencias (etapa 2), textos en recursos con guarda (etapa 3), tokens `NightWatchColors`
     claro/oscuro y Apariencia funcional (etapa 4) y toda la app migrada al modo elegido (etapas 5 y 6). `NoHardcodedColorsTest` cubre todo `app/src/main/java` fuera de `ui/theme` (única excepción:
     el bitmap de `SocialAvatar`); el oscuro es idéntico al de v2.2.0 (`NightWatchColorsParityTest`); `ContrastTest` lleva la lista de pares oscuros bajo la meta, que no se corrige. Los valores claros
     sin frame en el Figma son PROPUESTA hasta que el grupo los apruebe. Informes: `reports/modulo-5a-cierre.md` y `reports/etapa-5-verificacion-visual.md` (lista para el emulador; nada se ha visto en un teléfono).
-  - **5B (idioma), en curso (etapas 7 a 10, v2.4.0):** verificar R-01 y AppCompat (7, rama `modulo-5-idioma-base`, hecha pero sin fusionar), `values-en` para toda la UI (8), contenido JSON en inglés (9), notificaciones, fechas y cierre (10).
+  - **5B (idioma), hecho (etapas 7 a 10, v2.4.0; ya en `main`; las menciones de abajo a ramas "sin fusionar" son históricas):** verificar R-01 y AppCompat (7), `values-en` para toda la UI (8), contenido JSON en inglés (9), notificaciones, fechas y cierre (10).
     **Etapa 7:** `MainActivity` es `AppCompatActivity` (appcompat 1.8.0), el tema base es `Theme.AppCompat.Light.NoActionBar` (NO DayNight), `res/xml/locales_config.xml` (es, en); el idioma vive en AppCompat
     (`AppCompatLanguageRepository`), nunca en DataStore (solo `language_initialized`); el primer arranque fija español (`LanguageBootstrap`); la pantalla Idioma ya funciona, pero **sin `values-en` elegir English no cambia los textos**.
     Los textos están en **7 archivos** (`strings.xml`, `_auth`, `_quiz`, `_perfil`, `_aprendizaje`, `_social`, `_social_pantallas`; 771 cadenas y 8 plurales). Decisiones D15 a D18 (banco de batallas traducido en Supabase, aviso de lo no traducible,
@@ -278,3 +280,25 @@ Pendiente (IDs de `docs/superpowers/reports/revision-codigo-experimento-supabase
 11. `supabase/verificacion/`: guiones de escenarios de `0008` y `0011` (no son migraciones; no se aplican a un proyecto nuevo).
 12. `docs/superpowers/reports/modulo-4-informe.md`: cierre del módulo 4 (alcance, decisiones, seguridad, pruebas, limitaciones y guion de prueba manual) y
     `modulo-4-pr.md`: la descripción del Pull Request.
+13. `docs/superpowers/reports/modulo-ia-cybermind.md`: informe del módulo de IA (decisiones, límites, pruebas, tamaño del APK y pendientes; ver la sección 10).
+
+## 10. Módulo de IA "Prepárate con CyberMind" (v2.5.0)
+
+Un modelo GBDT exportado a ONNX corre **en el teléfono, sin internet**, y clasifica a cada estudiante, por tema, como `AVANCE` o `REFUERZO`. Informe completo: `docs/superpowers/reports/modulo-ia-cybermind.md`.
+Repo del modelo y los experimentos: <https://github.com/CyberMind-UNI/CyberMind-ML> (enlaza de vuelta a este).
+
+- **Dónde está:** lógica sin Android en `cybermind/` (`CyberMindDominio`, `CyberMindModelo`, `EvaluadorEstudiante`, `ValidadorCsv`, `ValidadorManual`, `PlantillaCsv`, `ArchivosCsv`, `ResultadosEnMemoria`);
+  pantallas y ViewModels en `ui/cybermind/`; textos en `strings_cybermind.xml` (prefijo `cybermind_`, con su gemelo en `values-en`); rutas `CyberMind*Route` en `ui/navigation/`; entrada: tarjeta de Inicio.
+- **Evaluador:** interfaz `EvaluadorEstudiante` con la implementación `OnnxEvaluadorEstudiante` y el `FakeEvaluadorEstudiante` de las pruebas. **Instancia única** en `AppContainer.evaluadorEstudiante`
+  (sesión ONNX creada con `lazy` en la primera evaluación, en `Dispatchers.Default`). El modelo es `app/src/main/assets/cybermind_gbdt.onnx`; `MODEL_VERSION` = `"cybermind_gbdt-v1"` (`EvaluadorEstudiante.kt`).
+  `CyberMindModelo.kt` es el envoltorio entregado por el equipo de IA: no se le cambia la lógica.
+- **Plan B:** si el modelo no carga (se captura `Throwable`, no se reintenta por fila), se evalúa con la regla del 70 % y el resultado se marca `REGLA_RESPALDO` (confianza `null`); la pantalla lo indica.
+- **CSV:** 9 columnas en orden (`id_estudiante, tema, experiencia_previa, aciertos_basico, aciertos_intermedio, aciertos_avanzado, puntaje_tema, puntaje_global, tiempo_promedio_seg`); rechaza la columna `decision`; máximo 500 filas, 100 estudiantes y 200 KB
+  (tamaño comprobado antes de leer; UTF-8 estricto); punto decimal obligatorio. Reglas: rangos y valores permitidos, tema sin repetir por estudiante, `experiencia_previa` igual en las filas de un estudiante,
+  `puntaje_tema` = `round(suma de aciertos / 9 * 100, 1)` (tolerancia 0,05) y `puntaje_global` igual al promedio con exactamente 5 filas (tolerancia 0,1; con menos solo igual entre filas). Se rechaza el archivo entero.
+  Temas: `fundamentos_redes`, `criptografia`, `seguridad_web`, `ingenieria_social`, `gestion_vulnerabilidades`.
+- **Manual:** 1 a 5 temas; el ID (`M00001`…), `puntaje_tema` y `puntaje_global` se calculan solos; aciertos, experiencia y tema se eligen de listas; acepta coma o punto al escribir decimales.
+- **No se guardan datos de estudiantes:** nada va a disco, a Supabase ni a logs; los resultados viven en `ResultadosEnMemoria` y se vacían al cerrar la pantalla de resultados. Los datos de ejemplo son sintéticos.
+  **No uses Supabase en este módulo.** Colores: sin colores fijos (`NoHardcodedColorsTest`); REFUERZO usa el token `reinforce`.
+- **Pruebas:** 1625 unitarias, 0 fallos, al cerrar el módulo; la instrumentada `CyberMindModeloInstrumentedTest` solo se compila desde aquí (la corre el equipo en un teléfono).
+- **Pendientes del informe:** el APK de depuración pesa ~99 MB y el de release ~91,6 MB por ONNX Runtime con 4 arquitecturas (decidir `abiFilters` o AAB es del equipo); sin pruebas de Compose, `@Preview` ni TalkBack.
