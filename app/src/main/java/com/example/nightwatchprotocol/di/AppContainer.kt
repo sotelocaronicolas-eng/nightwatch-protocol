@@ -3,6 +3,9 @@ package com.example.nightwatchprotocol.di
 import android.content.Context
 import com.example.nightwatchprotocol.data.common.ContextTextResolver
 import com.example.nightwatchprotocol.BuildConfig
+import com.example.nightwatchprotocol.cybermind.CyberMindModelo
+import com.example.nightwatchprotocol.cybermind.EvaluadorEstudiante
+import com.example.nightwatchprotocol.cybermind.OnnxEvaluadorEstudiante
 import com.example.nightwatchprotocol.data.account.AccountRepository
 import com.example.nightwatchprotocol.data.account.SupabaseAccountRepository
 import com.example.nightwatchprotocol.data.auth.AuthRepository
@@ -133,6 +136,9 @@ interface AppContainer {
     val battlePoller: BattlePoller
     val quickMatchPoller: QuickMatchPoller
     val challengesPoller: ChallengesPoller
+
+    /** CyberMind (módulo de IA): el modelo ONNX corre en el teléfono; no usa Supabase ni guarda datos de estudiantes. */
+    val evaluadorEstudiante: EvaluadorEstudiante
 }
 
 /**
@@ -241,4 +247,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val battlePoller: BattlePoller = BattlePoller(battleRepository)
     override val quickMatchPoller: QuickMatchPoller = QuickMatchPoller(battleLobbyRepository)
     override val challengesPoller: ChallengesPoller = ChallengesPoller(battleLobbyRepository)
+
+    // The ONNX session is created once, the first time someone is evaluated (not at startup), and then reused.
+    override val evaluadorEstudiante: EvaluadorEstudiante = OnnxEvaluadorEstudiante { CyberMindModelo(context.applicationContext) }
 }
