@@ -30,8 +30,8 @@ android {
         applicationId = "com.example.nightwatchprotocol"
         minSdk = 26
         targetSdk = 37
-        versionCode = 7
-        versionName = "2.4.0"
+        versionCode = 8
+        versionName = "2.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
