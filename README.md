@@ -65,10 +65,9 @@ Dado el desempeño de un grupo de estudiantes en cinco temas de ciberseguridad, 
 
 **Tamaño:** por ONNX Runtime con varias arquitecturas el APK de depuración pesa unos 99 MB (el de la v2.4.0, 23,6 MB).
 
-<!-- TODO captura: docs/screenshots/cybermind-entrada.jpeg (pantalla de entrada: CSV o manual) -->
-<!-- TODO captura: docs/screenshots/cybermind-manual.jpeg (ingreso manual) -->
-<!-- TODO captura: docs/screenshots/cybermind-resultados.jpeg (lista de resultados AVANCE / REFUERZO) -->
-<!-- TODO captura: docs/screenshots/cybermind-detalle.jpeg (detalle de un estudiante) -->
+| Entrada | Ingreso manual | Resultados | Detalle |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/cybermind-entrada.jpeg" width="180" alt="CyberMind: pantalla de entrada"> | <img src="docs/screenshots/cybermind-manual.jpeg" width="180" alt="CyberMind: ingreso manual"> | <img src="docs/screenshots/cybermind-resultados.jpeg" width="180" alt="CyberMind: resultados AVANCE y REFUERZO"> | <img src="docs/screenshots/cybermind-detalle.jpeg" width="180" alt="CyberMind: detalle de un estudiante"> |
 
 ## Cómo instalar la aplicación
 
