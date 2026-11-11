@@ -13,7 +13,7 @@ Léelo completo antes de tocar nada. Si algo de aquí contradice el código, **n
   Los módulos 1 a 4 ya están en `main` (el módulo 4 y sus mejoras del perfil social, PR #10, merge `3db30b4`). **Módulo 5 = personalización: terminado**
   (5A tema y 5B idioma, entrega del curso de Android v2.4.0). **Después: módulo de IA "Prepárate con CyberMind" (v2.5.0)**, ver la sección 10.
 - **Versión actual: v2.5.0** (módulo de IA; el tag y el Release los publica el usuario). **v2.4.0** (`versionName` 2.4.0, `versionCode` 7) es la entrega del curso de Android (módulos 1 a 5).
-  Nota: al escribir esto, `app/build.gradle.kts` todavía dice `versionName` 2.4.0; subirlo a 2.5.0 es una tarea aparte (los cambios de documentación no tocan el código).
+  Nota: la versión de la app (versionName 2.5.0,versionCode 8) está en app/build.gradle.kts.
 - **v2.3.0** (`versionName` 2.3.0, `versionCode` 6; cierre de la parte 5A, histórico). Antes: v2.2.0 (`versionCode` 5; la v2.1.0 fue el módulo 3). La migración de Firebase a Supabase fue la v2.0.0: **Firebase ya no
   existe** (no hay código, dependencias ni plugin) y `google-services.json` no se usa. Historial de la migración:
   `docs/superpowers/reports/migracion-supabase.md`.
